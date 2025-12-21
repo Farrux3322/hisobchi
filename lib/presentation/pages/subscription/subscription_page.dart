@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:gap/gap.dart';
 import 'package:hisobchi/application/subscription/subscription_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
+import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/pages/subscription/subscription_detail_page.dart';
 import 'package:hisobchi/presentation/pages/subscription/widgets/tarif_card.dart';
@@ -133,7 +134,7 @@ class _TariflarScreenState extends State<TariflarScreen> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6366F1),
+                      backgroundColor: AppTheme.colors.primary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       elevation: 0,
                     ),
@@ -144,7 +145,7 @@ class _TariflarScreenState extends State<TariflarScreen> {
                   ),
                 ),
               ),
-              Gap(MediaQuery.of(context).padding.bottom)
+              Gap(MediaQuery.of(context).padding.bottom+10)
             ],
           );
         },

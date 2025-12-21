@@ -17,6 +17,7 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
     on<GetCurrency>(getCurrency);
     on<GetExchangeRates>(getExchangeRates);
     on<RefreshExchangeRates>(refreshExchangeRates);
+    on<GetExchangeRatesByDate>(getExchangeRatesByDate);
   }
 
   Future<void> getCurrency(GetCurrency event, Emitter<CurrencyState> emit) async {
@@ -101,6 +102,48 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
       // Don't change status on refresh error, keep previous data
       emit(state.copyWith(
         errorMessage: 'Yangilashda xatolik',
+      ));
+    }
+  }
+
+  /// Get exchange rates by date
+  Future<void> getExchangeRatesByDate(GetExchangeRatesByDate event, Emitter<CurrencyState> emit) async {
+    emit(state.copyWith(exchangeRatesStatus: Status.loading));
+    try {
+      final data = await _repo.getExchangeRatesByDate(event.date);
+
+      if (data["status"] == true) {
+        final model = ExchangeRateModel.fromJson(data);
+        emit(state.copyWith(
+          exchangeRatesStatus: Status.success,
+          exchangeRateModel: model,
+          lastUpdated: DateTime.now(),
+        ));
+      } else {
+        emit(state.copyWith(
+          exchangeRatesStatus: Status.error,
+          errorMessage: data["message"]?.toString() ?? 'Xatolik yuz berdi',
+        ));
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'Internet bilan bog\'lanishda xatolik';
+      if (e.type == DioExceptionType.connectionTimeout) {
+        errorMessage = 'Serverga ulanish vaqti tugadi';
+      } else if (e.type == DioExceptionType.receiveTimeout) {
+        errorMessage = 'Ma\'lumot olish vaqti tugadi';
+      } else if (e.response?.statusCode == 404) {
+        errorMessage = 'Tanlangan sana uchun ma\'lumot topilmadi';
+      } else if (e.response?.statusCode == 500) {
+        errorMessage = 'Server xatosi';
+      }
+      emit(state.copyWith(
+        exchangeRatesStatus: Status.error,
+        errorMessage: errorMessage,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        exchangeRatesStatus: Status.error,
+        errorMessage: 'Kutilmagan xatolik: ${e.toString()}',
       ));
     }
   }

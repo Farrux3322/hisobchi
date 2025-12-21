@@ -13,4 +13,11 @@ class CurrencyRepository {
     final response = await dio.get('/documents/currencys-exchange-rates');
     return response.data;
   }
+
+  /// Get currency exchange rates by date from new API
+  /// Format: yyyy-MM-dd (e.g., 2025-12-22)
+  Future<Map<String, dynamic>> getExchangeRatesByDate(String date) async {
+    final response = await dio.get('/currency-calc/cbu-rates/$date');
+    return response.data;
+  }
 }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/currency/exchange_rate_model.dart';
+import 'package:intl/intl.dart';
 
 import '../../assets/asset_index.dart';
 
@@ -15,6 +16,7 @@ class CurrencyPage extends StatefulWidget {
 
 class _CurrencyPageState extends State<CurrencyPage> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -23,7 +25,40 @@ class _CurrencyPageState extends State<CurrencyPage> with SingleTickerProviderSt
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    context.read<CurrencyBloc>().add(const GetExchangeRates());
+    // Fetch rates for today by default
+    _fetchRatesForDate(selectedDate);
+  }
+
+  void _fetchRatesForDate(DateTime date) {
+    final formattedDate = DateFormat('yyyy-MM-dd').format(date);
+    context.read<CurrencyBloc>().add(GetExchangeRatesByDate(date: formattedDate));
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF6366F1),
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+      _fetchRatesForDate(picked);
+    }
   }
 
   @override
@@ -242,16 +277,10 @@ class _CurrencyPageState extends State<CurrencyPage> with SingleTickerProviderSt
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        // Header with last update time
-        // if (lastUpdated != null)
-        //   SliverToBoxAdapter(
-        //     child: _buildLastUpdateHeader(lastUpdated),
-        //   ),
-
-        // // Info card
-        // SliverToBoxAdapter(
-        //   child: _buildInfoCard(),
-        // ),
+        // Date filter button
+        SliverToBoxAdapter(
+          child: _buildDateFilter(),
+        ),
 
         // Currency rates list
         SliverPadding(
@@ -276,6 +305,102 @@ class _CurrencyPageState extends State<CurrencyPage> with SingleTickerProviderSt
           child: SizedBox(height: 16),
         ),
       ],
+    );
+  }
+
+  Widget _buildDateFilter() {
+    final isToday = selectedDate.year == DateTime.now().year &&
+        selectedDate.month == DateTime.now().month &&
+        selectedDate.day == DateTime.now().day;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        elevation: 0,
+        shadowColor: Colors.black.withOpacity(0.05),
+        child: InkWell(
+          onTap: () => _selectDate(context),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: const Color(0xFFE2E8F0),
+                width: 1.5,
+              ),
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFF6366F1).withOpacity(0.03),
+                  const Color(0xFF8B5CF6).withOpacity(0.03),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Row(
+              children: [
+                // Calendar icon
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.calendar_today_rounded,
+                    color: Color(0xFF6366F1),
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 16),
+
+                // Date info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isToday ? 'Bugungi kurs' : 'Tanlangan sana',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        DateFormat('dd MMMM yyyy', 'uz').format(selectedDate),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Arrow icon
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Color(0xFF6366F1),
+                    size: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -517,25 +642,25 @@ class _CurrencyRateCard extends StatelessWidget {
                                 color: Colors.black87,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: color.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                rate.nominal,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: color,
-                                ),
-                              ),
-                            ),
+                            // const SizedBox(width: 8),
+                            // Container(
+                            //   padding: const EdgeInsets.symmetric(
+                            //     horizontal: 8,
+                            //     vertical: 3,
+                            //   ),
+                            //   decoration: BoxDecoration(
+                            //     color: color.withOpacity(0.1),
+                            //     borderRadius: BorderRadius.circular(6),
+                            //   ),
+                            //   child: Text(
+                            //     rate.nominal,
+                            //     style: TextStyle(
+                            //       fontSize: 11,
+                            //       fontWeight: FontWeight.w600,
+                            //       color: color,
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -555,13 +680,24 @@ class _CurrencyRateCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        rate.formattedRate,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            rate.formattedRate,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          Text(' UZS',style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),)
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Container(

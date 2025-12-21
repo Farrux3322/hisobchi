@@ -113,7 +113,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   _showLogoutDialog();
                 },
               ),
-              const SizedBox(height: 24),
+               SizedBox(height: MediaQuery.of(context).padding.bottom+10),
             ],
           ),
         ),

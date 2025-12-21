@@ -12,10 +12,12 @@ import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:hisobchi/presentation/pages/client/client_account_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_add_bottom_sheet.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_card_item.dart';
 import 'package:hisobchi/presentation/pages/currency/currency_page.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ClientPage extends StatefulWidget {
   const ClientPage({super.key});
@@ -89,8 +91,9 @@ class _ClientPageState extends State<ClientPage> {
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: AppTheme.colors.background,
+            // backgroundColor: AppTheme.colors.background,
             body: SafeArea(
+              bottom: false,
               child: Column(
                 children: [
                   _buildHeader(),
@@ -171,15 +174,20 @@ class _ClientPageState extends State<ClientPage> {
         itemCount: filteredPartners.length,
         itemBuilder: (context, index) {
           final partner = filteredPartners[index];
-          return ClientCardItem(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => AccountPage(partnerModel: partner))).then((v) {
-                if (v == true && context.mounted) {
-                  context.read<PartnerBloc>().add(const GetAllEvent());
-                }
-              });
-            },
-            partnerModel: partner,
+          return Column(
+            children: [
+              ClientCardItem(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => AccountPage(partnerModel: partner))).then((v) {
+                    if (v == true && context.mounted) {
+                      context.read<PartnerBloc>().add(const GetAllEvent());
+                    }
+                  });
+                },
+                partnerModel: partner,
+              ),
+              if(index==filteredPartners.length-1)Gap(MediaQuery.of(context).padding.bottom)
+            ],
           );
         },
       ),
@@ -272,11 +280,15 @@ class _ClientPageState extends State<ClientPage> {
           isLoading = true;
         } else if (state.exchangeRatesStatus == Status.success &&
                    state.exchangeRateModel != null) {
-          final usdCurrency = state.exchangeRateModel!.rates.firstWhere(
-            (rate) => rate.code == 'USD',
-            orElse: () => state.exchangeRateModel!.rates.first,
-          );
-          usdRate = usdCurrency.rate.split('.')[0];
+          try {
+            final usdCurrency = state.exchangeRateModel!.rates.firstWhere(
+              (rate) => rate.code == 'USD',
+              orElse: () => state.exchangeRateModel!.rates.first,
+            );
+            usdRate = usdCurrency.rate;
+          } catch (e) {
+            usdRate = '...';
+          }
         }
 
         return GestureDetector(
@@ -287,7 +299,7 @@ class _ClientPageState extends State<ClientPage> {
             );
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(color: const Color(0xFFE2E8F0)),
@@ -314,35 +326,43 @@ class _ClientPageState extends State<ClientPage> {
                 const Icon(Icons.swap_horiz, size: 14, color: Color(0xFF94A3B8)),
                 const SizedBox(width: 6),
                 if (isLoading)
-                  const SizedBox(
-                    width: 50,
-                    height: 12,
-                    child: Center(
-                      child: SizedBox(
-                        width: 10,
-                        height: 10,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Color(0xFF94A3B8),
-                        ),
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 70,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                   )
                 else
-                  Text(
-                    'UZS $usdRate',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E293B),
-                    ),
+                  Builder(
+                    builder: (context) {
+                      try {
+                        return Text(
+                          'UZS ${PriceFormatter.priceFormat(usdRate)}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1E293B),
+                          ),
+                        );
+                      } catch (e) {
+                        return Text(
+                          'UZS $usdRate',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1E293B),
+                          ),
+                        );
+                      }
+                    },
                   ),
-                const SizedBox(width: 4),
-                const Icon(
-                  Icons.chevron_right,
-                  size: 16,
-                  color: Color(0xFF94A3B8),
-                ),
+
               ],
             ),
           ),
@@ -352,28 +372,31 @@ class _ClientPageState extends State<ClientPage> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(60)),
-            child: Icon(Icons.people_outline, size: 60, color: Colors.grey[400]),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Mijozlar topilmadi',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Yangi mijoz qo\'shish uchun\npastdagi tugmani bosing',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Colors.grey[600], height: 1.5),
-          ),
-        ],
+    return Padding(
+      padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(60)),
+              child: Icon(Icons.people_outline, size: 60, color: Colors.grey[400]),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Mijozlar topilmadi',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Yangi mijoz qo\'shish uchun\npastdagi tugmani bosing',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey[600], height: 1.5),
+            ),
+          ],
+        ),
       ),
     );
   }

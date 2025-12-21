@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/subscription/subscription_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/presentation/assets/res/app_icons.dart';
+import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 
 enum TariffType { monthly, semiAnnual, annual }
@@ -383,7 +384,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> {
                         child: ElevatedButton(
                           onPressed: isLoading ? null : _handlePurchase,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: AppTheme.colors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),

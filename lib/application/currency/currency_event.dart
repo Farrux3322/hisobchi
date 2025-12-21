@@ -19,3 +19,12 @@ class RefreshExchangeRates extends CurrencyEvent {
   const RefreshExchangeRates();
 }
 
+class GetExchangeRatesByDate extends CurrencyEvent {
+  final String date; // Format: yyyy-MM-dd (e.g., 2025-12-22)
+
+  const GetExchangeRatesByDate({required this.date});
+
+  @override
+  List<Object?> get props => [date];
+}
+

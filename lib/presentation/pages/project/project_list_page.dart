@@ -65,8 +65,8 @@ class _ProjectListPageState extends State<ProjectListPage> {
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: const Color(0xFFF8FAFC),
             body: SafeArea(
+              bottom: false,
               child: Column(
                 children: [
                   _buildHeader(),
@@ -126,20 +126,25 @@ class _ProjectListPageState extends State<ProjectListPage> {
         itemCount: filteredProjects.length,
         itemBuilder: (context, index) {
           final project = filteredProjects[index];
-          return ProjectCardItem(
-            projectModel: project,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ProjectShowPage(projectId: project.id ?? 0),
-                ),
-              ).then((_) {
-                if (context.mounted) {
-                  context.read<ProjectBloc>().add(const GetAllProjectEvent());
-                }
-              });
-            },
+          return Column(
+            children: [
+              ProjectCardItem(
+                projectModel: project,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ProjectShowPage(projectId: project.id ?? 0),
+                    ),
+                  ).then((_) {
+                    if (context.mounted) {
+                      context.read<ProjectBloc>().add(const GetAllProjectEvent());
+                    }
+                  });
+                },
+              ),
+              if(index==filteredProjects.length-1)Gap(MediaQuery.of(context).padding.bottom)
+            ],
           );
         },
       ),
@@ -147,47 +152,38 @@ class _ProjectListPageState extends State<ProjectListPage> {
   }
 
   Widget _buildHeader() {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
-      ),
+    return Padding(
+      padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Logo va valyuta
-                const Text(
-                  'Loyihalar',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
-                ),
-                const SizedBox(height: 16),
+          // Logo va valyuta
+          const Text(
+            'Loyihalar',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+          ),
+          const SizedBox(height: 16),
 
-                // Qidiruv
-                Container(
-                  height: 48, // Fixed height qo'shamiz
-                  decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
-                  child: TextField(
-                    onChanged: (value) {
-                      setState(() {
-                        searchQuery = value;
-                      });
-                    },
-                    style: const TextStyle(fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: 'Qidiruv...',
-                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                      prefixIcon: Padding(
-                        padding: EdgeInsets.only(left: 10.w),
-                        child: const Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    ),
-                  ),
+          // Qidiruv
+          Container(
+            height: 48, // Fixed height qo'shamiz
+            decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value;
+                });
+              },
+              style: const TextStyle(fontSize: 14),
+              decoration: InputDecoration(
+                hintText: 'Qidiruv...',
+                hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                prefixIcon: Padding(
+                  padding: EdgeInsets.only(left: 10.w),
+                  child: const Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
                 ),
-              ],
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              ),
             ),
           ),
         ],
@@ -196,28 +192,31 @@ class _ProjectListPageState extends State<ProjectListPage> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(60)),
-            child: Icon(Icons.business_outlined, size: 60, color: Colors.grey[400]),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Loyihalar topilmadi',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Yangi loyiha qo\'shish uchun\npastdagi tugmani bosing',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Colors.grey[600], height: 1.5),
-          ),
-        ],
+    return Padding(
+      padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(60)),
+              child: Icon(Icons.business_outlined, size: 60, color: Colors.grey[400]),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Loyihalar topilmadi',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Yangi loyiha qo\'shish uchun\npastdagi tugmani bosing',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey[600], height: 1.5),
+            ),
+          ],
+        ),
       ),
     );
   }
