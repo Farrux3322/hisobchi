@@ -10,12 +10,10 @@ import 'package:hisobchi/application/file_upload/file_upload_state.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/income_history_model.dart';
-import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 
 //  showEditKirimBottomSheet(BuildContext context, Result transaction)  {
 //
@@ -515,7 +513,6 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                 ),
                                 if(!isKirim)  const SizedBox(height: 10),
 
-                                // Return date
                                 if(!isKirim)  const Text(
                                   'Qaytarish sanasi',
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),

@@ -1,12 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
-// import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/infrastructure/services/shared_service.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
