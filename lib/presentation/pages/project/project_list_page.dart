@@ -11,10 +11,8 @@ import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
-import 'package:hisobchi/presentation/pages/project/project_edit_page.dart';
 import 'package:hisobchi/presentation/pages/project/project_show_page.dart';
 import 'package:hisobchi/presentation/pages/project/widgets/project_card_item.dart';
-import 'package:hisobchi/presentation/pages/project/widgets/project_delete_dialog.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
 
 class ProjectListPage extends StatefulWidget {

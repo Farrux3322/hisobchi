@@ -9,6 +9,7 @@ import 'package:hisobchi/presentation/routes/index_routes.dart';
 import '../../domain/common/data/user_data.dart';
 import 'dio_exception.dart';
 
+
 class DioInterceptor extends Interceptor {
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
