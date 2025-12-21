@@ -1,0 +1,89 @@
+
+{
+  "retry": "Повторить попытку",
+  "branch":"Filial",
+  "price": "Summa",
+  "profile": {
+    "cabinet": "SHaxsiy kabinet",
+    "canceled": "Bekor qilinganlar",
+    "confirm_order": "Подтвержденные заказы",
+    "canceled_products": "Отмененные продукты",
+    "report": "Hisobot"
+  },
+  "orders": {
+    "count": "Количество",
+    "order": "Заказ",
+    "no": "Нет",
+    "yes": "Да",
+    "delete_item": "Вы уверены, что хотите удалить этот товар из списка заказов?",
+    "order_time": "Время заказа",
+    "products_summa": "Сумма продуктов"
+  },
+  "calc": {
+    "product_price": "Цена продукта",
+    "payment_month": "Ежемесячно оплата",
+    "payment_summa": "Всего к оплате",
+    "month": "На Луну",
+    "payment_term": "Условия оплаты"
+
+  },
+  "delete": "Удалить",
+  "product": {
+    "product_about": "О продукте",
+    "feature_and_classification": "Особенности и описание",
+    "product_residual": "Баланс продукта",
+    "product_price": "Сумма ",
+    "result": "Результат",
+    "month_payment": "Ежемесячно оплата",
+    "total_summa": "Всего к оплате",
+    "advance_payment": "Предоплата",
+    "lifetime": "Продолжительность жизни",
+    "not_defined": "Не определен",
+    "month": "Луна",
+    "sales_card_code": "Код карты продаж",
+    "number_of_products": "Количество продуктов",
+    "order_add": "Добавить в заказ",
+    "order_add_1": "Добавить заказ",
+    "phone": "Номер телефона",
+    "save": "Сохранять",
+    "add": "Добавлять",
+    "count_not": "Mahsulot sonini kiriting !!!",
+    "text_not": "Maydonlar to'ldirilmagan !!!",
+    "advance_payment_should_not_be_more_than_50_of_the_price_of_the_product": "Предоплата не должна составлять более 50% от стоимости товара!!!"
+
+  },
+  "sum" : "{price} сум",
+  "success": "Успешно",
+  "sign_in" : {
+    "login" : "Войти",
+    "name" : "Ism",
+    "login_to_your_account" : "Войти в аккаунт",
+    "phone_number" : "Номер телефона",
+    "password": "Пароль"
+  },
+  "confirmation" : {
+    "confirmation" : "Подтверждение",
+    "confirm" : "Подтвердить",
+    "confirmation_info" : "Код подтверждения был отправлен на введенный вами номер",
+    "resend_in" : "Отправить повторно через {time}",
+    "resend" : "Повторно"
+  },
+  "passcode" : {
+    "confirmation" : "Подтвердить",
+    "set_passcode" : "Установить ПИН-код",
+    "confirm_passcode" : "Подтвердить ПИН-код"
+  },
+  "root": {
+    "products": "Mahsulotlar",
+    "orders": "Buyurtmalar",
+    "rating": "Reyting",
+    "profile": "Profil",
+    "calc": "Kalkulyator"
+  },
+  "errors" : {
+    "please_select_products" : "Пожалуйста выберите товар",
+    "this_field_cannot_empty" : "Это поле не может быть пустым",
+    "you_must_agree_to_the_terms_to_enter": "Для входа необходимо принять условия"
+  }
+}
+  

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "437842136666",
+    "project_id": "ehisob-2f94a",
+    "storage_bucket": "ehisob-2f94a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:437842136666:android:5875a3fca08f0dc911d263",
+        "android_client_info": {
+          "package_name": "com.alpha.hisobchi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGm2VjNEkBZSj002qCboCM8rbtAaNPHMU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

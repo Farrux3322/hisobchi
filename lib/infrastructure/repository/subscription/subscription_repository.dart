@@ -1,0 +1,29 @@
+import 'package:hisobchi/infrastructure/common/network_provider.dart';
+import 'package:hisobchi/infrastructure/dto/models/subscription/purchase_subscription_model.dart';
+
+class SubscriptionRepository {
+  Future<Map<String, dynamic>> getPricingPlans() async {
+    final response = await dio.get('/pricing-plans');
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> getPricingPlanDetail({required int id}) async {
+    final response = await dio.get('/pricing-plans/$id');
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> getSubscriptionInfo() async {
+    final response = await dio.get('/subscription/show');
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> purchaseSubscription({
+    required PurchaseSubscriptionRequest request,
+  }) async {
+    final response = await dio.post(
+      '/subscription/purchase',
+      data: request.toJson(),
+    );
+    return response.data;
+  }
+}

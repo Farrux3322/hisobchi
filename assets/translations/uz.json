@@ -1,0 +1,95 @@
+{
+  "retry": "Qayta yuklash",
+  "branch": "Filial",
+  "price": "Summa",
+  "profile": {
+    "cabinet": "Shaxsiy kabinet",
+    "canceled": "Bekor qilinganlar mahsulotlar",
+    "confirm_order": "Tasdiqlangan buyurtmalar",
+    "canceled_products": "Bekor qilingan mahsulotlar",
+    "report": "Tasdiqlangan buyurtmalar"
+  },
+  "orders": {
+    "count": "Soni",
+    "order": "Buyurtma",
+    "no": "Yo'q",
+    "yes": "Ha",
+    "delete_item": "Siz rostan ham ushbu mahsulotni buyurtmalar ro'yxatidan o'chirmoqchimisiz?",
+    "order_time": "Buyurtma vaqti",
+    "products_summa": "Mahsulotlar summasi"
+  },
+  "calc": {
+    "product_price": "Mahsulot narxi",
+    "payment_month": "Oylik to'lov",
+    "payment_summa": "Jami to'lov",
+    "month": "Oyga",
+    "payment_term": "To'lov muddati"
+  },
+  "delete": "O'chirish",
+  "product": {
+    "product_about": "Mahsulot haqida",
+    "feature_and_classification": "Xususiyatlari va tavsifi",
+    "product_residual": "Mahsulot qoldig'i",
+    "product_price": "Narxi",
+    "result": "Hisoblash",
+    "month_payment": "Oylik to'lov",
+    "total_summa": "Jami to'lov",
+    "advance_payment": "Oldindan to'lov",
+    "lifetime": "Muddat",
+    "not_defined": "Aniqlanmagan",
+    "month": "Oy",
+    "sales_card_code": "Sotuv kartasi kodi",
+    "number_of_products": "Mahsulotlar soni",
+    "order_add": "Buyurtmaga qo'shish",
+    "order_add_1": "Buyurtma qo'shish",
+    "phone": "Telefon raqam",
+    "save": "Saqlash",
+    "add": "Qo'shish",
+    "count_not": "Mahsulot sonini kiriting !!!",
+    "text_not": "Maydonlar to'ldirilmagan !!!",
+    "advance_payment_should_not_be_more_than_50_of_the_price_of_the_product": "Oldindan to'lov mahsulot tan narhining 50% dan ko'p kiritilmasligi kerak !!!"
+  },
+  "sum": "{price} so'm",
+  "success": "Muvaffaqiyatli",
+  "search": "Qidiruv",
+  "products": "Mahsulotlar",
+  "sign_in": {
+    "login": "Kirish",
+    "login_to_your_account": "Akkauntga kirish",
+    "phone_number": "Telefon raqami",
+    "new_password": "Yangi parol",
+    "retry_password": "Yangi parolni tasdiqlang",
+    "password": "Parol",
+    "name": "Ism",
+    "register": "Registratsiya",
+    "not_based": "Ushbu {phone} telefon raqami ma'lumotlar bazasidan topilmadi.\n\n Qo'llab-quvvatlash markazi bilan bog'laning!",
+    "not_register": "Ushbu {phone} telefon raqami avval ro'yxatdan o'tmagan. \n\n Registratsiyadan o'ting!",
+    "return_home": "Kirish oynasiga qaytish",
+    "support": "Qo'llab-quvvatlash markazi"
+  },
+  "confirmation": {
+    "confirmation": "Tasdiqlash",
+    "confirmation_info": "Tasdiqlash kodi raqamiga yuborildi.",
+    "resend_in": "Qayta yuborish uchun vaqt {time}",
+    "resend": "Qayta yuborish"
+  },
+  "passcode": {
+    "set_passcode": "PIN-kod o'rnatish",
+    "confirm_passcode": "PIN-kod tasdiqlash",
+    "enter_passcode": "Pin-kod kiriting"
+  },
+  "root": {
+    "products": "Mahsulotlar",
+    "orders": "Buyurtmalar",
+    "rating": "Reyting",
+    "profile": "Profil",
+    "calc": "Kalkulyator"
+  },
+  "errors": {
+    "this_field_cannot_empty": "Maydon bo'sh bo'lishi mumkin emas.",
+    "no_connection_to_server": "Server bilan aloqa yo'q",
+    "incorrect_text": "Noto'g'ri formatlangan matn.",
+    "incorrect_password": "Parol noto'g'ri",
+    "min_password": "Parol uzunligi 6 tadan kam bo'lmasligi kerak"
+  }
+}
