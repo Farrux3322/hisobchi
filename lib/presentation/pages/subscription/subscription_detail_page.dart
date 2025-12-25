@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gap/gap.dart';
 import 'package:hisobchi/application/subscription/subscription_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/presentation/assets/res/app_icons.dart';
@@ -307,7 +308,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> {
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
                       if (plan.monthlyPrice != null)
                         _buildTariffCard(
                           type: TariffType.monthly,
@@ -334,7 +335,6 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> {
                               ? '${plan.annualPrice!.description!} ${plan.annualPrice!.description1 ?? ''}'
                               : null,
                         ),
-                      const SizedBox(height: 32),
                       const Text(
                         'To\'lov turini tanlang',
                         style: TextStyle(
@@ -343,76 +343,115 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> {
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
                       if (plan.paymentMethods != null && plan.paymentMethods!.contains('PAYME'))
                         _buildPaymentCard(
                           type: PaymentType.card,
                           label: 'VISA / MasterCard',
                           icon: Icons.credit_card,
                         ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       if (plan.paymentMethods != null && plan.paymentMethods!.contains('CLICK'))
                         _buildPaymentCard(
                           type: PaymentType.click,
                           label: 'Click',
                           icon: Icons.payment,
                         ),
+Gap(10),
+                      BlocBuilder<SubscriptionBloc, SubscriptionState>(
+                        builder: (context, purchaseState) {
+                          final isLoading = purchaseState.purchaseStatus == Status.loading;
+
+                          return SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: isLoading ? null : _handlePurchase,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.colors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: isLoading
+                                  ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                                  : const Text(
+                                'Xarid qilish',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      Gap(MediaQuery.of(context).padding.bottom+10)
                     ],
                   ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
-                ),
-                child: SafeArea(
-                  child: BlocBuilder<SubscriptionBloc, SubscriptionState>(
-                    builder: (context, purchaseState) {
-                      final isLoading = purchaseState.purchaseStatus == Status.loading;
-
-                      return SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : _handlePurchase,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.colors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                              : const Text(
-                                  'Xarid qilish',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
+              // Container(
+              //   padding: const EdgeInsets.all(20),
+              //   decoration: BoxDecoration(
+              //     color: Colors.white,
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.black.withValues(alpha: 0.05),
+              //         blurRadius: 10,
+              //         offset: const Offset(0, -2),
+              //       ),
+              //     ],
+              //   ),
+              //   child: SafeArea(
+              //     child: BlocBuilder<SubscriptionBloc, SubscriptionState>(
+              //       builder: (context, purchaseState) {
+              //         final isLoading = purchaseState.purchaseStatus == Status.loading;
+              //
+              //         return SizedBox(
+              //           width: double.infinity,
+              //           height: 56,
+              //           child: ElevatedButton(
+              //             onPressed: isLoading ? null : _handlePurchase,
+              //             style: ElevatedButton.styleFrom(
+              //               backgroundColor: AppTheme.colors.primary,
+              //               shape: RoundedRectangleBorder(
+              //                 borderRadius: BorderRadius.circular(16),
+              //               ),
+              //               elevation: 0,
+              //             ),
+              //             child: isLoading
+              //                 ? const SizedBox(
+              //                     width: 24,
+              //                     height: 24,
+              //                     child: CircularProgressIndicator(
+              //                       strokeWidth: 2,
+              //                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              //                     ),
+              //                   )
+              //                 : const Text(
+              //                     'Xarid qilish',
+              //                     style: TextStyle(
+              //                       fontSize: 16,
+              //                       fontWeight: FontWeight.w600,
+              //                       color: Colors.white,
+              //                     ),
+              //                   ),
+              //           ),
+              //         );
+              //       },
+              //     ),
+              //   ),
+              // ),
             ],
           );
         },

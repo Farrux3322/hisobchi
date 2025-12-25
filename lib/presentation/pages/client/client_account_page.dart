@@ -69,28 +69,15 @@ class _AccountPageState extends State<AccountPage> {
                 margin: const EdgeInsets.all(8),
 
                 decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color.fromRGBO(255, 255, 255, 0.1),
-                        blurRadius: 1,
-                        spreadRadius: 0,
-                        offset: Offset(0, 1),
-                      ),
-                      BoxShadow(
-                        color: Color.fromRGBO(50, 50, 93, 0.25),
-                        blurRadius: 100,
-                        spreadRadius: -20,
-                        offset: Offset(0, 50),
-                      ),
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.3),
-                        blurRadius: 60,
-                        spreadRadius: -30,
-                        offset: Offset(0, 30),
-                      )
-                    ],
-                    color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.arrow_back,color: Colors.black,),
+                  boxShadow: [
+                    BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+                    BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+                    BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
+                  ],
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.arrow_back, color: Colors.black),
               ),
             ),
             title: Text('Hisob-kitob', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
@@ -247,7 +234,7 @@ class _AccountPageState extends State<AccountPage> {
                             ),
                           ),
 
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 8),
 
                           // Quick toggle buttons (Kirim / Chiqim)
                           Row(
@@ -261,7 +248,7 @@ class _AccountPageState extends State<AccountPage> {
                                     duration: const Duration(milliseconds: 200),
                                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                                     decoration: BoxDecoration(
-                                      color: AppTheme.colors.color3CC293,
+                                      color: Color(0xFFF59E0B),
                                       borderRadius: BorderRadius.circular(10),
                                       boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 4))],
                                     ),
@@ -289,7 +276,7 @@ class _AccountPageState extends State<AccountPage> {
                                     duration: const Duration(milliseconds: 200),
                                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                                     decoration: BoxDecoration(
-                                      color: AppTheme.colors.colorDE5050,
+                                      color: Color(0xFF8B5CF6),
 
                                       borderRadius: BorderRadius.circular(10),
                                       boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 4))],
@@ -311,7 +298,7 @@ class _AccountPageState extends State<AccountPage> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: 8),
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(12),
@@ -327,9 +314,9 @@ class _AccountPageState extends State<AccountPage> {
                                       _transactionRow(
                                         title: 'Chiqim',
                                         amountUzs: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uZS ?? 0}')} UZS',
-                                        amountUsd: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uSD ?? 0}')} \$',
-                                        bgColor: AppTheme.colors.colorDE5050.withValues(alpha: 0.1),
-                                        textColor: const Color(0xFFDE5A5A),
+                                        amountUsd: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uSD ?? 0}')} USD',
+                                        bgColor: Color(0xFF8B5CF6).withValues(alpha: 0.2),
+                                        textColor: Colors.black,
                                         icon: AppIcons.chiqim,
                                       ),
                                       const SizedBox(height: 12),
@@ -337,9 +324,9 @@ class _AccountPageState extends State<AccountPage> {
                                       _transactionRow(
                                         title: 'Kirim',
                                         amountUzs: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.debt?.uZS ?? 0}')} UZS',
-                                        amountUsd: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uSD ?? 0}')} \$',
-                                        bgColor: AppTheme.colors.color3CC293.withValues(alpha: 0.1),
-                                        textColor: const Color(0xFF1EA57F),
+                                        amountUsd: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uSD ?? 0}')} USD',
+                                        bgColor: Color(0xFFF59E0B).withValues(alpha: 0.2),
+                                        textColor: Colors.black,
                                         icon: AppIcons.income,
                                       ),
                                       const SizedBox(height: 6),
@@ -364,13 +351,13 @@ class _AccountPageState extends State<AccountPage> {
                                               crossAxisAlignment: CrossAxisAlignment.end,
                                               children: [
                                                 Text(
-                                                  '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.balance?.uZS ?? 0}')} UZS',
-                                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                                  '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.balance?.uZS ?? 0}')} USD',
+                                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 16),
                                                 ),
                                                 const SizedBox(height: 6),
                                                 Text(
                                                   '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.balance?.uSD ?? 0}')} \$',
-                                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 16),
                                                 ),
                                               ],
                                             ),
@@ -382,7 +369,7 @@ class _AccountPageState extends State<AccountPage> {
                                 : _buildShimmerCards(),
                           ),
 
-                          const SizedBox(height: 22),
+                          const SizedBox(height: 8),
 
                           // Bottom action outlined button
                           SizedBox(
@@ -420,6 +407,7 @@ class _AccountPageState extends State<AccountPage> {
                           ),
 
                           const SizedBox(height: 28),
+                          SizedBox(height: MediaQuery.of(context).padding.bottom),
                         ],
                       ),
                     ),
@@ -455,7 +443,7 @@ class _AccountPageState extends State<AccountPage> {
               const SizedBox(height: 6),
               Text(
                 amountUzs,
-                style: TextStyle(color: textColor, fontWeight: FontWeight.w700, fontSize: 18),
+                style: TextStyle(color: textColor, fontWeight: FontWeight.w600, fontSize: 16),
               ),
             ],
           ),
@@ -473,28 +461,19 @@ class _AccountPageState extends State<AccountPage> {
           // Chiqim shimmer card
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
             child: Row(
               children: [
                 Container(
                   width: 24,
                   height: 24,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Container(
                     height: 16,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -504,19 +483,13 @@ class _AccountPageState extends State<AccountPage> {
                     Container(
                       width: 80,
                       height: 16,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                     ),
                     const SizedBox(height: 6),
                     Container(
                       width: 100,
                       height: 18,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                     ),
                   ],
                 ),
@@ -527,28 +500,19 @@ class _AccountPageState extends State<AccountPage> {
           // Kirim shimmer card
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
             child: Row(
               children: [
                 Container(
                   width: 24,
                   height: 24,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Container(
                     height: 16,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -558,19 +522,13 @@ class _AccountPageState extends State<AccountPage> {
                     Container(
                       width: 80,
                       height: 16,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                     ),
                     const SizedBox(height: 6),
                     Container(
                       width: 100,
                       height: 18,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                     ),
                   ],
                 ),
@@ -593,19 +551,13 @@ class _AccountPageState extends State<AccountPage> {
                 Container(
                   width: 24,
                   height: 24,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Container(
                     height: 16,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -615,19 +567,13 @@ class _AccountPageState extends State<AccountPage> {
                     Container(
                       width: 100,
                       height: 16,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                     ),
                     const SizedBox(height: 6),
                     Container(
                       width: 80,
                       height: 16,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                     ),
                   ],
                 ),

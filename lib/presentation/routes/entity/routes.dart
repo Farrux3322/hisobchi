@@ -27,6 +27,7 @@ class Routes implements Coordinate {
 
   ///Root
   static const root = Routes._(name: 'root', path: '/');
+  static const homePage = Routes._(name: 'home_page', path: '/home_page');
 
   static const profilePage = Routes._(name: 'profile_page', path: '/profile_page');
   static const clientPage = Routes._(name: 'client_page', path: '/client_page');

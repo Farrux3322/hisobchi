@@ -255,7 +255,7 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
       'summa': cleanAmount,
       'description': _descriptionController.text.isEmpty ? null : _descriptionController.text,
       if (uploadedImageIds.isNotEmpty) 'file_id': uploadedImageIds,
-      if (_selectedDate != null) 'return_date': _selectedDate!.toIso8601String(),
+      'return_date': _selectedDate?.toIso8601String(),
       'type': widget.isKirim ? 'debt' : 'credit',
     };
 

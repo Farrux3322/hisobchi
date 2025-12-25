@@ -317,7 +317,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> {
                           label: 'Izoh',
                           hint: 'Qo\'shimcha ma\'lumot',
                           icon: Icons.description_outlined,
-                          maxLines: 4,
+                          maxLines: 1,
                         ),
                         const SizedBox(height: 24),
                         const Text(
@@ -701,6 +701,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> {
   Widget _buildImagePickers() {
     return GridView.builder(
       shrinkWrap: true,
+      padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,

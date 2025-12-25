@@ -493,7 +493,7 @@ class _ContractAddPageState extends State<ContractAddPage> {
       ),
       child: TextField(
         controller: _descriptionController,
-        maxLines: 5,
+        maxLines: 2,
         style: const TextStyle(
           fontSize: 15,
           color: Color(0xFF1E293B),

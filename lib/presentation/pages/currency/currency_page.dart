@@ -4,6 +4,7 @@ import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/currency/exchange_rate_model.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../assets/asset_index.dart';
 
@@ -273,6 +274,7 @@ class _CurrencyPageState extends State<CurrencyPage> with SingleTickerProviderSt
   Widget _buildCurrencyList(CurrencyState state) {
     final rates = state.exchangeRateModel!.rates;
     final lastUpdated = state.lastUpdated;
+    final isLoading = state.exchangeRatesStatus == Status.loading;
 
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -282,23 +284,34 @@ class _CurrencyPageState extends State<CurrencyPage> with SingleTickerProviderSt
           child: _buildDateFilter(),
         ),
 
-        // Currency rates list
-        SliverPadding(
-          padding: const EdgeInsets.all(16),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final rate = rates[index];
-                return _CurrencyRateCard(
-                  rate: rate,
-                  index: index,
-                  animationController: _animationController,
-                );
-              },
-              childCount: rates.length,
+        // Currency rates list or shimmer
+        if (isLoading)
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _buildShimmerCard(),
+                childCount: 8,
+              ),
+            ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final rate = rates[index];
+                  return _CurrencyRateCard(
+                    rate: rate,
+                    index: index,
+                    animationController: _animationController,
+                  );
+                },
+                childCount: rates.length,
+              ),
             ),
           ),
-        ),
 
         // Bottom spacing
         const SliverToBoxAdapter(
@@ -505,6 +518,110 @@ class _CurrencyPageState extends State<CurrencyPage> with SingleTickerProviderSt
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerCard() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            // Icon shimmer
+            Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+
+            // Text shimmer
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 60,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 120,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Rate shimmer
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 100,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 60,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -2,7 +2,7 @@ import 'package:hisobchi/infrastructure/common/network_provider.dart';
 
 class PartnerRepository {
   Future<Map<String, dynamic>> get() async {
-    final response = await dio.get('/partners/partners');
+    final response = await dio.get('/partners/partners/account');
     return response.data;
   }
 

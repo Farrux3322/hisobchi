@@ -11,6 +11,7 @@ import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_event.dart';
 import 'package:hisobchi/application/file_upload/file_upload_state.dart';
 import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class ProjectAddPage extends StatefulWidget {
   const ProjectAddPage({super.key});
@@ -31,6 +32,15 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
   bool _isLoading = false;
   File? _selectedImage;
   int? _uploadedImageId;
+  final _maskFormatter = MaskTextInputFormatter(
+    mask: '+998 (##) ###-##-##',
+    filter: {"#": RegExp(r'[0-9]')},
+    initialText: "+998",
+    type: MaskAutoCompletionType.lazy,
+  );
+
+
+
 
   @override
   void dispose() {
@@ -417,17 +427,10 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
                           TextFormField(
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(12),
-                              _PhoneNumberFormatter(),
-                            ],
-                            decoration: const InputDecoration(
-                              hintText: '+998 (00) 000-00-00',
-                            ),
+                            inputFormatters: [_maskFormatter],
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Iltimos, telefon raqamni kiriting';
+                                return 'Iltimos, telefon raqam kiriting';
                               }
                               final digitsOnly = value.replaceAll(RegExp(r'[^0-9]'), '');
                               if (digitsOnly.length != 12) {

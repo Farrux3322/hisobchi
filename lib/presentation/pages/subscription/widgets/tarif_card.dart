@@ -2,6 +2,7 @@ import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hisobchi/infrastructure/dto/models/subscription/pricing_plan_model.dart';
+import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/assets/res/app_icons.dart';
 
 class TarifCard extends StatelessWidget {
@@ -68,20 +69,20 @@ class TarifCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             _buildFeatureItem('Mijozlar soni:', _formatValue(tarif.maxCustomers), color),
             _buildFeatureItem('Loyihalar soni:', _formatValue(tarif.maxProjects), color),
             _buildFeatureItem('SMS / Oy limit:', _formatValue(tarif.smsPerMonth), color),
             if (tarif.features?.reports == true) _buildFeatureItem('Hisobotlar:', 'Cheksiz', color),
             if (tarif.features?.fileUpload == true) _buildFeatureItem('Rasm va fayl yuklash:', 'Cheksiz', color),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             DottedLine(dashColor: Color(0xFFEDECF8)),
             const SizedBox(height: 8),
             if (tarif.monthlyPrice != null) _buildPriceSection('Oylik', tarif.monthlyPrice!.formatted, null, null, null,),
             const SizedBox(height: 8),
             DottedLine(dashColor: Color(0xFFEDECF8)),
             if (tarif.semiAnnualPrice != null) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               _buildPriceSection(
                 '6 oylik',
                 tarif.semiAnnualPrice!.formatted,
@@ -165,7 +166,7 @@ class TarifCard extends StatelessWidget {
                 if (tejash != null && tejash.isNotEmpty)
                   TextSpan(
                     text: tejash,
-                    style: const TextStyle(color: Color(0xFF007AFF), fontWeight: FontWeight.w600),
+                    style:  TextStyle(color:AppTheme.colors.primary, fontWeight: FontWeight.w600),
                   ),
                 if (bepul != null && bepul.isNotEmpty) ...[
                   if (tejash != null && tejash.isNotEmpty) const TextSpan(text: ' '),

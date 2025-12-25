@@ -22,6 +22,25 @@ class ClientCardItem extends StatelessWidget {
     return '${absAmount.toStringAsFixed(0)} \$';
   }
 
+  String _formatBalance(num amount) {
+    // Format number with spaces as thousand separators
+    final isNegative = amount < 0;
+    final absAmount = amount.abs();
+    final parts = absAmount.toStringAsFixed(0).split('.');
+    final integerPart = parts[0];
+
+    // Add spaces every 3 digits from right
+    String formatted = '';
+    for (int i = 0; i < integerPart.length; i++) {
+      if (i > 0 && (integerPart.length - i) % 3 == 0) {
+        formatted += ' ';
+      }
+      formatted += integerPart[i];
+    }
+
+    return '${isNegative ? '-' : ''}$formatted';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -61,23 +80,58 @@ class ClientCardItem extends StatelessWidget {
                     ),
                     SizedBox(width: 14.w),
 
-                    // Name and Amount
+                    // Name and Balance
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            partnerModel?.name ?? '',
-                            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
-                          ),
-                          SizedBox(height: 4.h),
-                          // Text(
-                          //   '${isNegative ? '-' : '+'}${formatCurrency(partnerModel?.amount ?? 0)}',
-                          //   style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600, color: isNegative ? const Color(0xFFEF4444) : const Color(0xFF10B981)),
-                          // ),
-                        ],
+                      child: Text(
+                        partnerModel?.name ?? '',
+                        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
                       ),
                     ),
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              _formatBalance(partnerModel?.balance?.uzs ?? 0),
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
+                                color: (partnerModel?.balance?.uzs ?? 0) >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                              ),
+                            ),
+                            Text(
+                              ' UZS',
+                              style: TextStyle(
+                                fontSize: 9.sp,
+                                fontWeight: FontWeight.w600,
+                                color: (partnerModel?.balance?.uzs ?? 0) >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(width: 8.w),
+                        Row(
+                          children: [
+                            Text(
+                              _formatBalance(partnerModel?.balance?.usd ?? 0),
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
+                                color: (partnerModel?.balance?.usd ?? 0) >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                              ),
+                            ),
+                            Text(
+                              ' USD',
+                              style: TextStyle(
+                                fontSize: 9.sp,
+                                fontWeight: FontWeight.w600,
+                                color: (partnerModel?.balance?.uzs ?? 0) >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    )
                   ],
                 ),
 
@@ -85,8 +139,8 @@ class ClientCardItem extends StatelessWidget {
 
                 // Phone and Date
                 Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: AppTheme.colors.colorF9F9FD, borderRadius: BorderRadius.circular(12.r)),
+                  padding: EdgeInsets.symmetric(horizontal:  12,vertical: 6.w),
+                  decoration: BoxDecoration(color: AppTheme.colors.colorF9F9FD, borderRadius: BorderRadius.circular(8.r)),
                   child: Row(
                     children: [
                       SvgPicture.asset(AppIcons.phone),

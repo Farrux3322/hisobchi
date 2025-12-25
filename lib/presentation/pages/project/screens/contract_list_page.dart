@@ -164,17 +164,17 @@ class _ContractListPageState extends State<ContractListPage> {
         actions: [
           IconButton(
             icon: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(6),
                 boxShadow: [BoxShadow(color: const Color(0xFF5B4FFF).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))],
               ),
               child: const Icon(Icons.add, color: Colors.white, size: 20),
             ),
             onPressed: _navigateToAddContract,
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 5),
         ],
       ),
       body: BlocConsumer<ContractBloc, ContractState>(
@@ -273,7 +273,7 @@ class _ContractListPageState extends State<ContractListPage> {
       return SliverStickyHeader(
         header: Container(
           height: 50,
-          color: const Color(0xFFF5F5F5),
+          color: Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           alignment: Alignment.centerLeft,
           child: Text(

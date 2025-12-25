@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gap/gap.dart';
 import 'package:hisobchi/application/worker/worker_bloc.dart';
 import 'package:hisobchi/application/worker/worker_event.dart';
 import 'package:hisobchi/application/worker/worker_state.dart';
@@ -14,11 +15,7 @@ class WorkerSelectionBottomSheet extends StatefulWidget {
   final int projectId;
   final bool isSelectionMode;
 
-  const WorkerSelectionBottomSheet({
-    super.key,
-    required this.projectId,
-    this.isSelectionMode = false,
-  });
+  const WorkerSelectionBottomSheet({super.key, required this.projectId, this.isSelectionMode = false});
 
   @override
   State<WorkerSelectionBottomSheet> createState() => _WorkerSelectionBottomSheetState();
@@ -49,10 +46,12 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
         _filteredWorkers = _allWorkers;
       } else {
         _filteredWorkers = _allWorkers
-            .where((worker) =>
-                (worker.name?.toLowerCase().contains(query) ?? false) ||
-                (worker.phone?.toLowerCase().contains(query) ?? false) ||
-                (worker.workerPositionName?.toLowerCase().contains(query) ?? false))
+            .where(
+              (worker) =>
+                  (worker.name?.toLowerCase().contains(query) ?? false) ||
+                  (worker.phone?.toLowerCase().contains(query) ?? false) ||
+                  (worker.workerPositionName?.toLowerCase().contains(query) ?? false),
+            )
             .toList();
       }
     });
@@ -78,12 +77,7 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
     if (widget.isSelectionMode) {
       Navigator.pop(context, worker);
     } else {
-      context.read<WorkerBloc>().add(
-            AddWorkerToProjectEvent(
-              workerId: worker.id!,
-              projectId: widget.projectId,
-            ),
-          );
+      context.read<WorkerBloc>().add(AddWorkerToProjectEvent(workerId: worker.id!, projectId: widget.projectId));
     }
   }
 
@@ -132,11 +126,7 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                     const Expanded(
                       child: Text(
                         'Ishchi tanlash',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1E293B),
-                        ),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -144,9 +134,7 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                       icon: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)],
-                          ),
+                          gradient: const LinearGradient(colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)]),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(Icons.add, color: Colors.white, size: 20),
@@ -190,25 +178,25 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                 child: state.statusAllWorkers == Status.loading && _allWorkers.isEmpty
                     ? const Center(child: Loading())
                     : _filteredWorkers.isEmpty
-                        ? _buildEmptyState()
-                        : Stack(
-                            children: [
-                              ListView.separated(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                itemCount: _filteredWorkers.length,
-                                separatorBuilder: (context, index) => const SizedBox(height: 12),
-                                itemBuilder: (context, index) {
-                                  final worker = _filteredWorkers[index];
-                                  return _buildWorkerItem(worker);
-                                },
-                              ),
-                              if (state.statusAction == Status.loading)
-                                Container(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  child: const Center(child: Loading()),
-                                ),
-                            ],
+                    ? _buildEmptyState()
+                    : Stack(
+                        children: [
+                          ListView.separated(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: _filteredWorkers.length,
+                            separatorBuilder: (context, index) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final worker = _filteredWorkers[index];
+                              return Column(children: [_buildWorkerItem(worker), if (index == _filteredWorkers.length - 1) Gap(MediaQuery.of(context).padding.bottom+10)]);
+                            },
                           ),
+                          if (state.statusAction == Status.loading)
+                            Container(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              child: const Center(child: Loading()),
+                            ),
+                        ],
+                      ),
               ),
             ],
           ),
@@ -226,23 +214,14 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0xFFE2E8F0)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            )
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2))],
         ),
         child: Row(
           children: [
             Container(
               height: 48,
               width: 48,
-              decoration: BoxDecoration(
-                color: const Color(0xFF5B4FFF).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
+              decoration: BoxDecoration(color: const Color(0xFF5B4FFF).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
               child: const Icon(Icons.person_outline, color: Color(0xFF5B4FFF), size: 24),
             ),
             const SizedBox(width: 12),
@@ -252,35 +231,20 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                 children: [
                   Text(
                     worker.name ?? '',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E293B),
-                    ),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    worker.workerPositionName ?? 'Lavozim ko\'rsatilmagan',
-                    style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-                  ),
+                  Text(worker.workerPositionName ?? 'Lavozim ko\'rsatilmagan', style: const TextStyle(fontSize: 13, color: Color(0xFF64748B))),
                 ],
               ),
             ),
             if (worker.phone != null)
               Text(
                 worker.phone!,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF64748B),
-                ),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
               ),
             const SizedBox(width: 8),
-            Icon(
-              widget.isSelectionMode ? Icons.check_circle_outline : Icons.add_circle_outline,
-              color: const Color(0xFF5B4FFF),
-              size: 24,
-            ),
+            Icon(widget.isSelectionMode ? Icons.check_circle_outline : Icons.add_circle_outline, color: const Color(0xFF5B4FFF), size: 24),
           ],
         ),
       ),
@@ -294,10 +258,7 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
         children: [
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFF5B4FFF).withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: const Color(0xFF5B4FFF).withValues(alpha: 0.1), shape: BoxShape.circle),
             child: const Icon(Icons.person_outline, size: 64, color: Color(0xFF5B4FFF)),
           ),
           const SizedBox(height: 24),
@@ -307,9 +268,7 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
           ),
           const SizedBox(height: 8),
           Text(
-            _searchController.text.isEmpty
-                ? 'Yangi ishchi yaratish uchun + tugmasini bosing'
-                : 'Boshqa kalit so\'z bilan qidirib ko\'ring',
+            _searchController.text.isEmpty ? 'Yangi ishchi yaratish uchun + tugmasini bosing' : 'Boshqa kalit so\'z bilan qidirib ko\'ring',
             style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
             textAlign: TextAlign.center,
           ),

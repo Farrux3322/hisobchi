@@ -256,27 +256,17 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
         actions: [
           IconButton(
             icon: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF5B4FFF).withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  )
-                ],
+                gradient: const LinearGradient(colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                borderRadius: BorderRadius.circular(6),
+                boxShadow: [BoxShadow(color: const Color(0xFF5B4FFF).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))],
               ),
               child: const Icon(Icons.add, color: Colors.white, size: 20),
             ),
             onPressed: _navigateToAddCost,
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 6),
         ],
       ),
       body: BlocConsumer<ProjectIncomeBloc, ProjectIncomeState>(

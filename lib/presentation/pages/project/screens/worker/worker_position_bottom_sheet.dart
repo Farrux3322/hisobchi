@@ -9,6 +9,8 @@ import 'package:hisobchi/infrastructure/models/worker_model.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 
+import '../../../../assets/asset_index.dart';
+
 class WorkerPositionBottomSheet extends StatefulWidget {
   const WorkerPositionBottomSheet({super.key});
 
@@ -313,7 +315,12 @@ class _WorkerPositionBottomSheetState extends State<WorkerPositionBottomSheet> {
                                 separatorBuilder: (context, index) => const SizedBox(height: 8),
                                 itemBuilder: (context, index) {
                                   final position = _filteredPositions[index];
-                                  return _buildPositionItem(position);
+                                  return Column(
+                                    children: [
+                                      _buildPositionItem(position),
+                                      if (index == _filteredPositions.length - 1) Gap(MediaQuery.of(context).padding.bottom+10)
+                                    ],
+                                  );
                                 },
                               ),
                               if (state.statusPositionAction == Status.loading)

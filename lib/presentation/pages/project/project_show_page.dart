@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/project/project_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/project/project_model.dart';
+import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/utils/phone_formatter.dart';
 import 'package:hisobchi/presentation/pages/project/project_edit_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/contract_list_page.dart';
@@ -10,6 +12,7 @@ import 'package:hisobchi/presentation/pages/project/screens/project_cost/project
 import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_list_page.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ProjectShowPage extends StatefulWidget {
   final int projectId;
@@ -53,7 +56,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
         buildWhen: (previous, current) => previous.statusDetail != current.statusDetail || previous.selectedProject != current.selectedProject,
         builder: (context, state) {
           if (state.statusDetail == Status.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return _buildLoadingShimmer();
           }
 
           if (state.statusDetail == Status.error) {
@@ -148,7 +151,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                                     }
                                   });
                                 },
-                                icon: const Icon(Icons.edit_outlined, color: Colors.blue),
+                                icon:SvgPicture.asset(AppIcons.edit),
                               ),
                             ],
                           ),
@@ -203,10 +206,10 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                               });
                             },
                             child: _buildActionButton(
-                              icon: Icons.credit_card,
+                              icon: AppIcons.income,
                               label: 'Kirim',
-                              amount: _buildAmountText(project.accounts?.credit),
-                              color: Colors.green,
+                              amount: _buildAmountText(project.accounts?.debt),
+                              color: Color(0xFFF59E0B),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -225,10 +228,10 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                               });
                             },
                             child: _buildActionButton(
-                              icon: Icons.credit_card,
+                              icon: AppIcons.chiqim,
                               label: 'Chiqim',
-                              amount: _buildAmountText(project.accounts?.debt),
-                              color: Colors.red,
+                              amount: _buildAmountText(project.accounts?.credit),
+                              color: Color(0xFF8B5CF6),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -291,7 +294,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
     );
   }
 
-  Widget _buildActionButton({required IconData icon, required String label, required String amount, required Color color}) {
+  Widget _buildActionButton({required String icon, required String label, required String amount, required Color color}) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -301,7 +304,8 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white, size: 28),
+          SvgPicture.asset(icon),
+          // Icon(icon, color: Colors.white, size: 28),
           const SizedBox(width: 12),
           Text(
             label,
@@ -344,6 +348,145 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
             const Icon(Icons.chevron_right, color: Colors.grey, size: 24),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingShimmer() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Loyiha ma'lumotlari shimmer
+          Container(
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildShimmerBox(width: 150, height: 20),
+                    _buildShimmerBox(width: 40, height: 40, borderRadius: 20),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Divider(),
+                const SizedBox(height: 16),
+                _buildShimmerInfoRow(),
+                const SizedBox(height: 16),
+                _buildShimmerInfoRow(),
+                const SizedBox(height: 16),
+                _buildShimmerInfoRow(),
+                const SizedBox(height: 16),
+                _buildShimmerInfoRow(),
+              ],
+            ),
+          ),
+          // Action buttons shimmer
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                _buildShimmerActionButton(color: Colors.green),
+                const SizedBox(height: 12),
+                _buildShimmerActionButton(color: Colors.red),
+                const SizedBox(height: 12),
+                _buildShimmerMenuButton(),
+                const SizedBox(height: 12),
+                _buildShimmerMenuButton(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerBox({required double width, required double height, double borderRadius = 8}) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerInfoRow() {
+    return Row(
+      children: [
+        _buildShimmerBox(width: 36, height: 36, borderRadius: 8),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildShimmerBox(width: double.infinity, height: 16),
+        ),
+        const SizedBox(width: 12),
+        _buildShimmerBox(width: 100, height: 16),
+      ],
+    );
+  }
+
+  Widget _buildShimmerActionButton({required Color color}) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          _buildShimmerBox(width: 28, height: 28, borderRadius: 14),
+          const SizedBox(width: 12),
+          _buildShimmerBox(width: 60, height: 18),
+          const Spacer(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _buildShimmerBox(width: 80, height: 16),
+              const SizedBox(height: 4),
+              _buildShimmerBox(width: 60, height: 16),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerMenuButton() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
+      ),
+      child: Row(
+        children: [
+          _buildShimmerBox(width: 40, height: 40, borderRadius: 8),
+          const SizedBox(width: 12),
+          _buildShimmerBox(width: 100, height: 16),
+          const Spacer(),
+          _buildShimmerBox(width: 24, height: 24, borderRadius: 12),
+        ],
       ),
     );
   }

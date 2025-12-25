@@ -23,10 +23,7 @@ class EditKirimBottomSheetContent extends StatefulWidget {
   final Result transaction;
   final ScrollController scrollController;
 
-  const EditKirimBottomSheetContent({super.key,
-    required this.transaction,
-    required this.scrollController,
-  });
+  const EditKirimBottomSheetContent({super.key, required this.transaction, required this.scrollController});
 
   @override
   State<EditKirimBottomSheetContent> createState() => _EditKirimBottomSheetContentState();
@@ -39,13 +36,7 @@ class _ImageUploadItem {
   bool isUploading;
   double progress;
 
-  _ImageUploadItem({
-    this.file,
-    this.uploadedId,
-    this.existingUrl,
-    this.isUploading = false,
-    this.progress = 0,
-  });
+  _ImageUploadItem({this.file, this.uploadedId, this.existingUrl, this.isUploading = false, this.progress = 0});
 }
 
 class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetContent> {
@@ -56,6 +47,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
 
   int _selectedCurrencyId = 1; // 1 = UZS, 2 = USD
   DateTime? _selectedDate;
+
   bool get isKirim => widget.transaction.type == 'debt';
 
   // 3 tagacha rasm uchun list
@@ -114,12 +106,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: isKirim ? AppTheme.colors.color3CC293 : AppTheme.colors.colorDE5050,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black,
-            ),
+            colorScheme: ColorScheme.light(primary: isKirim ? AppTheme.colors.color3CC293 : AppTheme.colors.colorDE5050, onPrimary: Colors.white, surface: Colors.white, onSurface: Colors.black),
           ),
           child: child!,
         );
@@ -256,11 +243,11 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
       'summa': _amountController.text,
       'description': _descriptionController.text.isEmpty ? null : _descriptionController.text,
       if (uploadedImageIds.isNotEmpty) 'file_id': uploadedImageIds,
-      if (_selectedDate != null) 'return_date': _selectedDate!.toIso8601String(),
+      'return_date': _selectedDate?.toIso8601String(),
       'type': isKirim ? 'debt' : 'credit',
     };
 
-    context.read<PartnerBloc>().add(UpdateKirim(data: data,id: widget.transaction.id??0));
+    context.read<PartnerBloc>().add(UpdateKirim(data: data, id: widget.transaction.id ?? 0));
   }
 
   bool _canPickImage(int index) {
@@ -282,13 +269,9 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
             _currentUploadingIndex = null;
           });
         } else if (state.status == FileUploadStatus.failure && _currentUploadingIndex != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Rasm yuklashda xatolik: ${state.errorMessage ?? "Noma'lum xatolik"}'),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Rasm yuklashda xatolik: ${state.errorMessage ?? "Noma'lum xatolik"}'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
           setState(() {
             _images[_currentUploadingIndex!] = _ImageUploadItem();
             _currentUploadingIndex = null;
@@ -336,10 +319,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                   child: Container(
                                     width: 62,
                                     height: 8,
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.colors.primary,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
+                                    decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(10)),
                                   ),
                                 ),
                                 const SizedBox(height: 24),
@@ -392,10 +372,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                           ),
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide(
-                                              color:  AppTheme.colors.primary,
-                                              width: 2,
-                                            ),
+                                            borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
                                           ),
                                           errorBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
@@ -492,12 +469,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                             icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.colors.primary),
                                             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                                             dropdownColor: Colors.white,
-                                            items: currencies
-                                                .map((currency) => DropdownMenuItem<int>(
-                                                      value: currency.id,
-                                                      child: Text(currency.name ?? ''),
-                                                    ))
-                                                .toList(),
+                                            items: currencies.map((currency) => DropdownMenuItem<int>(value: currency.id, child: Text(currency.name ?? ''))).toList(),
                                             onChanged: (value) {
                                               if (value != null) {
                                                 setState(() {
@@ -511,42 +483,40 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                     ),
                                   ],
                                 ),
-                                if(!isKirim)  const SizedBox(height: 10),
+                                if (!isKirim) const SizedBox(height: 10),
 
-                                if(!isKirim)  const Text(
-                                  'Qaytarish sanasi',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
-                                ),
-                                if(!isKirim)  const SizedBox(height: 8),
-                                if(!isKirim)  GestureDetector(
-                                  onTap: _selectDate,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF8FAFC),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.calendar_today_outlined,
-                                          color: AppTheme.colors.primary,
-                                          size: 20,
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Text(
-                                          _selectedDate == null ? 'Sanani tanlang' : DateFormat('dd MMM yyyy').format(_selectedDate!),
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: _selectedDate == null ? const Color(0xFF94A3B8) : const Color(0xFF1E293B),
-                                            fontWeight: _selectedDate == null ? FontWeight.w400 : FontWeight.w600,
+                                if (!isKirim)
+                                  const Text(
+                                    'Qaytarish sanasi',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+                                  ),
+                                if (!isKirim) const SizedBox(height: 8),
+                                if (!isKirim)
+                                  GestureDetector(
+                                    onTap: _selectDate,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF8FAFC),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.calendar_today_outlined, color: AppTheme.colors.primary, size: 20),
+                                          const SizedBox(width: 12),
+                                          Text(
+                                            _selectedDate == null ? 'Sanani tanlang' : DateFormat('dd MMM yyyy').format(_selectedDate!),
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: _selectedDate == null ? const Color(0xFF94A3B8) : const Color(0xFF1E293B),
+                                              fontWeight: _selectedDate == null ? FontWeight.w400 : FontWeight.w600,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
                                 const SizedBox(height: 20),
 
                                 // Description
@@ -573,10 +543,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(
-                                        color: isKirim ? AppTheme.colors.color3CC293 : AppTheme.colors.colorDE5050,
-                                        width: 2,
-                                      ),
+                                      borderSide: BorderSide(color: isKirim ? AppTheme.colors.color3CC293 : AppTheme.colors.colorDE5050, width: 2),
                                     ),
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                   ),
@@ -611,12 +578,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                           decoration: BoxDecoration(
                                             color: canPick ? Colors.white : const Color(0xFFF9FAFB),
                                             borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(
-                                              color: canPick
-                                                  ? AppTheme.colors.primary
-                                                  : const Color(0xFFE2E8F0),
-                                              width: 2,
-                                            ),
+                                            border: Border.all(color: canPick ? AppTheme.colors.primary : const Color(0xFFE2E8F0), width: 2),
                                           ),
                                           child: hasImage
                                               ? Stack(
@@ -624,25 +586,14 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                                     ClipRRect(
                                                       borderRadius: BorderRadius.circular(10),
                                                       child: imageItem.file != null
-                                                          ? Image.file(
-                                                              imageItem.file!,
-                                                              fit: BoxFit.cover,
-                                                              width: double.infinity,
-                                                              height: double.infinity,
-                                                            )
+                                                          ? Image.file(imageItem.file!, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
                                                           : Image.network(
                                                               imageItem.existingUrl!,
                                                               fit: BoxFit.cover,
                                                               width: double.infinity,
                                                               height: double.infinity,
                                                               errorBuilder: (context, error, stackTrace) {
-                                                                return const Center(
-                                                                  child: Icon(
-                                                                    Icons.broken_image_outlined,
-                                                                    color: Color(0xFF94A3B8),
-                                                                    size: 32,
-                                                                  ),
-                                                                );
+                                                                return const Center(child: Icon(Icons.broken_image_outlined, color: Color(0xFF94A3B8), size: 32));
                                                               },
                                                               loadingBuilder: (context, child, loadingProgress) {
                                                                 if (loadingProgress == null) return child;
@@ -650,8 +601,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                                                   child: CircularProgressIndicator(
                                                                     color: AppTheme.colors.primary,
                                                                     value: loadingProgress.expectedTotalBytes != null
-                                                                        ? loadingProgress.cumulativeBytesLoaded /
-                                                                            loadingProgress.expectedTotalBytes!
+                                                                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
                                                                         : null,
                                                                     strokeWidth: 1,
                                                                   ),
@@ -662,10 +612,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                                     if (isUploading)
                                                       Positioned.fill(
                                                         child: Container(
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.black.withValues(alpha: 0.7),
-                                                            borderRadius: BorderRadius.circular(10),
-                                                          ),
+                                                          decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(10)),
                                                           child: Column(
                                                             mainAxisAlignment: MainAxisAlignment.center,
                                                             children: [
@@ -682,11 +629,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                                               const SizedBox(height: 4),
                                                               Text(
                                                                 '${imageItem.progress.toStringAsFixed(0)}%',
-                                                                style: const TextStyle(
-                                                                  color: Colors.white,
-                                                                  fontSize: 12,
-                                                                  fontWeight: FontWeight.w600,
-                                                                ),
+                                                                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
                                                               ),
                                                             ],
                                                           ),
@@ -698,10 +641,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                                         right: 4,
                                                         child: Container(
                                                           padding: const EdgeInsets.all(4),
-                                                          decoration: const BoxDecoration(
-                                                            color: Colors.green,
-                                                            shape: BoxShape.circle,
-                                                          ),
+                                                          decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
                                                           child: const Icon(Icons.check, color: Colors.white, size: 12),
                                                         ),
                                                       ),
@@ -709,11 +649,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                                 )
                                               : Column(
                                                   mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: canPick
-                                                      ? [
-                                                    SvgPicture.asset(AppIcons.photo,colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),)
-                                                        ]
-                                                      : [],
+                                                  children: canPick ? [SvgPicture.asset(AppIcons.photo, colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn))] : [],
                                                 ),
                                         ),
                                       ),
@@ -734,10 +670,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                       elevation: 0,
                                     ),
-                                    child: Text(
-                                      isKirim ? 'Kirimni tahrirlash' : 'Chiqimni tahrirlash',
-                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                                    ),
+                                    child: Text(isKirim ? 'Kirimni tahrirlash' : 'Chiqimni tahrirlash', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                                   ),
                                 ),
                                 const SizedBox(height: 16),
@@ -746,7 +679,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                           ),
                         ),
                       ),
-                      if (state.statusKirimAdd == Status.loading)Loading(),
+                      if (state.statusKirimAdd == Status.loading) Loading(),
                     ],
                   );
                 },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:gap/gap.dart';
 import 'package:hisobchi/application/cost_type/cost_type_bloc.dart';
 import 'package:hisobchi/application/cost_type/cost_type_event.dart';
 import 'package:hisobchi/application/cost_type/cost_type_state.dart';
@@ -236,7 +237,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
       },
       builder: (context, state) {
         return Container(
-          height: MediaQuery.of(context).size.height * 0.75,
+          height: MediaQuery.of(context).size.height * 0.8,
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -325,7 +326,12 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                                 separatorBuilder: (context, index) => const SizedBox(height: 8),
                                 itemBuilder: (context, index) {
                                   final costType = _filteredCostTypes[index];
-                                  return _buildCostTypeItem(costType);
+                                  return Column(
+                                    children: [
+                                      _buildCostTypeItem(costType),
+                                      if(index==_filteredCostTypes.length-1)Gap(MediaQuery.of(context).padding.bottom+10)
+                                    ],
+                                  );
                                 },
                               ),
                               if (state.statusAction == Status.loading)
