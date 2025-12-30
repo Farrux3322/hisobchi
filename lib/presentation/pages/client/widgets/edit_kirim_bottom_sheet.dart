@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
@@ -14,6 +15,7 @@ import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 //  showEditKirimBottomSheet(BuildContext context, Result transaction)  {
 //
@@ -39,6 +41,33 @@ class _ImageUploadItem {
   _ImageUploadItem({this.file, this.uploadedId, this.existingUrl, this.isUploading = false, this.progress = 0});
 }
 
+class _NumberInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    // Remove all non-digits
+    final cleanText = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+    if (cleanText.isEmpty) {
+      return newValue.copyWith(text: '', selection: const TextSelection.collapsed(offset: 0));
+    }
+
+    // Format with spaces every 3 digits from right
+    final reversed = cleanText.split('').reversed.join();
+    final chunks = <String>[];
+    for (var i = 0; i < reversed.length; i += 3) {
+      final end = i + 3;
+      chunks.add(reversed.substring(i, end > reversed.length ? reversed.length : end));
+    }
+    final formatted = chunks.join(' ').split('').reversed.join();
+
+    // Keep cursor at end
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
+
 class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetContent> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
@@ -61,9 +90,24 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
     _loadInitialValues();
   }
 
+  String _formatNumber(String value) {
+    if (value.isEmpty) return '';
+    // Remove all spaces first
+    final cleanValue = value.replaceAll(' ', '');
+    // Format with spaces every 3 digits from right
+    final reversed = cleanValue.split('').reversed.join();
+    final chunks = <String>[];
+    for (var i = 0; i < reversed.length; i += 3) {
+      final end = i + 3;
+      chunks.add(reversed.substring(i, end > reversed.length ? reversed.length : end));
+    }
+    return chunks.join(' ').split('').reversed.join();
+  }
+
   void _loadInitialValues() {
     // Miqdor
-    _amountController.text = widget.transaction.summa ?? '';
+    final summa = widget.transaction.summa ?? '';
+    _amountController.text = _formatNumber(summa);
 
     // Valyuta
     _selectedCurrencyId = widget.transaction.currencyTypeId ?? 1;
@@ -121,83 +165,75 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
   }
 
   Future<void> _showImageSourceDialog(int index) async {
-    return showModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(24.w),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Rasm tanlash',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-                  ),
-                  const SizedBox(height: 20),
-                  ListTile(
-                    leading: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(12)),
-                      child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF3B82F6)),
+                    width: 48.w,
+                    height: 4.h,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE2E8F0),
+                      borderRadius: BorderRadius.circular(2.r),
                     ),
-                    title: const Text('Kamera', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                    subtitle: const Text('Yangi rasm olish', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                  ),
+                  SizedBox(height: 24.h),
+                  Text(
+                    'Rasm tanlash',
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 24.h),
+                  _buildImageSourceOption(
+                    icon: Icons.camera_alt_rounded,
+                    title: 'Kamera',
+                    subtitle: 'Yangi rasm olish',
+                    color: AppTheme.colors.primary,
                     onTap: () {
                       Navigator.pop(context);
                       _pickImage(ImageSource.camera, index);
                     },
                   ),
-                  const SizedBox(height: 8),
-                  ListTile(
-                    leading: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(12)),
-                      child: const Icon(Icons.photo_library_rounded, color: Color(0xFF10B981)),
-                    ),
-                    title: const Text('Galereya', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                    subtitle: const Text('Mavjud rasmdan tanlash', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                  SizedBox(height: 12.h),
+                  _buildImageSourceOption(
+                    icon: Icons.photo_library_rounded,
+                    title: 'Galereya',
+                    subtitle: 'Mavjud rasmdan tanlash',
+                    color: const Color(0xFF10B981),
                     onTap: () {
                       Navigator.pop(context);
                       _pickImage(ImageSource.gallery, index);
                     },
                   ),
                   if (_images[index].file != null || _images[index].existingUrl != null) ...[
-                    const SizedBox(height: 8),
-                    ListTile(
-                      leading: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(12)),
-                        child: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444)),
-                      ),
-                      title: const Text(
-                        'Rasmni o\'chirish',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFFEF4444)),
-                      ),
+                    SizedBox(height: 12.h),
+                    _buildImageSourceOption(
+                      icon: Icons.delete_outline_rounded,
+                      title: 'Rasmni o\'chirish',
+                      subtitle: 'Bu rasmni o\'chirish',
+                      color: const Color(0xFFEF4444),
                       onTap: () {
                         Navigator.pop(context);
-                        setState(() {
-                          _images[index] = _ImageUploadItem();
-                        });
+                        _removeImage(index);
                       },
                     ),
                   ],
-                  const SizedBox(height: 10),
+                  SizedBox(height: 16.h),
                 ],
               ),
             ),
@@ -205,6 +241,79 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
         );
       },
     );
+  }
+
+  Widget _buildImageSourceOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
+        borderRadius: BorderRadius.circular(16.r),
+        child: Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 56.w,
+                height: 56.h,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+                child: Icon(icon, color: color, size: 28.sp),
+              ),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: const Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios, size: 18.sp, color: const Color(0xFF94A3B8)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      for (int i = index; i < _images.length; i++) {
+        _images[i] = _ImageUploadItem();
+      }
+    });
   }
 
   Future<void> _pickImage(ImageSource source, int index) async {
@@ -237,10 +346,13 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
     // Yuklangan rasmlar ID larini olish
     final uploadedImageIds = _images.where((img) => img.uploadedId != null).map((img) => img.uploadedId!).toList();
 
+    // Remove spaces from amount before sending
+    final cleanAmount = _amountController.text.replaceAll(' ', '');
+
     final data = {
       'partner_id': widget.transaction.partnerId,
       'currency_type_id': _selectedCurrencyId,
-      'summa': _amountController.text,
+      'summa': cleanAmount,
       'description': _descriptionController.text.isEmpty ? null : _descriptionController.text,
       if (uploadedImageIds.isNotEmpty) 'file_id': uploadedImageIds,
       'return_date': _selectedDate?.toIso8601String(),
@@ -356,7 +468,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                       child: TextFormField(
                                         controller: _amountController,
                                         keyboardType: TextInputType.number,
-                                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                        inputFormatters: [_NumberInputFormatter()],
                                         decoration: InputDecoration(
                                           hintText: 'Miqdorni kiriting',
                                           hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
@@ -384,10 +496,12 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                           if (value == null || value.isEmpty) {
                                             return 'Iltimos, miqdorni kiriting';
                                           }
-                                          if (int.tryParse(value) == null) {
+                                          // Remove spaces for validation
+                                          final cleanValue = value.replaceAll(' ', '');
+                                          if (int.tryParse(cleanValue) == null) {
                                             return 'Faqat butun sonlar';
                                           }
-                                          if (int.parse(value) <= 0) {
+                                          if (int.parse(cleanValue) <= 0) {
                                             return 'Miqdor 0 dan katta bo\'lishi kerak';
                                           }
                                           return null;

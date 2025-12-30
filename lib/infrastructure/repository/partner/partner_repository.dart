@@ -1,8 +1,35 @@
 import 'package:hisobchi/infrastructure/common/network_provider.dart';
 
 class PartnerRepository {
-  Future<Map<String, dynamic>> get() async {
-    final response = await dio.get('/partners/partners/account');
+  Future<Map<String, dynamic>> get({
+    DateTime? startDate,
+    DateTime? endDate,
+    String? search,
+    String? sort,
+    String? statusFilter,
+  }) async {
+    final Map<String, dynamic> params = {};
+
+    if (startDate != null) {
+      params['date[0]'] = startDate.toIso8601String().split('T')[0];
+    }
+    if (endDate != null) {
+      params['date[1]'] = endDate.toIso8601String().split('T')[0];
+    }
+    if (search != null && search.isNotEmpty) {
+      params['search'] = search;
+    }
+    if (sort != null && sort.isNotEmpty) {
+      params['sort'] = sort;
+    }
+    if (statusFilter != null && statusFilter.isNotEmpty) {
+      params['status_filter'] = statusFilter;
+    }
+
+    final response = await dio.get(
+      '/partners/partners/account',
+      queryParameters: params.isNotEmpty ? params : null,
+    );
     return response.data;
   }
 

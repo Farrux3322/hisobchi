@@ -16,6 +16,7 @@ import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:hisobchi/presentation/pages/client/client_account_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_add_bottom_sheet.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_card_item.dart';
+import 'package:hisobchi/presentation/pages/client/widgets/client_filter_bottom_sheet.dart';
 import 'package:hisobchi/presentation/pages/currency/currency_page.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -28,15 +29,42 @@ class ClientPage extends StatefulWidget {
 
 class _ClientPageState extends State<ClientPage> {
   String searchQuery = '';
+  DateTime? filterStartDate;
+  DateTime? filterEndDate;
+  String? filterSort;
+  String? filterStatusFilter;
 
   @override
   void initState() {
     super.initState();
     // Fetch partners when page loads
-    context.read<PartnerBloc>().add(const GetAllEvent());
+    _fetchPartners();
     // Fetch exchange rates
     context.read<CurrencyBloc>().add(const GetExchangeRates());
   }
+
+  void _fetchPartners() {
+    context.read<PartnerBloc>().add(GetAllEvent(
+      startDate: filterStartDate,
+      endDate: filterEndDate,
+      search: searchQuery.isNotEmpty ? searchQuery : null,
+      sort: filterSort,
+      statusFilter: filterStatusFilter,
+    ));
+  }
+
+  void _handleFilterApply(DateTime? startDate, DateTime? endDate, String? sort, String? statusFilter) {
+    setState(() {
+      filterStartDate = startDate;
+      filterEndDate = endDate;
+      filterSort = sort;
+      filterStatusFilter = statusFilter;
+    });
+    _fetchPartners();
+  }
+
+  bool get hasActiveFilters =>
+      filterStartDate != null || filterEndDate != null || filterSort != null || filterStatusFilter != null;
 
   List<PartnerModel> _filterPartners(List<PartnerModel> partners) {
     if (searchQuery.isEmpty) return partners;
@@ -201,25 +229,6 @@ class _ClientPageState extends State<ClientPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // Logo va valyuta
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      SvgPicture.asset(AppIcons.logo),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Logo',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.colors.black),
-                      ),
-                    ],
-                  ),
-                  _buildCurrencyWidget(),
-                ],
-              ),
-              const SizedBox(height: 16),
-
               // Qidiruv
               Row(
                 children: [
@@ -248,16 +257,65 @@ class _ClientPageState extends State<ClientPage> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Container(
-                    height: 48,
-                    width: 48,
-                    padding: EdgeInsets.all(12.w),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(color: AppTheme.colors.colorE1EOEE),
+                  GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => ClientFilterBottomSheet(
+                          initialStartDate: filterStartDate,
+                          initialEndDate: filterEndDate,
+                          initialSort: filterSort,
+                          initialStatusFilter: filterStatusFilter,
+                          onApply: _handleFilterApply,
+                        ),
+                      );
+                    },
+                    child: Stack(
+                      children: [
+                        Container(
+                          height: 48,
+                          width: 48,
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            color: hasActiveFilters
+                                ? AppTheme.colors.primary.withValues(alpha: 0.1)
+                                : const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(
+                              color: hasActiveFilters
+                                  ? AppTheme.colors.primary
+                                  : AppTheme.colors.colorE1EOEE,
+                            ),
+                          ),
+                          child: SvgPicture.asset(
+                            AppIcons.filter,
+                            fit: BoxFit.contain,
+                            colorFilter: hasActiveFilters
+                                ? ColorFilter.mode(
+                                    AppTheme.colors.primary,
+                                    BlendMode.srcIn,
+                                  )
+                                : null,
+                          ),
+                        ),
+                        if (hasActiveFilters)
+                          Positioned(
+                            top: 6,
+                            right: 6,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: AppTheme.colors.primary,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 1.5),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-                    child: SvgPicture.asset(AppIcons.filter, fit: BoxFit.contain),
                   ),
                 ],
               ),
@@ -306,7 +364,7 @@ class _ClientPageState extends State<ClientPage> {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 4,
                   offset: const Offset(0, 1),
                 ),

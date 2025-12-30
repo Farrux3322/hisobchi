@@ -19,7 +19,8 @@ class GetProjectWorkersEvent extends WorkerEvent {
 
 // All workers events
 class GetAllWorkersEvent extends WorkerEvent {
-  const GetAllWorkersEvent();
+  final int projectId;
+  const GetAllWorkersEvent({required this.projectId});
 }
 
 // Create worker event
@@ -159,6 +160,20 @@ class AddWorkerToProjectEvent extends WorkerEvent {
 
   @override
   List<Object?> get props => [workerId, projectId];
+}
+
+// Add multiple workers to project event
+class AddWorkersToProjectEvent extends WorkerEvent {
+  final List<int> workerIds;
+  final int projectId;
+
+  const AddWorkersToProjectEvent({
+    required this.workerIds,
+    required this.projectId,
+  });
+
+  @override
+  List<Object?> get props => [workerIds, projectId];
 }
 
 // Remove worker from project event

@@ -9,6 +9,7 @@ import 'package:hisobchi/presentation/pages/auth/register/register_page.dart';
 import 'package:hisobchi/presentation/pages/auth/reset_password/reset_otp.dart';
 import 'package:hisobchi/presentation/pages/auth/reset_password/reset_password.dart';
 import 'package:hisobchi/presentation/pages/client/client_list_page.dart';
+import 'package:hisobchi/presentation/pages/dashboard/dashboard_page.dart';
 import 'package:hisobchi/presentation/pages/profile/profile_page.dart';
 import 'package:hisobchi/presentation/pages/project/project_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/project_add_page.dart';
@@ -30,7 +31,7 @@ String? _redirects() {
 
 final router = GoRouter(
   navigatorKey: parentKey,
-  initialLocation: Routes.clientPage.path,
+  initialLocation: Routes.homePage.path,
   debugLogDiagnostics: true,
   routes: [
     ///auth
@@ -111,7 +112,7 @@ final branches = [
         path: Routes.homePage.path,
         // parentNavigatorKey: _shellKey,
         redirect: (context, state) => _redirects(),
-        pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const SizedBox()),
+        pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const DashboardPage()),
         routes: [],
       ),
     ],
@@ -132,280 +133,6 @@ final branches = [
     ],
   ),
 
-  // ///Directory
-  // StatefulShellBranch(
-  //   // navigatorKey: _shellKey,
-  //   routes: [
-  //     // Document
-  //     GoRoute(
-  //       name: Routes.directoryPage.name,
-  //       path: Routes.directoryPage.name,
-  //       // parentNavigatorKey: _shellKey,
-  //       redirect: (context, state) => _redirects(),
-  //       pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const DirectoryPage()),
-  //       routes: [
-  //         GoRoute(
-  //             name: Routes.employeeShowPage.name,
-  //             path: Routes.employeeShowPage.path,
-  //             redirect: (context, state) => _redirects(),
-  //             // parentNavigatorKey: _shellKey,
-  //             pageBuilder: (context, state) => MaterialPage<void>(
-  //                 key: state.pageKey,
-  //                 child: BlocProvider(
-  //                   create: (context) => EmployeeBloc(),
-  //                   child: EmployeeShow(),
-  //                 )),
-  //             routes: [
-  //               GoRoute(
-  //                 name: Routes.employeeAddPage.name,
-  //                 path: Routes.employeeAddPage.path,
-  //                 redirect: (context, state) => _redirects(),
-  //                 // parentNavigatorKey: _shellKey,
-  //                 pageBuilder: (context, state) => MaterialPage<void>(
-  //                     key: state.pageKey,
-  //                     child: BlocProvider(
-  //                       create: (context) => EmployeeBloc(),
-  //                       child: EmployeeAdd(
-  //                         employeeModel: state.extra as EmployeeModel?,
-  //                       ),
-  //                     )),
-  //               ),
-  //             ]),
-  //         GoRoute(
-  //             name: Routes.objectShowPage.name,
-  //             path: Routes.objectShowPage.path,
-  //             redirect: (context, state) => _redirects(),
-  //             // parentNavigatorKey: _shellKey,
-  //             pageBuilder: (context, state) => MaterialPage<void>(
-  //                 key: state.pageKey,
-  //                 child: BlocProvider(
-  //                   create: (context) => ObjectBloc(),
-  //                   child: ObjectShow(),
-  //                 )),
-  //             routes: [
-  //               GoRoute(
-  //                 name: Routes.objectAddPage.name,
-  //                 path: Routes.objectAddPage.path,
-  //                 redirect: (context, state) => _redirects(),
-  //                 // parentNavigatorKey: _shellKey,
-  //                 pageBuilder: (context, state) => MaterialPage<void>(
-  //                     key: state.pageKey,
-  //                     child: BlocProvider(
-  //                       create: (context) => ObjectBloc(),
-  //                       child: ObjectAdd(objectModel: state.extra as ObjectModel?),
-  //                     )),
-  //               ),
-  //             ]),
-  //         GoRoute(
-  //             name: Routes.innerObjectShowPage.name,
-  //             path: Routes.innerObjectShowPage.path,
-  //             redirect: (context, state) => _redirects(),
-  //             // parentNavigatorKey: _shellKey,
-  //             pageBuilder: (context, state) => MaterialPage<void>(
-  //                 key: state.pageKey,
-  //                 child: BlocProvider(
-  //                   create: (context) => InnerObjectBloc(),
-  //                   child: InnerObjectShow(),
-  //                 )),
-  //             routes: [
-  //               GoRoute(
-  //                 name: Routes.innerObjectAddPage.name,
-  //                 path: Routes.innerObjectAddPage.path,
-  //                 redirect: (context, state) => _redirects(),
-  //                 // parentNavigatorKey: _shellKey,
-  //                 pageBuilder: (context, state) => MaterialPage<void>(
-  //                     key: state.pageKey,
-  //                     child: BlocProvider(
-  //                       create: (context) => InnerObjectBloc(),
-  //                       child: InnerObjectAdd(innerObjectModel: state.extra as InnerObjectModel?),
-  //                     )),
-  //               ),
-  //             ]),
-  //
-  //         GoRoute(
-  //             name: Routes.materialProductShowPage.name,
-  //             path: Routes.materialProductShowPage.path,
-  //             redirect: (context, state) => _redirects(),
-  //             // parentNavigatorKey: _shellKey,
-  //             pageBuilder: (context, state) => MaterialPage<void>(
-  //                 key: state.pageKey,
-  //                 child: BlocProvider(
-  //                   create: (context) => MaterialProductBloc(),
-  //                   child: MaterialShow(),
-  //                 )),
-  //             routes: [
-  //               GoRoute(
-  //                 name: Routes.materialProductAddPage.name,
-  //                 path: Routes.materialProductAddPage.path,
-  //                 redirect: (context, state) => _redirects(),
-  //                 // parentNavigatorKey: _shellKey,
-  //                 pageBuilder: (context, state) => MaterialPage<void>(
-  //                     key: state.pageKey,
-  //                     child: BlocProvider(
-  //                       create: (context) => MaterialProductBloc(),
-  //                       child: MaterialAdd(
-  //                         materialModel: state.extra as MaterialModel?,
-  //                       ),
-  //                     )),
-  //               ),
-  //             ]),
-  //
-  //         GoRoute(
-  //             name: Routes.partnerShowPage.name,
-  //             path: Routes.partnerShowPage.path,
-  //             redirect: (context, state) => _redirects(),
-  //             // parentNavigatorKey: _shellKey,
-  //             pageBuilder: (context, state) => MaterialPage<void>(
-  //                 key: state.pageKey,
-  //                 child: BlocProvider(
-  //                   create: (context) => PartnerBloc(),
-  //                   child: PartnerShow(),
-  //                 )),
-  //             routes: [
-  //               GoRoute(
-  //                 name: Routes.partnerAddPage.name,
-  //                 path: Routes.partnerAddPage.path,
-  //                 redirect: (context, state) => _redirects(),
-  //                 // parentNavigatorKey: _shellKey,
-  //                 pageBuilder: (context, state) => MaterialPage<void>(
-  //                     key: state.pageKey,
-  //                     child: BlocProvider(
-  //                       create: (context) => PartnerBloc(),
-  //                       child: PartnerAdd(partnerModel: state.extra as PartnerModel?),
-  //                     )),
-  //               ),
-  //             ]),
-  //
-  //         GoRoute(
-  //             name: Routes.masterForemanShowPage.name,
-  //             path: Routes.masterForemanShowPage.path,
-  //             redirect: (context, state) => _redirects(),
-  //             // parentNavigatorKey: _shellKey,
-  //             pageBuilder: (context, state) => MaterialPage<void>(
-  //                 key: state.pageKey,
-  //                 child: BlocProvider(
-  //                   create: (context) => MasterForemanBloc(),
-  //                   child: MasterForemanShow(),
-  //                 )),
-  //             routes: [
-  //               GoRoute(
-  //                 name: Routes.masterForemanAddPage.name,
-  //                 path: Routes.masterForemanAddPage.path,
-  //                 redirect: (context, state) => _redirects(),
-  //                 // parentNavigatorKey: _shellKey,
-  //                 pageBuilder: (context, state) => MaterialPage<void>(
-  //                     key: state.pageKey,
-  //                     child: BlocProvider(
-  //                       create: (context) => MasterForemanBloc(),
-  //                       child: MasterForemanAdd(
-  //                         masterForemanModel: state.extra as MasterForemanModel?,
-  //                       ),
-  //                     )),
-  //               ),
-  //             ]),
-  //
-  //         GoRoute(
-  //             name: Routes.roomShowPage.name,
-  //             path: Routes.roomShowPage.path,
-  //             redirect: (context, state) => _redirects(),
-  //             // parentNavigatorKey: _shellKey,
-  //             pageBuilder: (context, state) => MaterialPage<void>(
-  //                 key: state.pageKey,
-  //                 child: BlocProvider(
-  //                   create: (context) => RoomBloc(),
-  //                   child: RoomShow(),
-  //                 )),
-  //             routes: [
-  //               GoRoute(
-  //                 name: Routes.roomAddPage.name,
-  //                 path: Routes.roomAddPage.path,
-  //                 redirect: (context, state) => _redirects(),
-  //                 // parentNavigatorKey: _shellKey,
-  //                 pageBuilder: (context, state) => MaterialPage<void>(
-  //                     key: state.pageKey,
-  //                     child: BlocProvider(
-  //                       create: (context) => RoomBloc(),
-  //                       child: RoomAdd(
-  //                         roomModel: state.extra as RoomModel?,
-  //                       ),
-  //                     )),
-  //               ),
-  //             ]),
-  //
-  //         GoRoute(
-  //             name: Routes.typeOfConstructionShowPage.name,
-  //             path: Routes.typeOfConstructionShowPage.path,
-  //             redirect: (context, state) => _redirects(),
-  //             // parentNavigatorKey: _shellKey,
-  //             pageBuilder: (context, state) => MaterialPage<void>(
-  //                 key: state.pageKey,
-  //                 child: BlocProvider(
-  //                   create: (context) => TypeOfConstructionBloc(),
-  //                   child: TypeOfConstructionShow(),
-  //                 )),
-  //             routes: [
-  //               GoRoute(
-  //                 name: Routes.typeOfConstructionAddPage.name,
-  //                 path: Routes.typeOfConstructionAddPage.path,
-  //                 redirect: (context, state) => _redirects(),
-  //                 // parentNavigatorKey: _shellKey,
-  //                 pageBuilder: (context, state) => MaterialPage<void>(
-  //                     key: state.pageKey,
-  //                     child: BlocProvider(
-  //                       create: (context) => TypeOfConstructionBloc(),
-  //                       child: TypeOfConstructionAdd(
-  //                         typeOfConstruction: state.extra as TypeOfConstructionModel?,
-  //                       ),
-  //                     )),
-  //               ),
-  //             ]),
-  //         //-------------------
-  //         GoRoute(
-  //           name: Routes.categoryShowPage.name,
-  //           path: Routes.categoryShowPage.path,
-  //           redirect: (context, state) => _redirects(),
-  //           // parentNavigatorKey: _shellKey,
-  //           pageBuilder: (context, state) => MaterialPage<void>(
-  //               key: state.pageKey,
-  //               child: BlocProvider(
-  //                 create: (context) => CategoryBloc(),
-  //                 child: CategoryShow(),
-  //               )),
-  //           routes: [
-  //             GoRoute(
-  //               name: Routes.categoryAddPage.name,
-  //               path: Routes.categoryAddPage.path,
-  //               redirect: (context, state) => _redirects(),
-  //               // parentNavigatorKey: _shellKey,
-  //               pageBuilder: (context, state) => MaterialPage<void>(
-  //                   key: state.pageKey,
-  //                   child: BlocProvider(
-  //                     create: (context) => CategoryBloc(),
-  //                     child: CategoryAdd(
-  //                       nomenclatirelLessueModel: state.extra as NomenclatirelLessueModel?,
-  //                     ),
-  //                   )),
-  //             ),
-  //           ],
-  //         ), //-------------------
-  //         GoRoute(
-  //           name: Routes.expenseTypeShowPage.name,
-  //           path: Routes.expenseTypeShowPage.path,
-  //           redirect: (context, state) => _redirects(),
-  //           pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: ExpenseTypeShow()),
-  //           routes: [
-  //             GoRoute(
-  //               name: Routes.expenseTypeAddPage.name,
-  //               path: Routes.expenseTypeAddPage.path,
-  //               redirect: (context, state) => _redirects(),
-  //               pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: ExpenseTypeAdd(expenseType: state.extra as ExpenseTypeModel?)),
-  //             ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   ],
-  // ),
 
   ///Project
   StatefulShellBranch(

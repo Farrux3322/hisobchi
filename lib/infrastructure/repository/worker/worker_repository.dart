@@ -32,10 +32,11 @@ class WorkerRepository {
   }
 
   // Get all workers
-  Future<WorkerListResponse> getAllWorkers() async {
+  Future<WorkerListResponse> getAllWorkers({required int projectId}) async {
     try {
       final response = await dio.get('/documents/workers',data: {
-        'search':''
+        'search':'',
+        'worker_not_in_project_id':projectId,
       });
 
       if (response.statusCode == 200) {
@@ -260,6 +261,29 @@ class WorkerRepository {
 
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw Exception('Failed to add worker to project');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  // Add multiple workers to project
+  Future<void> addWorkersToProject({
+    required List<int> workerIds,
+    required int projectId,
+  }) async {
+    try {
+      final data = {
+        'project_id': projectId,
+        'worker_ids': workerIds,
+      };
+
+      final response = await dio.post('/project/worker-add-to-project', data: data);
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception('Failed to add workers to project');
       }
     } on DioException catch (e) {
       throw Exception(_getErrorMessage(e));

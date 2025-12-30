@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hisobchi/application/project_cost/project_cost_bloc.dart';
 import 'package:hisobchi/application/project_cost/project_cost_event.dart';
 import 'package:hisobchi/application/project_cost/project_cost_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/project_cost_model.dart';
+import 'package:hisobchi/presentation/assets/res/app_icons.dart';
+import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_cost/project_cost_add_edit_page.dart';
@@ -530,10 +533,10 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+              color: AppTheme.colors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.money_off_outlined, size: 64, color: Color(0xFFEF4444)),
+            child: SvgPicture.asset(AppIcons.chiqim,height: 40,width: 40,colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),),
           ),
           const SizedBox(height: 24),
           Text(

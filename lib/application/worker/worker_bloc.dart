@@ -21,6 +21,7 @@ class WorkerBloc extends Bloc<WorkerEvent, WorkerState> {
     on<RestoreWorkerPositionEvent>(_onRestoreWorkerPosition);
     on<ForceDeleteWorkerPositionEvent>(_onForceDeleteWorkerPosition);
     on<AddWorkerToProjectEvent>(_onAddWorkerToProject);
+    on<AddWorkersToProjectEvent>(_onAddWorkersToProject);
     on<RemoveWorkerFromProjectEvent>(_onRemoveWorkerFromProject);
   }
 
@@ -54,7 +55,7 @@ class WorkerBloc extends Bloc<WorkerEvent, WorkerState> {
   ) async {
     emit(state.copyWith(statusAllWorkers: Status.loading));
     try {
-      final response = await repository.getAllWorkers();
+      final response = await repository.getAllWorkers(projectId: event.projectId);
       emit(state.copyWith(
         statusAllWorkers: Status.success,
         allWorkers: response.result,
@@ -273,6 +274,28 @@ class WorkerBloc extends Bloc<WorkerEvent, WorkerState> {
     try {
       await repository.addWorkerToProject(
         workerId: event.workerId,
+        projectId: event.projectId,
+      );
+      emit(state.copyWith(statusAction: Status.success));
+      // Reset statusAction after a short delay to allow UI to react
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(state.copyWith(statusAction: Status.initial));
+    } catch (e) {
+      emit(state.copyWith(
+        statusAction: Status.error,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  Future<void> _onAddWorkersToProject(
+    AddWorkersToProjectEvent event,
+    Emitter<WorkerState> emit,
+  ) async {
+    emit(state.copyWith(statusAction: Status.loading));
+    try {
+      await repository.addWorkersToProject(
+        workerIds: event.workerIds,
         projectId: event.projectId,
       );
       emit(state.copyWith(statusAction: Status.success));

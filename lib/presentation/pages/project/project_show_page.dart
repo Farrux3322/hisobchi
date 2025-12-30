@@ -119,7 +119,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   children: [
                     Container(
                       margin: const EdgeInsets.all(16),
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.symmetric(horizontal:  20,vertical: 16),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
@@ -296,7 +296,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
 
   Widget _buildActionButton({required String icon, required String label, required String amount, required Color color}) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 16),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
@@ -326,7 +326,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal:  20,vertical: 16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),

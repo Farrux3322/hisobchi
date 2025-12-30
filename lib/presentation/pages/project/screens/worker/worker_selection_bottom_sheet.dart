@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:hisobchi/application/worker/worker_bloc.dart';
@@ -25,11 +26,12 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
   final TextEditingController _searchController = TextEditingController();
   List<WorkerModel> _filteredWorkers = [];
   List<WorkerModel> _allWorkers = [];
+  final Set<int> _selectedWorkerIds = {};
 
   @override
   void initState() {
     super.initState();
-    context.read<WorkerBloc>().add(const GetAllWorkersEvent());
+    context.read<WorkerBloc>().add( GetAllWorkersEvent(projectId: widget.projectId));
     _searchController.addListener(_filterWorkers);
   }
 
@@ -69,15 +71,39 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
     );
 
     if (result == true && mounted) {
-      context.read<WorkerBloc>().add(const GetAllWorkersEvent());
+      context.read<WorkerBloc>().add( GetAllWorkersEvent(projectId: widget.projectId));
     }
   }
 
-  void _addWorkerToProject(WorkerModel worker) {
+  void _toggleWorkerSelection(WorkerModel worker) {
+    HapticFeedback.lightImpact();
+    setState(() {
+      if (_selectedWorkerIds.contains(worker.id)) {
+        _selectedWorkerIds.remove(worker.id);
+      } else {
+        _selectedWorkerIds.add(worker.id!);
+      }
+    });
+  }
+
+  void _submitSelectedWorkers() {
+    if (_selectedWorkerIds.isEmpty) {
+      Toast.showErrorToast(message: 'Kamida bitta ishchini tanlang');
+      return;
+    }
+
     if (widget.isSelectionMode) {
-      Navigator.pop(context, worker);
+      // For single selection mode, return the first selected worker
+      final selectedWorker = _allWorkers.firstWhere((w) => w.id == _selectedWorkerIds.first);
+      Navigator.pop(context, selectedWorker);
     } else {
-      context.read<WorkerBloc>().add(AddWorkerToProjectEvent(workerId: worker.id!, projectId: widget.projectId));
+      // Add multiple workers to project
+      context.read<WorkerBloc>().add(
+            AddWorkersToProjectEvent(
+              workerIds: _selectedWorkerIds.toList(),
+              projectId: widget.projectId,
+            ),
+          );
     }
   }
 
@@ -95,7 +121,8 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
           Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
         }
         if (state.statusAction == Status.success && !widget.isSelectionMode) {
-          Toast.showSuccessToast(message: 'Ishchi qo\'shildi');
+          HapticFeedback.mediumImpact();
+          Toast.showSuccessToast(message: '${_selectedWorkerIds.length} ta ishchi qo\'shildi');
           Navigator.pop(context, true);
         }
         if (state.statusAction == Status.error) {
@@ -123,11 +150,20 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                       icon: const Icon(Icons.close, color: Color(0xFF64748B)),
                       onPressed: () => Navigator.pop(context),
                     ),
-                    const Expanded(
-                      child: Text(
-                        'Ishchi tanlash',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-                        textAlign: TextAlign.center,
+                    Expanded(
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Ishchi tanlash',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                            textAlign: TextAlign.center,
+                          ),
+                          if (_selectedWorkerIds.isNotEmpty)
+                            Text(
+                              '${_selectedWorkerIds.length} ta tanlandi',
+                              style: const TextStyle(fontSize: 13, color: Color(0xFF5B4FFF), fontWeight: FontWeight.w500),
+                            ),
+                        ],
                       ),
                     ),
                     IconButton(
@@ -178,26 +214,84 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                 child: state.statusAllWorkers == Status.loading && _allWorkers.isEmpty
                     ? const Center(child: Loading())
                     : _filteredWorkers.isEmpty
-                    ? _buildEmptyState()
-                    : Stack(
-                        children: [
-                          ListView.separated(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemCount: _filteredWorkers.length,
-                            separatorBuilder: (context, index) => const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              final worker = _filteredWorkers[index];
-                              return Column(children: [_buildWorkerItem(worker), if (index == _filteredWorkers.length - 1) Gap(MediaQuery.of(context).padding.bottom+10)]);
-                            },
+                        ? _buildEmptyState()
+                        : Stack(
+                            children: [
+                              ListView.separated(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                itemCount: _filteredWorkers.length,
+                                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                                itemBuilder: (context, index) {
+                                  final worker = _filteredWorkers[index];
+                                  final isSelected = _selectedWorkerIds.contains(worker.id);
+                                  return Column(
+                                    children: [
+                                      _buildWorkerItem(worker, isSelected),
+                                      if (index == _filteredWorkers.length - 1) Gap(80 + MediaQuery.of(context).padding.bottom)
+                                    ],
+                                  );
+                                },
+                              ),
+                              if (state.statusAction == Status.loading)
+                                Container(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  child: const Center(child: Loading()),
+                                ),
+                            ],
                           ),
-                          if (state.statusAction == Status.loading)
-                            Container(
-                              color: Colors.black.withValues(alpha: 0.3),
-                              child: const Center(child: Loading()),
-                            ),
-                        ],
-                      ),
               ),
+
+              // Bottom Submit Button
+              if (_selectedWorkerIds.isNotEmpty)
+                Container(
+                  padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, -5),
+                      ),
+                    ],
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: state.statusAction == Status.loading ? null : _submitSelectedWorkers,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF5B4FFF),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          disabledBackgroundColor: const Color(0xFF5B4FFF).withValues(alpha: 0.5),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (state.statusAction == Status.loading)
+                              const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            else
+                              Text(
+                                'Saqlash (${_selectedWorkerIds.length})',
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         );
@@ -205,24 +299,41 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
     );
   }
 
-  Widget _buildWorkerItem(WorkerModel worker) {
+  Widget _buildWorkerItem(WorkerModel worker, bool isSelected) {
     return GestureDetector(
-      onTap: () => _addWorkerToProject(worker),
-      child: Container(
+      onTap: () => _toggleWorkerSelection(worker),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isSelected ? const Color(0xFF5B4FFF).withValues(alpha: 0.05) : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2))],
+          border: Border.all(
+            color: isSelected ? const Color(0xFF5B4FFF) : const Color(0xFFE2E8F0),
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isSelected ? 0.05 : 0.02),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            )
+          ],
         ),
         child: Row(
           children: [
             Container(
               height: 48,
               width: 48,
-              decoration: BoxDecoration(color: const Color(0xFF5B4FFF).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(Icons.person_outline, color: Color(0xFF5B4FFF), size: 24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF5B4FFF).withValues(alpha: isSelected ? 0.2 : 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.person_outline,
+                color: isSelected ? const Color(0xFF5B4FFF) : const Color(0xFF5B4FFF).withValues(alpha: 0.7),
+                size: 24,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -231,20 +342,44 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                 children: [
                   Text(
                     worker.name ?? '',
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                      color: const Color(0xFF1E293B),
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  Text(worker.workerPositionName ?? 'Lavozim ko\'rsatilmagan', style: const TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                  Text(
+                    worker.workerPositionName ?? 'Lavozim ko\'rsatilmagan',
+                    style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                  ),
                 ],
               ),
             ),
             if (worker.phone != null)
-              Text(
-                worker.phone!,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Text(
+                  worker.phone!,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                ),
               ),
-            const SizedBox(width: 8),
-            Icon(widget.isSelectionMode ? Icons.check_circle_outline : Icons.add_circle_outline, color: const Color(0xFF5B4FFF), size: 24),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: isSelected ? const Color(0xFF5B4FFF) : Colors.transparent,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? const Color(0xFF5B4FFF) : const Color(0xFF94A3B8),
+                  width: 2,
+                ),
+              ),
+              child: isSelected
+                  ? const Icon(Icons.check, color: Colors.white, size: 16)
+                  : null,
+            ),
           ],
         ),
       ),

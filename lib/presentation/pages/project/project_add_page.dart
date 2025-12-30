@@ -357,7 +357,7 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
                           TextFormField(
                             controller: _projectNameController,
                             decoration: const InputDecoration(
-                              hintText: 'Masalan: Chilonzor-10 turar joy majmuasi',
+                              hintText: 'Loyiha nomi',
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -461,9 +461,9 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
                           SizedBox(height: 8.h),
                           TextFormField(
                             controller: _addressController,
-                            maxLines: 3,
+                            maxLines: 1,
                             decoration: const InputDecoration(
-                              hintText: 'Masalan: Toshkent sh., Chilonzor tumani, Bunyodkor ko\'chasi, 10-uy',
+                              hintText: 'Masalan: Toshkent sh.',
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {

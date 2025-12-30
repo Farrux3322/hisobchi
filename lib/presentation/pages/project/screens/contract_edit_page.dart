@@ -499,17 +499,10 @@ class _ContractEditPageState extends State<ContractEditPage> {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF5B4FFF).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.work_outline,
-                size: 20,
-                color: Color(0xFF5B4FFF),
-              ),
+            const Icon(
+              Icons.work_outline,
+              size: 20,
+              color: Color(0xFF5B4FFF),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -577,84 +570,33 @@ class _ContractEditPageState extends State<ContractEditPage> {
   }
 
   Widget _buildAmountField() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF1E293B).withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    return TextField(
+      controller: _amountController,
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        _ThousandsSeparatorFormatter(),
+      ],
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF1E293B),
       ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _amountController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                _ThousandsSeparatorFormatter(),
-              ],
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1E293B),
-              ),
-              decoration: const InputDecoration(
-                hintText: '100',
-                hintStyle: TextStyle(
-                  color: Color(0xFF94A3B8),
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                suffixText: ' UZS',
-                suffixStyle: TextStyle(
-                  color: Color(0xFF64748B),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CupertinoSwitch(
-                value: _isAdvancePayment,
-                onChanged: (value) {
-                  setState(() {
-                    _isAdvancePayment = value;
-                  });
-                },
-                activeColor: const Color(0xFF5B4FFF),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Oldindan to\'lov',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: _isAdvancePayment
-                      ? const Color(0xFF5B4FFF)
-                      : const Color(0xFF94A3B8),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ],
+      decoration: const InputDecoration(
+        hintText: '100',
+        hintStyle: TextStyle(
+          color: Color(0xFF94A3B8),
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
+        border: InputBorder.none,
+        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        suffixText: ' UZS',
+        suffixStyle: TextStyle(
+          color: Color(0xFF64748B),
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

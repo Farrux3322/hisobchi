@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_event.dart';
@@ -11,6 +14,7 @@ import 'package:hisobchi/application/project_income/project_income_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/currency/currency_model.dart' as currency;
 import 'package:hisobchi/infrastructure/models/project_income_model.dart';
+import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,11 +33,41 @@ class ProjectIncomeAddEditPage extends StatefulWidget {
   State<ProjectIncomeAddEditPage> createState() => _ProjectIncomeAddEditPageState();
 }
 
-class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
+class _NumberInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    // Remove all non-digits
+    final cleanText = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+    if (cleanText.isEmpty) {
+      return newValue.copyWith(text: '', selection: const TextSelection.collapsed(offset: 0));
+    }
+
+    // Format with spaces every 3 digits from right
+    final reversed = cleanText.split('').reversed.join();
+    final chunks = <String>[];
+    for (var i = 0; i < reversed.length; i += 3) {
+      final end = i + 3;
+      chunks.add(reversed.substring(i, end > reversed.length ? reversed.length : end));
+    }
+    final formatted = chunks.join(' ').split('').reversed.join();
+
+    // Keep cursor at end
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
+
+class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _summaController = TextEditingController();
   final _descriptionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   currency.Result? _selectedCurrency;
   final List<ImageData> _images = [
@@ -42,14 +76,51 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
     ImageData(),
   ];
   bool _isEditing = false;
+  final FocusNode _summaFocusNode = FocusNode();
+  final FocusNode _descriptionFocusNode = FocusNode();
+
+  String _formatNumber(String value) {
+    if (value.isEmpty) return '';
+    // Remove all non-digits first
+    final cleanValue = value.replaceAll(RegExp(r'\D'), '');
+    if (cleanValue.isEmpty) return '';
+
+    // Format with spaces every 3 digits from right
+    final reversed = cleanValue.split('').reversed.join();
+    final chunks = <String>[];
+    for (var i = 0; i < reversed.length; i += 3) {
+      final end = i + 3;
+      chunks.add(reversed.substring(i, end > reversed.length ? reversed.length : end));
+    }
+    return chunks.join(' ').split('').reversed.join();
+  }
 
   @override
   void initState() {
     super.initState();
     _isEditing = widget.income != null;
 
+    // Animation setup
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic));
+
+    _animationController.forward();
+
     if (_isEditing) {
-      _summaController.text = widget.income!.summa ?? '';
+      // Format summa with spaces
+      final summa = widget.income!.summa ?? '';
+      _summaController.text = _formatNumber(summa);
       _descriptionController.text = widget.income!.description ?? '';
 
       if (widget.income!.currencyTypeId != null) {
@@ -58,16 +129,25 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
           name: widget.income!.currencyTypeName,
         );
       }
+
+      // Load existing images
+      if (widget.income!.files != null && widget.income!.files!.isNotEmpty) {
+        for (int i = 0; i < widget.income!.files!.length && i < 3; i++) {
+          _images[i] = ImageData(existingUrl: widget.income!.files![i]);
+        }
+      }
     }
 
-    // Load currencies
     context.read<CurrencyBloc>().add(const GetCurrency());
   }
 
   @override
   void dispose() {
+    _animationController.dispose();
     _summaController.dispose();
     _descriptionController.dispose();
+    _summaFocusNode.dispose();
+    _descriptionFocusNode.dispose();
     super.dispose();
   }
 
@@ -84,10 +164,7 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
       }
 
       final double summa = double.tryParse(_summaController.text.replaceAll(',', '').replaceAll(' ', '')) ?? 0;
-      final fileIds = _images
-          .where((img) => img.fileId != null)
-          .map((img) => img.fileId!)
-          .toList();
+      final fileIds = _images.where((img) => img.fileId != null).map((img) => img.fileId!).toList();
 
       if (_isEditing) {
         context.read<ProjectIncomeBloc>().add(
@@ -95,9 +172,7 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
                 projectIncomeId: widget.income!.id!,
                 currencyTypeId: _selectedCurrency!.id!,
                 summa: summa,
-                description: _descriptionController.text.trim().isEmpty
-                    ? null
-                    : _descriptionController.text.trim(),
+                description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
                 fileId: fileIds.isEmpty ? null : fileIds,
                 projectId: widget.projectId,
               ),
@@ -107,9 +182,7 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
               CreateProjectIncomeEvent(
                 currencyTypeId: _selectedCurrency!.id!,
                 summa: summa,
-                description: _descriptionController.text.trim().isEmpty
-                    ? null
-                    : _descriptionController.text.trim(),
+                description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
                 fileId: fileIds.isEmpty ? null : fileIds,
                 projectId: widget.projectId,
               ),
@@ -121,173 +194,89 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        surfaceTintColor: Colors.white,
-        leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          _isEditing ? 'Kirimni tahrirlash' : 'Yangi kirim',
-          style: const TextStyle(
-            color: Color(0xFF1E293B),
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: _buildAppBar(),
       body: MultiBlocListener(
-          listeners: [
-            BlocListener<FileUploadBloc, FileUploadState>(
-              listener: (context, state) {
-                if (state.status == FileUploadStatus.success) {
-                  final uploadingIndex = _images.indexWhere((img) => img.isUploading);
-                  if (uploadingIndex != -1) {
-                    setState(() {
-                      _images[uploadingIndex] = ImageData(
-                        file: _images[uploadingIndex].file,
-                        fileId: state.uploadedFileId,
-                        isUploading: false,
-                        progress: 100,
-                      );
-                    });
-                  }
-                } else if (state.status == FileUploadStatus.failure) {
-                  final uploadingIndex = _images.indexWhere((img) => img.isUploading);
-                  if (uploadingIndex != -1) {
-                    setState(() {
-                      _images[uploadingIndex] = ImageData();
-                    });
-                  }
-                  Toast.showErrorToast(
-                    message: 'Rasm yuklashda xatolik: ${state.errorMessage}',
-                  );
-                } else if (state.status == FileUploadStatus.uploading) {
-                  final uploadingIndex = _images.indexWhere((img) => img.isUploading);
-                  if (uploadingIndex != -1) {
-                    setState(() {
-                      _images[uploadingIndex] = ImageData(
-                        file: _images[uploadingIndex].file,
-                        isUploading: true,
-                        progress: state.progress,
-                      );
-                    });
-                  }
-                }
-              },
-            ),
-            BlocListener<ProjectIncomeBloc, ProjectIncomeState>(
-              listenWhen: (previous, current) {
-                // Faqat statusAction o'zgarganda va success yoki error bo'lganda listen qilish
-                return previous.statusAction != current.statusAction &&
-                    (current.statusAction == Status.success ||
-                     current.statusAction == Status.error);
-              },
-              listener: (context, state) {
-                if (state.statusAction == Status.success) {
-                  Toast.showSuccessToast(
-                    message: _isEditing ? 'Kirim yangilandi' : 'Kirim yaratildi',
-                  );
-                  Navigator.pop(context, true);
-                }
-                if (state.statusAction == Status.error) {
-                  Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-                }
-              },
-            ),
-          ],
-          child: BlocBuilder<ProjectIncomeBloc, ProjectIncomeState>(
-            builder: (context, state) {
+        listeners: [
+          BlocListener<FileUploadBloc, FileUploadState>(
+            listener: _handleFileUploadState,
+          ),
+          BlocListener<ProjectIncomeBloc, ProjectIncomeState>(
+            listenWhen: (previous, current) =>
+                previous.statusAction != current.statusAction &&
+                (current.statusAction == Status.success || current.statusAction == Status.error),
+            listener: (context, state) {
+              if (state.statusAction == Status.success) {
+                HapticFeedback.mediumImpact();
+                Toast.showSuccessToast(message: _isEditing ? 'Kirim yangilandi' : 'Kirim yaratildi');
+                Navigator.pop(context, true);
+              }
+              if (state.statusAction == Status.error) {
+                HapticFeedback.heavyImpact();
+                Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<ProjectIncomeBloc, ProjectIncomeState>(
+          builder: (context, state) {
             return Stack(
               children: [
-                SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildCurrencySelector(),
-                        const SizedBox(height: 16),
-                        _buildTextField(
-                          controller: _summaController,
-                          label: 'Summa*',
-                          hint: 'Miqdorni kiriting',
-                          icon: Icons.attach_money,
-                          keyboardType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Summani kiriting';
-                            }
-                            final number = double.tryParse(value.replaceAll(',', '').replaceAll(' ', ''));
-                            if (number == null || number <= 0) {
-                              return 'To\'g\'ri summa kiriting';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        _buildTextField(
-                          controller: _descriptionController,
-                          label: 'Izoh',
-                          hint: 'Qo\'shimcha ma\'lumot',
-                          icon: Icons.description_outlined,
-                          maxLines: 1,
-                        ),
-                        const SizedBox(height: 24),
-                        const Text(
-                          'Rasmlar',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1E293B),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildImagePickers(),
-                        const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 52,
-                          child: ElevatedButton(
-                            onPressed: state.statusAction == Status.loading ? null : _submit,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF5B4FFF),
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(20.w),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: _buildPriceTextField(
+                                    controller: _summaController,
+                                    focusNode: _summaFocusNode,
+                                    label: 'Miqdor',
+                                    hint: 'Summani kiriting',
+                                    icon: Icons.payments_outlined,
+                                    isRequired: true,
+                                  ),
+                                ),
+                                SizedBox(width: 12.w),
+                                Expanded(
+                                  flex: 2,
+                                  child: _buildCurrencySelector(),
+                                ),
+                              ],
                             ),
-                            child: Text(
-                              _isEditing ? 'Saqlash' : 'Yaratish',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
+                            SizedBox(height: 20.h),
+                            _buildTextField(
+                              controller: _descriptionController,
+                              focusNode: _descriptionFocusNode,
+                              label: 'Izoh',
+                              hint: 'Qo\'shimcha ma\'lumot (ixtiyoriy)',
+                              icon: Icons.description_outlined,
+                              maxLines: 1,
                             ),
-                          ),
+                            SizedBox(height: 32.h),
+                            _buildSectionHeader('Hujjat rasmlari', Icons.image_outlined),
+                            SizedBox(height: 16.h),
+                            _buildImagePickers(),
+                            SizedBox(height: 32.h),
+                            _buildSubmitButton(state),
+                            SizedBox(height: MediaQuery.of(context).padding.bottom + 20.h),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-                if (state.statusAction == Status.loading)
-                  Container(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    child: const Center(child: Loading()),
-                  ),
+                if (state.statusAction == Status.loading) _buildLoadingOverlay(),
               ],
             );
           },
@@ -296,59 +285,237 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
     );
   }
 
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+
+      elevation: 0,
+      surfaceTintColor: Colors.white,
+      systemOverlayStyle: SystemUiOverlayStyle.dark,
+      leading: InkWell(
+        onTap: () => Navigator.of(context).maybePop(),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          margin: const EdgeInsets.all(8),
+
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+              BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+              BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
+            ],
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.arrow_back, color: Colors.black),
+        ),
+      ),
+      title: Text(
+        _isEditing ? 'Kirimni tahrirlash' : 'Yangi kirim',
+        style: TextStyle(
+          color: AppTheme.colors.black,
+          fontSize: 18.sp,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      centerTitle: true,
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(8.w),
+          decoration: BoxDecoration(
+            color: AppTheme.colors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+          child: Icon(icon, size: 20.sp, color: AppTheme.colors.primary),
+        ),
+        SizedBox(width: 12.w),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.colors.black,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPriceTextField({
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required String label,
+    required String hint,
+    required IconData icon,
+    bool isRequired = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.colors.black,
+              ),
+            ),
+            if (isRequired)
+              Text(
+                ' *',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFEF4444),
+                ),
+              ),
+          ],
+        ),
+        SizedBox(height: 8.h),
+        TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            _NumberInputFormatter(),
+          ],
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Summani kiriting';
+            }
+            final number = double.tryParse(value.replaceAll(',', '').replaceAll(' ', ''));
+            if (number == null || number <= 0) {
+              return 'To\'g\'ri summa kiriting';
+            }
+            return null;
+          },
+          style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              color: const Color(0xFF94A3B8),
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+            ),
+            prefixIcon: Container(
+              margin: EdgeInsets.only(right: 12.w, left: 12.w),
+              child: Icon(icon, color: AppTheme.colors.primary, size: 22.sp),
+            ),
+            prefixIconConstraints: BoxConstraints(minWidth: 44.w),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2),
+            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildTextField({
     required TextEditingController controller,
+    required FocusNode focusNode,
     required String label,
     required String hint,
     required IconData icon,
     TextInputType? keyboardType,
     int maxLines = 1,
+    bool isRequired = false,
     String? Function(String?)? validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1E293B),
-          ),
+        Row(
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.colors.black,
+              ),
+            ),
+            if (isRequired)
+              Text(
+                ' *',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFEF4444),
+                ),
+              ),
+          ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         TextFormField(
           controller: controller,
+          focusNode: focusNode,
           keyboardType: keyboardType,
           maxLines: maxLines,
           validator: validator,
+          style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-            prefixIcon: Icon(icon, color: const Color(0xFF64748B), size: 20),
+            hintStyle: TextStyle(
+              color: const Color(0xFF94A3B8),
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+            ),
+            prefixIcon: Container(
+              margin: EdgeInsets.only(right: 12.w, left: 12.w),
+              child: Icon(icon, color: AppTheme.colors.primary, size: 22.sp),
+            ),
+            prefixIconConstraints: BoxConstraints(minWidth: 44.w),
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red),
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red, width: 2),
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
           ),
         ),
       ],
@@ -363,49 +530,72 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Valyuta*',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1E293B),
-              ),
+            Row(
+              children: [
+                Text(
+                  'Valyuta',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.colors.black,
+                  ),
+                ),
+                Text(
+                  ' *',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFFEF4444),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              height: 48.h,
+              padding: EdgeInsets.symmetric(horizontal: 12.w),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(
+                  color: const Color(0xFFE2E8F0),
+                  width: 1.5
+                ),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<currency.Result>(
+
                   value: _selectedCurrency,
                   isExpanded: true,
-                  hint: const Row(
-                    children: [
-                      Icon(Icons.currency_exchange, color: Color(0xFF64748B), size: 20),
-                      SizedBox(width: 12),
-                      Text(
-                        'Valyutani tanlang',
-                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                      ),
-                    ],
+                  hint: Text(
+                    'Tanlang',
+                    style: TextStyle(
+                      color: const Color(0xFF94A3B8),
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                  icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF64748B)),
+                  icon: Icon(Icons.keyboard_arrow_down, color: AppTheme.colors.primary, size: 20.sp),
+                  dropdownColor: Colors.white,
+                  borderRadius: BorderRadius.circular(16.r),
+                  elevation: 8,
+                  itemHeight: 56.h,
+                  menuMaxHeight: 300.h,
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.colors.black,
+                  ),
                   items: currencies.map((currency.Result currencyItem) {
                     return DropdownMenuItem<currency.Result>(
                       value: currencyItem,
-                      child: Row(
-                        children: [
-                          const Icon(Icons.currency_exchange, color: Color(0xFF64748B), size: 20),
-                          const SizedBox(width: 12),
-                          Text(
-                            currencyItem.name ?? '',
-                            style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B)),
-                          ),
-                        ],
+                      child: Text(
+                        currencyItem.name ?? '',
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.colors.black,
+                        ),
                       ),
                     );
                   }).toList(),
@@ -413,6 +603,7 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
                     setState(() {
                       _selectedCurrency = value;
                     });
+                    HapticFeedback.selectionClick();
                   },
                 ),
               ),
@@ -423,106 +614,247 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
     );
   }
 
+  Widget _buildImagePickers() {
+    return GridView.builder(
+      shrinkWrap: true,
+      padding: EdgeInsets.zero,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 12.w,
+        mainAxisSpacing: 12.h,
+        childAspectRatio: 1,
+      ),
+      itemCount: 3,
+      itemBuilder: (context, index) {
+        final imageData = _images[index];
+        final hasImage = imageData.file != null || imageData.existingUrl != null;
+        final canAddImage = index == 0 || (_images[index - 1].file != null || _images[index - 1].existingUrl != null);
+
+        return GestureDetector(
+          onTap: canAddImage && !hasImage
+              ? () {
+                  HapticFeedback.lightImpact();
+                  _showImageSourceDialog(index);
+                }
+              : null,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              color: hasImage ? Colors.white : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(
+                color: hasImage ? AppTheme.colors.primary.withValues(alpha: 0.3) : const Color(0xFFE2E8F0),
+                width: hasImage ? 2 : 1.5,
+              ),
+              boxShadow: hasImage
+                  ? [
+                      BoxShadow(
+                        color: AppTheme.colors.primary.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: hasImage ? _buildImagePreview(imageData, index) : _buildImagePlaceholder(canAddImage, index),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildImagePreview(ImageData imageData, int index) {
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(14.r),
+          child: imageData.file != null
+              ? Image.file(
+                  imageData.file!,
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                )
+              : CachedNetworkImage(
+                  imageUrl: imageData.existingUrl!,
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary),
+                      strokeWidth: 2,
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => const Icon(Icons.error_outline),
+                ),
+        ),
+        if (imageData.isUploading)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 32.w,
+                    height: 32.h,
+                    child: CircularProgressIndicator(
+                      value: imageData.progress / 100,
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary),
+                      strokeWidth: 3,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    '${imageData.progress.toStringAsFixed(0)}%',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else ...[
+          Positioned(
+            top: 6.h,
+            right: 6.w,
+            child: GestureDetector(
+              onTap: () {
+                HapticFeedback.mediumImpact();
+                _removeImage(index);
+              },
+              child: Container(
+                padding: EdgeInsets.all(6.w),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEF4444),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(Icons.close, color: Colors.white, size: 14.sp),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 6.h,
+            right: 6.w,
+            child: Container(
+              padding: EdgeInsets.all(6.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFF10B981),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(Icons.check, color: Colors.white, size: 12.sp),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildImagePlaceholder(bool canAddImage, int index) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            canAddImage ? Icons.add_photo_alternate_outlined : Icons.image_outlined,
+            color: canAddImage ? AppTheme.colors.primary : const Color(0xFF94A3B8),
+            size: 32.sp,
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'Rasm ${index + 1}',
+            style: TextStyle(
+              fontSize: 11.sp,
+              color: canAddImage ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _showImageSourceDialog(int index) async {
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(24.w),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 40,
-                    height: 4,
+                    width: 48.w,
+                    height: 4.h,
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
+                      color: const Color(0xFFE2E8F0),
+                      borderRadius: BorderRadius.circular(2.r),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
+                  SizedBox(height: 24.h),
+                  Text(
                     'Rasm tanlash',
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E293B),
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.colors.black,
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  ListTile(
-                    leading: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF5B4FFF).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt_rounded,
-                        color: Color(0xFF5B4FFF),
-                      ),
-                    ),
-                    title: const Text(
-                      'Kamera',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    subtitle: const Text(
-                      'Yangi rasm olish',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
+                  SizedBox(height: 24.h),
+                  _buildImageSourceOption(
+                    icon: Icons.camera_alt_rounded,
+                    title: 'Kamera',
+                    subtitle: 'Yangi rasm olish',
+                    color: AppTheme.colors.primary,
                     onTap: () {
                       Navigator.pop(context);
                       _pickImage(ImageSource.camera, index);
                     },
                   ),
-                  const SizedBox(height: 8),
-                  ListTile(
-                    leading: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.photo_library_rounded,
-                        color: Color(0xFF10B981),
-                      ),
-                    ),
-                    title: const Text(
-                      'Galereya',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    subtitle: const Text(
-                      'Mavjud rasmdan tanlash',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
+                  SizedBox(height: 12.h),
+                  _buildImageSourceOption(
+                    icon: Icons.photo_library_rounded,
+                    title: 'Galereya',
+                    subtitle: 'Mavjud rasmdan tanlash',
+                    color: const Color(0xFF10B981),
                     onTap: () {
                       Navigator.pop(context);
                       _pickImage(ImageSource.gallery, index);
                     },
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 16.h),
                 ],
               ),
             ),
@@ -532,154 +864,182 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
     );
   }
 
-  Widget _buildImagePickers() {
-    return GridView.builder(
-      shrinkWrap: true,
-      padding: EdgeInsets.zero,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1,
+  Widget _buildImageSourceOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
+        borderRadius: BorderRadius.circular(16.r),
+        child: Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 56.w,
+                height: 56.h,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+                child: Icon(icon, color: color, size: 28.sp),
+              ),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: const Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios, size: 18.sp, color: const Color(0xFF94A3B8)),
+            ],
+          ),
+        ),
       ),
-      itemCount: 3,
-      itemBuilder: (context, index) {
-        final imageData = _images[index];
-        final hasImage = imageData.file != null;
-        final canAddImage = index == 0 || _images[index - 1].file != null;
+    );
+  }
 
-        return GestureDetector(
-          onTap: canAddImage && !hasImage ? () => _showImageSourceDialog(index) : null,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: hasImage
-                    ? const Color(0xFF5B4FFF).withValues(alpha: 0.2)
-                    : const Color(0xFFE2E8F0),
-                width: hasImage ? 2 : 1,
+  Widget _buildSubmitButton(ProjectIncomeState state) {
+    final isLoading = state.statusAction == Status.loading;
+
+    return SizedBox(
+      width: double.infinity,
+      height: 56.h,
+      child: ElevatedButton(
+        onPressed: isLoading ? null : _submit,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppTheme.colors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          disabledBackgroundColor: AppTheme.colors.primary.withValues(alpha: 0.5),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+          shadowColor: AppTheme.colors.primary.withValues(alpha: 0.4),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (isLoading)
+              SizedBox(
+                width: 20.w,
+                height: 20.h,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            else
+            Text(
+              isLoading ? 'Yuklanmoqda...' : (_isEditing ? 'Saqlash' : 'Yaratish'),
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.5,
               ),
             ),
-            child: hasImage
-                ? Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.file(
-                          imageData.file!,
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      if (imageData.isUploading) ...[
-                        Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.6),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    value: imageData.progress / 100,
-                                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  '${imageData.progress.toStringAsFixed(0)}%',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ] else ...[
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: GestureDetector(
-                            onTap: () => _removeImage(index),
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFEF4444),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                                size: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 4,
-                          right: 4,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF10B981),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.check,
-                              color: Colors.white,
-                              size: 10,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  )
-                : Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add_photo_alternate_outlined,
-                          color: canAddImage
-                              ? const Color(0xFF5B4FFF)
-                              : const Color(0xFF94A3B8),
-                          size: 28,
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          canAddImage ? 'Rasm' : 'Kutish',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: canAddImage
-                                ? const Color(0xFF64748B)
-                                : const Color(0xFF94A3B8),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
+  }
+
+  Widget _buildLoadingOverlay() {
+    return Container(
+      color: Colors.black.withValues(alpha: 0.4),
+      child: Center(
+        child: Container(
+          padding: EdgeInsets.all(32.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20.r),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Loading(),
+              SizedBox(height: 16.h),
+              Text(
+                'Yuklanmoqda...',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleFileUploadState(BuildContext context, FileUploadState state) {
+    if (state.status == FileUploadStatus.success) {
+      final uploadingIndex = _images.indexWhere((img) => img.isUploading);
+      if (uploadingIndex != -1) {
+        setState(() {
+          _images[uploadingIndex] = ImageData(
+            file: _images[uploadingIndex].file,
+            fileId: state.uploadedFileId,
+            isUploading: false,
+            progress: 100,
+          );
+        });
+      }
+    } else if (state.status == FileUploadStatus.failure) {
+      final uploadingIndex = _images.indexWhere((img) => img.isUploading);
+      if (uploadingIndex != -1) {
+        setState(() {
+          _images[uploadingIndex] = ImageData();
+        });
+      }
+      Toast.showErrorToast(message: 'Rasm yuklashda xatolik: ${state.errorMessage}');
+    } else if (state.status == FileUploadStatus.uploading) {
+      final uploadingIndex = _images.indexWhere((img) => img.isUploading);
+      if (uploadingIndex != -1) {
+        setState(() {
+          _images[uploadingIndex] = ImageData(
+            file: _images[uploadingIndex].file,
+            isUploading: true,
+            progress: state.progress,
+          );
+        });
+      }
+    }
   }
 
   Future<void> _pickImage(ImageSource source, int index) async {
     if (index > 0 && _images[index - 1].file == null) {
-      Toast.showErrorToast(message: 'Avval $index-rasmni yuklang');
+      Toast.showErrorToast(message: 'Avval ${index}-rasmni yuklang');
       return;
     }
 
@@ -719,12 +1079,14 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> {
 class ImageData {
   final File? file;
   final int? fileId;
+  final String? existingUrl;
   final bool isUploading;
   final double progress;
 
   ImageData({
     this.file,
     this.fileId,
+    this.existingUrl,
     this.isUploading = false,
     this.progress = 0,
   });

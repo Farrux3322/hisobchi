@@ -50,7 +50,7 @@ class _WorkTypeListBottomSheetState extends State<WorkTypeListBottomSheet> {
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
       builder: (context) => BlocProvider.value(value: context.read<WorkTypeBloc>(), child: const WorkTypeAddEditBottomSheet()),
     );
 
@@ -63,7 +63,7 @@ class _WorkTypeListBottomSheetState extends State<WorkTypeListBottomSheet> {
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
       builder: (context) => BlocProvider.value(
         value: context.read<WorkTypeBloc>(),
         child: WorkTypeAddEditBottomSheet(workType: workType),

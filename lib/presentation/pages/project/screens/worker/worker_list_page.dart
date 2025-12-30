@@ -316,7 +316,7 @@ class _WorkerListPageState extends State<WorkerListPage> {
       return SliverStickyHeader(
         header: Container(
           height: 50,
-          color: const Color(0xFFF5F5F5),
+          color: Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           alignment: Alignment.centerLeft,
           child: Text(

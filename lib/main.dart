@@ -12,6 +12,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hisobchi/application/auth/init/init_auth_bloc.dart';
 import 'package:hisobchi/application/contract/contract_bloc.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
+import 'package:hisobchi/application/dashboard/dashboard_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/notification/notification_bloc.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
@@ -147,6 +148,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => InitAuthBloc()),
         BlocProvider(create: (context) => PartnerBloc()),
         BlocProvider(create: (context) => ProjectBloc()),
+        BlocProvider(create: (context) => DashboardBloc()),
         BlocProvider(create: (context) => WorkTypeBloc()),
         BlocProvider(create: (context) => ProjectCostBloc(repository: ProjectCostRepository())),
         BlocProvider(create: (context) => ProjectIncomeBloc(repository: ProjectIncomeRepository())),

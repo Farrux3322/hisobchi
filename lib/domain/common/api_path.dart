@@ -1,7 +1,7 @@
-// ///Global
-// const baseUrlApp = "http://finance-stroy.garant.uz/api/";
+// ///Local
+// const baseUrlApp = "http://10.100.104.111/api";
 
-///Local
+///Global
 const String baseUrlApp = "https://api.ehisob.uz/api/";
 
 

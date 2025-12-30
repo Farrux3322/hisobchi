@@ -88,6 +88,7 @@ class ClientCardItem extends StatelessWidget {
                       ),
                     ),
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Row(
                           children: [

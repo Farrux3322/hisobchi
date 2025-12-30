@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/project_income/project_income_bloc.dart';
 import 'package:hisobchi/application/project_income/project_income_event.dart';
 import 'package:hisobchi/application/project_income/project_income_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/project_income_model.dart';
+import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_add_edit_page.dart';
@@ -210,39 +212,26 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7FA),
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.white,
-        leading: IconButton(
-          icon: Container(
+        leading: InkWell(
+          onTap: () => Navigator.of(context).maybePop(),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
             padding: const EdgeInsets.all(8),
+            margin: const EdgeInsets.all(8),
+
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color.fromRGBO(255, 255, 255, 0.1),
-                  blurRadius: 1,
-                  spreadRadius: 0,
-                  offset: Offset(0, 1),
-                ),
-                BoxShadow(
-                  color: Color.fromRGBO(50, 50, 93, 0.25),
-                  blurRadius: 100,
-                  spreadRadius: -20,
-                  offset: Offset(0, 50),
-                ),
-                BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.3),
-                  blurRadius: 60,
-                  spreadRadius: -30,
-                  offset: Offset(0, 30),
-                ),
+              boxShadow: [
+                BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+                BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+                BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
               ],
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+            child: const Icon(Icons.arrow_back, color: Colors.black),
           ),
-          onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Loyiha kirimlari',
@@ -310,7 +299,7 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
               children: [
                 // Search Bar
                 Container(
-                  color: Colors.white,
+                  color: Colors.transparent,
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
                   child: TextField(
                     controller: _searchController,
@@ -383,7 +372,7 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
       return SliverStickyHeader(
         header: Container(
           height: 50,
-          color: const Color(0xFFF5F5F5),
+          color:Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           alignment: Alignment.centerLeft,
           child: Text(
@@ -535,10 +524,10 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFF10B981).withValues(alpha: 0.1),
+              color: AppTheme.colors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.attach_money, size: 64, color: Color(0xFF10B981)),
+            child: SvgPicture.asset(AppIcons.income,height: 40,width: 40,colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),),
           ),
           const SizedBox(height: 24),
           Text(

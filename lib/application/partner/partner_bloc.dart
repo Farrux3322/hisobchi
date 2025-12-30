@@ -33,7 +33,13 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
   Future<void> getAll(GetAllEvent event, Emitter<PartnerState> emit) async {
     emit(state.copyWith(status: Status.loading, statusAdd: Status.pure));
     try {
-      final data = await _repo.get();
+      final data = await _repo.get(
+        startDate: event.startDate,
+        endDate: event.endDate,
+        search: event.search,
+        sort: event.sort,
+        statusFilter: event.statusFilter,
+      );
 
       if (data["status"] == true) {
         List<PartnerModel> model = [];
