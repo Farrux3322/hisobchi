@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
+import 'package:hisobchi/application/client_report/client_report_bloc.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/dashboard/dashboard_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
+import 'package:hisobchi/infrastructure/repository/client_report/client_report_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:hisobchi/presentation/pages/currency/currency_page.dart';
+import 'package:hisobchi/presentation/pages/dashboard/client_report/client_report_main_page.dart';
 import 'package:shimmer/shimmer.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -291,12 +294,27 @@ class _DashboardPageState extends State<DashboardPage> {
     return Row(
       children: [
         Expanded(
-          child: _buildStatCard(
-            icon: AppIcons.clients,
-            title: 'Mijozlar',
-            value: '${result.totalPartnersCount ?? 0}',
-            color: const Color(0xFF10B981),
-            iconBgColor: const Color(0xFFD1FAE5),
+          child: GestureDetector(
+            onTap: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BlocProvider(
+                    create: (context) => ClientReportBloc(
+                      repository: ClientReportRepository(),
+                    ),
+                    child: const ClientReportMainPage(),
+                  ),
+                ),
+              );
+            },
+            child: _buildStatCard(
+              icon: AppIcons.clients,
+              title: 'Mijozlar',
+              value: '${result.totalPartnersCount ?? 0}',
+              color: const Color(0xFF10B981),
+              iconBgColor: const Color(0xFFD1FAE5),
+            ),
           ),
         ),
         SizedBox(width: 12.w),
