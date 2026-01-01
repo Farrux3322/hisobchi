@@ -214,22 +214,22 @@ class _ClientReportThreePageState extends State<ClientReportThreePage> {
                     children: [
                       Row(
                         children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                            decoration: BoxDecoration(
-                              color: _getTypeColor().withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4.r),
-                            ),
-                            child: Text(
-                              transaction.currencyTypeName,
-                              style: TextStyle(
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w600,
-                                color: _getTypeColor(),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 6.w),
+                          // Container(
+                          //   padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                          //   decoration: BoxDecoration(
+                          //     color: _getTypeColor().withValues(alpha: 0.1),
+                          //     borderRadius: BorderRadius.circular(4.r),
+                          //   ),
+                          //   child: Text(
+                          //     transaction.currencyTypeName,
+                          //     style: TextStyle(
+                          //       fontSize: 10.sp,
+                          //       fontWeight: FontWeight.w600,
+                          //       color: _getTypeColor(),
+                          //     ),
+                          //   ),
+                          // ),
+                          // SizedBox(width: 6.w),
                           Text(
                             _formatDate(transaction.createdAt),
                             style: TextStyle(fontSize: 11.sp, color: const Color(0xFF94A3B8)),
@@ -249,13 +249,27 @@ class _ClientReportThreePageState extends State<ClientReportThreePage> {
                   ),
                 ),
                 SizedBox(width: 12.w),
-                Text(
-                  _formatCurrency(transaction.amount),
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: _getTypeColor(),
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _formatCurrency(transaction.amount),
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        color: _getTypeColor(),
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      transaction.currencyTypeName,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        color: _getTypeColor().withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -274,7 +288,7 @@ class _ClientReportThreePageState extends State<ClientReportThreePage> {
                     Icon(Icons.event, size: 12.sp, color: const Color(0xFF64748B)),
                     SizedBox(width: 4.w),
                     Text(
-                      'Qaytarish: ${transaction.returnDate}',
+                      'Qaytarish: ${_formatDate(transaction.returnDate??'')}',
                       style: TextStyle(fontSize: 11.sp, color: const Color(0xFF64748B)),
                     ),
                   ],

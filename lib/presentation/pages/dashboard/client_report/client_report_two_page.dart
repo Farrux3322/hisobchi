@@ -307,28 +307,23 @@ class _ClientReportTwoPageState extends State<ClientReportTwoPage> {
       child: Row(
         children: [
           Expanded(
-            flex: 2,
             child: Text(
               title,
               style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w500),
             ),
           ),
-          Expanded(
-            flex: 3,
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildCurrencyItem('UZS', balance.uzs, color),
-                ),
-                Container(width: 1, height: 32.h, color: const Color(0xFFE2E8F0), margin: EdgeInsets.symmetric(horizontal: 8.w)),
-                Expanded(
-                  child: _buildCurrencyItem('USD', balance.usd, color),
-                ),
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _buildCurrencyItem('UZS', balance.uzs, color),
+              SizedBox(height: 6.h),
+              _buildCurrencyItem('USD', balance.usd, color),
+            ],
           ),
-          if (onTap != null)
+          if (onTap != null) ...[
+            SizedBox(width: 8.w),
             Icon(Icons.arrow_forward_ios, size: 14.sp, color: const Color(0xFF94A3B8)),
+          ],
         ],
       ),
     );
@@ -344,21 +339,21 @@ class _ClientReportTwoPageState extends State<ClientReportTwoPage> {
   }
 
   Widget _buildCurrencyItem(String currency, double amount, Color color) {
-    final displayAmount = currency == 'USD' ? '\$${_formatCurrency(amount)}' : _formatCurrency(amount);
+    final displayAmount = _formatCurrency(amount);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          currency,
-          style: TextStyle(fontSize: 10.sp, color: const Color(0xFF94A3B8)),
-        ),
-        SizedBox(height: 2.h),
         Text(
           displayAmount,
           style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: color),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+        ),
+        SizedBox(width: 4.w),
+        Text(
+          currency,
+          style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: color.withValues(alpha: 0.7)),
         ),
       ],
     );
