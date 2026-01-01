@@ -44,7 +44,6 @@ class _ProjectEditPageState extends State<ProjectEditPage> {
     super.initState();
     _projectNameController = TextEditingController(text: widget.projectModel.projectName);
     _ownerNameController = TextEditingController(text: widget.projectModel.projectOwner);
-    _phoneController = TextEditingController(text: widget.projectModel.phone);
     _addressController = TextEditingController(text: widget.projectModel.address);
     _locationController = TextEditingController(text: widget.projectModel.location);
 
@@ -52,9 +51,18 @@ class _ProjectEditPageState extends State<ProjectEditPage> {
     _maskFormatter = MaskTextInputFormatter(
       mask: '+998 (##) ###-##-##',
       filter: {"#": RegExp(r'[0-9]')},
-      initialText: widget.projectModel.phone,
       type: MaskAutoCompletionType.lazy,
     );
+
+    // Format phone number
+    final phone = widget.projectModel.phone ?? '';
+    final digitsOnly = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    // Remove leading 998 if present (since mask already has +998)
+    final phoneDigits = digitsOnly.startsWith('998') && digitsOnly.length == 12
+        ? digitsOnly.substring(3)
+        : digitsOnly;
+    final formattedPhone = _maskFormatter.maskText(phoneDigits);
+    _phoneController = TextEditingController(text: formattedPhone);
 
     // Initial image URL ni olish
     if (widget.projectModel.files != null && widget.projectModel.files!.isNotEmpty) {

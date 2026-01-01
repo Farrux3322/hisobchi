@@ -260,7 +260,7 @@ class GlassBottomNavBar extends StatelessWidget {
               children: [
                 _GlassNavItem(icon: AppIcons.profile, label: 'Home', isSelected: navBarConfig.selectedIndex == 0, onTap: () => navBarConfig.onItemSelected(0)),
                 _GlassNavItem(icon: AppIcons.clients, label: 'Mijozlar', isSelected: navBarConfig.selectedIndex == 1, onTap: () => navBarConfig.onItemSelected(1)),
-                _GlassNavItem(icon: AppIcons.project, label: 'Proyektlar', isSelected: navBarConfig.selectedIndex == 2, onTap: () => navBarConfig.onItemSelected(2)),
+                _GlassNavItem(icon: AppIcons.project, label: 'Loyihalar', isSelected: navBarConfig.selectedIndex == 2, onTap: () => navBarConfig.onItemSelected(2)),
                 _GlassNavItem(icon: AppIcons.profile, label: 'Profile', isSelected: navBarConfig.selectedIndex == 3, onTap: () => navBarConfig.onItemSelected(3)),
               ],
             ),

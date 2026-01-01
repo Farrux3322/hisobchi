@@ -18,20 +18,41 @@ class ClientReportMainPage extends StatefulWidget {
   State<ClientReportMainPage> createState() => _ClientReportMainPageState();
 }
 
-class _ClientReportMainPageState extends State<ClientReportMainPage> {
+class _ClientReportMainPageState extends State<ClientReportMainPage> with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   List<ClientReportPartner> _filteredPartners = [];
   String _selectedFilter = 'all';
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {
+          switch (_tabController.index) {
+            case 0:
+              _selectedFilter = 'all';
+              break;
+            case 1:
+              _selectedFilter = 'debt';
+              break;
+            case 2:
+              _selectedFilter = 'credit';
+              break;
+          }
+          _filterPartners();
+        });
+      }
+    });
     _searchController.addListener(_filterPartners);
     context.read<ClientReportBloc>().add(const GetSectionOneReportEvent());
   }
 
   @override
   void dispose() {
+    _tabController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -42,12 +63,11 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> {
 
     setState(() {
       _filteredPartners = state.partners.where((partner) {
-        final matchesSearch = query.isEmpty ||
-            partner.name.toLowerCase().contains(query) ||
-            partner.phone.toLowerCase().contains(query);
+        final matchesSearch = query.isEmpty || partner.name.toLowerCase().contains(query) || partner.phone.toLowerCase().contains(query);
 
         final balanceStatus = partner.balance.getBalanceStatus();
-        final matchesFilter = _selectedFilter == 'all' ||
+        final matchesFilter =
+            _selectedFilter == 'all' ||
             (_selectedFilter == 'debt' && balanceStatus == 'debt') ||
             (_selectedFilter == 'credit' && balanceStatus == 'credit') ||
             (_selectedFilter == 'neutral' && balanceStatus == 'neutral');
@@ -96,9 +116,11 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> {
             child: Column(
               children: [
                 _buildStats(state),
-                _buildSearchBar(),
+                // _buildSearchBar(),
                 _buildFilters(),
-                Expanded(child: _buildPartnersList(state)),
+                Expanded(
+                  child: TabBarView(controller: _tabController, children: [_buildPartnersList(state), _buildPartnersList(state), _buildPartnersList(state)]),
+                ),
               ],
             ),
           );
@@ -113,7 +135,7 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> {
       elevation: 0,
       surfaceTintColor: Colors.white,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, size: 20,color: Colors.black54,),
+        icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.black54),
         onPressed: () => Navigator.pop(context),
       ),
       title: const Text('Mijozlar hisoboti', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
@@ -129,7 +151,7 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> {
     final credit = state.partners.where((p) => !p.balance.hasDebt() && (p.balance.uzs > 0 || p.balance.usd > 0)).length;
 
     return Container(
-      margin: EdgeInsets.all(16.w),
+      margin: EdgeInsets.symmetric(horizontal: 16.w).copyWith(top: 10.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -142,7 +164,7 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> {
           Container(width: 1, height: 30.h, color: const Color(0xFFE2E8F0)),
           Expanded(child: _buildStatItem('Qarz', debt.toString(), const Color(0xFFEF4444))),
           Container(width: 1, height: 30.h, color: const Color(0xFFE2E8F0)),
-          Expanded(child: _buildStatItem('Kredit', credit.toString(), const Color(0xFF10B981))),
+          Expanded(child: _buildStatItem('Haqdor', credit.toString(), const Color(0xFF10B981))),
         ],
       ),
     );
@@ -173,12 +195,7 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> {
           hintText: 'Qidirish...',
           hintStyle: TextStyle(fontSize: 14.sp, color: const Color(0xFF94A3B8)),
           border: InputBorder.none,
-          suffixIcon: _searchController.text.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.close, size: 18),
-                  onPressed: () => _searchController.clear(),
-                )
-              : null,
+          suffixIcon: _searchController.text.isNotEmpty ? IconButton(icon: const Icon(Icons.close, size: 18), onPressed: () => _searchController.clear()) : null,
         ),
         style: TextStyle(fontSize: 14.sp),
       ),
@@ -187,48 +204,27 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> {
 
   Widget _buildFilters() {
     return Container(
-      height: 40.h,
-      margin: EdgeInsets.symmetric(vertical: 12.h),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        children: [
-          _buildFilterChip('Barchasi', 'all'),
-          SizedBox(width: 8.w),
-          _buildFilterChip('Qarzdorlar', 'debt', const Color(0xFFEF4444)),
-          SizedBox(width: 8.w),
-          _buildFilterChip('Kreditorlar', 'credit', const Color(0xFF10B981)),
-          SizedBox(width: 8.w),
-          _buildFilterChip('Neytral', 'neutral', const Color(0xFF64748B)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, String value, [Color? color]) {
-    final isSelected = _selectedFilter == value;
-    final chipColor = color ?? AppTheme.colors.primary;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() => _selectedFilter = value);
-        _filterPartners();
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-        decoration: BoxDecoration(
-          color: isSelected ? chipColor : Colors.white,
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(10.r)),
+      child: TabBar(
+        controller: _tabController,
+        indicator: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(color: isSelected ? chipColor : const Color(0xFFE2E8F0)),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))],
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : const Color(0xFF64748B),
-          ),
-        ),
+        indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
+        labelColor: AppTheme.colors.primary,
+        unselectedLabelColor: const Color(0xFF64748B),
+        labelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500),
+        indicatorPadding: EdgeInsets.all(4.w),
+        tabs: const [
+          Tab(text: 'Barchasi'),
+          Tab(text: 'Qarzdorlar'),
+          Tab(text: 'Haqdorlar'),
+        ],
       ),
     );
   }
@@ -245,13 +241,12 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> {
           children: [
             Icon(Icons.error_outline, size: 48.sp, color: const Color(0xFFEF4444)),
             SizedBox(height: 12.h),
-            Text('Xatolik yuz berdi', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600)),
-            SizedBox(height: 8.h),
-            TextButton.icon(
-              onPressed: () => context.read<ClientReportBloc>().add(const GetSectionOneReportEvent()),
-              icon: const Icon(Icons.refresh),
-              label: const Text('Qayta urinish'),
+            Text(
+              'Xatolik yuz berdi',
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
             ),
+            SizedBox(height: 8.h),
+            TextButton.icon(onPressed: () => context.read<ClientReportBloc>().add(const GetSectionOneReportEvent()), icon: const Icon(Icons.refresh), label: const Text('Qayta urinish')),
           ],
         ),
       );
@@ -264,14 +259,17 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> {
           children: [
             Icon(Icons.people_outline, size: 48.sp, color: const Color(0xFF94A3B8)),
             SizedBox(height: 12.h),
-            Text('Mijoz topilmadi', style: TextStyle(fontSize: 16.sp, color: const Color(0xFF64748B))),
+            Text(
+              'Mijoz topilmadi',
+              style: TextStyle(fontSize: 16.sp, color: const Color(0xFF64748B)),
+            ),
           ],
         ),
       );
     }
 
     return ListView.separated(
-      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h + MediaQuery.of(context).padding.bottom),
       itemCount: _filteredPartners.length,
       separatorBuilder: (_, __) => SizedBox(height: 8.h),
       itemBuilder: (context, index) => _buildPartnerCard(_filteredPartners[index]),
@@ -289,9 +287,9 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> {
           context,
           MaterialPageRoute(
             builder: (c) => BlocProvider.value(
-value: context.read<ClientReportBloc>(),
-  child: ClientReportTwoPage(partner: partner),
-),
+              value: context.read<ClientReportBloc>(),
+              child: ClientReportTwoPage(partner: partner),
+            ),
           ),
         );
       },
@@ -307,10 +305,7 @@ value: context.read<ClientReportBloc>(),
             Container(
               width: 40.w,
               height: 40.h,
-              decoration: BoxDecoration(
-                color: AppTheme.colors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8.r),
-              ),
+              decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8.r)),
               child: Center(
                 child: Text(
                   partner.name.isNotEmpty ? partner.name[0].toUpperCase() : '?',
@@ -341,15 +336,35 @@ value: context.read<ClientReportBloc>(),
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (partner.balance.uzs != 0)
-                  Text(
-                    _formatCurrency(partner.balance.uzs),
-                    style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: statusColor),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _formatCurrency(partner.balance.uzs),
+                        style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: statusColor),
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'UZS',
+                        style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: statusColor.withValues(alpha: 0.7)),
+                      ),
+                    ],
                   ),
                 if (partner.balance.usd != 0) ...[
                   SizedBox(height: 2.h),
-                  Text(
-                    '\$${_formatCurrency(partner.balance.usd)}',
-                    style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: statusColor),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _formatCurrency(partner.balance.usd),
+                        style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: statusColor),
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'USD',
+                        style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: statusColor.withValues(alpha: 0.7)),
+                      ),
+                    ],
                   ),
                 ],
                 if (partner.balance.uzs == 0 && partner.balance.usd == 0)
@@ -385,10 +400,7 @@ value: context.read<ClientReportBloc>(),
               Container(
                 width: 40.w,
                 height: 40.h,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
               ),
               SizedBox(width: 12.w),
               Expanded(
@@ -398,19 +410,13 @@ value: context.read<ClientReportBloc>(),
                     Container(
                       width: double.infinity,
                       height: 14.h,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4.r)),
                     ),
                     SizedBox(height: 6.h),
                     Container(
                       width: 100.w,
                       height: 12.h,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4.r)),
                     ),
                   ],
                 ),
@@ -422,10 +428,7 @@ value: context.read<ClientReportBloc>(),
                   Container(
                     width: 60.w,
                     height: 13.h,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4.r),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4.r)),
                   ),
                 ],
               ),

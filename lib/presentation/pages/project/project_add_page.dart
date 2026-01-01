@@ -24,7 +24,7 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
   final _formKey = GlobalKey<FormState>();
   final _projectNameController = TextEditingController();
   final _ownerNameController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final _phoneController = TextEditingController(text: '+998 ');
   final _addressController = TextEditingController();
   final _locationController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
@@ -35,7 +35,6 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
   final _maskFormatter = MaskTextInputFormatter(
     mask: '+998 (##) ###-##-##',
     filter: {"#": RegExp(r'[0-9]')},
-    initialText: "+998",
     type: MaskAutoCompletionType.lazy,
   );
 
