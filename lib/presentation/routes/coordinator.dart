@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
+import 'package:hisobchi/infrastructure/services/shared_service.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/pages/auth/confirmation/sign_in_confirmation_page.dart';
 import 'package:hisobchi/presentation/pages/auth/register/register_page.dart';
@@ -19,14 +20,25 @@ import 'entity/routes.dart';
 
 final parentKey = GlobalKey<NavigatorState>();
 
-String? _redirects() {
+// Global variable to track passcode verification status in current session
+bool _isPasscodeVerifiedInSession = false;
+
+Future<String?> _redirects() async {
   if (UserData.token.isEmpty) {
     return Routes.signIn.path;
   }
-  // else if (!UserData.authStatus) {
-  //   return Routes.createPasscode.path;
-  // }
+
+  // PIN kod tekshiruvi
+  final pref = await SharedPrefService.initialize();
+  if (pref.isPasscodeEnabled && pref.passcode.isNotEmpty && !_isPasscodeVerifiedInSession) {
+    return Routes.checkPasscode.path;
+  }
+
   return null;
+}
+
+void setPasscodeVerified(bool value) {
+  _isPasscodeVerifiedInSession = value;
 }
 
 final router = GoRouter(

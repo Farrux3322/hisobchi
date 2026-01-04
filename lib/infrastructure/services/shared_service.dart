@@ -4,6 +4,7 @@ class SharedPrefService {
   static const String _token = 'token';
   static const String _isAuthorized = 'is_authorized';
   static const String _passcode = 'passcode';
+  static const String _passcodeEnabled = 'passcode_enabled';
   static const String _name = 'name';
   static const String _phone = 'phone';
   static const String _percent = 'percent';
@@ -70,6 +71,10 @@ class SharedPrefService {
   void setPasscode(String value) => _preference.setString(_passcode, value);
 
   String get passcode => _preference.getString(_passcode) ?? '';
+
+  void setPasscodeEnabled(bool value) => _preference.setBool(_passcodeEnabled, value);
+
+  bool get isPasscodeEnabled => _preference.getBool(_passcodeEnabled) ?? false;
 
   void setPhone(String phone) => _preference.setString(_phone, phone);
 

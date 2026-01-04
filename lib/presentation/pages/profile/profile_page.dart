@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hisobchi/presentation/pages/auth/passcode/set_passcode_page.dart';
+import 'package:hisobchi/presentation/pages/auth/passcode/verify_old_passcode_page.dart';
 import 'package:hisobchi/presentation/pages/notification/notification_page.dart';
+import 'package:hisobchi/presentation/routes/coordinator.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:hisobchi/application/subscription/subscription_bloc.dart';
 import 'package:hisobchi/application/theme/theme_bloc.dart';
@@ -100,7 +103,85 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 24),
               _buildSectionTitle('Xavfsizlik'),
               const SizedBox(height: 12),
-              _buildMenuItem(icon: AppIcons.lock, title: 'Parolni o\'zgartirish', onTap: () {}),
+              _buildPinCodeSwitch(),
+              const SizedBox(height: 8),
+              _buildMenuItem(
+                icon: AppIcons.lock,
+                title: 'PIN-kodni o\'zgartirish',
+                onTap: () async {
+                  final pref = await SharedPrefService.initialize();
+
+                  // PIN kod mavjudligini tekshirish
+                  if (pref.passcode.isEmpty) {
+                    // PIN kod mavjud emas
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              Icon(Icons.info_outline, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text('Avval PIN-kod yarating'),
+                            ],
+                          ),
+                          backgroundColor: Colors.orange,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      );
+                    }
+                    return;
+                  }
+
+                  // 1. Avval eski PIN kodni tekshirish
+                  if (context.mounted) {
+                    final isVerified = await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const VerifyOldPasscodePage(),
+                      ),
+                    );
+
+                    // Agar eski PIN kod to'g'ri kiritilmasa, to'xtatish
+                    if (isVerified != true) {
+                      return;
+                    }
+
+                    // 2. Eski PIN kod to'g'ri - yangi PIN kod yaratish sahifasiga o'tish
+                    if (context.mounted) {
+                      final result = await Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SetPasscodePage(),
+                        ),
+                      );
+
+                      // 3. Muvaffaqiyatli o'zgartirildi
+                      if (result == true && context.mounted) {
+                        setState(() {});
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                Icon(Icons.check_circle, color: Colors.white),
+                                SizedBox(width: 8),
+                                Text('PIN-kod muvaffaqiyatli o\'zgartirildi'),
+                              ],
+                            ),
+                            backgroundColor: AppTheme.colors.primary,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                  }
+                },
+              ),
               const SizedBox(height: 24),
               _buildSectionTitle('Ilovadan chiqish'),
               const SizedBox(height: 12),
@@ -539,6 +620,86 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Widget _buildPinCodeSwitch() {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: SharedPrefService.initialize().then((pref) => {
+        'isEnabled': pref.isPasscodeEnabled,
+        'hasPasscode': pref.passcode.isNotEmpty,
+      }),
+      builder: (context, snapshot) {
+        final data = snapshot.data ?? {'isEnabled': false, 'hasPasscode': false};
+        final isEnabled = data['isEnabled'] as bool;
+        final hasPasscode = data['hasPasscode'] as bool;
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 0),
+          decoration: BoxDecoration(
+            color: AppTheme.colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppTheme.colors.divider),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: AppTheme.colors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.pin, color: AppTheme.colors.primary, size: 16),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'PIN-kod',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.colors.black),
+                  ),
+                ),
+                Switch.adaptive(
+                  value: isEnabled,
+                  activeColor: AppTheme.colors.primary,
+                  onChanged: (value) async {
+                    final pref = await SharedPrefService.initialize();
+
+                    if (value) {
+                      // Yoqmoqchi bo'lsa
+                      if (!hasPasscode) {
+                        // PIN kod yaratilmagan - yaratish sahifasiga o'tish
+                        if (context.mounted) {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SetPasscodePage(),
+                            ),
+                          );
+
+                          if (result == true && context.mounted) {
+                            setState(() {});
+                          }
+                        }
+                      } else {
+                        // PIN kod mavjud - faqat enable qilish
+                        pref.setPasscodeEnabled(true);
+                        setState(() {});
+                      }
+                    } else {
+                      // O'chirish
+                      pref.setPasscodeEnabled(false);
+                      setState(() {});
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _showLogoutDialog() {
     showDialog(
       context: context,
@@ -563,6 +724,8 @@ class _ProfilePageState extends State<ProfilePage> {
               final pref = await SharedPrefService.initialize();
               pref.clear();
               UserData.token = '';
+              // Reset passcode verification flag when logging out
+              setPasscodeVerified(false);
               if (context.mounted) {
                 GoRouter.of(context).go(Routes.signIn.path);
               }

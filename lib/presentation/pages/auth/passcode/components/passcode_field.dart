@@ -10,58 +10,79 @@ class PasscodeField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 0.25.sw),
-      child: BlocConsumer<PasscodeCubit, PasscodeState>(listener: (context, state) {
-        if (state.isIncorrectPasscode) {
-          // Vibration.vibrate();
-          Future.delayed(const Duration(milliseconds: 350), () {
-            if(context.mounted)context.read<PasscodeCubit>().clearIncorrectField();
-          });
-        }
-      }, builder: (context, state) {
-        return Shake(
-          key: ValueKey<bool>(state.isIncorrectPasscode),
-          preferences: AnimationPreferences(
-            autoPlay: state.isIncorrectPasscode ? AnimationPlayStates.Forward : AnimationPlayStates.None,
-            duration: const Duration(milliseconds: 600),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              for (int i = 0; i < 4; i++)
-                Container(
-                  width: 0.1.sw,
-                  padding: EdgeInsets.only(bottom: ScreenSize.h16),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: state.isIncorrectPasscode
-                            ? AppTheme.colors.red
-                            : state.filledInputCount >= i
-                                ? AppTheme.colors.black
-                                : Colors.grey.shade300,
+      padding: EdgeInsets.symmetric(horizontal: 0.2.sw),
+      child: BlocConsumer<PasscodeCubit, PasscodeState>(
+        listener: (context, state) {
+          if (state.isIncorrectPasscode) {
+            Future.delayed(const Duration(milliseconds: 350), () {
+              if (context.mounted) context.read<PasscodeCubit>().clearIncorrectField();
+            });
+          }
+        },
+        builder: (context, state) {
+          return Shake(
+            key: ValueKey<bool>(state.isIncorrectPasscode),
+            preferences: AnimationPreferences(
+              autoPlay: state.isIncorrectPasscode ? AnimationPlayStates.Forward : AnimationPlayStates.None,
+              duration: const Duration(milliseconds: 600),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (int i = 0; i < 4; i++) ...[
+                  _buildDot(i, state),
+                  if (i < 3) SizedBox(width: 20.w),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDot(int index, PasscodeState state) {
+    final isFilled = state.filledInputCount >= index;
+    final isError = state.isIncorrectPasscode;
+
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 200),
+      tween: Tween(begin: 0.0, end: isFilled ? 1.0 : 0.0),
+      curve: Curves.easeOutBack,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: 0.7 + (0.3 * value),
+          child: Container(
+            width: 18.w,
+            height: 18.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isError
+                  ? AppTheme.colors.red
+                  : isFilled
+                      ? AppTheme.colors.primary
+                      : Colors.transparent,
+              border: Border.all(
+                color: isError
+                    ? AppTheme.colors.red
+                    : isFilled
+                        ? AppTheme.colors.primary
+                        : AppTheme.colors.gray.withValues(alpha: 0.3),
+                width: 2,
+              ),
+              boxShadow: isFilled && !isError
+                  ? [
+                      BoxShadow(
+                        color: AppTheme.colors.primary.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
-                    ),
-                  ),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: state.filledInputCount >= i ? ScreenSize.w14 : ScreenSize.w14,
-                    height: state.filledInputCount >= i ? ScreenSize.w14 : ScreenSize.w14,
-                    margin: EdgeInsets.symmetric(horizontal: ScreenSize.w10),
-                    decoration: BoxDecoration(
-                      color: state.isIncorrectPasscode
-                          ? AppTheme.colors.red
-                          : state.filledInputCount >= i
-                              ? AppTheme.colors.black
-                              : Colors.grey.shade300,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-            ],
+                    ]
+                  : null,
+            ),
           ),
         );
-      }),
+      },
     );
   }
 }

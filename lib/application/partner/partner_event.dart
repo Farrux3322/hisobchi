@@ -71,8 +71,21 @@ class IncomeStatementEvent extends PartnerEvent {
 
 class IncomeHistoryEvent extends PartnerEvent {
   final int id;
+  final String? search;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String? type;
 
-  const IncomeHistoryEvent({required this.id});
+  const IncomeHistoryEvent({
+    required this.id,
+    this.search,
+    this.startDate,
+    this.endDate,
+    this.type,
+  });
+
+  @override
+  List<Object?> get props => [id, search, startDate, endDate, type];
 }
 
 class CreateKirim extends PartnerEvent {

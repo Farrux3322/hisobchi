@@ -40,6 +40,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   #  camera: ^0.11.1
   #  syncfusion_flutter_pdfviewer: ^24.1.40
+  showcaseview: ^5.0.1
   device_info_plus: ^12.2.0
   dotted_line: ^3.2.3
   carousel_slider: ^5.1.1

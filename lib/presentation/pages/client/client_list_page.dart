@@ -8,6 +8,7 @@ import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
+import 'package:hisobchi/infrastructure/services/showcase_service.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
@@ -19,6 +20,7 @@ import 'package:hisobchi/presentation/pages/client/widgets/client_card_item.dart
 import 'package:hisobchi/presentation/pages/client/widgets/client_filter_bottom_sheet.dart';
 import 'package:hisobchi/presentation/pages/currency/currency_page.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class ClientPage extends StatefulWidget {
   const ClientPage({super.key});
@@ -28,6 +30,11 @@ class ClientPage extends StatefulWidget {
 }
 
 class _ClientPageState extends State<ClientPage> {
+  // Showcase keys
+  final GlobalKey _searchKey = GlobalKey();
+  final GlobalKey _filterKey = GlobalKey();
+  final GlobalKey _addButtonKey = GlobalKey();
+
   String searchQuery = '';
   DateTime? filterStartDate;
   DateTime? filterEndDate;
@@ -42,6 +49,7 @@ class _ClientPageState extends State<ClientPage> {
     // Fetch exchange rates
     context.read<CurrencyBloc>().add(const GetExchangeRates());
   }
+
 
   void _fetchPartners() {
     context.read<PartnerBloc>().add(GetAllEvent(
@@ -79,21 +87,6 @@ class _ClientPageState extends State<ClientPage> {
   }
 
 
-  // Future<void> _handleCreatePartner(String name, String phone,String? phone2, int? imageId) async {
-  //   // Extract only digits from phone
-  //   final digitsOnly = phone.replaceAll(RegExp(r'[^0-9]'), '');
-  //   final digitsOnly2 = phone2?.replaceAll(RegExp(r'[^0-9]'), '');
-  //
-  //   final data = {
-  //     'name': name,
-  //     'phone': digitsOnly,
-  //     'additional_phone': digitsOnly2,
-  //     if (imageId != null) 'file_id': [imageId],
-  //   };
-  //
-  //   context.read<PartnerBloc>().add(CreateEvent(data: data));
-  // }
-
   @override
   Widget build(BuildContext context) {
     AppManagerCubit.context = context;
@@ -118,40 +111,61 @@ class _ClientPageState extends State<ClientPage> {
           }
         },
         builder: (context, state) {
-          return Scaffold(
-            // backgroundColor: AppTheme.colors.background,
-            body: SafeArea(
-              bottom: false,
-              child: Column(
-                children: [
-                  _buildHeader(),
-                  Expanded(child: _buildBody(state)),
-                ],
-              ),
-            ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) =>
-                      BlocProvider(
-                        create: (context) =>
-                            FileUploadBloc(
-                              repository: FileUploadRepository(),
+          // ignore: deprecated_member_use
+          return ShowCaseWidget(
+            onFinish: () => ShowcaseService.markShowcaseCompleted('client_showcase_completed'),
+            builder: (showcaseContext) {
+              // Start showcase after build
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ShowcaseService.checkAndStartShowcase(
+                  showcaseKey: 'client_showcase_completed',
+                  showcaseContext: showcaseContext,
+                  globalKeys: [_searchKey, _filterKey, _addButtonKey],
+                );
+              });
+
+              return Scaffold(
+                // backgroundColor: AppTheme.colors.background,
+                body: SafeArea(
+                  bottom: false,
+                  child: Column(
+                    children: [
+                      _buildHeader(),
+                      Expanded(child: _buildBody(state)),
+                    ],
+                  ),
+                ),
+                floatingActionButton: Showcase(
+                  key: _addButtonKey,
+                  description: 'Bu yerda yangi mijoz qo\'shishingiz mumkin. Ismini, telefon raqamini va boshqa ma\'lumotlarini kiriting.',
+                  targetBorderRadius: BorderRadius.circular(28),
+                  tooltipBorderRadius: BorderRadius.circular(12),
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) =>
+                            BlocProvider(
+                              create: (context) =>
+                                  FileUploadBloc(
+                                    repository: FileUploadRepository(),
+                                  ),
+                              child: AddClientBottomSheet(),
                             ),
-                        child: AddClientBottomSheet(),
-                      ),
-                ).then((v){
-                  if(v==true && context.mounted){
-                    context.read<PartnerBloc>().add(const GetAllEvent());
-                  }
-                });
-              },
-              backgroundColor: AppTheme.colors.primary,
-              child: SvgPicture.asset(AppIcons.clientAdd),
-            ),
+                      ).then((v){
+                        if(v==true && context.mounted){
+                          context.read<PartnerBloc>().add(const GetAllEvent());
+                        }
+                      });
+                    },
+                    backgroundColor: AppTheme.colors.primary,
+                    child: SvgPicture.asset(AppIcons.clientAdd),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -233,88 +247,100 @@ class _ClientPageState extends State<ClientPage> {
               Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      height: 48,
-                      decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
-                      child: TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            searchQuery = value;
-                          });
-                        },
-                        style: const TextStyle(fontSize: 14),
-                        decoration: InputDecoration(
-                          hintText: 'Ism, Telefon raqami',
-                          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                          prefixIcon: Padding(
-                            padding: EdgeInsets.only(left: 10.w),
-                            child: const Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
+                    child: Showcase(
+                      key: _searchKey,
+                      description: 'Bu yerda mijozlarni ism yoki telefon raqami bo\'yicha qidirishingiz mumkin.',
+                      targetBorderRadius: BorderRadius.circular(12),
+                      tooltipBorderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
+                        child: TextField(
+                          onChanged: (value) {
+                            setState(() {
+                              searchQuery = value;
+                            });
+                          },
+                          style: const TextStyle(fontSize: 14),
+                          decoration: InputDecoration(
+                            hintText: 'Ism, Telefon raqami',
+                            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                            prefixIcon: Padding(
+                              padding: EdgeInsets.only(left: 10.w),
+                              child: const Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) => ClientFilterBottomSheet(
-                          initialStartDate: filterStartDate,
-                          initialEndDate: filterEndDate,
-                          initialSort: filterSort,
-                          initialStatusFilter: filterStatusFilter,
-                          onApply: _handleFilterApply,
-                        ),
-                      );
-                    },
-                    child: Stack(
-                      children: [
-                        Container(
-                          height: 48,
-                          width: 48,
-                          padding: EdgeInsets.all(12.w),
-                          decoration: BoxDecoration(
-                            color: hasActiveFilters
-                                ? AppTheme.colors.primary.withValues(alpha: 0.1)
-                                : const Color(0xFFF8FAFC),
-                            borderRadius: BorderRadius.circular(12.r),
-                            border: Border.all(
+                  Showcase(
+                    key: _filterKey,
+                    description: 'Filtrlar orqali mijozlarni sana, holat yoki tartiblash bo\'yicha saralashingiz mumkin.',
+                    targetBorderRadius: BorderRadius.circular(12),
+                    tooltipBorderRadius: BorderRadius.circular(12),
+                    child: GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => ClientFilterBottomSheet(
+                            initialStartDate: filterStartDate,
+                            initialEndDate: filterEndDate,
+                            initialSort: filterSort,
+                            initialStatusFilter: filterStatusFilter,
+                            onApply: _handleFilterApply,
+                          ),
+                        );
+                      },
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 48,
+                            width: 48,
+                            padding: EdgeInsets.all(12.w),
+                            decoration: BoxDecoration(
                               color: hasActiveFilters
-                                  ? AppTheme.colors.primary
-                                  : AppTheme.colors.colorE1EOEE,
-                            ),
-                          ),
-                          child: SvgPicture.asset(
-                            AppIcons.filter,
-                            fit: BoxFit.contain,
-                            colorFilter: hasActiveFilters
-                                ? ColorFilter.mode(
-                                    AppTheme.colors.primary,
-                                    BlendMode.srcIn,
-                                  )
-                                : null,
-                          ),
-                        ),
-                        if (hasActiveFilters)
-                          Positioned(
-                            top: 6,
-                            right: 6,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: AppTheme.colors.primary,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 1.5),
+                                  ? AppTheme.colors.primary.withValues(alpha: 0.1)
+                                  : const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(12.r),
+                              border: Border.all(
+                                color: hasActiveFilters
+                                    ? AppTheme.colors.primary
+                                    : AppTheme.colors.colorE1EOEE,
                               ),
                             ),
+                            child: SvgPicture.asset(
+                              AppIcons.filter,
+                              fit: BoxFit.contain,
+                              colorFilter: hasActiveFilters
+                                  ? ColorFilter.mode(
+                                      AppTheme.colors.primary,
+                                      BlendMode.srcIn,
+                                    )
+                                  : null,
+                            ),
                           ),
-                      ],
+                          if (hasActiveFilters)
+                            Positioned(
+                              top: 6,
+                              right: 6,
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: AppTheme.colors.primary,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 1.5),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

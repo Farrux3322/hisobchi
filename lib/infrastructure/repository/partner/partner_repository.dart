@@ -60,10 +60,34 @@ class PartnerRepository {
     final response = await dio.get('/partners/partner/$id/account');
     return response.data;
   }
-  Future<Map<String, dynamic>> incomeHistory({required int id}) async {
-    final response = await dio.get('/partners/wallets',data: {
-      'partner_id':id
-    });
+  Future<Map<String, dynamic>> incomeHistory({
+    required int id,
+    String? search,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? type,
+  }) async {
+    final Map<String, dynamic> params = {
+      'partner_id': id,
+    };
+
+    if (search != null && search.isNotEmpty) {
+      params['search'] = search;
+    }
+    if (startDate != null) {
+      params['date[0]'] = '${startDate.day.toString().padLeft(2, '0')}.${startDate.month.toString().padLeft(2, '0')}.${startDate.year}';
+    }
+    if (endDate != null) {
+      params['date[1]'] = '${endDate.day.toString().padLeft(2, '0')}.${endDate.month.toString().padLeft(2, '0')}.${endDate.year}';
+    }
+    if (type != null && type.isNotEmpty) {
+      params['type'] = type;
+    }
+
+    final response = await dio.get(
+      '/partners/wallets',
+      queryParameters: params,
+    );
     return response.data;
   }
 

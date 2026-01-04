@@ -11,78 +11,90 @@ class PasscodeCubit extends Cubit<PasscodeState> {
 
   Future<void> fillInput(String value) async {
     if (state.passcodeStep == PasscodeStep.create) {
-      if (state.filledInputCount <= 3) {
+      if (state.passcodeOne.length < 4) {
+        final newPasscode = state.passcodeOne + value;
+        final newCount = state.filledInputCount + 1;
+
         emit(
           state.copyWith(
-            passcodeOne: state.passcodeOne + value,
-            filledInputCount: state.filledInputCount + 1,
+            passcodeOne: newPasscode,
+            filledInputCount: newCount,
           ),
         );
-      }
-      if (state.filledInputCount == 3) {
-        Future.delayed(
-          const Duration(milliseconds: 500),
-              () {
-            emit(state.copyWith(
-              passcodeStep: PasscodeStep.confirm,
-              filledInputCount: -1,
-            ));
-          },
-        );
+
+        if (newCount == 3) {
+          Future.delayed(
+            const Duration(milliseconds: 500),
+                () {
+              emit(state.copyWith(
+                passcodeStep: PasscodeStep.confirm,
+                filledInputCount: -1,
+              ));
+            },
+          );
+        }
       }
     } else if (state.passcodeStep == PasscodeStep.confirm) {
-      if (state.filledInputCount <= 3) {
+      if (state.passcodeTwo.length < 4) {
+        final newPasscode = state.passcodeTwo + value;
+        final newCount = state.filledInputCount + 1;
+
         emit(
           state.copyWith(
-            passcodeTwo: state.passcodeTwo + value,
-            filledInputCount: state.filledInputCount + 1,
+            passcodeTwo: newPasscode,
+            filledInputCount: newCount,
           ),
         );
-      }
-      if (state.filledInputCount == 3) {
-        Future.delayed(
-          const Duration(milliseconds: 500),
-              () {
-            if (state.passcodeOne.substring(0, 4) == state.passcodeTwo.substring(0, 4)) {
-              emit(
-                state.copyWith(
-                  isProcessCompleted: true,
-                ),
-              );
-            } else {
-              emit(state.copyWith(
-                isIncorrectPasscode: true,
-              ));
-            }
-          },
-        );
+
+        if (newCount == 3) {
+          Future.delayed(
+            const Duration(milliseconds: 500),
+                () {
+              if (state.passcodeOne == state.passcodeTwo) {
+                emit(
+                  state.copyWith(
+                    isProcessCompleted: true,
+                  ),
+                );
+              } else {
+                emit(state.copyWith(
+                  isIncorrectPasscode: true,
+                ));
+              }
+            },
+          );
+        }
       }
     } else if (state.passcodeStep == PasscodeStep.check) {
-      if (state.passcodeOne.length <= 3) {
+      if (state.passcodeOne.length < 4) {
+        final newPasscode = state.passcodeOne + value;
+        final newCount = state.filledInputCount + 1;
+
         emit(
           state.copyWith(
-            passcodeOne: state.passcodeOne + value,
-            filledInputCount: state.filledInputCount + 1,
+            passcodeOne: newPasscode,
+            filledInputCount: newCount,
           ),
         );
-      }
-      if (state.filledInputCount == 3) {
-        final pref = await SharedPrefService.initialize();
-        await Future.delayed(const Duration(milliseconds: 500));
-        if (pref.passcode == state.passcodeOne) {
-          emit(
-            state.copyWith(
-              isProcessCompleted: true,
-            ),
-          );
-        } else {
-          emit(
-            state.copyWith(
-              passcodeOne: '',
-              filledInputCount: -1,
-              isIncorrectPasscode: true,
-            ),
-          );
+
+        if (newCount == 3) {
+          final pref = await SharedPrefService.initialize();
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (pref.passcode == newPasscode) {
+            emit(
+              state.copyWith(
+                isProcessCompleted: true,
+              ),
+            );
+          } else {
+            emit(
+              state.copyWith(
+                passcodeOne: '',
+                filledInputCount: -1,
+                isIncorrectPasscode: true,
+              ),
+            );
+          }
         }
       }
     }

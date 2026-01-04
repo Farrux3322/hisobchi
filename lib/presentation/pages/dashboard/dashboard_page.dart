@@ -7,12 +7,14 @@ import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/dashboard/dashboard_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/repository/client_report/client_report_repository.dart';
+import 'package:hisobchi/infrastructure/services/showcase_service.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:hisobchi/presentation/pages/currency/currency_page.dart';
 import 'package:hisobchi/presentation/pages/dashboard/client_report/client_report_main_page.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -22,6 +24,12 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  // Showcase keys
+  final GlobalKey _currencyKey = GlobalKey();
+  final GlobalKey _clientsKey = GlobalKey();
+  final GlobalKey _projectsKey = GlobalKey();
+  final GlobalKey _balanceKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -29,49 +37,78 @@ class _DashboardPageState extends State<DashboardPage> {
     context.read<CurrencyBloc>().add(const GetExchangeRates());
   }
 
+  Future<void> _checkAndStartShowcase(BuildContext showcaseContext) async {
+    final isCompleted = await ShowcaseService.isShowcaseCompleted();
+    if (!isCompleted && mounted) {
+      await Future.delayed(const Duration(milliseconds: 1500));
+      if (mounted) {
+        // ignore: deprecated_member_use
+        ShowCaseWidget.of(showcaseContext).startShowCase([
+          _currencyKey,
+          _clientsKey,
+          _projectsKey,
+          _balanceKey,
+        ]);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     AppManagerCubit.context = context;
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      body: SafeArea(
-        child: BlocConsumer<DashboardBloc, DashboardState>(
-          listener: (context, state) {
-            if (state.status == Status.error) {
-              Toast.showErrorToast(
-                message: state.errorMessage ?? 'Ma\'lumotlarni yuklashda xatolik',
-              );
-            }
-          },
-          builder: (context, state) {
-            return RefreshIndicator(
-              color: AppTheme.colors.primary,
-              onRefresh: () async {
-                context.read<DashboardBloc>().add(const GetDashboardEvent());
-              },
-              child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  // Header
-                  SliverToBoxAdapter(child: _buildHeader()),
+    // ignore: deprecated_member_use
+    return ShowCaseWidget(
+      onFinish: () {
+        ShowcaseService.setShowcaseCompleted();
+      },
+      builder: (context) {
+        // Showcase ni build tugagandan keyin boshlash
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _checkAndStartShowcase(context);
+        });
 
-                  // Stats Cards
-                  if (state.status == Status.loading)
-                    SliverToBoxAdapter(child: _buildLoadingState())
-                  else if (state.status == Status.success && state.dashboardModel?.result != null)
-                    SliverToBoxAdapter(
-                      child: _buildDashboardContent(state.dashboardModel!.result!),
-                    )
-                  else
-                    SliverFillRemaining(
-                      child: _buildEmptyState(),
-                    ),
-                ],
-              ),
-            );
-          },
+        return Scaffold(
+          backgroundColor: const Color(0xFFF8FAFC),
+          body: SafeArea(
+            child: BlocConsumer<DashboardBloc, DashboardState>(
+            listener: (context, state) {
+              if (state.status == Status.error) {
+                Toast.showErrorToast(
+                  message: state.errorMessage ?? 'Ma\'lumotlarni yuklashda xatolik',
+                );
+              }
+            },
+            builder: (context, state) {
+              return RefreshIndicator(
+                color: AppTheme.colors.primary,
+                onRefresh: () async {
+                  context.read<DashboardBloc>().add(const GetDashboardEvent());
+                },
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    // Header
+                    SliverToBoxAdapter(child: _buildHeader()),
+
+                    // Stats Cards
+                    if (state.status == Status.loading)
+                      SliverToBoxAdapter(child: _buildLoadingState())
+                    else if (state.status == Status.success && state.dashboardModel?.result != null)
+                      SliverToBoxAdapter(
+                        child: _buildDashboardContent(state.dashboardModel!.result!),
+                      )
+                    else
+                      SliverFillRemaining(
+                        child: _buildEmptyState(),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
-      ),
+        );
+      },
     );
   }
 
@@ -110,7 +147,14 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ],
               ),
-              _buildCurrencyWidget(),
+              Showcase(
+                key: _currencyKey,
+                description: 'Bu yerda valyuta kurslari ko\'rsatiladi. Bosilsa valyuta sahifasiga o\'tasiz.',
+                targetBorderRadius: BorderRadius.circular(8.r),
+                tooltipBorderRadius: BorderRadius.circular(12.r),
+                // overlayPadding: EdgeInsets.all(8.w),
+                child: _buildCurrencyWidget(),
+              ),
             ],
           ),
         ],
@@ -233,7 +277,14 @@ class _DashboardPageState extends State<DashboardPage> {
           SizedBox(height: 16.h),
 
           // Balance Card
-          _buildBalanceCard(result),
+          Showcase(
+            key: _balanceKey,
+            description: 'Umumiy balanslaringiz - UZS va USD valyutasidagi qarzlar va to\'lovlar hisobi.',
+            targetBorderRadius: BorderRadius.circular(16.r),
+            tooltipBorderRadius: BorderRadius.circular(12.r),
+            // overlayPadding: EdgeInsets.all(8.w),
+            child: _buildBalanceCard(result),
+          ),
           SizedBox(height: 16.h),
 
           // Late Payments Warning
@@ -294,37 +345,51 @@ class _DashboardPageState extends State<DashboardPage> {
     return Row(
       children: [
         Expanded(
-          child: GestureDetector(
-            onTap: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BlocProvider(
-                    create: (context) => ClientReportBloc(
-                      repository: ClientReportRepository(),
+          child: Showcase(
+            key: _clientsKey,
+            description: 'Sizning jami mijozlaringiz soni. Bu yerga bosib batafsil hisobotlarni ko\'rishingiz mumkin.',
+            targetBorderRadius: BorderRadius.circular(16.r),
+            tooltipBorderRadius: BorderRadius.circular(12.r),
+            // overlayPadding: EdgeInsets.all(8.w),
+            child: GestureDetector(
+              onTap: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (context) => ClientReportBloc(
+                        repository: ClientReportRepository(),
+                      ),
+                      child: const ClientReportMainPage(),
                     ),
-                    child: const ClientReportMainPage(),
                   ),
-                ),
-              );
-            },
-            child: _buildStatCard(
-              icon: AppIcons.clients,
-              title: 'Mijozlar',
-              value: '${result.totalPartnersCount ?? 0}',
-              color: const Color(0xFF10B981),
-              iconBgColor: const Color(0xFFD1FAE5),
+                );
+              },
+              child: _buildStatCard(
+                icon: AppIcons.clients,
+                title: 'Mijozlar',
+                value: '${result.totalPartnersCount ?? 0}',
+                color: const Color(0xFF10B981),
+                iconBgColor: const Color(0xFFD1FAE5),
+              ),
             ),
           ),
         ),
         SizedBox(width: 12.w),
         Expanded(
-          child: _buildStatCard(
-            icon: AppIcons.project,
-            title: 'Loyihalar',
-            value: '${result.totalProjectsCount ?? 0}',
-            color: const Color(0xFF3B82F6),
-            iconBgColor: const Color(0xFFDBEAFE),
+          child: Showcase(
+            key: _projectsKey,
+            description: 'Jami loyihalaringiz soni. Bu yerda barcha loyihalaringizni boshqarishingiz mumkin.',
+            targetBorderRadius: BorderRadius.circular(16.r),
+            tooltipBorderRadius: BorderRadius.circular(12.r),
+            // overlayPadding: EdgeInsets.all(8.w),
+            child: _buildStatCard(
+              icon: AppIcons.project,
+              title: 'Loyihalar',
+              value: '${result.totalProjectsCount ?? 0}',
+              color: const Color(0xFF3B82F6),
+              iconBgColor: const Color(0xFFDBEAFE),
+            ),
           ),
         ),
       ],

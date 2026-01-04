@@ -31,6 +31,8 @@ class AppManagerCubit extends Cubit<AppManagerState> {
       UserData.image = pref.getImage;
       UserData.isAdmin = pref.getIsAdmin;
       UserData.authorGuid = pref.getAuthorGuid;
+      UserData.passCode = pref.passcode;
+      UserData.passCodeStatus = pref.isPasscodeEnabled;
       // UserData.role = pref.getRole;
 
       // if (UserData.role == 'seller') {

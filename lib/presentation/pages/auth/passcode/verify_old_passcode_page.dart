@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/auth/passcode/passcode_cubit.dart';
-import 'package:hisobchi/infrastructure/services/shared_service.dart';
-import '../../../../domain/common/enums/passcode_step.dart';
+import 'package:hisobchi/domain/common/enums/passcode_step.dart';
 import '../../../assets/asset_index.dart';
 import 'components/passcode_field.dart';
 import 'components/passcode_keyboard.dart';
 
-class SetPasscodePage extends StatefulWidget {
-  const SetPasscodePage({super.key});
+class VerifyOldPasscodePage extends StatefulWidget {
+  const VerifyOldPasscodePage({super.key});
 
   @override
-  State<SetPasscodePage> createState() => _SetPasscodePageState();
+  State<VerifyOldPasscodePage> createState() => _VerifyOldPasscodePageState();
 }
 
-class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProviderStateMixin {
+class _VerifyOldPasscodePageState extends State<VerifyOldPasscodePage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -34,7 +34,8 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic));
+    ).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic));
 
     _animationController.forward();
   }
@@ -48,7 +49,7 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PasscodeCubit>(
-      create: (context) => PasscodeCubit(passcodeStep: PasscodeStep.create),
+      create: (context) => PasscodeCubit(passcodeStep: PasscodeStep.check),
       child: Builder(
         builder: (context) {
           return Scaffold(
@@ -57,9 +58,19 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
               backgroundColor: Colors.transparent,
               elevation: 0,
               leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.colors.black, size: 20.sp),
+                icon: Icon(Icons.arrow_back_ios_new_rounded,
+                    color: AppTheme.colors.black, size: 20.sp),
                 onPressed: () => Navigator.pop(context),
               ),
+              title: Text(
+                'Eski PIN kodni kiriting',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.colors.black,
+                ),
+              ),
+              centerTitle: true,
             ),
             body: SafeArea(
               child: FadeTransition(
@@ -91,13 +102,15 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
                                         end: Alignment.bottomRight,
                                         colors: [
                                           AppTheme.colors.primary,
-                                          AppTheme.colors.primary.withValues(alpha: 0.7),
+                                          AppTheme.colors.primary
+                                              .withValues(alpha: 0.7),
                                         ],
                                       ),
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: AppTheme.colors.primary.withValues(alpha: 0.25),
+                                          color: AppTheme.colors.primary
+                                              .withValues(alpha: 0.25),
                                           blurRadius: 20,
                                           offset: const Offset(0, 8),
                                         ),
@@ -109,47 +122,45 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
                                       color: Colors.white,
                                     ),
                                   ),
-                                  Gap(24.h),
-                                  // Title with step indicator
+                                  Gap(32.h),
+                                  // Title
                                   BlocConsumer<PasscodeCubit, PasscodeState>(
                                     listener: (context, state) {
                                       if (state.isProcessCompleted) {
-                                        SharedPrefService.initialize().then((pref) {
-                                          pref
-                                            ..setPasscodeEnabled(true)
-                                            ..setPasscode(state.passcodeOne);
+                                        // Eski PIN kod to'g'ri - yangi PIN kod sahifasiga o'tish
+                                        if (context.mounted) {
+                                          Navigator.pop(context, true);
+                                        }
+                                      }
 
-                                          if (context.mounted) {
-                                            Navigator.pop(context, true);
-                                          }
-                                        });
+                                      if (state.isIncorrectPasscode) {
+                                        // Xato PIN kod kiritildi
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Row(
+                                              children: [
+                                                Icon(Icons.error_outline,
+                                                    color: Colors.white),
+                                                SizedBox(width: 8),
+                                                Text('Noto\'g\'ri PIN kod!'),
+                                              ],
+                                            ),
+                                            backgroundColor: Colors.red,
+                                            behavior: SnackBarBehavior.floating,
+                                            duration: Duration(seconds: 2),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                        );
                                       }
                                     },
                                     builder: (context, state) {
                                       return Column(
                                         children: [
-                                          // Step indicator
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              _buildStepIndicator(1, state.passcodeStep == PasscodeStep.create),
-                                              Container(
-                                                width: 32.w,
-                                                height: 2.h,
-                                                margin: EdgeInsets.symmetric(horizontal: 8.w),
-                                                decoration: BoxDecoration(
-                                                  color: state.passcodeStep == PasscodeStep.confirm
-                                                      ? AppTheme.colors.primary
-                                                      : AppTheme.colors.gray.withValues(alpha: 0.3),
-                                                  borderRadius: BorderRadius.circular(2.r),
-                                                ),
-                                              ),
-                                              _buildStepIndicator(2, state.passcodeStep == PasscodeStep.confirm),
-                                            ],
-                                          ),
-                                          Gap(20.h),
                                           Text(
-                                            state.passcodeStep == PasscodeStep.create ? "passcode.set_passcode".tr() : "passcode.confirm_passcode".tr(),
+                                            'Eski PIN kodni tasdiqlang',
                                             style: TextStyle(
                                               fontSize: 22.sp,
                                               fontWeight: FontWeight.w700,
@@ -159,9 +170,7 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
                                           ),
                                           Gap(6.h),
                                           Text(
-                                            state.passcodeStep == PasscodeStep.create
-                                                ? '4 raqamli PIN kod yarating'
-                                                : 'PIN kodni qayta kiriting',
+                                            'Xavfsizlik uchun eski PIN kodni kiriting',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               fontSize: 13.sp,
@@ -173,11 +182,11 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
                                       );
                                     },
                                   ),
-                                  Gap(32.h),
+                                  Gap(40.h),
                                   const PasscodeField(),
-                                  Gap(20.h),
+                                  const Spacer(flex: 3),
                                   const PasscodeKeyboard(),
-                                  // Gap(20.h),
+                                  Gap(20.h),
                                 ],
                               ),
                             ),
@@ -191,32 +200,6 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildStepIndicator(int step, bool isActive) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: 32.w,
-      height: 32.w,
-      decoration: BoxDecoration(
-        color: isActive ? AppTheme.colors.primary : Colors.transparent,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: isActive ? AppTheme.colors.primary : AppTheme.colors.gray.withValues(alpha: 0.3),
-          width: 2,
-        ),
-      ),
-      child: Center(
-        child: Text(
-          '$step',
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
-            color: isActive ? Colors.white : AppTheme.colors.gray,
-          ),
-        ),
       ),
     );
   }

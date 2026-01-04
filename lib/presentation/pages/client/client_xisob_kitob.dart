@@ -11,6 +11,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/edit_kirim_bottom_sheet.dart';
+import 'package:hisobchi/presentation/pages/client/widgets/filter_bottom_sheet.dart';
 
 import '../../assets/asset_index.dart';
 
@@ -24,10 +25,53 @@ class HisobKitobTarixPage extends StatefulWidget {
 }
 
 class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
+  final TextEditingController _searchController = TextEditingController();
+  DateTime? _startDate;
+  DateTime? _endDate;
+  String? _selectedType;
+  bool _hasActiveFilters = false;
+
   @override
   void initState() {
-    context.read<PartnerBloc>().add(IncomeHistoryEvent(id: widget.id ?? 0));
+    _loadData();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _loadData() {
+    context.read<PartnerBloc>().add(
+      IncomeHistoryEvent(id: widget.id ?? 0, search: _searchController.text.trim().isEmpty ? null : _searchController.text.trim(), startDate: _startDate, endDate: _endDate, type: _selectedType),
+    );
+  }
+
+  void _updateActiveFilters() {
+    setState(() {
+      _hasActiveFilters = _startDate != null || _endDate != null || _selectedType != null;
+    });
+  }
+
+  Future<void> _showFilterBottomSheet() async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FilterBottomSheet(initialStartDate: _startDate, initialEndDate: _endDate, initialType: _selectedType),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _startDate = result['startDate'];
+        _endDate = result['endDate'];
+        _selectedType = result['type'];
+      });
+      _updateActiveFilters();
+      _loadData();
+    }
   }
 
   @override
@@ -46,30 +90,18 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
             margin: const EdgeInsets.all(8),
 
             decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Color.fromRGBO(255, 255, 255, 0.1),
-                    blurRadius: 1,
-                    spreadRadius: 0,
-                    offset: Offset(0, 1),
-                  ),
-                  BoxShadow(
-                    color: Color.fromRGBO(50, 50, 93, 0.25),
-                    blurRadius: 100,
-                    spreadRadius: -20,
-                    offset: Offset(0, 50),
-                  ),
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.3),
-                    blurRadius: 60,
-                    spreadRadius: -30,
-                    offset: Offset(0, 30),
-                  )
-                ],
-                color: Colors.white, borderRadius: BorderRadius.circular(12)),
-            child: const Icon(Icons.arrow_back,color: Colors.black,),
+              boxShadow: [
+                BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+                BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+                BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
+              ],
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.arrow_back, color: Colors.black),
           ),
-        ),        title: const Text(
+        ),
+        title: const Text(
           "Hisob-kitob tarixlari",
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.black),
         ),
@@ -82,7 +114,6 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
             if (state.statusKirimAdd == Status.success) {
               context.read<PartnerBloc>().add(IncomeHistoryEvent(id: widget.id ?? 0));
               context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.id ?? 0));
-
             }
             //
             // // Error handling
@@ -107,24 +138,27 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
           },
           builder: (context, state) {
             if (state.statusIncomeHistory == Status.loading) {
-              return Loading();
+              return Column(
+                children: [
+                  _buildFilterField(),
+                  const SizedBox(height: 10),
+                  Expanded(child: Loading()),
+                ],
+              );
             }
 
             final data = state.incomeHistoryModel?.result ?? [];
-            if (data.isEmpty) {
-              return const Center(child: Text("Ma'lumot topilmadi"));
-            }
 
-            // Sanalar bo'yicha guruhlash (DateTime bo‘yicha aniq)
-            final groupedData = groupBy<Result, DateTime>(data, (item) {
-              final parsed = _tryParseDate(item.createdAt ?? '');
-              if (parsed == null) {
-                // parse bo'lmasa, fallback — item yaratilgan vaqt bo'lmasa key sifatida hozirgi sana emas,
-                // lekin agar istasangiz string asosida guruhlashga qaytish mumkin:
-                return DateTime(1970); // yoki DateTime.now() emas — ammo uni alohida guruhga joylash uchun
-              }
-              return _toDateOnly(parsed);
-            });
+            // Sanalar bo'yicha guruhlash (DateTime bo'yicha aniq)
+            final groupedData = data.isNotEmpty
+                ? groupBy<Result, DateTime>(data, (item) {
+                    final parsed = _tryParseDate(item.createdAt ?? '');
+                    if (parsed == null) {
+                      return DateTime(1970);
+                    }
+                    return _toDateOnly(parsed);
+                  })
+                : <DateTime, List<Result>>{};
 
             return Stack(
               children: [
@@ -133,35 +167,55 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                     _buildFilterField(),
                     const SizedBox(height: 10),
                     Expanded(
-                      child: CustomScrollView(
-                        slivers: groupedData.entries.map((entry) {
-                          final dateKey = entry.key;
-                          final items = entry.value;
-
-                          return SliverStickyHeader(
-                            header: Container(
-                              height: 50,
-                              color: Colors.transparent,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                DateFormat('dd.MM.yyyy').format(dateKey),
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF212529)),
+                      child: data.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(24),
+                                    decoration: BoxDecoration(color: const Color(0xFFF1F5F9), shape: BoxShape.circle),
+                                    child: const Icon(Icons.search_off_rounded, size: 64, color: Color(0xFF94A3B8)),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    "Ma'lumot topilmadi",
+                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text("Filter yoki qidiruv shartlarini o'zgartiring", style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8))),
+                                ],
                               ),
+                            )
+                          : CustomScrollView(
+                              slivers: groupedData.entries.map((entry) {
+                                final dateKey = entry.key;
+                                final items = entry.value;
+
+                                return SliverStickyHeader(
+                                  header: Container(
+                                    height: 50,
+                                    color: Colors.transparent,
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      DateFormat('dd.MM.yyyy').format(dateKey),
+                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF212529)),
+                                    ),
+                                  ),
+                                  sliver: SliverList(
+                                    delegate: SliverChildBuilderDelegate((context, index) {
+                                      final item = items[index];
+                                      return Padding(padding: const EdgeInsets.only(bottom: 10), child: _buildTransactionCard(item));
+                                    }, childCount: items.length),
+                                  ),
+                                );
+                              }).toList(),
                             ),
-                            sliver: SliverList(
-                              delegate: SliverChildBuilderDelegate((context, index) {
-                                final item = items[index];
-                                return Padding(padding: const EdgeInsets.only(bottom: 10), child: _buildTransactionCard(item));
-                              }, childCount: items.length),
-                            ),
-                          );
-                        }).toList(),
-                      ),
                     ),
                   ],
                 ),
-                if(state.statusKirimAdd==Status.loading)Loading()
+                if (state.statusKirimAdd == Status.loading) Loading(),
               ],
             );
           },
@@ -170,26 +224,157 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
     );
   }
 
-  // 🔹 Filter Input Field
+  // 🔹 Search & Filter Section
   Widget _buildFilterField() {
+    return Column(
+      children: [
+        // Search Field
+        Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          margin: const EdgeInsets.only(right: 10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: _searchController.text.isNotEmpty ? const Color(0xFF4F46E5) : const Color(0xFFE0E0E0), width: _searchController.text.isNotEmpty ? 2 : 1),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.search_rounded, size: 22, color: Color(0xFF64748B)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    setState(() {});
+                    if (value.isEmpty || value.length >= 2) {
+                      _loadData();
+                    }
+                  },
+                  decoration: const InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    focusedErrorBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    hintText: "Qidirish...",
+                    hintStyle: TextStyle(fontSize: 15, color: Color(0xFF94A3B8), fontWeight: FontWeight.w400),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  style: const TextStyle(fontSize: 15, color: Colors.black87, fontWeight: FontWeight.w500),
+                ),
+              ),
+              if (_searchController.text.isNotEmpty)
+                IconButton(
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {});
+                    _loadData();
+                  },
+                  icon: const Icon(Icons.close_rounded, size: 20),
+                  color: const Color(0xFF64748B),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              const SizedBox(width: 8),
+              Container(width: 1, height: 24, color: const Color(0xFFE2E8F0)),
+              const SizedBox(width: 8),
+              InkWell(
+                onTap: _showFilterBottomSheet,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(color: _hasActiveFilters ? const Color(0xFF4F46E5).withValues(alpha: 0.1) : const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(8)),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Icon(Icons.filter_list_rounded, size: 20, color: _hasActiveFilters ? const Color(0xFF4F46E5) : const Color(0xFF64748B)),
+                      if (_hasActiveFilters)
+                        Positioned(
+                          top: -4,
+                          right: -4,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Active Filters Chips
+        if (_hasActiveFilters) ...[
+          const SizedBox(height: 10),
+          Container(
+            height: 36,
+            margin: const EdgeInsets.only(right: 10),
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                if (_selectedType != null)
+                  _buildFilterChip(
+                    label: _selectedType == 'debt' ? 'Kirim' : 'Chiqim',
+                    icon: _selectedType == 'debt' ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+                    color: _selectedType == 'debt' ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                    onRemove: () {
+                      setState(() => _selectedType = null);
+                      _updateActiveFilters();
+                      _loadData();
+                    },
+                  ),
+                if (_startDate != null && _endDate != null)
+                  _buildFilterChip(
+                    label: '${DateFormat('dd.MM').format(_startDate!)} - ${DateFormat('dd.MM').format(_endDate!)}',
+                    icon: Icons.calendar_today_rounded,
+                    color: const Color(0xFF4F46E5),
+                    onRemove: () {
+                      setState(() {
+                        _startDate = null;
+                        _endDate = null;
+                      });
+                      _updateActiveFilters();
+                      _loadData();
+                    },
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildFilterChip({required String label, required IconData icon, required Color color, required VoidCallback onRemove}) {
     return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      margin: const EdgeInsets.only(right: 10),
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Expanded(
-            child: Text("Tartiblash", style: TextStyle(fontSize: 15, color: Colors.black87)),
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: color),
           ),
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(color: const Color(0xFFF1F1F5), borderRadius: BorderRadius.circular(8)),
-            child: const Icon(Icons.filter_list_rounded, size: 20, color: Colors.black54),
+          const SizedBox(width: 6),
+          InkWell(
+            onTap: onRemove,
+            child: Icon(Icons.close_rounded, size: 16, color: color),
           ),
         ],
       ),
@@ -198,11 +383,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
 
   // 🔹 Show Cancel Dialog with Reason Input
   Future<void> _showCancelDialog(Result item) async {
-    final String? reason = await showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => _CancelDialogWidget(),
-    );
+    final String? reason = await showDialog<String>(context: context, barrierDismissible: false, builder: (dialogContext) => _CancelDialogWidget());
 
     // Agar sabab kiritilgan bo'lsa, eventni ishga tushirish
     if (reason != null && reason.isNotEmpty && mounted) {
@@ -220,25 +401,16 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
               child: const Icon(Icons.delete_outline, color: Colors.red, size: 24),
             ),
             const SizedBox(width: 12),
             const Expanded(
-              child: Text(
-                'O\'chirish',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
+              child: Text('O\'chirish', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             ),
           ],
         ),
-        content: const Text(
-          'Ushbu tranzaksiyani o\'chirmoqchimisiz? Keyinchalik tiklash mumkin.',
-          style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-        ),
+        content: const Text('Ushbu tranzaksiyani o\'chirmoqchimisiz? Keyinchalik tiklash mumkin.', style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
@@ -273,10 +445,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
               child: const Icon(Icons.delete_forever, color: Colors.red, size: 24),
             ),
             const SizedBox(width: 12),
@@ -297,10 +466,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.red),
             ),
             SizedBox(height: 8),
-            Text(
-              'Ushbu tranzaksiya butunlay o\'chiriladi va uni qayta tiklab bo\'lmaydi. Ishonchingiz komilmi?',
-              style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-            ),
+            Text('Ushbu tranzaksiya butunlay o\'chiriladi va uni qayta tiklab bo\'lmaydi. Ishonchingiz komilmi?', style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
           ],
         ),
         actions: [
@@ -337,25 +503,16 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
               child: const Icon(Icons.restore, color: Colors.green, size: 24),
             ),
             const SizedBox(width: 12),
             const Expanded(
-              child: Text(
-                'Tiklash',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
+              child: Text('Tiklash', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             ),
           ],
         ),
-        content: const Text(
-          'Ushbu tranzaksiyani tiklashni xohlaysizmi?',
-          style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-        ),
+        content: const Text('Ushbu tranzaksiyani tiklashni xohlaysizmi?', style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
@@ -448,14 +605,15 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                     label: "O'chirish",
                     borderRadius: BorderRadius.circular(12),
                   ),
-                 if(!isCanceled) SlidableAction(
-                    onPressed: (context) => _showCancelDialog(item),
-                    backgroundColor: Colors.orange,
-                    foregroundColor: Colors.white,
-                    icon: Icons.cancel_outlined,
-                    label: 'Bekor qilish',
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  if (!isCanceled)
+                    SlidableAction(
+                      onPressed: (context) => _showCancelDialog(item),
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      icon: Icons.cancel_outlined,
+                      label: 'Bekor qilish',
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                 ],
         ),
         child: Container(
@@ -464,16 +622,8 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
           decoration: BoxDecoration(
             color: isDeleted ? Colors.red.shade50 : Colors.white,
             borderRadius: BorderRadius.circular(14),
-            border: isDeleted
-                ? Border.all(color: Colors.red.shade300, width: 2)
-                : null,
-            boxShadow: [
-              BoxShadow(
-                color: isDeleted ? Colors.red.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.03),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              )
-            ],
+            border: isDeleted ? Border.all(color: Colors.red.shade300, width: 2) : null,
+            boxShadow: [BoxShadow(color: isDeleted ? Colors.red.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
           ),
           child: Row(
             children: [
@@ -488,7 +638,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(item.type=='debt' ? 'Kirim' : 'Chiqim', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                    Text(item.type == 'debt' ? 'Kirim' : 'Chiqim', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 4),
                     Text(timeText, style: const TextStyle(color: Colors.black54, fontSize: 13)),
                   ],
@@ -496,7 +646,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
               ),
               Text(
                 "${PriceFormatter.priceFormat('${item.summa ?? 0}')} ${item.currencyTypeName ?? ''}",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: amountColor, decoration: isCanceled ? TextDecoration.lineThrough:null,decorationColor: Colors.red),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: amountColor, decoration: isCanceled ? TextDecoration.lineThrough : null, decorationColor: Colors.red),
               ),
             ],
           ),
@@ -529,13 +679,6 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
 
   // Grouping uchun sana (soat, minutni kesib tashlab)
   DateTime _toDateOnly(DateTime date) => DateTime(date.year, date.month, date.day);
-
-  // Formatlashlar
-  String _formatDateOnly(String dateStr) {
-    final dt = _tryParseDate(dateStr);
-    if (dt == null) return dateStr;
-    return DateFormat('dd.MM.yyyy').format(dt);
-  }
 
   String _formatTimeOnly(String dateStr) {
     final dt = _tryParseDate(dateStr);
@@ -570,18 +713,12 @@ class _CancelDialogWidgetState extends State<_CancelDialogWidget> {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.orange.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
+            decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
             child: const Icon(Icons.cancel_outlined, color: Colors.orange, size: 24),
           ),
           const SizedBox(width: 12),
           const Expanded(
-            child: Text(
-              'Bekor qilish',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
+            child: Text('Bekor qilish', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -591,10 +728,7 @@ class _CancelDialogWidgetState extends State<_CancelDialogWidget> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Bekor qilish sababini kiriting:',
-              style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-            ),
+            const Text('Bekor qilish sababini kiriting:', style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
             const SizedBox(height: 12),
             TextFormField(
               controller: _reasonController,
