@@ -23,7 +23,7 @@ import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_cost/cost_type_bottom_sheet.dart';
-import 'package:hisobchi/presentation/pages/project/screens/worker/worker_selection_bottom_sheet.dart';
+import 'package:hisobchi/presentation/pages/project/screens/worker/single_worker_selection_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProjectCostAddEditPage extends StatefulWidget {
@@ -169,7 +169,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       backgroundColor: Colors.transparent,
       builder: (context) => BlocProvider(
         create: (context) => WorkerBloc(repository: WorkerRepository()),
-        child: WorkerSelectionBottomSheet(projectId: widget.projectId, isSelectionMode: true),
+        child: SingleWorkerSelectionBottomSheet(projectId: widget.projectId),
       ),
     );
 

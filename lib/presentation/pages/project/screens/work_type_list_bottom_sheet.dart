@@ -115,147 +115,154 @@ class _WorkTypeListBottomSheetState extends State<WorkTypeListBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Container(
-        height: MediaQuery.of(context).size.height * 0.8,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: BlocConsumer<WorkTypeBloc, WorkTypeState>(
-          listener: (context, state) {
-            if (state.status == Status.success) {
-              _allWorkTypes = state.models;
-              _filterWorkTypes();
-            }
-            if (state.status == Status.error) {
-              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-            }
-            if (state.statusAdd == Status.success) {
-              Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
-              context.read<WorkTypeBloc>().add(const GetAllWorkTypesEvent());
-            }
-            if (state.statusAdd == Status.error) {
-              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-            }
-          },
-          builder: (context, state) {
-            return Column(
-              children: [
-                const SizedBox(height: 12),
-                // Handle
-                Container(
-                  width: 62,
-                  height: 8,
-                  decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(10)),
-                ),
-                const SizedBox(height: 16),
-
-                // Header with Add button
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Ish turini tanlang',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-                      ),
-                      IconButton(
-                        onPressed: _showAddWorkTypeBottomSheet,
-                        icon: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(6)),
-                          child: const Icon(Icons.add, color: Colors.white, size: 24),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Search field
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Qidirish...',
-                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                      prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B)),
-                      filled: true,
-                      fillColor: const Color(0xFFF8FAFC),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    return DraggableScrollableSheet(
+      initialChildSize: 0.8,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) {
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: BlocConsumer<WorkTypeBloc, WorkTypeState>(
+              listener: (context, state) {
+                if (state.status == Status.success) {
+                  _allWorkTypes = state.models;
+                  _filterWorkTypes();
+                }
+                if (state.status == Status.error) {
+                  Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+                }
+                if (state.statusAdd == Status.success) {
+                  Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
+                  context.read<WorkTypeBloc>().add(const GetAllWorkTypesEvent());
+                }
+                if (state.statusAdd == Status.error) {
+                  Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+                }
+              },
+              builder: (context, state) {
+                return Column(
+                  children: [
+                    const SizedBox(height: 12),
+                    // Handle
+                    Container(
+                      width: 62,
+                      height: 8,
+                      decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(10)),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                // List
-                Expanded(
-                  child: state.status == Status.loading && _allWorkTypes.isEmpty
-                      ? const Center(child: Loading())
-                      : _filteredList.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.work_off_outlined, size: 64, color: Colors.grey[400]),
-                              const SizedBox(height: 16),
-                              Text(_searchController.text.isEmpty ? 'Ish turlari mavjud emas' : 'Hech narsa topilmadi', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-                            ],
+                    // Header with Add button
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Ish turini tanlang',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                           ),
-                        )
-                      : Stack(
-                          children: [
-                            ListView.separated(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                              itemCount: _filteredList.length,
-                              separatorBuilder: (context, index) => const SizedBox(height: 12),
-                              itemBuilder: (context, index) {
-                                final workType = _filteredList[index];
-                                return Column(
-                                  children: [
-                                    _WorkTypeItem(
-                                      workType: workType,
-                                      onTap: () {
-                                        widget.onSelect(workType);
-                                        Navigator.pop(context);
-                                      },
-                                      onEdit: () => _showEditWorkTypeBottomSheet(workType),
-                                      onDelete: () => _showDeleteDialog(workType),
-                                    ),
-                                    if (index == _filteredList.length - 1) Gap(MediaQuery.of(context).padding.bottom + 10),
-                                  ],
-                                );
-                              },
+                          IconButton(
+                            onPressed: _showAddWorkTypeBottomSheet,
+                            icon: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(6)),
+                              child: const Icon(Icons.add, color: Colors.white, size: 24),
                             ),
-                            if (state.statusAdd == Status.loading)
-                              Container(
-                                color: Colors.black.withOpacity(0.3),
-                                child: const Center(child: Loading()),
-                              ),
-                          ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Search field
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Qidirish...',
+                          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                          prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B)),
+                          filled: true,
+                          fillColor: const Color(0xFFF8FAFC),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // List
+                    Expanded(
+                      child: state.status == Status.loading && _allWorkTypes.isEmpty
+                          ? const Center(child: Loading())
+                          : _filteredList.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.work_off_outlined, size: 64, color: Colors.grey[400]),
+                                  const SizedBox(height: 16),
+                                  Text(_searchController.text.isEmpty ? 'Ish turlari mavjud emas' : 'Hech narsa topilmadi', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+                                ],
+                              ),
+                            )
+                          : Stack(
+                              children: [
+                                ListView.separated(
+                                  controller: scrollController,
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                  itemCount: _filteredList.length,
+                                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                                  itemBuilder: (context, index) {
+                                    final workType = _filteredList[index];
+                                    return Column(
+                                      children: [
+                                        _WorkTypeItem(
+                                          workType: workType,
+                                          onTap: () {
+                                            widget.onSelect(workType);
+                                            Navigator.pop(context);
+                                          },
+                                          onEdit: () => _showEditWorkTypeBottomSheet(workType),
+                                          onDelete: () => _showDeleteDialog(workType),
+                                        ),
+                                        if (index == _filteredList.length - 1) Gap(MediaQuery.of(context).padding.bottom + 10),
+                                      ],
+                                    );
+                                  },
+                                ),
+                                if (state.statusAdd == Status.loading)
+                                  Container(
+                                    color: Colors.black.withOpacity(0.3),
+                                    child: const Center(child: Loading()),
+                                  ),
+                              ],
+                            ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

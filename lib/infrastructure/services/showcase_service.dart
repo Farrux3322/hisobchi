@@ -7,8 +7,8 @@ class ShowcaseService {
 
   static Future<bool> isShowcaseCompleted() async {
     final prefs = await SharedPreferences.getInstance();
-    return  false;
-    // return prefs.getBool(_showcaseKey) ?? false;
+    // return  false;
+    return prefs.getBool(_showcaseKey) ?? false;
   }
 
   static Future<void> setShowcaseCompleted() async {
@@ -34,8 +34,8 @@ class ShowcaseService {
     Duration delay = const Duration(milliseconds: 500),
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    final isCompleted = false;
-    // final isCompleted = prefs.getBool(showcaseKey) ?? false;
+    // final isCompleted = false;
+    final isCompleted = prefs.getBool(showcaseKey) ?? false;
 
     if (!isCompleted) {
       await Future.delayed(delay);

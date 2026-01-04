@@ -216,134 +216,155 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CostTypeBloc, CostTypeState>(
-      listener: (context, state) {
-        if (state.status == Status.success) {
-          setState(() {
-            _allCostTypes = state.costTypes;
-            _filterCostTypes();
-          });
-        }
-        if (state.status == Status.error) {
-          Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-        }
-        if (state.statusAction == Status.success) {
-          Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
-          context.read<CostTypeBloc>().add(GetCostTypesEvent());
-        }
-        if (state.statusAction == Status.error) {
-          Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-        }
-      },
-      builder: (context, state) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.8,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
-                ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Color(0xFF64748B)),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    const Expanded(
-                      child: Text(
-                        'Chiqim turi tanlash',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1E293B),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)],
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Icons.add, color: Colors.white, size: 20),
-                      ),
-                      onPressed: () => _showAddCostTypeDialog(),
-                    ),
-                  ],
-                ),
+    return DraggableScrollableSheet(
+      initialChildSize: 0.8,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) {
+        return BlocConsumer<CostTypeBloc, CostTypeState>(
+          listener: (context, state) {
+            if (state.status == Status.success) {
+              setState(() {
+                _allCostTypes = state.costTypes;
+                _filterCostTypes();
+              });
+            }
+            if (state.status == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            }
+            if (state.statusAction == Status.success) {
+              Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
+              context.read<CostTypeBloc>().add(GetCostTypesEvent());
+            }
+            if (state.statusAction == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            }
+          },
+          builder: (context, state) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-
-              // Search
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Qidirish...',
-                    hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                    prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
-                    filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              child: Column(
+                children: [
+                  // Drag Handle
+                  const SizedBox(height: 12),
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE2E8F0),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
-                ),
-              ),
+                  const SizedBox(height: 8),
 
-              // Cost Types List
-              Expanded(
-                child: state.status == Status.loading && _allCostTypes.isEmpty
-                    ? const Center(child: Loading())
-                    : _filteredCostTypes.isEmpty
-                        ? _buildEmptyState()
-                        : Stack(
-                            children: [
-                              ListView.separated(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                itemCount: _filteredCostTypes.length,
-                                separatorBuilder: (context, index) => const SizedBox(height: 8),
-                                itemBuilder: (context, index) {
-                                  final costType = _filteredCostTypes[index];
-                                  return Column(
-                                    children: [
-                                      _buildCostTypeItem(costType),
-                                      if(index==_filteredCostTypes.length-1)Gap(MediaQuery.of(context).padding.bottom+10)
-                                    ],
-                                  );
-                                },
-                              ),
-                              if (state.statusAction == Status.loading)
-                                Container(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  child: const Center(child: Loading()),
-                                ),
-                            ],
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Color(0xFF64748B)),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        const Expanded(
+                          child: Text(
+                            'Chiqim turi tanlash',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B),
+                            ),
+                            textAlign: TextAlign.center,
                           ),
+                        ),
+                        IconButton(
+                          icon: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)],
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.add, color: Colors.white, size: 20),
+                          ),
+                          onPressed: () => _showAddCostTypeDialog(),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Search
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Qidirish...',
+                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                        prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                        filled: true,
+                        fillColor: const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                    ),
+                  ),
+
+                  // Cost Types List
+                  Expanded(
+                    child: state.status == Status.loading && _allCostTypes.isEmpty
+                        ? const Center(child: Loading())
+                        : _filteredCostTypes.isEmpty
+                            ? _buildEmptyState()
+                            : Stack(
+                                children: [
+                                  ListView.separated(
+                                    controller: scrollController,
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    itemCount: _filteredCostTypes.length,
+                                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                                    itemBuilder: (context, index) {
+                                      final costType = _filteredCostTypes[index];
+                                      return Column(
+                                        children: [
+                                          _buildCostTypeItem(costType),
+                                          if(index==_filteredCostTypes.length-1)Gap(MediaQuery.of(context).padding.bottom+10)
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                  if (state.statusAction == Status.loading)
+                                    Container(
+                                      color: Colors.black.withValues(alpha: 0.3),
+                                      child: const Center(child: Loading()),
+                                    ),
+                                ],
+                              ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );

@@ -109,191 +109,212 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<WorkerBloc, WorkerState>(
-      listener: (context, state) {
-        if (state.statusAllWorkers == Status.success) {
-          setState(() {
-            _allWorkers = state.allWorkers;
-            _filterWorkers();
-          });
-        }
-        if (state.statusAllWorkers == Status.error) {
-          Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-        }
-        if (state.statusAction == Status.success && !widget.isSelectionMode) {
-          HapticFeedback.mediumImpact();
-          Toast.showSuccessToast(message: '${_selectedWorkerIds.length} ta ishchi qo\'shildi');
-          Navigator.pop(context, true);
-        }
-        if (state.statusAction == Status.error) {
-          Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-        }
-      },
-      builder: (context, state) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.9,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
-                ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Color(0xFF64748B)),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Ishchi tanlash',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-                            textAlign: TextAlign.center,
-                          ),
-                          if (_selectedWorkerIds.isNotEmpty)
-                            Text(
-                              '${_selectedWorkerIds.length} ta tanlandi',
-                              style: const TextStyle(fontSize: 13, color: Color(0xFF5B4FFF), fontWeight: FontWeight.w500),
-                            ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)]),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Icons.add, color: Colors.white, size: 20),
-                      ),
-                      onPressed: _navigateToAddWorker,
-                    ),
-                  ],
-                ),
+    return DraggableScrollableSheet(
+      initialChildSize: 0.9,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) {
+        return BlocConsumer<WorkerBloc, WorkerState>(
+          listener: (context, state) {
+            if (state.statusAllWorkers == Status.success) {
+              setState(() {
+                _allWorkers = state.allWorkers;
+                _filterWorkers();
+              });
+            }
+            if (state.statusAllWorkers == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            }
+            if (state.statusAction == Status.success && !widget.isSelectionMode) {
+              HapticFeedback.mediumImpact();
+              Toast.showSuccessToast(message: '${_selectedWorkerIds.length} ta ishchi qo\'shildi');
+              Navigator.pop(context, true);
+            }
+            if (state.statusAction == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            }
+          },
+          builder: (context, state) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-
-              // Search
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Qidirish...',
-                    hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                    prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
-                    filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              child: Column(
+                children: [
+                  // Drag Handle
+                  const SizedBox(height: 12),
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE2E8F0),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
-                ),
-              ),
+                  const SizedBox(height: 8),
 
-              // Workers List
-              Expanded(
-                child: state.statusAllWorkers == Status.loading && _allWorkers.isEmpty
-                    ? const Center(child: Loading())
-                    : _filteredWorkers.isEmpty
-                        ? _buildEmptyState()
-                        : Stack(
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Color(0xFF64748B)),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        Expanded(
+                          child: Column(
                             children: [
-                              ListView.separated(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                itemCount: _filteredWorkers.length,
-                                separatorBuilder: (context, index) => const SizedBox(height: 12),
-                                itemBuilder: (context, index) {
-                                  final worker = _filteredWorkers[index];
-                                  final isSelected = _selectedWorkerIds.contains(worker.id);
-                                  return Column(
-                                    children: [
-                                      _buildWorkerItem(worker, isSelected),
-                                      if (index == _filteredWorkers.length - 1) Gap(80 + MediaQuery.of(context).padding.bottom)
-                                    ],
-                                  );
-                                },
+                              const Text(
+                                'Ishchi tanlash',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                                textAlign: TextAlign.center,
                               ),
-                              if (state.statusAction == Status.loading)
-                                Container(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  child: const Center(child: Loading()),
+                              if (_selectedWorkerIds.isNotEmpty)
+                                Text(
+                                  '${_selectedWorkerIds.length} ta tanlandi',
+                                  style: const TextStyle(fontSize: 13, color: Color(0xFF5B4FFF), fontWeight: FontWeight.w500),
                                 ),
                             ],
                           ),
-              ),
-
-              // Bottom Submit Button
-              if (_selectedWorkerIds.isNotEmpty)
-                Container(
-                  padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, -5),
-                      ),
-                    ],
+                        ),
+                        IconButton(
+                          icon: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)]),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.add, color: Colors.white, size: 20),
+                          ),
+                          onPressed: _navigateToAddWorker,
+                        ),
+                      ],
+                    ),
                   ),
-                  child: SafeArea(
-                    top: false,
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: ElevatedButton(
-                        onPressed: state.statusAction == Status.loading ? null : _submitSelectedWorkers,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF5B4FFF),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          disabledBackgroundColor: const Color(0xFF5B4FFF).withValues(alpha: 0.5),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+
+                  // Search
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Qidirish...',
+                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                        prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                        filled: true,
+                        fillColor: const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (state.statusAction == Status.loading)
-                              const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              )
-                            else
-                              Text(
-                                'Saqlash (${_selectedWorkerIds.length})',
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                              ),
-                          ],
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                         ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                     ),
                   ),
-                ),
-            ],
-          ),
+
+                  // Workers List
+                  Expanded(
+                    child: state.statusAllWorkers == Status.loading && _allWorkers.isEmpty
+                        ? const Center(child: Loading())
+                        : _filteredWorkers.isEmpty
+                            ? _buildEmptyState()
+                            : Stack(
+                                children: [
+                                  ListView.separated(
+                                    controller: scrollController,
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    itemCount: _filteredWorkers.length,
+                                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                                    itemBuilder: (context, index) {
+                                      final worker = _filteredWorkers[index];
+                                      final isSelected = _selectedWorkerIds.contains(worker.id);
+                                      return Column(
+                                        children: [
+                                          _buildWorkerItem(worker, isSelected),
+                                          if (index == _filteredWorkers.length - 1) Gap(80 + MediaQuery.of(context).padding.bottom)
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                  if (state.statusAction == Status.loading)
+                                    Container(
+                                      color: Colors.black.withValues(alpha: 0.3),
+                                      child: const Center(child: Loading()),
+                                    ),
+                                ],
+                              ),
+                  ),
+
+                  // Bottom Submit Button
+                  if (_selectedWorkerIds.isNotEmpty)
+                    Container(
+                      padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, -5),
+                          ),
+                        ],
+                      ),
+                      child: SafeArea(
+                        top: false,
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton(
+                            onPressed: state.statusAction == Status.loading ? null : _submitSelectedWorkers,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF5B4FFF),
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              disabledBackgroundColor: const Color(0xFF5B4FFF).withValues(alpha: 0.5),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (state.statusAction == Status.loading)
+                                  const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  )
+                                else
+                                  Text(
+                                    'Saqlash (${_selectedWorkerIds.length})',
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
