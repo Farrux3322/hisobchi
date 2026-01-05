@@ -401,7 +401,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         ),
         const SizedBox(height: 10),
         _buildTypeOption(
-          value: 'payment',
+          value: 'credit',
           title: 'Chiqim',
           subtitle: 'Faqat chiqimlar',
           icon: Icons.arrow_upward_rounded,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
@@ -15,6 +16,7 @@ import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_cost/project_cost_add_edit_page.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ProjectCostListPage extends StatefulWidget {
   final int projectId;
@@ -54,10 +56,12 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
         _filteredCosts = _allCosts;
       } else {
         _filteredCosts = _allCosts
-            .where((cost) =>
-                (cost.costTypeName?.toLowerCase().contains(query) ?? false) ||
-                (cost.workerName?.toLowerCase().contains(query) ?? false) ||
-                (cost.description?.toLowerCase().contains(query) ?? false))
+            .where(
+              (cost) =>
+                  (cost.costTypeName?.toLowerCase().contains(query) ?? false) ||
+                  (cost.workerName?.toLowerCase().contains(query) ?? false) ||
+                  (cost.description?.toLowerCase().contains(query) ?? false),
+            )
             .toList();
       }
     });
@@ -70,13 +74,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
       return DateTime.parse(input);
     } catch (_) {}
 
-    final formats = [
-      DateFormat('dd.MM.yyyy HH:mm:ss'),
-      DateFormat('dd.MM.yyyy HH:mm'),
-      DateFormat('dd.MM.yyyy'),
-      DateFormat('yyyy-MM-dd HH:mm:ss'),
-      DateFormat("yyyy-MM-dd'T'HH:mm:ss")
-    ];
+    final formats = [DateFormat('dd.MM.yyyy HH:mm:ss'), DateFormat('dd.MM.yyyy HH:mm'), DateFormat('dd.MM.yyyy'), DateFormat('yyyy-MM-dd HH:mm:ss'), DateFormat("yyyy-MM-dd'T'HH:mm:ss")];
 
     for (final fmt in formats) {
       try {
@@ -139,73 +137,503 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
   }
 
   Future<void> _showDeleteDialog(ProjectCostModel cost) async {
-    final result = await showDialog<String>(
+    HapticFeedback.mediumImpact();
+    final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
-              child: const Icon(Icons.delete_outline, color: Colors.red, size: 24),
-            ),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Text(
-                'O\'chirish',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          cost.isDeleted
-              ? 'Ushbu chiqimni butunlay o\'chirmoqchimisiz?'
-              : 'Ushbu chiqimni o\'chirmoqchimisiz?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Yo\'q'),
+            ],
           ),
-          if (cost.isDeleted) ...[
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'restore'),
-              child: const Text('Tiklash', style: TextStyle(color: Colors.green)),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, 'force_delete'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade700,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFFBBF24), Color(0xFFF59E0B)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFFBBF24).withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.white,
+                  size: 40,
+                ),
               ),
-              child: const Text('Butunlay o\'chirish'),
-            ),
-          ] else
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, 'delete'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              const SizedBox(height: 24),
+
+              // Title
+              const Text(
+                'Chiqimni o\'chirish',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E293B),
+                ),
+                textAlign: TextAlign.center,
               ),
-              child: const Text('O\'chirish'),
-            ),
-        ],
+              const SizedBox(height: 12),
+
+              // Description
+              Text(
+                'Ushbu chiqimni o\'chirmoqchimisiz?',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey[600],
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+
+              // Info box
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFFFBBF24).withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.info_outline_rounded,
+                      color: Color(0xFFF59E0B),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Keyinchalik qayta tiklash mumkin',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[800],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: Color(0xFFE2E8F0), width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Yo\'q',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: const Color(0xFFF59E0B),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Ha',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
 
-    if (result != null && mounted) {
-      if (result == 'delete') {
-        context.read<ProjectCostBloc>().add(DeleteProjectCostEvent(projectCostId: cost.id!));
-      } else if (result == 'restore') {
-        context.read<ProjectCostBloc>().add(RestoreProjectCostEvent(projectCostId: cost.id!));
-      } else if (result == 'force_delete') {
-        context.read<ProjectCostBloc>().add(ForceDeleteProjectCostEvent(projectCostId: cost.id!));
-      }
+    if (result == true && mounted) {
+      context.read<ProjectCostBloc>().add(DeleteProjectCostEvent(projectCostId: cost.id!));
+    }
+  }
+
+  Future<void> _showRestoreDialog(ProjectCostModel cost) async {
+    HapticFeedback.mediumImpact();
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF10B981), Color(0xFF059669)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.restore_rounded,
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Title
+              const Text(
+                'Chiqimni tiklash',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E293B),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+
+              // Description
+              Text(
+                'Ushbu chiqimni tiklashni xohlaysizmi?',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey[600],
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+
+              // Info box
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD1FAE5),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.info_outline_rounded,
+                      color: Color(0xFF059669),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Chiqim qayta faol holatga qaytadi',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[800],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: Color(0xFFE2E8F0), width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Yo\'q',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: const Color(0xFF10B981),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Ha',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (result == true && mounted) {
+      context.read<ProjectCostBloc>().add(RestoreProjectCostEvent(projectCostId: cost.id!));
+    }
+  }
+
+  Future<void> _showForceDeleteDialog(ProjectCostModel cost) async {
+    HapticFeedback.heavyImpact();
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFEF4444).withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.delete_forever_rounded,
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Title
+              const Text(
+                'Butunlay o\'chirish',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E293B),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+
+              // Description
+              Text(
+                'Ushbu chiqimni butunlay o\'chirmoqchimisiz?',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey[600],
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+
+              // Warning box
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEE2E2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFFEF4444).withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.warning_rounded,
+                      color: Color(0xFFDC2626),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Bu amalni ortga qaytarib bo\'lmaydi!',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[800],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: Color(0xFFE2E8F0), width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Yo\'q',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: const Color(0xFFEF4444),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Ha',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (result == true && mounted) {
+      context.read<ProjectCostBloc>().add(ForceDeleteProjectCostEvent(projectCostId: cost.id!));
     }
   }
 
@@ -224,24 +652,9 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
               color: const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [
-                BoxShadow(
-                  color: Color.fromRGBO(255, 255, 255, 0.1),
-                  blurRadius: 1,
-                  spreadRadius: 0,
-                  offset: Offset(0, 1),
-                ),
-                BoxShadow(
-                  color: Color.fromRGBO(50, 50, 93, 0.25),
-                  blurRadius: 100,
-                  spreadRadius: -20,
-                  offset: Offset(0, 50),
-                ),
-                BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.3),
-                  blurRadius: 60,
-                  spreadRadius: -30,
-                  offset: Offset(0, 30),
-                ),
+                BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+                BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+                BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
               ],
             ),
             child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
@@ -250,29 +663,12 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
         ),
         title: const Text(
           'Loyiha chiqimlari',
-          style: TextStyle(
-            color: Color(0xFF1E293B),
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                borderRadius: BorderRadius.circular(6),
-                boxShadow: [BoxShadow(color: const Color(0xFF5B4FFF).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))],
-              ),
-              child: const Icon(Icons.add, color: Colors.white, size: 20),
-            ),
-            onPressed: _navigateToAddCost,
-          ),
-          const SizedBox(width: 6),
-        ],
       ),
+      floatingActionButton: FloatingActionButton(onPressed: _navigateToAddCost, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
+
       body: BlocConsumer<ProjectCostBloc, ProjectCostState>(
         listener: (context, state) {
           if (state.statusAction == Status.success) {
@@ -298,7 +694,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                 // Search Bar
                 Container(
                   color: Colors.white,
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 5),
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
@@ -327,24 +723,22 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                 // Costs List
                 Expanded(
                   child: state.status == Status.loading && _allCosts.isEmpty
-                      ? const Center(child: Loading())
+                      ? _buildShimmerLoading()
                       : _filteredCosts.isEmpty
-                          ? _buildEmptyState()
-                          : Stack(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(16, 12, 6, 16),
-                                  child: CustomScrollView(
-                                    slivers: _buildGroupedCosts(),
-                                  ),
-                                ),
-                                if (state.statusAction == Status.loading)
-                                  Container(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    child: const Center(child: Loading()),
-                                  ),
-                              ],
+                      ? _buildEmptyState()
+                      : Stack(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
+                              child: CustomScrollView(slivers: _buildGroupedCosts()),
                             ),
+                            if (state.statusAction == Status.loading)
+                              Container(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                child: const Center(child: Loading()),
+                              ),
+                          ],
+                        ),
                 ),
               ],
             ),
@@ -369,8 +763,8 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
 
       return SliverStickyHeader(
         header: Container(
-          height: 50,
-          color: const Color(0xFFF5F5F5),
+          height: 40,
+          color: AppTheme.colors.background,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           alignment: Alignment.centerLeft,
           child: Text(
@@ -379,16 +773,10 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
           ),
         ),
         sliver: SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final cost = items[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _buildCostCard(cost),
-              );
-            },
-            childCount: items.length,
-          ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final cost = items[index];
+            return Padding(padding: const EdgeInsets.only(bottom: 10), child: _buildCostCard(cost));
+          }, childCount: items.length),
         ),
       );
     }).toList();
@@ -409,7 +797,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
           children: isDeleted
               ? [
                   SlidableAction(
-                    onPressed: (context) => _showDeleteDialog(cost),
+                    onPressed: (context) => _showRestoreDialog(cost),
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
                     icon: Icons.restore,
@@ -417,7 +805,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   SlidableAction(
-                    onPressed: (context) => _showDeleteDialog(cost),
+                    onPressed: (context) => _showForceDeleteDialog(cost),
                     backgroundColor: Colors.red.shade700,
                     foregroundColor: Colors.white,
                     icon: Icons.delete_forever,
@@ -451,26 +839,16 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
             color: isDeleted ? Colors.red.shade50 : Colors.white,
             borderRadius: BorderRadius.circular(14),
             border: isDeleted ? Border.all(color: Colors.red.shade300, width: 2) : null,
-            boxShadow: isDeleted
-                ? null
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    )
-                  ],
+            boxShadow: isDeleted ? null : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
           ),
           child: Row(
             children: [
               Container(
                 height: 40,
                 width: 40,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEF4444).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.money_off_outlined, color: Color(0xFFEF4444), size: 24),
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(12)),
+                child: SvgPicture.asset(AppIcons.chiqim),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -479,21 +857,10 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                   children: [
                     Text(
                       cost.costTypeName ?? 'Chiqim turi ko\'rsatilmagan',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: isDeleted ? Colors.grey : const Color(0xFF1E293B),
-                        decoration: isDeleted ? TextDecoration.lineThrough : null,
-                      ),
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: isDeleted ? Colors.grey : const Color(0xFF1E293B), decoration: isDeleted ? TextDecoration.lineThrough : null),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      cost.workerName ?? 'Ishchi ko\'rsatilmagan',
-                      style: TextStyle(
-                        color: isDeleted ? Colors.grey : Colors.black54,
-                        fontSize: 13,
-                      ),
-                    ),
+                    Text(cost.workerName ?? 'Ishchi ko\'rsatilmagan', style: TextStyle(color: isDeleted ? Colors.grey : Colors.black54, fontSize: 13)),
                   ],
                 ),
               ),
@@ -502,20 +869,10 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                 children: [
                   Text(
                     _formatCurrency(cost.summa, cost.currencyTypeName),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: isDeleted ? Colors.grey : const Color(0xFFEF4444),
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isDeleted ? Colors.grey : const Color(0xFFEF4444)),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    timeText,
-                    style: TextStyle(
-                      color: isDeleted ? Colors.grey : Colors.black54,
-                      fontSize: 12,
-                    ),
-                  ),
+                  Text(timeText, style: TextStyle(color: isDeleted ? Colors.grey : Colors.black54, fontSize: 12)),
                 ],
               ),
             ],
@@ -532,11 +889,8 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
         children: [
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppTheme.colors.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: SvgPicture.asset(AppIcons.chiqim,height: 40,width: 40,colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),),
+            decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+            child: SvgPicture.asset(AppIcons.chiqim, height: 40, width: 40, colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn)),
           ),
           const SizedBox(height: 24),
           Text(
@@ -545,9 +899,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            _searchController.text.isEmpty
-                ? 'Yangi chiqim qo\'shish uchun + tugmasini bosing'
-                : 'Boshqa kalit so\'z bilan qidirib ko\'ring',
+            _searchController.text.isEmpty ? 'Yangi chiqim qo\'shish uchun + tugmasini bosing' : 'Boshqa kalit so\'z bilan qidirib ko\'ring',
             style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
             textAlign: TextAlign.center,
           ),
@@ -555,4 +907,77 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
       ),
     );
   }
+
+  Widget _buildShimmerLoading() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 6, 16),
+      child: ListView.builder(
+        itemCount: 8,
+        itemBuilder: (context, index) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 10, right: 10),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
+            ),
+            child: Row(
+              children: [
+                // Icon shimmer
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Text shimmer
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          height: 14,
+                          width: 120,
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          height: 12,
+                          width: 80,
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Time shimmer
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    height: 12,
+                    width: 40,
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
 }

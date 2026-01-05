@@ -6,7 +6,7 @@ abstract class BaseColors {
 
   Color get primaryText => const Color.fromRGBO(0, 111, 229, 1);
   ///////////////////////////////////////////////
-  Color get primary => const Color(0xFF4A3AFF);
+  Color get primary => const Color(0xFF202020);
   Color get white => const Color(0xFFFFFFFF);
   Color get black => const Color(0xFF202020);
   Color get color9E97FF => const Color(0xFF9E97FF);

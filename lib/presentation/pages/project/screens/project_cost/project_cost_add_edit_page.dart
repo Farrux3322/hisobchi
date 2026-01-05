@@ -337,40 +337,29 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       elevation: 0,
       surfaceTintColor: Colors.white,
       systemOverlayStyle: SystemUiOverlayStyle.dark,
-      leading: Padding(
-        padding: EdgeInsets.only(left: 8.w),
-        child: IconButton(
-          icon: Container(
-            padding: EdgeInsets.all(8.w),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Icon(Icons.arrow_back_ios_new, color: AppTheme.colors.black, size: 18.sp),
+      leading: IconButton(
+        icon: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [
+              BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+              BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+              BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
+            ],
           ),
-          onPressed: () => Navigator.pop(context),
+          child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
         ),
+        onPressed: () => Navigator.pop(context),
       ),
-      title: Column(
-        children: [
-          Text(
-            _isEditing ? 'Chiqimni tahrirlash' : 'Yangi chiqim',
-            style: TextStyle(
-              color: AppTheme.colors.black,
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          if (_isEditing)
-            Text(
-              'ID: ${widget.cost?.id}',
-              style: TextStyle(
-                color: const Color(0xFF94A3B8),
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-        ],
+      title: Text(
+        _isEditing ? 'Chiqimni tahrirlash' : 'Yangi chiqim',
+        style: TextStyle(
+          color: AppTheme.colors.black,
+          fontSize: 18.sp,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       centerTitle: true,
     );

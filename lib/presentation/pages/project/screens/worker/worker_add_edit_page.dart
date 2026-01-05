@@ -8,6 +8,7 @@ import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/worker_model.dart';
 import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/infrastructure/repository/worker/worker_repository.dart';
+import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_position_bottom_sheet.dart';
@@ -251,7 +252,7 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
                         child: ElevatedButton(
                           onPressed: state.statusAction == Status.loading ? null : _submit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF5B4FFF),
+                            backgroundColor: AppTheme.colors.primary,
                             foregroundColor: Colors.white,
                             elevation: 0,
                             shape: RoundedRectangleBorder(

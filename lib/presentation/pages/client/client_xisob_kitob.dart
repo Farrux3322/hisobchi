@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/edit_kirim_bottom_sheet.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/filter_bottom_sheet.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../assets/asset_index.dart';
 
@@ -115,26 +117,6 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
               context.read<PartnerBloc>().add(IncomeHistoryEvent(id: widget.id ?? 0));
               context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.id ?? 0));
             }
-            //
-            // // Error handling
-            // if (state.status == Status.error) {
-            //   ScaffoldMessenger.of(context).showSnackBar(
-            //     SnackBar(
-            //       content: Row(
-            //         children: [
-            //           const Icon(Icons.error, color: Colors.white),
-            //           const SizedBox(width: 8),
-            //           Expanded(
-            //             child: Text(state.errorMessage ?? 'Xatolik yuz berdi'),
-            //           ),
-            //         ],
-            //       ),
-            //       backgroundColor: Colors.red,
-            //       behavior: SnackBarBehavior.floating,
-            //       duration: const Duration(seconds: 3),
-            //     ),
-            //   );
-            // }
           },
           builder: (context, state) {
             if (state.statusIncomeHistory == Status.loading) {
@@ -142,7 +124,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                 children: [
                   _buildFilterField(),
                   const SizedBox(height: 10),
-                  Expanded(child: Loading()),
+                  Expanded(child: _buildShimmerLoading()),
                 ],
               );
             }
@@ -165,7 +147,6 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                 Column(
                   children: [
                     _buildFilterField(),
-                    const SizedBox(height: 10),
                     Expanded(
                       child: data.isEmpty
                           ? Center(
@@ -194,8 +175,8 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
 
                                 return SliverStickyHeader(
                                   header: Container(
-                                    height: 50,
-                                    color: Colors.transparent,
+                                    height: 40,
+                                    color: AppTheme.colors.background,
                                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                     alignment: Alignment.centerLeft,
                                     child: Text(
@@ -543,7 +524,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
     final bool isCanceled = item.isCancelled == 1;
     final bool isDeleted = item.deletedAt != null && item.deletedAt!.isNotEmpty;
     final Color amountColor = isKirim ? Colors.green : Colors.red;
-    final Color iconBg = isKirim ? Colors.green.withValues(alpha: 0.08) : Colors.red.withValues(alpha: 0.08);
+    final Color iconBg = isKirim ? Colors.green.withValues(alpha: 0.3) : Colors.red.withValues(alpha: 0.3);
     final String timeText = _formatTimeOnly(item.createdAt ?? '');
 
     return GestureDetector(
@@ -608,7 +589,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                   if (!isCanceled)
                     SlidableAction(
                       onPressed: (context) => _showCancelDialog(item),
-                      backgroundColor: Colors.orange,
+                      backgroundColor: AppTheme.colors.primary,
                       foregroundColor: Colors.white,
                       icon: Icons.cancel_outlined,
                       label: 'Bekor qilish',
@@ -630,8 +611,9 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
               Container(
                 height: 40,
                 width: 40,
+                padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.attach_money_rounded, color: Colors.blue, size: 24),
+                child: SvgPicture.asset(isKirim ? AppIcons.income : AppIcons.chiqim),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -684,6 +666,95 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
     final dt = _tryParseDate(dateStr);
     if (dt == null) return dateStr;
     return DateFormat('HH:mm').format(dt);
+  }
+
+  /// Shimmer loading widget for transaction history
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 16, right: 10),
+      itemCount: 8,
+      itemBuilder: (context, index) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // Icon shimmer
+              Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  height: 40,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Text shimmer
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        height: 14,
+                        width: 80,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        height: 12,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Amount shimmer
+              Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  height: 16,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 

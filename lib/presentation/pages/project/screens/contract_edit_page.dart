@@ -12,6 +12,7 @@ import 'package:hisobchi/application/work_type/work_type_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/contract_model.dart';
 import 'package:hisobchi/infrastructure/models/work_type_model.dart';
+import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/work_type_list_bottom_sheet.dart';
@@ -813,11 +814,7 @@ class _ContractEditPageState extends State<ContractEditPage> {
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
+        color: AppTheme.colors.primary,
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF5B4FFF).withValues(alpha: 0.3),

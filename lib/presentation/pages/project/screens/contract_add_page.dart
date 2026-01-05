@@ -719,11 +719,7 @@ class _ContractAddPageState extends State<ContractAddPage> {
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
+        color: AppTheme.colors.primary,
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF5B4FFF).withValues(alpha: 0.3),

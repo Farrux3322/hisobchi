@@ -40,7 +40,7 @@ class _AccountPageState extends State<AccountPage> {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(color: AppTheme.colors.colorE1EOEE, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(10)),
         child: SvgPicture.asset(icon, height: 24, width: 24, colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)),
       ),
     );
@@ -195,7 +195,7 @@ class _AccountPageState extends State<AccountPage> {
                                     Expanded(
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                                        decoration: BoxDecoration(color: AppTheme.colors.colorE1EOEE, borderRadius: BorderRadius.circular(10)),
+                                        decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(10)),
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
@@ -248,7 +248,7 @@ class _AccountPageState extends State<AccountPage> {
                                     duration: const Duration(milliseconds: 200),
                                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                                     decoration: BoxDecoration(
-                                      color: Color(0xFFF59E0B),
+                                      color: Color(0xFF3CC293),
                                       borderRadius: BorderRadius.circular(10),
                                       boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 4))],
                                     ),
@@ -276,7 +276,7 @@ class _AccountPageState extends State<AccountPage> {
                                     duration: const Duration(milliseconds: 200),
                                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                                     decoration: BoxDecoration(
-                                      color: Color(0xFF8B5CF6),
+                                      color: Color(0xFFDE5050),
 
                                       borderRadius: BorderRadius.circular(10),
                                       boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 4))],
@@ -311,24 +311,26 @@ class _AccountPageState extends State<AccountPage> {
                             child: state.statusIncomeStatement == Status.success
                                 ? Column(
                                     children: [
-                                      _transactionRow(
-                                        title: 'Chiqim',
-                                        amountUzs: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uZS ?? 0}')} UZS',
-                                        amountUsd: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uSD ?? 0}')} USD',
-                                        bgColor: Color(0xFF8B5CF6).withValues(alpha: 0.2),
-                                        textColor: Colors.black,
-                                        icon: AppIcons.chiqim,
-                                      ),
-                                      const SizedBox(height: 12),
                                       // Kirim card (green)
                                       _transactionRow(
                                         title: 'Kirim',
                                         amountUzs: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.debt?.uZS ?? 0}')} UZS',
                                         amountUsd: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uSD ?? 0}')} USD',
-                                        bgColor: Color(0xFFF59E0B).withValues(alpha: 0.2),
+                                        bgColor: Color(0xFF3CC293).withValues(alpha: 0.15),
                                         textColor: Colors.black,
                                         icon: AppIcons.income,
                                       ),
+                                      const SizedBox(height: 12),
+                                      _transactionRow(
+                                        title: 'Chiqim',
+                                        amountUzs: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uZS ?? 0}')} UZS',
+                                        amountUsd: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uSD ?? 0}')} USD',
+                                        bgColor: Color(0xFFDE5050).withValues(alpha: 0.15),
+                                        textColor: Colors.black,
+                                        icon: AppIcons.chiqim,
+                                      ),
+
+
                                       const SizedBox(height: 6),
                                       Divider(color: Colors.grey[200], thickness: 0.5),
                                       const SizedBox(height: 6),
@@ -345,7 +347,7 @@ class _AccountPageState extends State<AccountPage> {
                                             SvgPicture.asset(AppIcons.balance),
                                             const SizedBox(width: 12),
                                             const Expanded(
-                                              child: Text('Balans', style: TextStyle(fontWeight: FontWeight.w600)),
+                                              child: Text('Qoldiq', style: TextStyle(fontWeight: FontWeight.w600)),
                                             ),
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.end,

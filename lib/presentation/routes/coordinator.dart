@@ -365,8 +365,8 @@ class _GlassNavItemState extends State<_GlassNavItem> with SingleTickerProviderS
                         ),
                         borderRadius: BorderRadius.circular(24.r),
                         boxShadow: [
-                          BoxShadow(color: const Color(0xFF667EEA).withValues(alpha: 0.4), blurRadius: 20, offset: const Offset(0, 8), spreadRadius: -2),
-                          BoxShadow(color: const Color(0xFF764BA2).withValues(alpha: 0.3), blurRadius: 14, offset: const Offset(0, 4), spreadRadius: -1),
+                          BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.4), blurRadius: 20, offset: const Offset(0, 8), spreadRadius: -2),
+                          BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 14, offset: const Offset(0, 4), spreadRadius: -1),
                         ],
                       ),
                     ),

@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hisobchi/application/worker/worker_bloc.dart';
 import 'package:hisobchi/application/worker/worker_event.dart';
 import 'package:hisobchi/application/worker/worker_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/worker_model.dart';
+import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_add_edit_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_selection_bottom_sheet.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 
 class WorkerListPage extends StatefulWidget {
   final int projectId;
@@ -200,23 +203,10 @@ class _WorkerListPageState extends State<WorkerListPage> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                borderRadius: BorderRadius.circular(6),
-                boxShadow: [BoxShadow(color: const Color(0xFF5B4FFF).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))],
-              ),
-              child: const Icon(Icons.add, color: Colors.white, size: 20),
-            ),
-            onPressed: _showAddWorkerSelection,
-          ),
-          const SizedBox(width: 5),
-        ],
+        centerTitle: true
       ),
+      floatingActionButton: FloatingActionButton(onPressed: _showAddWorkerSelection, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.clientAdd)),
+
       body: BlocConsumer<WorkerBloc, WorkerState>(
         listener: (context, state) {
           // statusAction - delete/restore uchun (bir marta ishlatiladi)
@@ -244,7 +234,7 @@ class _WorkerListPageState extends State<WorkerListPage> {
                 // Search Bar
                 Container(
                   color: Colors.white,
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
@@ -273,13 +263,13 @@ class _WorkerListPageState extends State<WorkerListPage> {
                 // Workers List
                 Expanded(
                   child: state.status == Status.loading && _allWorkers.isEmpty
-                      ? const Center(child: Loading())
+                      ? _buildShimmerLoading()
                       : _filteredWorkers.isEmpty
                           ? _buildEmptyState()
                           : Stack(
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.fromLTRB(16, 12, 6, 16),
+                                  padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
                                   child: CustomScrollView(
                                     slivers: _buildGroupedWorkers(),
                                   ),
@@ -315,8 +305,8 @@ class _WorkerListPageState extends State<WorkerListPage> {
 
       return SliverStickyHeader(
         header: Container(
-          height: 50,
-          color: Colors.transparent,
+          height: 40,
+          color: AppTheme.colors.background,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           alignment: Alignment.centerLeft,
           child: Text(
@@ -470,4 +460,77 @@ class _WorkerListPageState extends State<WorkerListPage> {
       ),
     );
   }
+
+  Widget _buildShimmerLoading() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 6, 16),
+      child: ListView.builder(
+        itemCount: 8,
+        itemBuilder: (context, index) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 10, right: 10),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
+            ),
+            child: Row(
+              children: [
+                // Icon shimmer
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Text shimmer
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          height: 14,
+                          width: 120,
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          height: 12,
+                          width: 80,
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Time shimmer
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    height: 12,
+                    width: 40,
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
 }
