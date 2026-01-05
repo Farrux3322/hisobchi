@@ -48,8 +48,8 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage> {
               ),
               child: Column(
                 children: [
-                  SvgPicture.asset(
-                    AppIcons.photo,
+                  Image.asset(
+                    AppIcons.appLogo,
                     height: 0.13.sh,
                   ),
                   Gap(0.2.sh),

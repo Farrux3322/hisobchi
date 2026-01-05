@@ -44,8 +44,8 @@ class _CurrencyPageState extends State<CurrencyPage> with SingleTickerProviderSt
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF6366F1),
+            colorScheme:  ColorScheme.light(
+              primary: AppTheme.colors.primary,
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),

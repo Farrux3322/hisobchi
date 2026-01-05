@@ -123,13 +123,13 @@ class _DashboardPageState extends State<DashboardPage> {
             children: [
               Row(
                 children: [
-                  SvgPicture.asset(AppIcons.logo, width: 40.w, height: 40.h),
+                  Image.asset(AppIcons.appLogo, width: 40.w, height: 40.h),
                   SizedBox(width: 12.w),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Dashboard',
+                        'eHisob',
                         style: TextStyle(
                           fontSize: 20.sp,
                           fontWeight: FontWeight.bold,

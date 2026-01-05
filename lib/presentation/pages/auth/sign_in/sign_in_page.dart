@@ -64,7 +64,7 @@ class _SignInPageState extends State<SignInPage> {
             }
           }
           if (state is SignInSuccess) {
-            context.push(Routes.clientPage.path);
+            context.push(Routes.homePage.path);
           } else if (state is SignInError) {
             EasyLoading.showError(state.error);
           }
@@ -78,8 +78,8 @@ class _SignInPageState extends State<SignInPage> {
                 key: formKey,
                 child: Column(
                   children: [
-                    SvgPicture.asset(
-                      AppIcons.photo,
+                    Image.asset(
+                      AppIcons.appLogo,
                       height: 0.13.sh,
                     ),
                     Gap(0.1.sh),

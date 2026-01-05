@@ -361,7 +361,7 @@ class _GlassNavItemState extends State<_GlassNavItem> with SingleTickerProviderS
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [AppTheme.colors.primary.withValues(alpha: .9), AppTheme.colors.primary.withValues(alpha: .8)],
+                          colors: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: .9)],
                         ),
                         borderRadius: BorderRadius.circular(24.r),
                         boxShadow: [

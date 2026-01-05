@@ -82,34 +82,11 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
                                 children: [
                                   const Spacer(flex: 2),
                                   // Beautiful icon with gradient background
-                                  Container(
-                                    width: 80.w,
-                                    height: 80.w,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [
-                                          AppTheme.colors.primary,
-                                          AppTheme.colors.primary.withValues(alpha: 0.7),
-                                        ],
-                                      ),
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: AppTheme.colors.primary.withValues(alpha: 0.25),
-                                          blurRadius: 20,
-                                          offset: const Offset(0, 8),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Icon(
-                                      Icons.lock_outline_rounded,
-                                      size: 40.sp,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Gap(24.h),
+                                  // Image.asset(
+                                  //   AppIcons.appLogo,
+                                  //   height:60.h,
+                                  // ),
+                                  Gap(12.h),
                                   // Title with step indicator
                                   BlocConsumer<PasscodeCubit, PasscodeState>(
                                     listener: (context, state) {
@@ -147,7 +124,7 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
                                               _buildStepIndicator(2, state.passcodeStep == PasscodeStep.confirm),
                                             ],
                                           ),
-                                          Gap(20.h),
+                                          Gap(10.h),
                                           Text(
                                             state.passcodeStep == PasscodeStep.create ? "passcode.set_passcode".tr() : "passcode.confirm_passcode".tr(),
                                             style: TextStyle(
@@ -173,9 +150,9 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
                                       );
                                     },
                                   ),
-                                  Gap(32.h),
+                                  Gap(24.h),
                                   const PasscodeField(),
-                                  Gap(20.h),
+                                  Gap(16.h),
                                   const PasscodeKeyboard(),
                                   // Gap(20.h),
                                 ],

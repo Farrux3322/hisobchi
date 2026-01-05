@@ -39,8 +39,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 key: formKey,
                 child: Column(
                   children: [
-                    SvgPicture.asset(
-                      AppIcons.photo,
+                    Image.asset(
+                      AppIcons.appLogo,
                       height: 0.13.sh,
                     ),
                     Gap(0.1.sh),

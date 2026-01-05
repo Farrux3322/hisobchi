@@ -66,8 +66,10 @@ class _RestOTPPageState extends State<RestOTPPage> {
               ),
               child: Column(
                 children: [
-                  SvgPicture.asset(AppIcons.photo, height: 0.13.sh),
-                  Gap(0.2.sh),
+                  Image.asset(
+                    AppIcons.appLogo,
+                    height: 0.13.sh,
+                  ),                  Gap(0.2.sh),
                   PintPutX(
                     onComplete: (value) {
                       context.read<InitAuthBloc>().add(ResetSendOtpEvent(otp: value, password: context.read<InitAuthBloc>().password));

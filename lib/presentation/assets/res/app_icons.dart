@@ -107,6 +107,7 @@ class AppIcons {
   static const threePlace = 'assets/icons/three_place.svg';
   static const firstPosition = 'assets/icons/first.svg';
   static const appLogo = 'assets/images/app_logo.png';
+  static const appLogoSvg = 'assets/icons/app_logo.svg';
 }
 
 class AppImages {
