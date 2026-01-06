@@ -4,6 +4,7 @@ class ProjectState extends Equatable {
   final Status status;
   final Status statusAdd;
   final Status statusDetail;
+  final Status statusAction; // For delete, restore, forceDelete
   final String? errorMessage;
   final List<ProjectModel> models;
   final ProjectModel? selectedProject;
@@ -12,6 +13,7 @@ class ProjectState extends Equatable {
     this.status = Status.pure,
     this.statusAdd = Status.pure,
     this.statusDetail = Status.pure,
+    this.statusAction = Status.pure,
     this.errorMessage,
     this.models = const [],
     this.selectedProject,
@@ -21,6 +23,7 @@ class ProjectState extends Equatable {
     Status? status,
     Status? statusAdd,
     Status? statusDetail,
+    Status? statusAction,
     String? errorMessage,
     List<ProjectModel>? models,
     ProjectModel? selectedProject,
@@ -29,6 +32,7 @@ class ProjectState extends Equatable {
       status: status ?? this.status,
       statusAdd: statusAdd ?? this.statusAdd,
       statusDetail: statusDetail ?? this.statusDetail,
+      statusAction: statusAction ?? this.statusAction,
       errorMessage: errorMessage ?? this.errorMessage,
       models: models ?? this.models,
       selectedProject: selectedProject ?? this.selectedProject,
@@ -40,6 +44,7 @@ class ProjectState extends Equatable {
         status,
         statusAdd,
         statusDetail,
+        statusAction,
         errorMessage,
         models,
         selectedProject,

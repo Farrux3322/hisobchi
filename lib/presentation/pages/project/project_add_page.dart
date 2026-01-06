@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/project/project_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_event.dart';
@@ -288,45 +289,50 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
             },
           ),
         ],
-        child: BlocBuilder<FileUploadBloc, FileUploadState>(
-        builder: (context, uploadState) {
-          final isUploading = uploadState.status == FileUploadStatus.uploading;
+        child: BlocBuilder<ProjectBloc, ProjectState>(
+        builder: (context, projectState) {
+          return BlocBuilder<FileUploadBloc, FileUploadState>(
+          builder: (context, uploadState) {
+            final isUploading = uploadState.status == FileUploadStatus.uploading;
+            final isCreating = projectState.statusAdd == Status.loading;
 
-          if (isUploading && !_isLoading) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                setState(() => _isLoading = true);
-              }
-            });
-          }
+            if (isUploading && !_isLoading) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() => _isLoading = true);
+                }
+              });
+            }
 
-          return Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
+            return Scaffold(
               backgroundColor: Colors.white,
-              elevation: 0,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-                onPressed: () => Navigator.pop(context),
-              ),
-              title: const Text(
-                'Loyiha qo\'shish',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E293B),
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                elevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+                  onPressed: () => Navigator.pop(context),
                 ),
+                title: const Text(
+                  'Loyiha qo\'shish',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                centerTitle: true,
               ),
-              centerTitle: true,
-            ),
-            body: Padding(
-              padding: EdgeInsets.all(20.w).copyWith(bottom: MediaQuery.of(context).padding.bottom),
-              child: Column(
+              body: Stack(
                 children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => FocusScope.of(context).unfocus(),
-                      child: ListView(
+                  Padding(
+                    padding: EdgeInsets.all(20.w).copyWith(bottom: MediaQuery.of(context).padding.bottom),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => FocusScope.of(context).unfocus(),
+                            child: ListView(
                         children: [
                           Form(
                             key: _formKey,
@@ -617,33 +623,39 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 52.h,
-                                    child: ElevatedButton(
-                                      onPressed: _handleSubmit,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppTheme.colors.primary,
-                                        foregroundColor: Colors.white,
-                                        disabledBackgroundColor: AppTheme.colors.gray,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12.r),
+                                        SizedBox(
+                                          width: double.infinity,
+                                          height: 52.h,
+                                          child: ElevatedButton(
+                                            onPressed: isCreating ? null : _handleSubmit,
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: AppTheme.colors.primary,
+                                              foregroundColor: Colors.white,
+                                              disabledBackgroundColor: AppTheme.colors.gray,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(12.r),
+                                              ),
+                                              elevation: 0,
+                                            ),
+                                            child: const Text(
+                                              'Loyiha qo\'shish',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                        elevation: 0,
-                                      ),
-                                      child: const Text(
-                                        'Loyiha qo\'shish',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
+                                      ],
                                     ),
                                   ),
+                                  // Loading overlay when creating project
+                                  if (isCreating) Loading(),
                                 ],
                               ),
-                            ),
-                          );
+                            );
+                          },
+                        );
                         },
                       ),
                     ));

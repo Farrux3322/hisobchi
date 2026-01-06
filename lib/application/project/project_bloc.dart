@@ -41,7 +41,8 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   }
 
   Future<void> getById(GetProjectByIdEvent event, Emitter<ProjectState> emit) async {
-    emit(state.copyWith(statusDetail: Status.loading));
+    // Reset statusAction when navigating back from edit page
+    emit(state.copyWith(statusDetail: Status.loading, statusAction: Status.pure));
     try {
       final data = await _repo.getById(id: event.id);
 
@@ -92,50 +93,50 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   }
 
   Future<void> delete(DeleteProjectEvent event, Emitter<ProjectState> emit) async {
-    emit(state.copyWith(statusAdd: Status.loading));
+    emit(state.copyWith(statusAction: Status.loading));
     try {
       final data = await _repo.delete(id: event.id);
       if (data["status"] == true) {
-        emit(state.copyWith(statusAdd: Status.success));
+        emit(state.copyWith(statusAction: Status.success));
       } else {
-        emit(state.copyWith(statusAdd: Status.error, errorMessage: data["error"].toString()));
+        emit(state.copyWith(statusAction: Status.error, errorMessage: data["error"].toString()));
       }
     } on DioException catch (e) {
-      emit(state.copyWith(statusAdd: Status.error, errorMessage: e.toString()));
+      emit(state.copyWith(statusAction: Status.error, errorMessage: e.toString()));
     } catch (e) {
-      emit(state.copyWith(statusAdd: Status.error, errorMessage: e.toString()));
+      emit(state.copyWith(statusAction: Status.error, errorMessage: e.toString()));
     }
   }
 
   Future<void> forceDelete(ForceDeleteProjectEvent event, Emitter<ProjectState> emit) async {
-    emit(state.copyWith(statusAdd: Status.loading));
+    emit(state.copyWith(statusAction: Status.loading));
     try {
       final data = await _repo.forceDelete(id: event.id);
       if (data["status"] == true) {
-        emit(state.copyWith(statusAdd: Status.success));
+        emit(state.copyWith(statusAction: Status.success));
       } else {
-        emit(state.copyWith(statusAdd: Status.error, errorMessage: data["error"].toString()));
+        emit(state.copyWith(statusAction: Status.error, errorMessage: data["error"].toString()));
       }
     } on DioException catch (e) {
-      emit(state.copyWith(statusAdd: Status.error, errorMessage: e.toString()));
+      emit(state.copyWith(statusAction: Status.error, errorMessage: e.toString()));
     } catch (e) {
-      emit(state.copyWith(statusAdd: Status.error, errorMessage: e.toString()));
+      emit(state.copyWith(statusAction: Status.error, errorMessage: e.toString()));
     }
   }
 
   Future<void> restore(RestoreProjectEvent event, Emitter<ProjectState> emit) async {
-    emit(state.copyWith(statusAdd: Status.loading));
+    emit(state.copyWith(statusAction: Status.loading));
     try {
       final data = await _repo.restore(id: event.id);
       if (data["status"] == true) {
-        emit(state.copyWith(statusAdd: Status.success));
+        emit(state.copyWith(statusAction: Status.success));
       } else {
-        emit(state.copyWith(statusAdd: Status.error, errorMessage: data["error"].toString()));
+        emit(state.copyWith(statusAction: Status.error, errorMessage: data["error"].toString()));
       }
     } on DioException catch (e) {
-      emit(state.copyWith(statusAdd: Status.error, errorMessage: e.toString()));
+      emit(state.copyWith(statusAction: Status.error, errorMessage: e.toString()));
     } catch (e) {
-      emit(state.copyWith(statusAdd: Status.error, errorMessage: e.toString()));
+      emit(state.copyWith(statusAction: Status.error, errorMessage: e.toString()));
     }
   }
 }
