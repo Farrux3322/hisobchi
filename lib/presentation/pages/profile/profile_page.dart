@@ -137,8 +137,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                   // 1. Avval eski PIN kodni tekshirish
                   if (context.mounted) {
-                    final isVerified = await Navigator.push<bool>(
-                      context,
+                    final isVerified = await Navigator.of(context, rootNavigator: true).push<bool>(
                       MaterialPageRoute(
                         builder: (_) => const VerifyOldPasscodePage(),
                       ),
@@ -151,8 +150,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     // 2. Eski PIN kod to'g'ri - yangi PIN kod yaratish sahifasiga o'tish
                     if (context.mounted) {
-                      final result = await Navigator.push<bool>(
-                        context,
+                      final result = await Navigator.of(context, rootNavigator: true).push<bool>(
                         MaterialPageRoute(
                           builder: (_) => const SetPasscodePage(),
                         ),
@@ -669,8 +667,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       if (!hasPasscode) {
                         // PIN kod yaratilmagan - yaratish sahifasiga o'tish
                         if (context.mounted) {
-                          final result = await Navigator.push(
-                            context,
+                          final result = await Navigator.of(context, rootNavigator: true).push<bool>(
                             MaterialPageRoute(
                               builder: (_) => const SetPasscodePage(),
                             ),
