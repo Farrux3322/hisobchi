@@ -4,6 +4,8 @@ class PartnerModel {
   String? phone;
   String? additionalPhone;
   List<String>? files;
+  int? mainCurrencyTypeId;
+  String? mainCurrencyTypeName;
   String? createdAt;
   String? deletedAt;
   PartnerBalance? balance;
@@ -14,6 +16,8 @@ class PartnerModel {
     this.phone,
     this.additionalPhone,
     this.files,
+    this.mainCurrencyTypeId,
+    this.mainCurrencyTypeName,
     this.createdAt,
     this.deletedAt,
     this.balance,
@@ -25,6 +29,8 @@ class PartnerModel {
     phone = json['phone'];
     additionalPhone = json['additional_phone'];
     files = json['files'] != null ? (json['files'] as List).cast<String>() : null;
+    mainCurrencyTypeId = json['main_currency_type_id'];
+    mainCurrencyTypeName = json['main_currency_type_name'];
     createdAt = json['created_at'];
     deletedAt = json['deleted_at'];
     balance = json['balance'] != null ? PartnerBalance.fromJson(json['balance']) : null;
@@ -37,6 +43,8 @@ class PartnerModel {
     data['phone'] = phone;
     data['additional_phone'] = additionalPhone;
     data['files'] = files;
+    data['main_currency_type_id'] = mainCurrencyTypeId;
+    data['main_currency_type_name'] = mainCurrencyTypeName;
     data['created_at'] = createdAt;
     data['deleted_at'] = deletedAt;
     if (balance != null) {

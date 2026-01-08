@@ -9,8 +9,10 @@ import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_event.dart';
 import 'package:hisobchi/application/file_upload/file_upload_state.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
+import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
+import 'package:hisobchi/infrastructure/dto/models/currency/currency_model.dart';
 import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
@@ -74,6 +76,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
   bool _isLoading = false;
   File? _selectedImage;
   int? _uploadedImageId;
+  Result? _selectedCurrency;
 
   @override
   void dispose() {
@@ -85,10 +88,12 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
 
   @override
   void initState() {
+    super.initState();
     _nameController.text = widget.partnerModel.name ?? '';
     _phoneController.text = widget.partnerModel.phone ?? '';
     _additionalPhoneController.text = widget.partnerModel.additionalPhone ?? '';
-    super.initState();
+    // Load currencies when widget initializes
+    context.read<CurrencyBloc>().add(const GetCurrency());
   }
 
   Future<void> _showImageSourceDialog() async {
@@ -238,6 +243,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
       'phone': _phoneController.text,
       'additional_phone': additionalPhone,
       if (imageId != null) 'file_id': [imageId],
+      if (_selectedCurrency?.id != null) 'currency_type_id': _selectedCurrency!.id,
     };
 
     context.read<PartnerBloc>().add(
@@ -463,6 +469,128 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                     errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red)),
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                   ),
+                                ),
+                                const SizedBox(height: 20),
+
+                                // Currency Dropdown
+                                BlocBuilder<CurrencyBloc, CurrencyState>(
+                                  builder: (context, currencyState) {
+                                    final currencies = currencyState.currencyModel?.result ?? [];
+                                    final isLoadingCurrencies = currencyState.status == Status.loading;
+
+                                    // Set initial currency based on partner's mainCurrencyTypeId
+                                    if (_selectedCurrency == null && widget.partnerModel.mainCurrencyTypeId != null) {
+                                      _selectedCurrency = currencies.firstWhere(
+                                        (currency) => currency.id == widget.partnerModel.mainCurrencyTypeId,
+                                        orElse: () => currencies.isNotEmpty ? currencies.first : Result(),
+                                      );
+                                    }
+
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        RichText(
+                                          text: const TextSpan(
+                                            text: 'Valyuta ',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color(0xFF1E293B),
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                                text: '*',
+                                                style: TextStyle(color: Colors.red),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        DropdownButtonFormField<Result>(
+                                          value: _selectedCurrency,
+                                          focusColor: Colors.white,
+                                          decoration: InputDecoration(
+                                            hintText: isLoadingCurrencies
+                                                ? 'Yuklanmoqda...'
+                                                : 'Asosiy valyutani tanlang',
+                                            hintStyle: const TextStyle(
+                                              color: Color(0xFF94A3B8),
+                                              fontSize: 14,
+                                            ),
+                                            filled: true,
+                                            fillColor: const Color(0xFFF8FAFC),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFE2E8F0),
+                                              ),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFE2E8F0),
+                                              ),
+                                            ),
+                                            errorBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                              borderSide: const BorderSide(
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                            contentPadding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 14,
+                                            ),
+                                          ),
+                                          items: currencies
+                                              .where((currency) => currency.deletedAt == null)
+                                              .map((currency) {
+                                            return DropdownMenuItem<Result>(
+                                              value: currency,
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFEFF6FF),
+                                                  borderRadius: BorderRadius.circular(6),
+                                                ),
+                                                child: Text(
+                                                  currency.name ?? '',
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Color(0xFF3B82F6),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                          onChanged: isLoadingCurrencies
+                                              ? null
+                                              : (Result? newValue) {
+                                                  setState(() {
+                                                    _selectedCurrency = newValue;
+                                                  });
+                                                },
+                                          validator: (value) {
+                                            if (value == null) {
+                                              return 'Iltimos, valyutani tanlang';
+                                            }
+                                            return null;
+                                          },
+                                          icon: const Icon(
+                                            Icons.keyboard_arrow_down_rounded,
+                                            color: Color(0xFF64748B),
+                                          ),
+                                          isExpanded: true,
+                                          dropdownColor: Colors.white,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 ),
                                 const SizedBox(height: 24),
 

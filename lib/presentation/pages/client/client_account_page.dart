@@ -27,11 +27,22 @@ class AccountPage extends StatefulWidget {
   State<AccountPage> createState() => _AccountPageState();
 }
 
-class _AccountPageState extends State<AccountPage> {
+class _AccountPageState extends State<AccountPage> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   @override
   void initState() {
-    context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
     super.initState();
+    // main_currency_type_id: 1 = UZS (index 0), 2 = USD (index 1)
+    final int initialIndex = (widget.partnerModel.mainCurrencyTypeId == 1) ? 0 : 1;
+    _tabController = TabController(length: 2, vsync: this, initialIndex: initialIndex);
+    context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Widget _iconButton(String icon, {VoidCallback? onTap}) {
@@ -40,8 +51,10 @@ class _AccountPageState extends State<AccountPage> {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(10)),
-        child: SvgPicture.asset(icon, height: 24, width: 24, colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)),
+        decoration: BoxDecoration(color: AppTheme.colors.white,
+            border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
+            borderRadius: BorderRadius.circular(10)),        child: SvgPicture.asset(icon, height: 24, width: 24, colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)),
       ),
     );
   }
@@ -60,6 +73,7 @@ class _AccountPageState extends State<AccountPage> {
       },
       builder: (context, state) {
         return Scaffold(
+          backgroundColor: const Color(0xFFF8FAFC),
           appBar: AppBar(
             leading: InkWell(
               onTap: () => Navigator.of(context).maybePop(),
@@ -98,7 +112,7 @@ class _AccountPageState extends State<AccountPage> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
-                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
                             ),
                             child: Column(
                               children: [
@@ -194,8 +208,12 @@ class _AccountPageState extends State<AccountPage> {
                                   children: [
                                     Expanded(
                                       child: Container(
+
                                         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                                        decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(10)),
+                                        decoration: BoxDecoration(color: AppTheme.colors.white,
+                                            border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
+                                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
+                                            borderRadius: BorderRadius.circular(10)),
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
@@ -234,141 +252,74 @@ class _AccountPageState extends State<AccountPage> {
                             ),
                           ),
 
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
 
-                          // Quick toggle buttons (Kirim / Chiqim)
-                          Row(
-                            children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    showKirimBottomSheet(context, widget.partnerModel.id ?? 0, true);
-                                  },
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFF3CC293),
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 4))],
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        SvgPicture.asset(AppIcons.income),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Kirim',
-                                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                          // Currency TabBar - Professional Design
+                          Container(
+                            padding: EdgeInsets.all(4),
+                            decoration: BoxDecoration(color: Colors.white,
+                                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+
+                                borderRadius: BorderRadius.circular(10.r)),
+
+                            child: TabBar(
+                              controller: _tabController,
+                              indicator: BoxDecoration(
+                                color: AppTheme.colors.primary.withValues(alpha: 0.8),
+                                borderRadius: BorderRadius.circular(12.r),
+                                boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    showKirimBottomSheet(context, widget.partnerModel.id ?? 0, false);
-                                  },
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFDE5050),
-
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 4))],
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        SvgPicture.asset(AppIcons.chiqim),
-
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Chiqim',
-                                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              dividerColor: Colors.transparent,
+                              labelColor: AppTheme.colors.white,
+                              unselectedLabelColor: const Color(0xFF64748B),
+                              labelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
+                              unselectedLabelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500),
+                              indicatorPadding: EdgeInsets.all(4.w),
+                              tabs: const [
+                                Tab(child: Text('UZS Hisob')),
+                                Tab(child: Text('USD Hisob')),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 8),
+
+                          const SizedBox(height: 10),
+
+                          // TabBarView with Currency Data
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.all(12),
+                            height: MediaQuery.of(context).size.height / 2.6,
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              border: Border.all(color: Colors.grey[200]!, width: 0.5),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 6))],
+                              borderRadius: BorderRadius.circular(12.r),
+                              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
                             ),
-                            child: state.statusIncomeStatement == Status.success
-                                ? Column(
-                                    children: [
-                                      // Kirim card (green)
-                                      _transactionRow(
-                                        title: 'Kirim',
-                                        amountUzs: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.debt?.uZS ?? 0}')} UZS',
-                                        amountUsd: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uSD ?? 0}')} USD',
-                                        bgColor: Color(0xFF3CC293).withValues(alpha: 0.15),
-                                        textColor: Colors.black,
-                                        icon: AppIcons.income,
-                                      ),
-                                      const SizedBox(height: 12),
-                                      _transactionRow(
-                                        title: 'Chiqim',
-                                        amountUzs: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uZS ?? 0}')} UZS',
-                                        amountUsd: '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.credit?.uSD ?? 0}')} USD',
-                                        bgColor: Color(0xFFDE5050).withValues(alpha: 0.15),
-                                        textColor: Colors.black,
-                                        icon: AppIcons.chiqim,
-                                      ),
-
-
-                                      const SizedBox(height: 6),
-                                      Divider(color: Colors.grey[200], thickness: 0.5),
-                                      const SizedBox(height: 6),
-                                      // Balans card (simple)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(10),
-                                          border: Border.all(color: Colors.grey[200]!),
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
+                              child: state.statusIncomeStatement == Status.success
+                                  ? TabBarView(
+                                      controller: _tabController,
+                                      children: [
+                                        // UZS Tab Content
+                                        _buildCurrencyContent(
+                                          state: state,
+                                          debt: state.incomeStatementModel?.result?.uzsAccount?.debt ?? 0,
+                                          credit: state.incomeStatementModel?.result?.uzsAccount?.credit ?? 0,
+                                          balance: state.incomeStatementModel?.result?.uzsAccount?.balance ?? 0,
+                                          currencySymbol: 'UZS',
                                         ),
-                                        child: Row(
-                                          children: [
-                                            SvgPicture.asset(AppIcons.balance),
-                                            const SizedBox(width: 12),
-                                            const Expanded(
-                                              child: Text('Qoldiq', style: TextStyle(fontWeight: FontWeight.w600)),
-                                            ),
-                                            Column(
-                                              crossAxisAlignment: CrossAxisAlignment.end,
-                                              children: [
-                                                Text(
-                                                  '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.balance?.uZS ?? 0}')} USD',
-                                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 16),
-                                                ),
-                                                const SizedBox(height: 6),
-                                                Text(
-                                                  '${PriceFormatter.priceFormat('${state.incomeStatementModel?.result?.balance?.uSD ?? 0}')} \$',
-                                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 16),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
+                                        // USD Tab Content
+                                        _buildCurrencyContent(
+                                          state: state,
+                                          debt: state.incomeStatementModel?.result?.usdAccount?.debt ?? 0,
+                                          credit: state.incomeStatementModel?.result?.usdAccount?.credit ?? 0,
+                                          balance: state.incomeStatementModel?.result?.usdAccount?.balance ?? 0,
+                                          currencySymbol: 'USD',
                                         ),
-                                      ),
-                                    ],
-                                  )
-                                : _buildShimmerCards(),
+                                      ],
+                                    )
+                                  : _buildShimmerCards(),
+                            ),
                           ),
 
                           const SizedBox(height: 8),
@@ -424,30 +375,253 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  Widget _transactionRow({required String title, required String amountUzs, required String amountUsd, required Color bgColor, required Color textColor, required String icon}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(10)),
-      child: Row(
+  // Build Currency Content - Minimalist & Clean Design
+  Widget _buildCurrencyContent({required PartnerState state, required num debt, required num credit, required num balance, required String currencySymbol}) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.04),
+      child: Column(
         children: [
-          SvgPicture.asset(icon, colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          // Kirim & Chiqim Cards - Horizontal Layout
+          Row(
             children: [
-              Text(
-                amountUsd,
-                style: TextStyle(color: textColor, fontWeight: FontWeight.w600, fontSize: 16),
+              // Kirim Card
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3CC293).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFF3CC293).withValues(alpha: 0.25), width: 1),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: const Color(0xFF3CC293).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                            child: SvgPicture.asset(AppIcons.income, width: 24, height: 24, colorFilter: const ColorFilter.mode(Color(0xFF3CC293), BlendMode.srcIn)),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Kirim',
+                            style: TextStyle(color: const Color(0xFF3CC293), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      RichText(
+                        textAlign: TextAlign.end,
+                        text: TextSpan(
+
+                          text: PriceFormatter.priceFormat('$debt'),
+                          style: TextStyle(color: Color(0xFF1E293B), fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                          children: [
+                            TextSpan(
+                              text: ' $currencySymbol',
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 6),
-              Text(
-                amountUzs,
-                style: TextStyle(color: textColor, fontWeight: FontWeight.w600, fontSize: 16),
+
+              const SizedBox(width: 12),
+
+              // Chiqim Card
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDE5050).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFDE5050).withValues(alpha: 0.25), width: 1),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: const Color(0xFFDE5050).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                            child: SvgPicture.asset(AppIcons.chiqim, width: 24, height: 24, colorFilter: const ColorFilter.mode(Color(0xFFDE5050), BlendMode.srcIn)),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Chiqim',
+                            style: TextStyle(color: const Color(0xFFDE5050), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      RichText(
+                        text: TextSpan(
+                          text: PriceFormatter.priceFormat('$credit'),
+                          style: TextStyle(color: Color(0xFF1E293B), fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                          children: [
+                            TextSpan(
+                              text: ' $currencySymbol',
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
+          ),
+
+
+
+          const SizedBox(height: 16),
+
+          // Qoldiq Card - Elegant Minimalist
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.25), width: 1.5),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(11),
+                  decoration: BoxDecoration(
+                    color: AppTheme.colors.primary.withValues(alpha: 0.8),
+                    // gradient:  LinearGradient(colors: [AppTheme.colors.primary.withValues(alpha: 0.9), AppTheme.colors.primary.withValues(alpha: 0.8)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                    borderRadius: BorderRadius.circular(11),
+                    boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
+                  ),
+                  child: SvgPicture.asset(AppIcons.balance, width: 22, height: 22, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                ),
+                const SizedBox(width: 14),
+                Text(
+                  'Qoldiq',
+                  style: TextStyle(color: AppTheme.colors.primary, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.4),
+                ),
+                Spacer(),
+                RichText(
+                  text: TextSpan(
+                    text: PriceFormatter.priceFormat('$balance'),
+                    style:  TextStyle(color: Color(0xFF1E293B), fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                    children: [
+                      TextSpan(
+                        text: ' $currencySymbol',
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Minimal Divider
+          Container(
+            height: 1,
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.grey.withValues(alpha: 0.1), Colors.grey.withValues(alpha: 0.3), Colors.grey.withValues(alpha: 0.1)])),
+          ),
+
+          SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final buttonPadding = constraints.maxWidth * 0.04;
+              final iconSize = constraints.maxWidth * 0.09;
+
+              return Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        showKirimBottomSheet(context, widget.partnerModel.id ?? 0, true);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(colors: [Color(0xFF3CC293), Color(0xFF34B082)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [BoxShadow(color: const Color(0xFF3CC293).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgPicture.asset(AppIcons.income, width: iconSize.clamp(18, 22), height: iconSize.clamp(18, 22), colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                            SizedBox(width: constraints.maxWidth * 0.02),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: RichText(
+                                  text: TextSpan(
+                                    text: 'Kirim',
+                                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                                    children: [
+                                      TextSpan(
+                                        text: ' ($currencySymbol)',
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: constraints.maxWidth * 0.03),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        showKirimBottomSheet(context, widget.partnerModel.id ?? 0, false);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(colors: [Color(0xFFDE5050), Color(0xFFC54444)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [BoxShadow(color: const Color(0xFFDE5050).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgPicture.asset(AppIcons.chiqim, width: iconSize.clamp(18, 22), height: iconSize.clamp(18, 22), colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                            SizedBox(width: constraints.maxWidth * 0.02),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child:RichText(
+                                  text: TextSpan(
+                                    text: 'Chiqim',
+                                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                                    children: [
+                                      TextSpan(
+                                        text: ' ($currencySymbol)',
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                              ),
+                            ),)
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),

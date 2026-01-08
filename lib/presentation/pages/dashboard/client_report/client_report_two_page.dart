@@ -148,7 +148,7 @@ class _ClientReportTwoPageState extends State<ClientReportTwoPage> {
                 ),
                 SizedBox(height: 8.h),
                 _buildBalanceCard(
-                  'Davr debiti',
+                  'Davr kirim',
                   state.sectionTwoReport!.periodDebits,
                   const Color(0xFFEF4444),
                   onTap: () {
@@ -171,7 +171,7 @@ class _ClientReportTwoPageState extends State<ClientReportTwoPage> {
                 ),
                 SizedBox(height: 8.h),
                 _buildBalanceCard(
-                  'Davr krediti',
+                  'Davr chiqim',
                   state.sectionTwoReport!.periodCredits,
                   const Color(0xFF10B981),
                   onTap: () {

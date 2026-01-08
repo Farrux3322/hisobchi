@@ -6,8 +6,7 @@ class IncomeStatementModel {
 
   IncomeStatementModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    result =
-    json['result'] != null ? Result.fromJson(json['result']) : null;
+    result = json['result'] != null ? Result.fromJson(json['result']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -21,49 +20,50 @@ class IncomeStatementModel {
 }
 
 class Result {
-  Debt? debt;
-  Debt? credit;
-  Debt? balance;
+  AccountData? uzsAccount;
+  AccountData? usdAccount;
 
-  Result({this.debt, this.credit, this.balance});
+  Result({this.uzsAccount, this.usdAccount});
 
   Result.fromJson(Map<String, dynamic> json) {
-    debt = json['debt'] != null ? Debt.fromJson(json['debt']) : null;
-    credit = json['credit'] != null ? Debt.fromJson(json['credit']) : null;
-    balance =
-    json['balance'] != null ? Debt.fromJson(json['balance']) : null;
+    uzsAccount = json['uzs_account'] != null
+        ? AccountData.fromJson(json['uzs_account'])
+        : null;
+    usdAccount = json['usd_account'] != null
+        ? AccountData.fromJson(json['usd_account'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (debt != null) {
-      data['debt'] = debt!.toJson();
+    if (uzsAccount != null) {
+      data['uzs_account'] = uzsAccount!.toJson();
     }
-    if (credit != null) {
-      data['credit'] = credit!.toJson();
-    }
-    if (balance != null) {
-      data['balance'] = balance!.toJson();
+    if (usdAccount != null) {
+      data['usd_account'] = usdAccount!.toJson();
     }
     return data;
   }
 }
 
-class Debt {
-  num? uZS;
-  num? uSD;
+class AccountData {
+  num? debt;
+  num? credit;
+  num? balance;
 
-  Debt({this.uZS, this.uSD});
+  AccountData({this.debt, this.credit, this.balance});
 
-  Debt.fromJson(Map<String, dynamic> json) {
-    uZS = json['UZS'];
-    uSD = json['USD'];
+  AccountData.fromJson(Map<String, dynamic> json) {
+    debt = json['debt'];
+    credit = json['credit'];
+    balance = json['balance'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['UZS'] = uZS;
-    data['USD'] = uSD;
+    data['debt'] = debt;
+    data['credit'] = credit;
+    data['balance'] = balance;
     return data;
   }
 }

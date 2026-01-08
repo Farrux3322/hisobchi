@@ -11,6 +11,7 @@ import 'package:hisobchi/presentation/pages/project/screens/contract_list_page.d
 import 'package:hisobchi/presentation/pages/project/screens/project_cost/project_cost_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_list_page.dart';
+import 'package:hisobchi/presentation/pages/project/screens/report/project_report_page.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProjectShowPage extends StatefulWidget {
@@ -368,7 +369,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                             icon: Icons.edit_document,
                             label: 'Hisobot',
                             onTap: () {
-                              // Navigator.push(context, MaterialPageRoute(builder: (_) => WorkerListPage(projectId: project.id ?? 0)));
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectReportPage(projectId: project.id ?? 0)));
                             },
                           ),
                           const SizedBox(height: 24),
