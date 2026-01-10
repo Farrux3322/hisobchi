@@ -17,6 +17,7 @@ import 'package:hisobchi/presentation/pages/profile/widgets/theme_selector_botto
 import 'package:hisobchi/presentation/pages/subscription/subscription_page.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -82,7 +83,16 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 12),
               _buildMenuItem(icon: AppIcons.telegram, title: 'Telegram bot', onTap: () {}),
               const SizedBox(height: 8),
-              _buildMenuItem(icon: AppIcons.telegram, title: 'Telegram guruh', onTap: () {}),
+              _buildMenuItem(icon: AppIcons.telegram, title: 'Telegram guruh', onTap: ()async {
+                final Uri telegramApp = Uri.parse("tg://resolve?domain=eHisob_uz");
+                final Uri telegramWeb = Uri.parse("https://t.me/eHisob_uz");
+
+                if (await canLaunchUrl(telegramApp)) {
+                await launchUrl(telegramApp, mode: LaunchMode.externalApplication);
+                } else {
+                await launchUrl(telegramWeb, mode: LaunchMode.externalApplication);
+                }
+              }),
               const SizedBox(height: 24),
               _buildSectionTitle('Tashqi ko\'rinishi'),
               const SizedBox(height: 12),

@@ -49,7 +49,7 @@ class NumberTextInputFormatter extends TextInputFormatter {
   }
 }
 
-Future<void> showKirimBottomSheet(BuildContext context, int partnerId, bool isKirim) async {
+Future<void> showKirimBottomSheet(BuildContext context, int partnerId, bool isKirim, String currencySymbol) async {
   await showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -60,7 +60,7 @@ Future<void> showKirimBottomSheet(BuildContext context, int partnerId, bool isKi
       maxChildSize: 0.95,
       builder: (context, scrollController) => BlocProvider(
         create: (context) => FileUploadBloc(repository: FileUploadRepository()),
-        child: _KirimBottomSheetContent(partnerId: partnerId, isKirim: isKirim, scrollController: scrollController),
+        child: _KirimBottomSheetContent(partnerId: partnerId, isKirim: isKirim, scrollController: scrollController, currencySymbol: currencySymbol),
       ),
     ),
   );
@@ -70,8 +70,9 @@ class _KirimBottomSheetContent extends StatefulWidget {
   final int partnerId;
   final bool isKirim;
   final ScrollController scrollController;
+  final String currencySymbol;
 
-  const _KirimBottomSheetContent({required this.partnerId, required this.isKirim, required this.scrollController});
+  const _KirimBottomSheetContent({required this.partnerId, required this.isKirim, required this.scrollController, required this.currencySymbol});
 
   @override
   State<_KirimBottomSheetContent> createState() => _KirimBottomSheetContentState();
@@ -99,6 +100,13 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
   final List<_ImageUploadItem> _images = [_ImageUploadItem(), _ImageUploadItem(), _ImageUploadItem()];
 
   int? _currentUploadingIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    // Currency symbol ga asoslanib to'g'ri valyutani tanlash
+    _selectedCurrencyId = widget.currencySymbol == 'UZS' ? 1 : 2;
+  }
 
   @override
   void dispose() {
@@ -420,11 +428,13 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                           // Agar currencies bo'sh bo'lsa yoki loading bo'lsa, default qiymat
                                           if (currencies.isEmpty) {
                                             return DropdownButtonFormField<int>(
-                                              initialValue: _selectedCurrencyId,borderRadius: BorderRadius.circular(12.r),
-                                              isExpanded: true, focusColor: Theme.of(context).scaffoldBackgroundColor,
+                                              value: _selectedCurrencyId,
+                                              borderRadius: BorderRadius.circular(12.r),
+                                              isExpanded: true,
+                                              focusColor: Theme.of(context).scaffoldBackgroundColor,
                                               decoration: InputDecoration(
                                                 filled: true,
-                                                fillColor: const Color(0xFFF8FAFC),
+                                                fillColor: const Color(0xFFF1F5F9),
                                                 border: OutlineInputBorder(
                                                   borderRadius: BorderRadius.circular(12),
                                                   borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -433,37 +443,31 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                                   borderRadius: BorderRadius.circular(12),
                                                   borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                                                 ),
-                                                focusedBorder: OutlineInputBorder(
+                                                disabledBorder: OutlineInputBorder(
                                                   borderRadius: BorderRadius.circular(12),
                                                   borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                                                 ),
                                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                                               ),
-                                              icon: Icon(Icons.keyboard_arrow_down_rounded, color:  Color(0xFFE2E8F0)),
-                                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                                              icon: const Icon(Icons.lock, color: Color(0xFF94A3B8), size: 18),
+                                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                                               dropdownColor: Colors.white,
                                               items: const [
                                                 DropdownMenuItem(value: 1, child: Text('UZS')),
                                                 DropdownMenuItem(value: 2, child: Text('USD')),
                                               ],
-                                              onChanged: (value) {
-                                                if (value != null) {
-                                                  setState(() {
-                                                    _selectedCurrencyId = value;
-                                                  });
-                                                }
-                                              },
+                                              onChanged: null, // Disabled - valyutani o'zgartirish mumkin emas
                                             );
                                           }
 
                                           return DropdownButtonFormField<int>(
-                                            initialValue: _selectedCurrencyId,
+                                            value: _selectedCurrencyId,
                                             isExpanded: true,
                                             focusColor: Theme.of(context).scaffoldBackgroundColor,
                                             borderRadius: BorderRadius.circular(12.r),
                                             decoration: InputDecoration(
                                               filled: true,
-                                              fillColor: const Color(0xFFF8FAFC),
+                                              fillColor: const Color(0xFFF1F5F9),
                                               border: OutlineInputBorder(
                                                 borderRadius: BorderRadius.circular(12),
                                                 borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -472,14 +476,14 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                                 borderRadius: BorderRadius.circular(12),
                                                 borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                                               ),
-                                              focusedBorder: OutlineInputBorder(
+                                              disabledBorder: OutlineInputBorder(
                                                 borderRadius: BorderRadius.circular(12),
                                                 borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                                               ),
                                               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                                             ),
-                                            icon: Icon(Icons.keyboard_arrow_down_rounded, color:  Color(0xFFE2E8F0)),
-                                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                                            icon: const Icon(Icons.lock, color: Color(0xFF94A3B8), size: 18),
+                                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                                             dropdownColor: Colors.white,
                                             items: currencies
                                                 .map((currency) => DropdownMenuItem<int>(
@@ -487,13 +491,7 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                                       child: Text(currency.name ?? ''),
                                                     ))
                                                 .toList(),
-                                            onChanged: (value) {
-                                              if (value != null) {
-                                                setState(() {
-                                                  _selectedCurrencyId = value;
-                                                });
-                                              }
-                                            },
+                                            onChanged: null, // Disabled - valyutani o'zgartirish mumkin emas
                                           );
                                         },
                                       ),

@@ -112,7 +112,7 @@ class _WorkerPositionBottomSheetState extends State<WorkerPositionBottomSheet> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5B4FFF),
+              backgroundColor:AppTheme.colors.primary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('Yaratish'),
@@ -662,6 +662,7 @@ class _WorkerPositionBottomSheetState extends State<WorkerPositionBottomSheet> {
           },
           builder: (context, state) {
             return Container(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

@@ -1,5 +1,6 @@
 class CostTypeModel {
   final int? id;
+  final int? isWorkerJoin;
   final String? name;
   final String? description;
   final String? createdAt;
@@ -11,6 +12,7 @@ class CostTypeModel {
     this.description,
     this.createdAt,
     this.deletedAt,
+    this.isWorkerJoin,
   });
 
   bool get isDeleted => deletedAt != null && deletedAt!.isNotEmpty;
@@ -18,6 +20,7 @@ class CostTypeModel {
   factory CostTypeModel.fromJson(Map<String, dynamic> json) {
     return CostTypeModel(
       id: json['id'] as int?,
+      isWorkerJoin: json['is_worker_join'] as int?,
       name: json['name'] as String?,
       description: json['description'] as String?,
       createdAt: json['created_at'] as String?,
@@ -28,6 +31,7 @@ class CostTypeModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'is_worker_join': isWorkerJoin,
       'name': name,
       'description': description,
       'created_at': createdAt,
@@ -37,6 +41,7 @@ class CostTypeModel {
 
   CostTypeModel copyWith({
     int? id,
+    int? isWorkerJoin,
     String? name,
     String? description,
     String? createdAt,
@@ -44,6 +49,7 @@ class CostTypeModel {
   }) {
     return CostTypeModel(
       id: id ?? this.id,
+      isWorkerJoin: isWorkerJoin ?? this.isWorkerJoin,
       name: name ?? this.name,
       description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,

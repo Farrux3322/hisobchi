@@ -286,40 +286,47 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                           const SizedBox(height: 10),
 
                           // TabBarView with Currency Data
-                          Container(
-                            width: double.infinity,
-                            height: MediaQuery.of(context).size.height / 2.6,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12.r),
-                              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
-                              child: state.statusIncomeStatement == Status.success
-                                  ? TabBarView(
-                                      controller: _tabController,
-                                      children: [
-                                        // UZS Tab Content
-                                        _buildCurrencyContent(
-                                          state: state,
-                                          debt: state.incomeStatementModel?.result?.uzsAccount?.debt ?? 0,
-                                          credit: state.incomeStatementModel?.result?.uzsAccount?.credit ?? 0,
-                                          balance: state.incomeStatementModel?.result?.uzsAccount?.balance ?? 0,
-                                          currencySymbol: 'UZS',
-                                        ),
-                                        // USD Tab Content
-                                        _buildCurrencyContent(
-                                          state: state,
-                                          debt: state.incomeStatementModel?.result?.usdAccount?.debt ?? 0,
-                                          credit: state.incomeStatementModel?.result?.usdAccount?.credit ?? 0,
-                                          balance: state.incomeStatementModel?.result?.usdAccount?.balance ?? 0,
-                                          currencySymbol: 'USD',
-                                        ),
-                                      ],
-                                    )
-                                  : _buildShimmerCards(),
-                            ),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              final screenHeight = MediaQuery.of(context).size.height;
+                              final availableHeight = screenHeight * 0.39; // Responsive height
+
+                              return Container(
+                                width: double.infinity,
+                                height: availableHeight.clamp(300, 500), // Min 300, Max 500
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
+                                  child: state.statusIncomeStatement == Status.success
+                                      ? TabBarView(
+                                          controller: _tabController,
+                                          children: [
+                                            // UZS Tab Content
+                                            _buildCurrencyContent(
+                                              state: state,
+                                              debt: state.incomeStatementModel?.result?.uzsAccount?.debt ?? 0,
+                                              credit: state.incomeStatementModel?.result?.uzsAccount?.credit ?? 0,
+                                              balance: state.incomeStatementModel?.result?.uzsAccount?.balance ?? 0,
+                                              currencySymbol: 'UZS',
+                                            ),
+                                            // USD Tab Content
+                                            _buildCurrencyContent(
+                                              state: state,
+                                              debt: state.incomeStatementModel?.result?.usdAccount?.debt ?? 0,
+                                              credit: state.incomeStatementModel?.result?.usdAccount?.credit ?? 0,
+                                              balance: state.incomeStatementModel?.result?.usdAccount?.balance ?? 0,
+                                              currencySymbol: 'USD',
+                                            ),
+                                          ],
+                                        )
+                                      : _buildShimmerCards(),
+                                ),
+                              );
+                            },
                           ),
 
                           const SizedBox(height: 8),
@@ -377,114 +384,143 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
 
   // Build Currency Content - Minimalist & Clean Design
   Widget _buildCurrencyContent({required PartnerState state, required num debt, required num credit, required num balance, required String currencySymbol}) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardPadding = screenWidth * 0.035; // Responsive padding
+    final iconPadding = screenWidth * 0.02; // Responsive icon padding
+    final iconSize = screenWidth * 0.06; // Responsive icon size
+
     return SingleChildScrollView(
-      padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.04),
+      padding: EdgeInsets.all(screenWidth * 0.04),
       child: Column(
         children: [
           // Kirim & Chiqim Cards - Horizontal Layout
-          Row(
-            children: [
-              // Kirim Card
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3CC293).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFF3CC293).withValues(alpha: 0.25), width: 1),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final availableWidth = constraints.maxWidth;
+              final cardSpacing = availableWidth * 0.03;
+
+              return Row(
+                children: [
+                  // Kirim Card
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.all(cardPadding.clamp(10, 16)),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3CC293).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFF3CC293).withValues(alpha: 0.25), width: 1),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(color: const Color(0xFF3CC293).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
-                            child: SvgPicture.asset(AppIcons.income, width: 24, height: 24, colorFilter: const ColorFilter.mode(Color(0xFF3CC293), BlendMode.srcIn)),
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(iconPadding.clamp(6, 10)),
+                                decoration: BoxDecoration(color: const Color(0xFF3CC293).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                                child: SvgPicture.asset(
+                                  AppIcons.income,
+                                  width: iconSize.clamp(20, 26),
+                                  height: iconSize.clamp(20, 26),
+                                  colorFilter: const ColorFilter.mode(Color(0xFF3CC293), BlendMode.srcIn),
+                                ),
+                              ),
+                              SizedBox(width: availableWidth * 0.02),
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    'Kirim',
+                                    style: TextStyle(color: const Color(0xFF3CC293), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Kirim',
-                            style: TextStyle(color: const Color(0xFF3CC293), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                          SizedBox(height: screenWidth * 0.025),
+                          RichText(
+                            textAlign: TextAlign.end,
+                            text: TextSpan(
+                              text: PriceFormatter.priceFormat('$debt'),
+                              style: TextStyle(color: Color(0xFF1E293B), fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                              children: [
+                                TextSpan(
+                                  text: ' $currencySymbol',
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
-                      RichText(
-                        textAlign: TextAlign.end,
-                        text: TextSpan(
+                    ),
+                  ),
 
-                          text: PriceFormatter.priceFormat('$debt'),
-                          style: TextStyle(color: Color(0xFF1E293B), fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
-                          children: [
-                            TextSpan(
-                              text: ' $currencySymbol',
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
-                            ),
-                          ],
-                        ),
+                  SizedBox(width: cardSpacing),
+
+                  // Chiqim Card
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.all(cardPadding.clamp(10, 16)),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDE5050).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFDE5050).withValues(alpha: 0.25), width: 1),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              // Chiqim Card
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFDE5050).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFFDE5050).withValues(alpha: 0.25), width: 1),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(color: const Color(0xFFDE5050).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
-                            child: SvgPicture.asset(AppIcons.chiqim, width: 24, height: 24, colorFilter: const ColorFilter.mode(Color(0xFFDE5050), BlendMode.srcIn)),
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(iconPadding.clamp(6, 10)),
+                                decoration: BoxDecoration(color: const Color(0xFFDE5050).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                                child: SvgPicture.asset(
+                                  AppIcons.chiqim,
+                                  width: iconSize.clamp(20, 26),
+                                  height: iconSize.clamp(20, 26),
+                                  colorFilter: const ColorFilter.mode(Color(0xFFDE5050), BlendMode.srcIn),
+                                ),
+                              ),
+                              SizedBox(width: availableWidth * 0.02),
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    'Chiqim',
+                                    style: TextStyle(color: const Color(0xFFDE5050), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Chiqim',
-                            style: TextStyle(color: const Color(0xFFDE5050), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                          SizedBox(height: screenWidth * 0.025),
+                          RichText(
+                            text: TextSpan(
+                              text: PriceFormatter.priceFormat('$credit'),
+                              style: TextStyle(color: Color(0xFF1E293B), fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                              children: [
+                                TextSpan(
+                                  text: ' $currencySymbol',
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
-                      RichText(
-                        text: TextSpan(
-                          text: PriceFormatter.priceFormat('$credit'),
-                          style: TextStyle(color: Color(0xFF1E293B), fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
-                          children: [
-                            TextSpan(
-                              text: ' $currencySymbol',
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           ),
 
-
-
-          const SizedBox(height: 16),
+          SizedBox(height: screenWidth * 0.04),
 
           // Qoldiq Card - Elegant Minimalist
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(cardPadding.clamp(12, 18)),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.25), width: 1.5),
@@ -492,31 +528,38 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(11),
+                  padding: EdgeInsets.all(iconPadding.clamp(8, 12)),
                   decoration: BoxDecoration(
                     color: AppTheme.colors.primary.withValues(alpha: 0.8),
-                    // gradient:  LinearGradient(colors: [AppTheme.colors.primary.withValues(alpha: 0.9), AppTheme.colors.primary.withValues(alpha: 0.8)], begin: Alignment.topLeft, end: Alignment.bottomRight),
                     borderRadius: BorderRadius.circular(11),
                     boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
                   ),
-                  child: SvgPicture.asset(AppIcons.balance, width: 22, height: 22, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                  child: SvgPicture.asset(
+                    AppIcons.balance,
+                    width: iconSize.clamp(20, 26),
+                    height: iconSize.clamp(20, 26),
+                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: screenWidth * 0.035),
                 Text(
                   'Qoldiq',
                   style: TextStyle(color: AppTheme.colors.primary, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.4),
                 ),
                 Spacer(),
-                RichText(
-                  text: TextSpan(
-                    text: PriceFormatter.priceFormat('$balance'),
-                    style:  TextStyle(color: Color(0xFF1E293B), fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
-                    children: [
-                      TextSpan(
-                        text: ' $currencySymbol',
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                      ),
-                    ],
+                Flexible(
+                  child: RichText(
+                    textAlign: TextAlign.end,
+                    text: TextSpan(
+                      text: PriceFormatter.priceFormat('$balance'),
+                      style: TextStyle(color: Color(0xFF1E293B), fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                      children: [
+                        TextSpan(
+                          text: ' $currencySymbol',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -542,7 +585,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                   Expanded(
                     child: GestureDetector(
                       onTap: () async {
-                        showKirimBottomSheet(context, widget.partnerModel.id ?? 0, true);
+                        showKirimBottomSheet(context, widget.partnerModel.id ?? 0, true, currencySymbol);
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),
@@ -583,7 +626,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        showKirimBottomSheet(context, widget.partnerModel.id ?? 0, false);
+                        showKirimBottomSheet(context, widget.partnerModel.id ?? 0, false, currencySymbol);
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),

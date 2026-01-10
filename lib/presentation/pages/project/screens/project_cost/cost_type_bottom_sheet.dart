@@ -7,6 +7,7 @@ import 'package:hisobchi/application/cost_type/cost_type_event.dart';
 import 'package:hisobchi/application/cost_type/cost_type_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/cost_type_model.dart';
+import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 
@@ -41,9 +42,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
       if (query.isEmpty) {
         _filteredCostTypes = _allCostTypes;
       } else {
-        _filteredCostTypes = _allCostTypes
-            .where((costType) => costType.name!.toLowerCase().contains(query))
-            .toList();
+        _filteredCostTypes = _allCostTypes.where((costType) => costType.name!.toLowerCase().contains(query)).toList();
       }
     });
   }
@@ -99,10 +98,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Bekor qilish'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Bekor qilish')),
           ElevatedButton(
             onPressed: () {
               if (formKey.currentState!.validate()) {
@@ -110,7 +106,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5B4FFF),
+              backgroundColor: AppTheme.colors.primary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: Text(costType == null ? 'Yaratish' : 'Saqlash'),
@@ -121,24 +117,11 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
 
     if (result == true && mounted) {
       if (costType == null) {
-        context.read<CostTypeBloc>().add(
-              CreateCostTypeEvent(
-                name: nameController.text.trim(),
-                description: descriptionController.text.trim().isEmpty
-                    ? null
-                    : descriptionController.text.trim(),
-              ),
-            );
+        context.read<CostTypeBloc>().add(CreateCostTypeEvent(name: nameController.text.trim(), description: descriptionController.text.trim().isEmpty ? null : descriptionController.text.trim()));
       } else {
         context.read<CostTypeBloc>().add(
-              UpdateCostTypeEvent(
-                costTypeId: costType.id!,
-                name: nameController.text.trim(),
-                description: descriptionController.text.trim().isEmpty
-                    ? null
-                    : descriptionController.text.trim(),
-              ),
-            );
+          UpdateCostTypeEvent(costTypeId: costType.id!, name: nameController.text.trim(), description: descriptionController.text.trim().isEmpty ? null : descriptionController.text.trim()),
+        );
       }
     }
   }
@@ -152,31 +135,18 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
               child: const Icon(Icons.delete_outline, color: Colors.red, size: 24),
             ),
             const SizedBox(width: 12),
             const Expanded(
-              child: Text(
-                'O\'chirish',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
+              child: Text('O\'chirish', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             ),
           ],
         ),
-        content: Text(
-          costType.isDeleted
-              ? 'Ushbu chiqim turini butunlay o\'chirmoqchimisiz?'
-              : 'Ushbu chiqim turini o\'chirmoqchimisiz?',
-        ),
+        content: Text(costType.isDeleted ? 'Ushbu chiqim turini butunlay o\'chirmoqchimisiz?' : 'Ushbu chiqim turini o\'chirmoqchimisiz?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Yo\'q'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Yo\'q')),
           if (costType.isDeleted) ...[
             TextButton(
               onPressed: () => Navigator.pop(context, 'restore'),
@@ -254,10 +224,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                     child: Container(
                       width: 40,
                       height: 4,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE2E8F0),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+                      decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(2)),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -277,11 +244,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                         const Expanded(
                           child: Text(
                             'Chiqim turi tanlash',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1E293B),
-                            ),
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -289,9 +252,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                           icon: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)],
-                              ),
+                              gradient: const LinearGradient(colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)]),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Icon(Icons.add, color: Colors.white, size: 20),
@@ -335,31 +296,26 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                     child: state.status == Status.loading && _allCostTypes.isEmpty
                         ? const Center(child: Loading())
                         : _filteredCostTypes.isEmpty
-                            ? _buildEmptyState()
-                            : Stack(
-                                children: [
-                                  ListView.separated(
-                                    controller: scrollController,
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    itemCount: _filteredCostTypes.length,
-                                    separatorBuilder: (context, index) => const SizedBox(height: 8),
-                                    itemBuilder: (context, index) {
-                                      final costType = _filteredCostTypes[index];
-                                      return Column(
-                                        children: [
-                                          _buildCostTypeItem(costType),
-                                          if(index==_filteredCostTypes.length-1)Gap(MediaQuery.of(context).padding.bottom+10)
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                  if (state.statusAction == Status.loading)
-                                    Container(
-                                      color: Colors.black.withValues(alpha: 0.3),
-                                      child: const Center(child: Loading()),
-                                    ),
-                                ],
+                        ? _buildEmptyState()
+                        : Stack(
+                            children: [
+                              ListView.separated(
+                                controller: scrollController,
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                itemCount: _filteredCostTypes.length,
+                                separatorBuilder: (context, index) => const SizedBox(height: 8),
+                                itemBuilder: (context, index) {
+                                  final costType = _filteredCostTypes[index];
+                                  return Column(children: [_buildCostTypeItem(costType), if (index == _filteredCostTypes.length - 1) Gap(MediaQuery.of(context).padding.bottom + 10)]);
+                                },
                               ),
+                              if (state.statusAction == Status.loading)
+                                Container(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  child: const Center(child: Loading()),
+                                ),
+                            ],
+                          ),
                   ),
                 ],
               ),
@@ -424,28 +380,15 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
           decoration: BoxDecoration(
             color: isDeleted ? Colors.red.shade50 : Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: isDeleted
-                ? Border.all(color: Colors.red.shade300, width: 2)
-                : Border.all(color: const Color(0xFFE2E8F0)),
-            boxShadow: isDeleted
-                ? null
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.02),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    )
-                  ],
+            border: isDeleted ? Border.all(color: Colors.red.shade300, width: 2) : Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: isDeleted ? null : [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2))],
           ),
           child: Row(
             children: [
               Container(
                 height: 40,
                 width: 40,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF5B4FFF).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                decoration: BoxDecoration(color: const Color(0xFF5B4FFF).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
                 child: const Icon(Icons.category_outlined, color: Color(0xFF5B4FFF), size: 20),
               ),
               const SizedBox(width: 12),
@@ -455,21 +398,13 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                   children: [
                     Text(
                       costType.name ?? '',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: isDeleted ? Colors.grey : const Color(0xFF1E293B),
-                        decoration: isDeleted ? TextDecoration.lineThrough : null,
-                      ),
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: isDeleted ? Colors.grey : const Color(0xFF1E293B), decoration: isDeleted ? TextDecoration.lineThrough : null),
                     ),
                     if (costType.description != null && costType.description!.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
                         costType.description!,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: isDeleted ? Colors.grey : const Color(0xFF64748B),
-                        ),
+                        style: TextStyle(fontSize: 13, color: isDeleted ? Colors.grey : const Color(0xFF64748B)),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -477,8 +412,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                   ],
                 ),
               ),
-              if (!isDeleted)
-                const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF64748B)),
+              if (!isDeleted) const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF64748B)),
             ],
           ),
         ),
@@ -493,10 +427,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
         children: [
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFF5B4FFF).withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: const Color(0xFF5B4FFF).withValues(alpha: 0.1), shape: BoxShape.circle),
             child: const Icon(Icons.category_outlined, size: 64, color: Color(0xFF5B4FFF)),
           ),
           const SizedBox(height: 24),
@@ -506,9 +437,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
           ),
           const SizedBox(height: 8),
           Text(
-            _searchController.text.isEmpty
-                ? 'Yangi chiqim turi yaratish uchun + tugmasini bosing'
-                : 'Boshqa kalit so\'z bilan qidirib ko\'ring',
+            _searchController.text.isEmpty ? 'Yangi chiqim turi yaratish uchun + tugmasini bosing' : 'Boshqa kalit so\'z bilan qidirib ko\'ring',
             style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
             textAlign: TextAlign.center,
           ),

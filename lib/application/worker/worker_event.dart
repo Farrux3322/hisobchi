@@ -23,6 +23,11 @@ class GetAllWorkersEvent extends WorkerEvent {
   const GetAllWorkersEvent({required this.projectId});
 }
 
+class GetAllWorkersInProjectEvent extends WorkerEvent {
+  final int projectId;
+  const GetAllWorkersInProjectEvent({required this.projectId});
+}
+
 // Create worker event
 class CreateWorkerEvent extends WorkerEvent {
   final String name;

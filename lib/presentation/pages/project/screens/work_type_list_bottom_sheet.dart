@@ -213,16 +213,19 @@ class _WorkTypeListBottomSheetState extends State<WorkTypeListBottomSheet> {
                       child: state.status == Status.loading && _allWorkTypes.isEmpty
                           ? const Center(child: Loading())
                           : _filteredList.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.work_off_outlined, size: 64, color: Colors.grey[400]),
-                                  const SizedBox(height: 16),
-                                  Text(_searchController.text.isEmpty ? 'Ish turlari mavjud emas' : 'Hech narsa topilmadi', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-                                ],
+                          ? Padding(
+                            padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+                            child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.work_outlined, size: 64, color: AppTheme.colors.primary),
+                                    const SizedBox(height: 16),
+                                    Text(_searchController.text.isEmpty ? 'Ish turlari mavjud emas' : 'Hech narsa topilmadi', style: TextStyle(fontSize: 16, color: AppTheme.colors.primary)),
+                                  ],
+                                ),
                               ),
-                            )
+                          )
                           : Stack(
                               children: [
                                 ListView.separated(

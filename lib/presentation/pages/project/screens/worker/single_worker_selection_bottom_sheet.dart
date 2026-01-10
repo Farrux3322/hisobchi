@@ -7,10 +7,9 @@ import 'package:hisobchi/application/worker/worker_event.dart';
 import 'package:hisobchi/application/worker/worker_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/worker_model.dart';
-import 'package:hisobchi/infrastructure/repository/worker/worker_repository.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
-import 'package:hisobchi/presentation/pages/project/screens/worker/worker_add_edit_page.dart';
+import 'package:hisobchi/presentation/pages/project/screens/worker/worker_selection_bottom_sheet.dart';
 
 class SingleWorkerSelectionBottomSheet extends StatefulWidget {
   final int projectId;
@@ -29,7 +28,7 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
   @override
   void initState() {
     super.initState();
-    context.read<WorkerBloc>().add(GetAllWorkersEvent(projectId: widget.projectId));
+    context.read<WorkerBloc>().add(GetProjectWorkersEvent(projectId: widget.projectId));
     _searchController.addListener(_filterWorkers);
   }
 
@@ -57,19 +56,26 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
     });
   }
 
-  Future<void> _navigateToAddWorker() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BlocProvider(
-          create: (context) => WorkerBloc(repository: WorkerRepository()),
-          child: const WorkerAddEditPage(),
+  Future<void> _openWorkerSelectionBottomSheet() async {
+    final result = await showModalBottomSheet<dynamic>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: true,
+      enableDrag: true,
+      builder: (bottomSheetContext) => BlocProvider.value(
+        value: context.read<WorkerBloc>(),
+        child: WorkerSelectionBottomSheet(
+          projectId: widget.projectId,
+          isSelectionMode: true,
         ),
       ),
     );
 
-    if (result == true && mounted) {
-      context.read<WorkerBloc>().add(GetAllWorkersEvent(projectId: widget.projectId));
+    // Only close this bottom sheet if a worker was actually selected
+    if (result != null && result==true && mounted) {
+      context.read<WorkerBloc>().add(GetProjectWorkersEvent(projectId: widget.projectId));
+      // Navigator.pop(context, result);
     }
   }
 
@@ -87,13 +93,13 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
       builder: (context, scrollController) {
         return BlocConsumer<WorkerBloc, WorkerState>(
           listener: (context, state) {
-            if (state.statusAllWorkers == Status.success) {
+            if (state.status == Status.success) {
               setState(() {
-                _allWorkers = state.allWorkers;
+                _allWorkers = state.projectWorkers;
                 _filterWorkers();
               });
             }
-            if (state.statusAllWorkers == Status.error) {
+            if (state.status == Status.error) {
               Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
             }
           },
@@ -147,7 +153,7 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
                             ),
                             child: const Icon(Icons.add, color: Colors.white, size: 20),
                           ),
-                          onPressed: _navigateToAddWorker,
+                          onPressed: _openWorkerSelectionBottomSheet,
                         ),
                       ],
                     ),
@@ -183,10 +189,13 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
 
                   // Workers List
                   Expanded(
-                    child: state.statusAllWorkers == Status.loading && _allWorkers.isEmpty
+                    child: state.status == Status.loading && _allWorkers.isEmpty
                         ? const Center(child: Loading())
                         : _filteredWorkers.isEmpty
-                            ? _buildEmptyState()
+                            ? Padding(
+                              padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+                              child: _buildEmptyState(),
+                            )
                             : ListView.separated(
                                 controller: scrollController,
                                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -314,7 +323,7 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
           ),
           const SizedBox(height: 8),
           Text(
-            _searchController.text.isEmpty ? 'Yangi ishchi yaratish uchun + tugmasini bosing' : 'Boshqa kalit so\'z bilan qidirib ko\'ring',
+            _searchController.text.isEmpty ? 'Barcha ishchilardan tanlash uchun + tugmasini bosing' : 'Boshqa kalit so\'z bilan qidirib ko\'ring',
             style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
             textAlign: TextAlign.center,
           ),

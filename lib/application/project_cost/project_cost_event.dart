@@ -8,7 +8,7 @@ class GetProjectCostsEvent extends ProjectCostEvent {
 
 class CreateProjectCostEvent extends ProjectCostEvent {
   final int costTypeId;
-  final int workerId;
+  final int? workerId;
   final int currencyTypeId;
   final double summa;
   final String? description;
@@ -17,7 +17,7 @@ class CreateProjectCostEvent extends ProjectCostEvent {
 
   CreateProjectCostEvent({
     required this.costTypeId,
-    required this.workerId,
+     this.workerId,
     required this.currencyTypeId,
     required this.summa,
     this.description,
@@ -29,7 +29,7 @@ class CreateProjectCostEvent extends ProjectCostEvent {
 class UpdateProjectCostEvent extends ProjectCostEvent {
   final int projectCostId;
   final int costTypeId;
-  final int workerId;
+  final int? workerId;
   final int currencyTypeId;
   final double summa;
   final String? description;
@@ -39,7 +39,7 @@ class UpdateProjectCostEvent extends ProjectCostEvent {
   UpdateProjectCostEvent({
     required this.projectCostId,
     required this.costTypeId,
-    required this.workerId,
+     this.workerId,
     required this.currencyTypeId,
     required this.summa,
     this.description,

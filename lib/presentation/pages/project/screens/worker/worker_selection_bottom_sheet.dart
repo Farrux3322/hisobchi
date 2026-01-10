@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gap/gap.dart';
 import 'package:hisobchi/application/worker/worker_bloc.dart';
 import 'package:hisobchi/application/worker/worker_event.dart';
 import 'package:hisobchi/application/worker/worker_state.dart';
@@ -93,14 +92,14 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
       return;
     }
 
-    if (widget.isSelectionMode) {
-      // For single selection mode, return the first selected worker
-      final selectedWorker = _allWorkers.firstWhere((w) => w.id == _selectedWorkerIds.first);
-      Navigator.pop(context, selectedWorker);
-    } else {
+    // if (widget.isSelectionMode) {
+    //   // For single selection mode, return the first selected worker
+    //   final selectedWorker = _allWorkers.firstWhere((w) => w.id == _selectedWorkerIds.first);
+    //   Navigator.pop(context, selectedWorker);
+    // } else {
       // Add multiple workers to project
       context.read<WorkerBloc>().add(AddWorkersToProjectEvent(workerIds: _selectedWorkerIds.toList(), projectId: widget.projectId));
-    }
+    // }
   }
 
   @override
@@ -121,7 +120,7 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
             if (state.statusAllWorkers == Status.error) {
               Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
             }
-            if (state.statusAction == Status.success && !widget.isSelectionMode) {
+            if (state.statusAction == Status.success ) {
               HapticFeedback.mediumImpact();
               Toast.showSuccessToast(message: '${_selectedWorkerIds.length} ta ishchi qo\'shildi');
               Navigator.pop(context, true);
@@ -222,7 +221,10 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                     child: state.statusAllWorkers == Status.loading && _allWorkers.isEmpty
                         ? const Center(child: Loading())
                         : _filteredWorkers.isEmpty
-                        ? _buildEmptyState()
+                        ? Padding(
+                            padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+                            child: _buildEmptyState(),
+                          )
                         : Stack(
                             children: [
                               ListView.separated(

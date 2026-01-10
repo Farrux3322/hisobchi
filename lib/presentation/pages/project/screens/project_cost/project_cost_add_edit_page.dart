@@ -157,6 +157,10 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
     if (result != null && result is CostTypeModel && mounted) {
       setState(() {
         _selectedCostType = result;
+        // Reset worker selection if cost type doesn't require worker
+        if (result.isWorkerJoin != 1) {
+          _selectedWorker = null;
+        }
       });
       HapticFeedback.selectionClick();
     }
@@ -187,10 +191,13 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
         Toast.showErrorToast(message: 'Chiqim turini tanlang');
         return;
       }
-      if (_selectedWorker == null) {
+
+      // Only validate worker if cost type requires worker join
+      if (_selectedCostType!.isWorkerJoin == 1 && _selectedWorker == null) {
         Toast.showErrorToast(message: 'Ishchini tanlang');
         return;
       }
+
       if (_selectedCurrency == null) {
         Toast.showErrorToast(message: 'Valyuta turini tanlang');
         return;
@@ -209,7 +216,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
               UpdateProjectCostEvent(
                 projectCostId: widget.cost!.id!,
                 costTypeId: _selectedCostType!.id!,
-                workerId: _selectedWorker!.id!,
+                workerId: _selectedWorker?.id,
                 currencyTypeId: _selectedCurrency!.id!,
                 summa: summa,
                 description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
@@ -221,7 +228,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
         context.read<ProjectCostBloc>().add(
               CreateProjectCostEvent(
                 costTypeId: _selectedCostType!.id!,
-                workerId: _selectedWorker!.id!,
+                workerId: _selectedWorker?.id,
                 currencyTypeId: _selectedCurrency!.id!,
                 summa: summa,
                 description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
@@ -277,8 +284,10 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
                           children: [
                             _buildCostTypeSelector(),
                             SizedBox(height: 10.h),
-                            _buildWorkerSelector(),
-                            SizedBox(height: 10.h),
+                            if (_selectedCostType?.isWorkerJoin == 1) ...[
+                              _buildWorkerSelector(),
+                              SizedBox(height: 10.h),
+                            ],
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [

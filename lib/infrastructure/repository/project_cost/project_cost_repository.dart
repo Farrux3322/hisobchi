@@ -33,7 +33,7 @@ class ProjectCostRepository {
   // Create project cost
   Future<void> createProjectCost({
     required int costTypeId,
-    required int workerId,
+     int? workerId,
     required int currencyTypeId,
     required double summa,
     String? description,
@@ -67,7 +67,7 @@ class ProjectCostRepository {
   Future<void> updateProjectCost({
     required int projectCostId,
     required int costTypeId,
-    required int workerId,
+     int? workerId,
     required int currencyTypeId,
     required double summa,
     String? description,
