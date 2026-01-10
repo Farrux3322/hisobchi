@@ -55,6 +55,8 @@
   "products": "Mahsulotlar",
   "sign_in": {
     "login": "Kirish",
+    "welcome_back": "Xush kelibsiz",
+    "subtitle": "Davom etish uchun telefon raqamingizni kiriting",
     "login_to_your_account": "Akkauntga kirish",
     "phone_number": "Telefon raqami",
     "new_password": "Yangi parol",
