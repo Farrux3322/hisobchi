@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hisobchi/application/cost_type/cost_type_bloc.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
@@ -127,6 +126,9 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
           name: widget.cost!.currencyTypeName,
         );
       }
+
+      // Load existing images if available
+      _loadExistingImages();
     }
 
     // Load currencies
@@ -158,7 +160,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       setState(() {
         _selectedCostType = result;
         // Reset worker selection if cost type doesn't require worker
-        if (result.isWorkerJoin != 1) {
+        if (result.isWorkerJoin != true) {
           _selectedWorker = null;
         }
       });
@@ -193,7 +195,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       }
 
       // Only validate worker if cost type requires worker join
-      if (_selectedCostType!.isWorkerJoin == 1 && _selectedWorker == null) {
+      if (_selectedCostType!.isWorkerJoin == true && _selectedWorker == null) {
         Toast.showErrorToast(message: 'Ishchini tanlang');
         return;
       }
@@ -284,7 +286,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
                           children: [
                             _buildCostTypeSelector(),
                             SizedBox(height: 10.h),
-                            if (_selectedCostType?.isWorkerJoin == 1) ...[
+                            if (_selectedCostType?.isWorkerJoin == true) ...[
                               _buildWorkerSelector(),
                               SizedBox(height: 10.h),
                             ],
@@ -807,8 +809,8 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       itemCount: 3,
       itemBuilder: (context, index) {
         final imageData = _images[index];
-        final hasImage = imageData.file != null;
-        final canAddImage = index == 0 || _images[index - 1].file != null;
+        final hasImage = imageData.file != null || imageData.imageUrl != null;
+        final canAddImage = index == 0 || (_images[index - 1].file != null || _images[index - 1].imageUrl != null);
 
         return GestureDetector(
           onTap: canAddImage && !hasImage
@@ -849,12 +851,50 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(14.r),
-          child: Image.file(
-            imageData.file!,
-            width: double.infinity,
-            height: double.infinity,
-            fit: BoxFit.cover,
-          ),
+          child: imageData.isFromServer
+              ? Image.network(
+                  imageData.imageUrl!,
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                            : null,
+                        color: AppTheme.colors.primary,
+                        strokeWidth: 2,
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error_outline, color: const Color(0xFFEF4444), size: 24.sp),
+                          SizedBox(height: 4.h),
+                          Text(
+                            'Yuklashda xato',
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              color: const Color(0xFFEF4444),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                )
+              : Image.file(
+                  imageData.file!,
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
         ),
         if (imageData.isUploading)
           Positioned.fill(
@@ -1203,9 +1243,15 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
   }
 
   Future<void> _pickImage(ImageSource source, int index) async {
-    if (index > 0 && _images[index - 1].file == null) {
-      Toast.showErrorToast(message: 'Avval ${index}-rasmni yuklang');
-      return;
+    // Check if previous image exists (either from server or local file)
+    if (index > 0) {
+      final previousImage = _images[index - 1];
+      final hasPreviousImage = previousImage.file != null || previousImage.imageUrl != null;
+
+      if (!hasPreviousImage) {
+        Toast.showErrorToast(message: 'Avval $index-rasmni yuklang');
+        return;
+      }
     }
 
     try {
@@ -1239,6 +1285,33 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
     });
     context.read<FileUploadBloc>().add(ResetUploadEvent());
   }
+
+  void _loadExistingImages() {
+    final cost = widget.cost;
+    if (cost == null) return;
+
+    try {
+      // Get files array from response
+      final dynamic filesData = cost.toJson()['files'];
+
+      if (filesData != null && filesData is List) {
+        final List<String> fileUrls = filesData.cast<String>();
+
+        // Load up to 3 images
+        for (int i = 0; i < fileUrls.length && i < 3; i++) {
+          setState(() {
+            _images[i] = ImageData(
+              imageUrl: fileUrls[i],
+              isFromServer: true,
+            );
+          });
+        }
+      }
+    } catch (e) {
+      // Silently fail - existing images are optional
+      debugPrint('Error loading existing images: $e');
+    }
+  }
 }
 
 class ImageData {
@@ -1246,12 +1319,16 @@ class ImageData {
   final int? fileId;
   final bool isUploading;
   final double progress;
+  final bool isFromServer;
+  final String? imageUrl;
 
   ImageData({
     this.file,
     this.fileId,
     this.isUploading = false,
     this.progress = 0,
+    this.isFromServer = false,
+    this.imageUrl,
   });
 }
 
