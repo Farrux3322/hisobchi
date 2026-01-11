@@ -142,4 +142,13 @@ class PasscodeCubit extends Cubit<PasscodeState> {
   void refreshState() {
     emit(const PasscodeInitial(passcodeStep: PasscodeStep.create));
   }
+
+  void completeBiometric() {
+    // Biometric authentication muvaffaqiyatli bo'lsa
+    emit(
+      state.copyWith(
+        isProcessCompleted: true,
+      ),
+    );
+  }
 }

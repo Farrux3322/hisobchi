@@ -16,11 +16,6 @@ import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-
-//  showEditKirimBottomSheet(BuildContext context, Result transaction)  {
-//
-// }
-
 class EditKirimBottomSheetContent extends StatefulWidget {
   final Result transaction;
   final ScrollController scrollController;

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/application/auth/passcode/passcode_cubit.dart';
@@ -16,40 +18,67 @@ class CheckPasscodePage extends StatefulWidget {
   State<CheckPasscodePage> createState() => _CheckPasscodePageState();
 }
 
-class _CheckPasscodePageState extends State<CheckPasscodePage> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+class _CheckPasscodePageState extends State<CheckPasscodePage> with TickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late AnimationController _shakeController;
   late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+  late Animation<Offset> _shakeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
+
+    _fadeController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 600),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
+    _shakeAnimation = Tween<Offset>(
+      begin: Offset.zero,
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic));
+    ).animate(_shakeController);
 
-    _animationController.forward();
+    _fadeController.forward();
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _fadeController.dispose();
+    _shakeController.dispose();
     super.dispose();
+  }
+
+  void _performShake() {
+    HapticFeedback.heavyImpact();
+
+    final shakeSequence = TweenSequence<Offset>([
+      TweenSequenceItem(tween: Tween(begin: Offset.zero, end: const Offset(-0.02, 0)), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: const Offset(-0.02, 0), end: const Offset(0.02, 0)), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: const Offset(0.02, 0), end: const Offset(-0.02, 0)), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: const Offset(-0.02, 0), end: Offset.zero), weight: 1),
+    ]);
+
+    setState(() {
+      _shakeAnimation = shakeSequence.animate(_shakeController);
+    });
+
+    _shakeController.forward(from: 0.0);
   }
 
   @override
   Widget build(BuildContext context) {
     AppManagerCubit.context = context;
+
     return BlocProvider<PasscodeCubit>(
       create: (context) => PasscodeCubit(),
       child: Builder(
@@ -59,89 +88,114 @@ class _CheckPasscodePageState extends State<CheckPasscodePage> with SingleTicker
             body: SafeArea(
               child: FadeTransition(
                 opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.w),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Spacer(flex: 2),
-                        // Beautiful icon with gradient background
-                        Container(
-                          width: 80.w,
-                          height: 80.w,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                AppTheme.colors.primary,
-                                AppTheme.colors.primary.withValues(alpha: 0.7),
-                              ],
-                            ),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppTheme.colors.primary.withValues(alpha: 0.25),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.lock_outline_rounded,
-                            size: 40.sp,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Gap(32.h),
-                        // Title
-                        BlocConsumer<PasscodeCubit, PasscodeState>(
-                          listener: (context, state) {
-                            if (state.isProcessCompleted) {
-                              // PIN kod to'g'ri - session uchun belgilash
-                              setPasscodeVerified(true);
+                child: Padding(
+                  padding: EdgeInsets.all(24.w),
+                  child: Column(
+                    children: [
+                      const Spacer(flex: 2),
 
-                              // Bosh sahifaga o'tish
-                              if (context.mounted) {
-                                context.go(Routes.homePage.path);
-                              }
+                      // Logo with modern design
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Outer glow effect
+                          Container(
+                            width: 140.w,
+                            height: 140.w,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  AppTheme.colors.primary.withValues(alpha: 0.15),
+                                  AppTheme.colors.primary.withValues(alpha: 0.0),
+                                ],
+                              ),
+                            ),
+                          ),
+                          // Main logo container
+                          Image.asset(
+                            AppIcons.appLogo,
+                            height: 100.h,
+                            width: 100.w,
+                          ),
+                        ],
+                      ),
+
+                      Gap(40.h),
+
+                      // Title and error message
+                      BlocConsumer<PasscodeCubit, PasscodeState>(
+                        listener: (context, state) {
+                          if (state.isProcessCompleted) {
+                            HapticFeedback.heavyImpact();
+                            setPasscodeVerified(true);
+
+                            if (context.mounted) {
+                              context.go(Routes.homePage.path);
                             }
-                          },
-                          builder: (context, state) {
-                            return Column(
+                          }
+
+                          if (state.isIncorrectPasscode) {
+                            _performShake();
+                            Future.delayed(const Duration(milliseconds: 1000), () {
+                              if (context.mounted) {
+                                context.read<PasscodeCubit>().clearIncorrectField();
+                              }
+                            });
+                          }
+                        },
+                        builder: (context, state) {
+                          return SlideTransition(
+                            position: _shakeAnimation,
+                            child: Column(
                               children: [
                                 Text(
-                                  tr('passcode.enter_passcode'),
+                                  state.isIncorrectPasscode ? 'Noto\'g\'ri PIN!' : tr('passcode.enter_passcode'),
                                   style: TextStyle(
-                                    fontSize: 22.sp,
+                                    fontSize: 24.sp,
                                     fontWeight: FontWeight.w700,
-                                    color: AppTheme.colors.black,
-                                    letterSpacing: -0.5,
+                                    color: state.isIncorrectPasscode ? AppTheme.colors.red : AppTheme.colors.black,
                                   ),
                                 ),
-                                Gap(6.h),
+                                Gap(8.h),
                                 Text(
-                                  'Ilovaga kirish uchun PIN kodni kiriting',
+                                  state.isIncorrectPasscode
+                                      ? 'Qaytadan urinib ko\'ring'
+                                      : 'Ilovaga kirish uchun PIN kodni kiriting',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontSize: 13.sp,
+                                    fontSize: 14.sp,
                                     fontWeight: FontWeight.w400,
-                                    color: AppTheme.colors.gray,
+                                    color: state.isIncorrectPasscode
+                                        ? AppTheme.colors.red.withValues(alpha: 0.7)
+                                        : AppTheme.colors.gray,
                                   ),
                                 ),
                               ],
-                            );
-                          },
-                        ),
-                        Gap(40.h),
-                        const PasscodeField(),
-                        const Spacer(flex: 3),
-                        const PasscodeKeyboard(),
-                        Gap(20.h),
-                      ],
-                    ),
+                            ),
+                          );
+                        },
+                      ),
+
+                      Gap(40.h),
+
+                      // PIN Field
+                      BlocBuilder<PasscodeCubit, PasscodeState>(
+                        builder: (context, state) {
+                          return SlideTransition(
+                            position: _shakeAnimation,
+                            child: const PasscodeField(),
+                          );
+                        },
+                      ),
+
+                      const Spacer(flex: 2),
+
+                      // Keyboard
+                      const PasscodeKeyboard(),
+
+                      Gap(20.h),
+                    ],
                   ),
                 ),
               ),

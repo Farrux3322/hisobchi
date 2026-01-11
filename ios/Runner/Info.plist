@@ -58,6 +58,8 @@
 		</array>
 		<key>NSUserNotificationsUsageDescription</key>
 		<string>We need your permission to send you notifications</string>
+		<key>NSFaceIDUsageDescription</key>
+		<string>Ilovaga tezkor kirish uchun Face ID dan foydalaning</string>
 		<key>UIStatusBarHidden</key>
 		<false/>
 	</dict>

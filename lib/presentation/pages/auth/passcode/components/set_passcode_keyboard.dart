@@ -1,81 +1,11 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/auth/passcode/passcode_cubit.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:local_auth/local_auth.dart';
 
-class PasscodeKeyboard extends StatefulWidget {
-  const PasscodeKeyboard({super.key});
-
-  @override
-  State<PasscodeKeyboard> createState() => _PasscodeKeyboardState();
-}
-
-class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
-  final LocalAuthentication _localAuth = LocalAuthentication();
-  bool _canCheckBiometrics = false;
-  List<BiometricType> _availableBiometrics = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _checkBiometrics();
-  }
-
-  Future<void> _checkBiometrics() async {
-    bool canCheckBiometrics = false;
-    List<BiometricType> availableBiometrics = [];
-
-    try {
-      canCheckBiometrics = await _localAuth.canCheckBiometrics;
-
-      if (canCheckBiometrics) {
-        availableBiometrics = await _localAuth.getAvailableBiometrics();
-      }
-    } catch (e) {
-      debugPrint('Error checking biometrics: $e');
-    }
-
-    if (mounted) {
-      setState(() {
-        _canCheckBiometrics = canCheckBiometrics;
-        _availableBiometrics = availableBiometrics;
-      });
-
-      debugPrint('Can check biometrics: $canCheckBiometrics');
-      debugPrint('Available biometrics: $_availableBiometrics');
-    }
-  }
-
-  Future<void> _authenticateWithBiometrics() async {
-    try {
-      debugPrint('Starting biometric authentication...');
-
-      final bool didAuthenticate = await _localAuth.authenticate(
-        localizedReason: 'Ilovaga kirish uchun autentifikatsiya qiling',
-
-      );
-
-      debugPrint('Authentication result: $didAuthenticate');
-
-      if (didAuthenticate && mounted) {
-        HapticFeedback.heavyImpact();
-        context.read<PasscodeCubit>().completeBiometric();
-      }
-    } catch (e) {
-      debugPrint('Biometric authentication error: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Autentifikatsiya xatosi: $e'),
-            backgroundColor: AppTheme.colors.red,
-          ),
-        );
-      }
-    }
-  }
+class SetPasscodeKeyboard extends StatelessWidget {
+  const SetPasscodeKeyboard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -96,23 +26,20 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
             ),
             itemCount: 9,
             itemBuilder: (context, index) {
-              return _buildNumberKey('${index + 1}');
+              return _buildNumberKey(context, '${index + 1}');
             },
           ),
 
           SizedBox(height: 16.h),
 
-          // Oxirgi qator: Biometric, 0, Delete
+          // Oxirgi qator: Bo'sh joy, 0, Delete
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Biometric tugma
+              // Bo'sh joy (biometric tugma o'rnida)
               SizedBox(
                 width: 70.w,
                 height: 70.w,
-                child: _canCheckBiometrics && _availableBiometrics.isNotEmpty
-                    ? _buildBiometricKey()
-                    : const SizedBox(),
               ),
 
               SizedBox(width: 20.w),
@@ -121,7 +48,7 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
               SizedBox(
                 width: 70.w,
                 height: 70.w,
-                child: _buildNumberKey('0'),
+                child: _buildNumberKey(context, '0'),
               ),
 
               SizedBox(width: 20.w),
@@ -130,7 +57,7 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
               SizedBox(
                 width: 70.w,
                 height: 70.w,
-                child: _buildDeleteKey(),
+                child: _buildDeleteKey(context),
               ),
             ],
           ),
@@ -139,7 +66,7 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
     );
   }
 
-  Widget _buildNumberKey(String number) {
+  Widget _buildNumberKey(BuildContext context, String number) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -194,62 +121,7 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
     );
   }
 
-  Widget _buildBiometricKey() {
-    IconData icon = Icons.fingerprint;
-
-    if (Platform.isIOS) {
-      if (_availableBiometrics.contains(BiometricType.face)) {
-        icon = Icons.face;
-      }
-    } else {
-      if (_availableBiometrics.contains(BiometricType.fingerprint)) {
-        icon = Icons.fingerprint;
-      }
-    }
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: _authenticateWithBiometrics,
-        borderRadius: BorderRadius.circular(20.r),
-        splashColor: AppTheme.colors.primary.withValues(alpha: 0.2),
-        highlightColor: AppTheme.colors.primary.withValues(alpha: 0.1),
-        child: Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.colors.primary.withValues(alpha: 0.12),
-                AppTheme.colors.primary.withValues(alpha: 0.08),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(20.r),
-            border: Border.all(
-              color: AppTheme.colors.primary.withValues(alpha: 0.25),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.colors.primary.withValues(alpha: 0.15),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-                spreadRadius: -2,
-              ),
-            ],
-          ),
-          child: Icon(
-            icon,
-            size: 36.sp,
-            color: AppTheme.colors.primary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDeleteKey() {
+  Widget _buildDeleteKey(BuildContext context) {
     return Material(
       color: Colors.transparent,
       child: InkWell(

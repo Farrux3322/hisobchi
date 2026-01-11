@@ -10,7 +10,7 @@ class PasscodeField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 0.2.sw),
+      padding: EdgeInsets.symmetric(horizontal: 0.15.sw),
       child: BlocConsumer<PasscodeCubit, PasscodeState>(
         listener: (context, state) {
           if (state.isIncorrectPasscode) {
@@ -31,7 +31,7 @@ class PasscodeField extends StatelessWidget {
               children: [
                 for (int i = 0; i < 4; i++) ...[
                   _buildDot(i, state),
-                  if (i < 3) SizedBox(width: 20.w),
+                  if (i < 3) SizedBox(width: 24.w),
                 ],
               ],
             ),
@@ -46,15 +46,15 @@ class PasscodeField extends StatelessWidget {
     final isError = state.isIncorrectPasscode;
 
     return TweenAnimationBuilder<double>(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 250),
       tween: Tween(begin: 0.0, end: isFilled ? 1.0 : 0.0),
       curve: Curves.easeOutBack,
       builder: (context, value, child) {
         return Transform.scale(
-          scale: 0.7 + (0.3 * value),
+          scale: 0.8 + (0.2 * value),
           child: Container(
-            width: 18.w,
-            height: 18.w,
+            width: 20.w,
+            height: 20.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isError
@@ -67,15 +67,15 @@ class PasscodeField extends StatelessWidget {
                     ? AppTheme.colors.red
                     : isFilled
                         ? AppTheme.colors.primary
-                        : AppTheme.colors.gray.withValues(alpha: 0.3),
-                width: 2,
+                        : AppTheme.colors.gray.withValues(alpha: 0.35),
+                width: 2.5,
               ),
               boxShadow: isFilled && !isError
                   ? [
                       BoxShadow(
-                        color: AppTheme.colors.primary.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
+                        color: AppTheme.colors.primary.withValues(alpha: 0.4),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
                       ),
                     ]
                   : null,

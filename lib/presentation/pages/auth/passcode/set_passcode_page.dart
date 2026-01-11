@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/auth/passcode/passcode_cubit.dart';
 import 'package:hisobchi/infrastructure/services/shared_service.dart';
 import '../../../../domain/common/enums/passcode_step.dart';
 import '../../../assets/asset_index.dart';
 import 'components/passcode_field.dart';
-import 'components/passcode_keyboard.dart';
+import 'components/set_passcode_keyboard.dart';
 
 class SetPasscodePage extends StatefulWidget {
   const SetPasscodePage({super.key});
@@ -14,35 +15,60 @@ class SetPasscodePage extends StatefulWidget {
   State<SetPasscodePage> createState() => _SetPasscodePageState();
 }
 
-class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late AnimationController _shakeController;
   late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+  late Animation<Offset> _shakeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
+    _fadeController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 600),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
+    _shakeAnimation = Tween<Offset>(
+      begin: Offset.zero,
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic));
+    ).animate(_shakeController);
 
-    _animationController.forward();
+    _fadeController.forward();
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _fadeController.dispose();
+    _shakeController.dispose();
     super.dispose();
+  }
+
+  void _performShake() {
+    HapticFeedback.heavyImpact();
+
+    final shakeSequence = TweenSequence<Offset>([
+      TweenSequenceItem(tween: Tween(begin: Offset.zero, end: const Offset(-0.02, 0)), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: const Offset(-0.02, 0), end: const Offset(0.02, 0)), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: const Offset(0.02, 0), end: const Offset(-0.02, 0)), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: const Offset(-0.02, 0), end: Offset.zero), weight: 1),
+    ]);
+
+    setState(() {
+      _shakeAnimation = shakeSequence.animate(_shakeController);
+    });
+
+    _shakeController.forward(from: 0.0);
   }
 
   @override
@@ -64,46 +90,75 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
             body: SafeArea(
               child: FadeTransition(
                 opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        physics: const ClampingScrollPhysics(),
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: constraints.maxHeight,
-                          ),
-                          child: IntrinsicHeight(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 24.w),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Spacer(flex: 2),
-                                  // Beautiful icon with gradient background
-                                  // Image.asset(
-                                  //   AppIcons.appLogo,
-                                  //   height:60.h,
-                                  // ),
-                                  Gap(12.h),
-                                  // Title with step indicator
-                                  BlocConsumer<PasscodeCubit, PasscodeState>(
-                                    listener: (context, state) {
-                                      if (state.isProcessCompleted) {
-                                        SharedPrefService.initialize().then((pref) {
-                                          pref
-                                            ..setPasscodeEnabled(true)
-                                            ..setPasscode(state.passcodeOne);
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      child: Container(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              children: [
+                                // Logo with modern design (smaller)
+                                Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    // Outer glow effect
+                                    Container(
+                                      width: 140.w,
+                                      height: 140.w,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: RadialGradient(
+                                          colors: [
+                                            AppTheme.colors.primary.withValues(alpha: 0.15),
+                                            AppTheme.colors.primary.withValues(alpha: 0.0),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    // Main logo container
+                                    Image.asset(
+                                      AppIcons.appLogo,
+                                      height: 100.h,
+                                      width: 100.w,
+                                    ),
+                                  ],
+                                ),
+                                // Title with step indicator and error handling
+                                BlocConsumer<PasscodeCubit, PasscodeState>(
+                                  listener: (context, state) {
+                                    if (state.isProcessCompleted) {
+                                      HapticFeedback.heavyImpact();
+                                      SharedPrefService.initialize().then((pref) {
+                                        pref
+                                          ..setPasscodeEnabled(true)
+                                          ..setPasscode(state.passcodeOne);
 
-                                          if (context.mounted) {
-                                            Navigator.pop(context, true);
-                                          }
-                                        });
-                                      }
-                                    },
-                                    builder: (context, state) {
-                                      return Column(
+                                        if (context.mounted) {
+                                          Navigator.pop(context, true);
+                                        }
+                                      });
+                                    }
+
+                                    if (state.isIncorrectPasscode) {
+                                      _performShake();
+                                      Future.delayed(const Duration(milliseconds: 1000), () {
+                                        if (context.mounted) {
+                                          context.read<PasscodeCubit>().clearIncorrectField();
+                                        }
+                                      });
+                                    }
+                                  },
+                                  builder: (context, state) {
+                                    return SlideTransition(
+                                      position: _shakeAnimation,
+                                      child: Column(
                                         children: [
                                           // Step indicator
                                           Row(
@@ -111,58 +166,81 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
                                             children: [
                                               _buildStepIndicator(1, state.passcodeStep == PasscodeStep.create),
                                               Container(
-                                                width: 32.w,
+                                                width: 36.w,
                                                 height: 2.h,
-                                                margin: EdgeInsets.symmetric(horizontal: 8.w),
+                                                margin: EdgeInsets.symmetric(horizontal: 10.w),
                                                 decoration: BoxDecoration(
                                                   color: state.passcodeStep == PasscodeStep.confirm
                                                       ? AppTheme.colors.primary
-                                                      : AppTheme.colors.gray.withValues(alpha: 0.3),
+                                                      : AppTheme.colors.gray.withValues(alpha: 0.25),
                                                   borderRadius: BorderRadius.circular(2.r),
                                                 ),
                                               ),
                                               _buildStepIndicator(2, state.passcodeStep == PasscodeStep.confirm),
                                             ],
                                           ),
-                                          Gap(10.h),
+                                          Gap(20.h),
                                           Text(
-                                            state.passcodeStep == PasscodeStep.create ? "passcode.set_passcode".tr() : "passcode.confirm_passcode".tr(),
+                                            state.isIncorrectPasscode
+                                                ? 'PIN kodlar mos emas!'
+                                                : state.passcodeStep == PasscodeStep.create
+                                                    ? "passcode.set_passcode".tr()
+                                                    : "passcode.confirm_passcode".tr(),
                                             style: TextStyle(
                                               fontSize: 22.sp,
                                               fontWeight: FontWeight.w700,
-                                              color: AppTheme.colors.black,
+                                              color: state.isIncorrectPasscode ? AppTheme.colors.red : AppTheme.colors.black,
                                               letterSpacing: -0.5,
                                             ),
                                           ),
                                           Gap(6.h),
                                           Text(
-                                            state.passcodeStep == PasscodeStep.create
-                                                ? '4 raqamli PIN kod yarating'
-                                                : 'PIN kodni qayta kiriting',
+                                            state.isIncorrectPasscode
+                                                ? 'Qaytadan urinib ko\'ring'
+                                                : state.passcodeStep == PasscodeStep.create
+                                                    ? '4 raqamli PIN kod yarating'
+                                                    : 'PIN kodni qayta kiriting',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               fontSize: 13.sp,
                                               fontWeight: FontWeight.w400,
-                                              color: AppTheme.colors.gray,
+                                              color: state.isIncorrectPasscode
+                                                  ? AppTheme.colors.red.withValues(alpha: 0.7)
+                                                  : AppTheme.colors.gray,
                                             ),
                                           ),
                                         ],
-                                      );
-                                    },
-                                  ),
-                                  Gap(24.h),
-                                  const PasscodeField(),
-                                  Gap(16.h),
-                                  const PasscodeKeyboard(),
-                                  // Gap(20.h),
-                                ],
-                              ),
+                                      ),
+                                    );
+                                  },
+                                ),
+
+                                Gap(24.h),
+
+                                // PIN Field
+                                BlocBuilder<PasscodeCubit, PasscodeState>(
+                                  builder: (context, state) {
+                                    return SlideTransition(
+                                      position: _shakeAnimation,
+                                      child: const PasscodeField(),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                          ),
+
+                            // Keyboard at bottom
+                            Column(
+                              children: [
+                                const SetPasscodeKeyboard(),
+                                Gap(16.h),
+                              ],
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -175,23 +253,42 @@ class _SetPasscodePageState extends State<SetPasscodePage> with SingleTickerProv
   Widget _buildStepIndicator(int step, bool isActive) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      width: 32.w,
-      height: 32.w,
+      width: 36.w,
+      height: 36.w,
       decoration: BoxDecoration(
-        color: isActive ? AppTheme.colors.primary : Colors.transparent,
+        gradient: isActive
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppTheme.colors.primary,
+                  AppTheme.colors.primary.withValues(alpha: 0.85),
+                ],
+              )
+            : null,
+        color: isActive ? null : Colors.transparent,
         shape: BoxShape.circle,
         border: Border.all(
-          color: isActive ? AppTheme.colors.primary : AppTheme.colors.gray.withValues(alpha: 0.3),
+          color: isActive ? Colors.transparent : AppTheme.colors.gray.withValues(alpha: 0.3),
           width: 2,
         ),
+        boxShadow: isActive
+            ? [
+                BoxShadow(
+                  color: AppTheme.colors.primary.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : null,
       ),
       child: Center(
         child: Text(
           '$step',
           style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
-            color: isActive ? Colors.white : AppTheme.colors.gray,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w700,
+            color: isActive ? Colors.white : AppTheme.colors.gray.withValues(alpha: 0.5),
           ),
         ),
       ),
