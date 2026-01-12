@@ -51,10 +51,13 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(color: AppTheme.colors.white,
-            border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
-            borderRadius: BorderRadius.circular(10)),        child: SvgPicture.asset(icon, height: 24, width: 24, colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)),
+        decoration: BoxDecoration(
+          color: AppTheme.colors.white,
+          border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: SvgPicture.asset(icon, height: 24, width: 24, colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)),
       ),
     );
   }
@@ -102,6 +105,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 children: [
                   Expanded(
                     child: SingleChildScrollView(
+                      // physics: NeverScrollableScrollPhysics(),
                       padding: const EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
                       child: Column(
                         children: [
@@ -208,12 +212,13 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                   children: [
                                     Expanded(
                                       child: Container(
-
                                         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                                        decoration: BoxDecoration(color: AppTheme.colors.white,
-                                            border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
-                                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
-                                            borderRadius: BorderRadius.circular(10)),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.colors.white,
+                                          border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
+                                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
@@ -257,10 +262,12 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                           // Currency TabBar - Professional Design
                           Container(
                             padding: EdgeInsets.all(4),
-                            decoration: BoxDecoration(color: Colors.white,
-                                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
 
-                                borderRadius: BorderRadius.circular(10.r)),
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
 
                             child: TabBar(
                               controller: _tabController,
@@ -289,7 +296,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                           LayoutBuilder(
                             builder: (context, constraints) {
                               final screenHeight = MediaQuery.of(context).size.height;
-                              final availableHeight = screenHeight * 0.39; // Responsive height
+                              final availableHeight = screenHeight * 0.40; // Responsive height
 
                               return Container(
                                 width: double.infinity,
@@ -390,6 +397,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     final iconSize = screenWidth * 0.06; // Responsive icon size
 
     return SingleChildScrollView(
+      physics: NeverScrollableScrollPhysics(),
       padding: EdgeInsets.all(screenWidth * 0.04),
       child: Column(
         children: [
@@ -534,20 +542,15 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                     borderRadius: BorderRadius.circular(11),
                     boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
                   ),
-                  child: SvgPicture.asset(
-                    AppIcons.balance,
-                    width: iconSize.clamp(20, 26),
-                    height: iconSize.clamp(20, 26),
-                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                  ),
+                  child: SvgPicture.asset(AppIcons.balance, width: iconSize.clamp(20, 26), height: iconSize.clamp(20, 26), colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
                 ),
                 SizedBox(width: screenWidth * 0.035),
                 Text(
                   'Qoldiq',
                   style: TextStyle(color: AppTheme.colors.primary, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.4),
                 ),
-                Spacer(),
-                Flexible(
+                // Spacer(),
+                Expanded(
                   child: RichText(
                     textAlign: TextAlign.end,
                     text: TextSpan(
@@ -644,7 +647,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                             Flexible(
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
-                                child:RichText(
+                                child: RichText(
                                   text: TextSpan(
                                     text: 'Chiqim',
                                     style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
@@ -655,8 +658,9 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                       ),
                                     ],
                                   ),
+                                ),
                               ),
-                            ),)
+                            ),
                           ],
                         ),
                       ),

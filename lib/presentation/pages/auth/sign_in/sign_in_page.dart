@@ -159,7 +159,7 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
                   colors: [
                     AppTheme.colors.primary.withValues(alpha: 0.05),
                     AppTheme.colors.primary.withValues(alpha: 0.02),
-                    Colors.white,
+                    Colors.blueAccent.shade100,
                     AppTheme.colors.primary.withValues(alpha: 0.03),
                   ],
                   stops: const [0.0, 0.3, 0.7, 1.0],
