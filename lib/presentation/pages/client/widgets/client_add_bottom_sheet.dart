@@ -337,17 +337,22 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
     Navigator.of(context).push(
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (context) => FullScreenPhoto(
-          imageFile: _selectedImage!,
-          heroTag: 'client_image_preview',
-          onDelete: () {
+        builder: (context) => ImageViewerPage(
+          images: [
+            ImageItem(
+              path: _selectedImage!.path,
+              isNetwork: false,
+            ),
+          ],
+          initialIndex: 0,
+          onDelete: (index, item) {
             setState(() {
               _selectedImage = null;
               _uploadedImageId = null;
             });
             Navigator.of(context).pop();
           },
-          onEdit: () {
+          onUpdate: (index, item) {
             Navigator.of(context).pop();
             _showImageSourceDialog();
           },
@@ -403,43 +408,50 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
     }
 
     try {
-      // JSON formatdagi xatolarni parse qilish
-      final errorData = jsonDecode(errorMessage);
-
-      // Xatolar ro'yxatini olish
-      final errors = errorData['errors'] as Map<String, dynamic>?;
-
-      if (errors != null && errors.isNotEmpty) {
-        // Birinchi xatolarni olish va tushunarli ko'rinishda taqdim etish
-        final validationErrors = <String, String>{};
-
-        errors.forEach((field, messages) {
-          if (messages is List && messages.isNotEmpty) {
-            // Maydon nomini o'zbekchaga tarjima qilish
-            String fieldName = _getFieldNameInUzbek(field);
-            String errorMessage = messages.first.toString();
-
-            // Server xabarini o'zbekchaga tarjima qilish
-            String translatedMessage = _translateErrorMessage(field, errorMessage);
-
-            validationErrors[fieldName] = translatedMessage;
+      final decoded = jsonDecode(errorMessage);
+      
+      if (decoded is Map<String, dynamic>) {
+        // 1. Priority: Field-level validation errors
+        final errors = decoded['errors'] as Map<String, dynamic>?;
+        
+        if (errors != null && errors.isNotEmpty) {
+          final validationErrors = <String, String>{};
+          
+          errors.forEach((field, messages) {
+            final fieldName = _getFieldNameInUzbek(field);
+            String message = '';
+            
+            if (messages is List && messages.isNotEmpty) {
+              message = messages.first.toString();
+            } else {
+              message = messages.toString();
+            }
+            
+            validationErrors[fieldName] = _translateErrorMessage(field, message);
+          });
+          
+          if (validationErrors.isNotEmpty) {
+            _showValidationErrorDialog(context, validationErrors);
+            return;
           }
-        });
-
-        if (validationErrors.isNotEmpty) {
-          _showValidationErrorDialog(context, validationErrors);
-        } else {
-          // Agar validatsiya xatolari bo'sh bo'lsa, umumiy xabarni ko'rsatish
-          final message = errorData['message']?.toString() ?? 'Xatolik yuz berdi';
-          _showErrorDialog(context, title: 'Xatolik', message: message, icon: Icons.error_outline_rounded);
         }
-      } else {
-        // errors bo'limi bo'lmasa, message ni ko'rsatish
-        final message = errorData['message']?.toString() ?? 'Xatolik yuz berdi';
-        _showErrorDialog(context, title: 'Xatolik', message: message, icon: Icons.error_outline_rounded);
+
+        // 2. Next Priority: Top-level message
+        if (decoded.containsKey('message')) {
+          final msg = decoded['message'].toString();
+          _showErrorDialog(
+            context, 
+            title: 'Xatolik', 
+            message: _translateErrorMessage('', msg), 
+            icon: Icons.error_outline_rounded
+          );
+          return;
+        }
       }
+      
+      _showErrorDialog(context, title: 'Xatolik', message: errorMessage, icon: Icons.error_outline_rounded);
+      
     } catch (e) {
-      // JSON parse qila olmasa, xabarni to'g'ridan-to'g'ri ko'rsatish
       _showErrorDialog(context, title: 'Xatolik', message: errorMessage, icon: Icons.error_outline_rounded);
     }
   }
@@ -464,30 +476,39 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
 
   /// Server xabarini o'zbekchaga tarjima qiladi
   String _translateErrorMessage(String field, String message) {
-    // "The name has already been taken." -> "Bu ism allaqachon ishlatilgan"
-    if (message.contains('has already been taken') || message.contains('already been taken')) {
+    final msg = message.toLowerCase();
+    
+    // "Already taken" check
+    if (msg.contains('already been taken') || msg.contains('already taken')) {
       switch (field.toLowerCase()) {
-        case 'name':
-          return 'Bu ism allaqachon ro\'yxatdan o\'tgan. Iltimos, boshqa ism kiriting.';
         case 'phone':
-          return 'Bu telefon raqam allaqachon ro\'yxatdan o\'tgan. Iltimos, boshqa raqam kiriting.';
+          return 'Bu telefon raqam allaqachon ro\'yxatdan o\'tgan.';
+        case 'name':
+          return 'Bu ism allaqachon mavjud.';
         case 'additional_phone':
-          return 'Bu qo\'shimcha telefon raqam allaqachon ro\'yxatdan o\'tgan.';
+          return 'Bu qo\'shimcha raqam allaqachon mavjud.';
         default:
-          return 'Bu ma\'lumot allaqachon ishlatilgan.';
+          return 'Ushbu ma\'lumot allaqachon band qilingan.';
       }
     }
 
-    // Boshqa xatolar uchun umumiy tarjima
-    if (message.contains('required') || message.contains('field is required')) {
+    // "Required" check
+    if (msg.contains('required') || msg.contains('field is required')) {
       return 'Bu maydon to\'ldirilishi shart.';
     }
 
-    if (message.contains('invalid')) {
-      return 'Noto\'g\'ri format.';
+    // "Invalid" check
+    if (msg.contains('invalid')) {
+      if (msg.contains('phone')) return 'Telefon raqam formati noto\'g\'ri.';
+      return 'Kiritilgan ma\'lumot noto\'g\'ri.';
     }
 
-    // Tarjima topilmasa, asl xabarni qaytarish
+    // Default translations for common Laravel messages if field-independent
+    if (msg.contains('the phone has already been taken')) {
+      return 'Bu telefon raqam allaqachon ro\'yxatdan o\'tgan.';
+    }
+
+    // If no translation found, return message as is
     return message;
   }
 
@@ -585,7 +606,7 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
                   child: ElevatedButton(
                     onPressed: () => Navigator.of(dialogContext).pop(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEF4444),
+                      backgroundColor: AppTheme.colors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 0,

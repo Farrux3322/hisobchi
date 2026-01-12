@@ -129,7 +129,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'eHisob',
+                        'E-Hisob',
                         style: TextStyle(
                           fontSize: 20.sp,
                           fontWeight: FontWeight.bold,

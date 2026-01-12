@@ -31,7 +31,16 @@ class DioInterceptor extends Interceptor {
     // //   EasyLoading.showError(err.toString(), duration: const Duration(seconds: 5));
     // // }
     return handler.reject(
-      DioExceptionX(requestOptions: err.requestOptions, statusCode: err.response?.statusCode, serverError: err.response?.data ?? {}, errorType: err.type, checkUnauthorized: checkUnauthorized),
+      DioExceptionX(
+        requestOptions: err.requestOptions,
+        response: err.response,
+        message: err.message,
+        error: err.error,
+        statusCode: err.response?.statusCode,
+        serverError: err.response?.data ?? {},
+        errorType: err.type,
+        checkUnauthorized: checkUnauthorized,
+      ),
     );
   }
 

@@ -450,11 +450,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                             textAlign: TextAlign.end,
                             text: TextSpan(
                               text: PriceFormatter.priceFormat('$debt'),
-                              style: TextStyle(color: Color(0xFF1E293B), fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                              style: TextStyle(color: Color(0xFF1E293B), fontSize: 18.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
                               children: [
                                 TextSpan(
                                   text: ' $currencySymbol',
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                                  style:  TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
                                 ),
                               ],
                             ),
@@ -504,13 +504,15 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                           ),
                           SizedBox(height: screenWidth * 0.025),
                           RichText(
+                            textAlign: TextAlign.end,
                             text: TextSpan(
+
                               text: PriceFormatter.priceFormat('$credit'),
-                              style: TextStyle(color: Color(0xFF1E293B), fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                              style: TextStyle(color: Color(0xFF1E293B), fontSize: 18.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
                               children: [
                                 TextSpan(
                                   text: ' $currencySymbol',
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                                  style:  TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
                                 ),
                               ],
                             ),
@@ -527,47 +529,50 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           SizedBox(height: screenWidth * 0.04),
 
           // Qoldiq Card - Elegant Minimalist
-          Container(
-            padding: EdgeInsets.all(cardPadding.clamp(12, 18)),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.25), width: 1.5),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(iconPadding.clamp(8, 12)),
-                  decoration: BoxDecoration(
-                    color: AppTheme.colors.primary.withValues(alpha: 0.8),
-                    borderRadius: BorderRadius.circular(11),
-                    boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
+          // Senior approach: Conditional colors based on balance
+          (() {
+            final Color balanceColor = balance < 0 ? AppTheme.colors.colorDE5050 : AppTheme.colors.color3CC293;
+            return Container(
+              padding: EdgeInsets.all(cardPadding.clamp(12, 18)),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: balanceColor.withValues(alpha: 0.25), width: 1.5),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(iconPadding.clamp(8, 12)),
+                    decoration: BoxDecoration(
+                      color: balanceColor.withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(11),
+                      boxShadow: [BoxShadow(color: balanceColor.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
+                    ),
+                    child: SvgPicture.asset(AppIcons.balance, width: iconSize.clamp(20, 26), height: iconSize.clamp(20, 26), colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
                   ),
-                  child: SvgPicture.asset(AppIcons.balance, width: iconSize.clamp(20, 26), height: iconSize.clamp(20, 26), colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-                ),
-                SizedBox(width: screenWidth * 0.035),
-                Text(
-                  'Qoldiq',
-                  style: TextStyle(color: AppTheme.colors.primary, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.4),
-                ),
-                // Spacer(),
-                Expanded(
-                  child: RichText(
-                    textAlign: TextAlign.end,
-                    text: TextSpan(
-                      text: PriceFormatter.priceFormat('$balance'),
-                      style: TextStyle(color: Color(0xFF1E293B), fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
-                      children: [
-                        TextSpan(
-                          text: ' $currencySymbol',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                        ),
-                      ],
+                  SizedBox(width: screenWidth * 0.035),
+                  Text(
+                    'Qoldiq',
+                    style: TextStyle(color: balanceColor, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.4),
+                  ),
+                  Expanded(
+                    child: RichText(
+                      textAlign: TextAlign.end,
+                      text: TextSpan(
+                        text: PriceFormatter.priceFormat('$balance'),
+                        style: TextStyle(color: balanceColor, fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                        children: [
+                          TextSpan(
+                            text: ' $currencySymbol',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: balanceColor.withValues(alpha: 0.7)),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
+                ],
+              ),
+            );
+          })(),
           const SizedBox(height: 16),
 
           // Minimal Divider

@@ -1,4 +1,4 @@
-
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,7 +12,9 @@ Object? lastEvent;
 class DioExceptionX extends DioException {
   DioExceptionX({
     required super.requestOptions,
-    dynamic super.error,
+    super.response,
+    super.message,
+    super.error,
     this.statusCode,
     this.serverError,
     this.checkUnauthorized = true,
@@ -40,36 +42,37 @@ class DioExceptionX extends DioException {
         AppManagerCubit.context!.go(Routes.signIn.path);
         return '';
       } else if (statusCode == 309) {
-        // AppManagerCubit.context!.go(Routes.checkPasscode.path);
-        // showDialog(
-        //     context: AppManagerCubit.context!,
-        //     barrierDismissible: false,
-        //     builder: (BuildContext context) {
-        //       return AreaOutDialog(
-        //         onTap: () {
-        //           context.pop();
-        //           if (lastBloc != null) lastBloc!.add(lastEvent);
-        //         },
-        //         title: serverError?['error']?['message'] ?? '',
-        //       );
-        //     });
         return '';
       } else {
-        if (statusCode! >= 500) {
+        if (statusCode != null && statusCode! >= 500) {
           return tr('errors.no_connection_to_server');
         } else {
-          if (serverError['error'] != null) {
-            final Map<String, dynamic> message = serverError['error'];
-            return message[message.keys.first][0];
-          } else if (serverError['message'] != null) {
-            return serverError['message'];
-          } else {
-            return serverError.toString();
+          // Senior approach: if it's a validation error (e.g. 422), 
+          // return the whole data as JSON so BLoC/UI can parse detailed 'errors'
+          if (statusCode != null && statusCode! >= 400 && statusCode! < 500) {
+            if (serverError is Map && (serverError.containsKey('errors') || serverError.containsKey('error'))) {
+              return jsonEncode(serverError);
+            }
           }
+
+          if (serverError is Map) {
+            if (serverError['error'] != null) {
+              final dynamic errorData = serverError['error'];
+              if (errorData is Map && errorData.isNotEmpty) {
+                return errorData[errorData.keys.first][0].toString();
+              }
+              return errorData.toString();
+            } else if (serverError['message'] != null) {
+              return serverError['message'].toString();
+            }
+          }
+          
+          return serverError.toString();
         }
       }
     } catch (e) {
-      return tr(e.toString());
+      // If we can't extract cleanly, return the raw data as string
+      return serverError?.toString() ?? e.toString();
     }
   }
 }

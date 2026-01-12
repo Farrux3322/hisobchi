@@ -1,316 +1,94 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 
-/// Full screen image viewer widget with zoom and pan capabilities
-///
-/// Bu komponent rasmni to'liq ekranda ko'rsatish, zoom qilish va boshqa
-/// harakatlarni amalga oshirish uchun ishlatiladi.
-///
-/// Foydalanish:
-/// ```dart
-/// Navigator.push(
-///   context,
-///   MaterialPageRoute(
-///     fullscreenDialog: true,
-///     builder: (context) => FullScreenPhoto(
-///       imageFile: File('path/to/image.jpg'),
-///       heroTag: 'unique_tag',
-///       onDelete: () {
-///         // O'chirish logikasi
-///       },
-///       onEdit: () {
-///         // Tahrirlash logikasi
-///       },
-///     ),
-///   ),
-/// );
-/// ```
-class FullScreenPhoto extends StatefulWidget {
-  /// Rasm fayli
-  final File? imageFile;
+/// Rasm ma'lumotlarini saqlash uchun model
+class ImageItem {
+  final String path;
+  final bool isNetwork;
+  final String? id; // Ixtiyoriy ID o'chirish yoki tahrirlash uchun
 
-  /// Network rasmning URL manzili
-  final String? imageUrl;
-
-  /// Hero animation uchun unique tag
-  final String heroTag;
-
-  /// O'chirish tugmasi bosilganda chaqiriladigan callback
-  /// Agar null bo'lsa, o'chirish tugmasi ko'rsatilmaydi
-  final VoidCallback? onDelete;
-
-  /// Tahrirlash tugmasi bosilganda chaqiriladigan callback
-  /// Agar null bo'lsa, tahrirlash tugmasi ko'rsatilmaydi
-  final VoidCallback? onEdit;
-
-  /// Rasmni o'chirish tasdiqlash dialogini ko'rsatish kerakmi
-  /// Default: true
-  final bool showDeleteConfirmation;
-
-  /// O'chirish tasdiqlash dialog sarlavhasi
-  final String deleteConfirmationTitle;
-
-  /// O'chirish tasdiqlash dialog xabari
-  final String deleteConfirmationMessage;
-
-  const FullScreenPhoto({
-    super.key,
-    this.imageFile,
-    this.imageUrl,
-    required this.heroTag,
-    this.onDelete,
-    this.onEdit,
-    this.showDeleteConfirmation = true,
-    this.deleteConfirmationTitle = 'Rasmni o\'chirish',
-    this.deleteConfirmationMessage = 'Tanlangan rasmni o\'chirishni xohlaysizmi?',
-  }) : assert(
-          imageFile != null || imageUrl != null,
-          'imageFile yoki imageUrl kamida bittasi berilishi kerak',
-        );
-
-  @override
-  State<FullScreenPhoto> createState() => _FullScreenPhotoState();
+  ImageItem({
+    required this.path,
+    this.isNetwork = true,
+    this.id,
+  });
 }
 
-class _FullScreenPhotoState extends State<FullScreenPhoto>
-    with SingleTickerProviderStateMixin {
-  late TransformationController _transformationController;
-  late AnimationController _animationController;
-  Animation<Matrix4>? _animation;
-  TapDownDetails? _doubleTapDetails;
+/// Senior-level rasm ko'ruvchi sahifa
+/// Zoom, Galereya, Page Indicator va Harakatlar (Update/Delete) bilan
+class ImageViewerPage extends StatefulWidget {
+  final List<ImageItem> images;
+  final int initialIndex;
+  
+  /// O'chirish tugmasi bosilganda chaqiriladigan callback
+  final Function(int index, ImageItem image)? onDelete;
+  
+  /// Tahrirlash tugmasi bosilganda chaqiriladigan callback
+  final Function(int index, ImageItem image)? onUpdate;
+
+  const ImageViewerPage({
+    super.key,
+    required this.images,
+    required this.initialIndex,
+    this.onDelete,
+    this.onUpdate,
+  });
+
+  @override
+  State<ImageViewerPage> createState() => _ImageViewerPageState();
+}
+
+class _ImageViewerPageState extends State<ImageViewerPage> {
+  late final PageController _controller;
+  late int currentIndex;
 
   @override
   void initState() {
     super.initState();
-    _transformationController = TransformationController();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    )..addListener(() {
-        if (_animation != null) {
-          _transformationController.value = _animation!.value;
-        }
-      });
+    currentIndex = widget.initialIndex;
+    _controller = PageController(initialPage: currentIndex);
   }
 
   @override
   void dispose() {
-    _transformationController.dispose();
-    _animationController.dispose();
+    _controller.dispose();
     super.dispose();
-  }
-
-  /// Handle double tap to zoom in/out
-  void _handleDoubleTapDown(TapDownDetails details) {
-    _doubleTapDetails = details;
-  }
-
-  void _handleDoubleTap() {
-    if (_doubleTapDetails == null) return;
-
-    final position = _doubleTapDetails!.localPosition;
-    final currentScale = _transformationController.value.getMaxScaleOnAxis();
-
-    Matrix4 matrix;
-
-    if (currentScale > 1.0) {
-      // Zoom out to original size
-      matrix = Matrix4.identity();
-    } else {
-      // Zoom in 2.5x at tap position
-      final double scale = 2.5;
-      final double x = -position.dx * (scale - 1);
-      final double y = -position.dy * (scale - 1);
-      matrix = Matrix4.identity()
-        ..translate(x, y)
-        ..scale(scale);
-    }
-
-    _animation = Matrix4Tween(
-      begin: _transformationController.value,
-      end: matrix,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
-    );
-
-    _animationController.forward(from: 0);
   }
 
   void _handleDelete() {
     if (widget.onDelete == null) return;
-
-    if (widget.showDeleteConfirmation) {
-      _showDeleteConfirmation();
-    } else {
-      widget.onDelete!();
-    }
-  }
-
-  void _showDeleteConfirmation() {
+    
     showDialog(
       context: context,
-      builder: (BuildContext dialogContext) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Rasmni o\'chirish'),
+        content: const Text('Haqiqatan ham ushbu rasmni o\'chirishni xohlaysizmi?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Bekor qilish', style: TextStyle(color: AppTheme.colors.gray)),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFEE2E2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.delete_outline_rounded,
-                    color: Color(0xFFEF4444),
-                    size: 32,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  widget.deleteConfirmationTitle,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E293B),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  widget.deleteConfirmationMessage,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF64748B),
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          side: const BorderSide(color: Color(0xFFE2E8F0)),
-                        ),
-                        child: const Text(
-                          'Bekor qilish',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF64748B),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(dialogContext).pop();
-                          if (widget.onDelete != null) {
-                            widget.onDelete!();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFEF4444),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          'O\'chirish',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              widget.onDelete!(currentIndex, widget.images[currentIndex]);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.colors.red,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              fixedSize: const Size(100, 40),
             ),
+            child: const Text('O\'chirish', style: TextStyle(color: Colors.white)),
           ),
-        );
-      },
+        ],
+      ),
     );
-  }
-
-  Widget _buildImage() {
-    if (widget.imageFile != null) {
-      return Image.file(
-        widget.imageFile!,
-        fit: BoxFit.contain,
-      );
-    } else if (widget.imageUrl != null) {
-      return Image.network(
-        widget.imageUrl!,
-        fit: BoxFit.contain,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Center(
-            child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes!
-                  : null,
-              color: Colors.white,
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.error_outline_rounded,
-                  color: Colors.white,
-                  size: 64,
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Rasmni yuklashda xatolik',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    } else {
-      return const Center(
-        child: Text(
-          'Rasm topilmadi',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-      );
-    }
   }
 
   @override
@@ -319,164 +97,159 @@ class _FullScreenPhotoState extends State<FullScreenPhoto>
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Zoomable Image
-          GestureDetector(
-            onDoubleTapDown: _handleDoubleTapDown,
-            onDoubleTap: _handleDoubleTap,
+          // Galereya korpusi
+          PhotoViewGallery.builder(
+            pageController: _controller,
+            itemCount: widget.images.length,
+            scrollPhysics: const BouncingScrollPhysics(),
+            builder: (context, index) {
+              final image = widget.images[index];
+              ImageProvider imageProvider;
+              
+              if (image.isNetwork) {
+                imageProvider = CachedNetworkImageProvider(image.path);
+              } else {
+                imageProvider = FileImage(File(image.path));
+              }
+              
+              return PhotoViewGalleryPageOptions(
+                imageProvider: imageProvider,
+                heroAttributes: PhotoViewHeroAttributes(tag: image.path),
+                minScale: PhotoViewComputedScale.contained,
+                maxScale: PhotoViewComputedScale.covered * 3.5,
+              );
+            },
+            onPageChanged: (index) {
+              setState(() => currentIndex = index);
+            },
+            backgroundDecoration: const BoxDecoration(color: Colors.black),
+            loadingBuilder: (context, event) => Center(
+              child: SizedBox(
+                width: 30,
+                height: 30,
+                child: CircularProgressIndicator(
+                  value: event == null || event.expectedTotalBytes == null
+                      ? null
+                      : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+                  color: AppTheme.colors.primary,
+                  strokeWidth: 2,
+                ),
+              ),
+            ),
+          ),
+
+          // Yuqori boshqaruv paneli
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            left: 10,
+            right: 10,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Yopish tugmasi
+                _buildActionButton(
+                  icon: Icons.close_rounded,
+                  onTap: () => Navigator.of(context).pop(),
+                ),
+
+                Row(
+                  children: [
+                    // Tahrirlash tugmasi
+                    if (widget.onUpdate != null) ...[
+                      _buildActionButton(
+                        icon: Icons.edit_rounded,
+                        onTap: () => widget.onUpdate!(currentIndex, widget.images[currentIndex]),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    
+                    // O'chirish tugmasi
+                    if (widget.onDelete != null)
+                      _buildActionButton(
+                        icon: Icons.delete_outline_rounded,
+                        color: AppTheme.colors.red,
+                        onTap: _handleDelete,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Pastki page indicator
+          if (widget.images.length > 1)
+            Positioned(
+              bottom: MediaQuery.of(context).padding.bottom + 20,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: SmoothPageIndicator(
+                    controller: _controller,
+                    count: widget.images.length,
+                    effect: WormEffect(
+                      dotHeight: 8,
+                      dotWidth: 8,
+                      activeDotColor: AppTheme.colors.primary,
+                      dotColor: Colors.white.withValues(alpha: 0.3),
+                      spacing: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            
+          // Rasm raqami (masalan: 1/5)
+          Positioned(
+            bottom: MediaQuery.of(context).padding.bottom + 65,
+            left: 0,
+            right: 0,
             child: Center(
-              child: InteractiveViewer(
-                transformationController: _transformationController,
-                minScale: 0.5,
-                maxScale: 4.0,
-                child: Hero(
-                  tag: widget.heroTag,
-                  child: _buildImage(),
-                ),
-              ),
-            ),
-          ),
-
-          // Top app bar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.7),
-                    Colors.black.withOpacity(0.0),
+              child: Text(
+                '${currentIndex + 1} / ${widget.images.length}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  shadows: [
+                    Shadow(blurRadius: 4, color: Colors.black),
                   ],
                 ),
               ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  child: Row(
-                    children: [
-                      // Back button
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.close_rounded,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-
-                      // Edit button (agar onEdit berilgan bo'lsa)
-                      if (widget.onEdit != null) ...[
-                        IconButton(
-                          onPressed: widget.onEdit,
-                          icon: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.edit_rounded,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                      ],
-
-                      // Delete button (agar onDelete berilgan bo'lsa)
-                      if (widget.onDelete != null)
-                        IconButton(
-                          onPressed: _handleDelete,
-                          icon: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.delete_outline_rounded,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
             ),
-          ),
-
-          // Bottom hint text
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.7),
-                    Colors.black.withOpacity(0.0),
-                  ],
-                ),
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.zoom_in_rounded,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Ikki marta bosib zoom qiling',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+          )
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.4),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 0.5,
+          ),
+        ),
+        child: Icon(
+          icon,
+          color: color ?? Colors.white,
+          size: 24,
+        ),
       ),
     );
   }

@@ -153,7 +153,7 @@ class _ClientFilterBottomSheetState extends State<ClientFilterBottomSheet> {
                     'Sana oralig\'i',
                     style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
                   ),
-                  SizedBox(height: 12.h),
+                  SizedBox(height: 15.h),
                   GestureDetector(
                     onTap: _selectDateRange,
                     child: Container(
@@ -187,14 +187,61 @@ class _ClientFilterBottomSheetState extends State<ClientFilterBottomSheet> {
                     ),
                   ),
 
-                  SizedBox(height: 12.h),
-
-                  // Sort Section
+                  SizedBox(height: 15.h),
+                  // Status Filter Section
                   Text(
-                    'Saralash',
+                    'Hamkor holati bo\'yicha',
                     style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
                   ),
-                  SizedBox(height: 12.h),
+                  SizedBox(height: 15.h),
+
+                  // Status Filter Dropdown
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(color: selectedStatusFilter != null ? AppTheme.colors.primary : AppTheme.colors.colorE1EOEE),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        borderRadius: BorderRadius.circular(12.r),
+                        isExpanded: true,
+                        value: selectedStatusFilter,
+                        hint: Text(
+                          'Tanlang',
+                          style: TextStyle(fontSize: 14.sp, color: const Color(0xFF94A3B8)),
+                        ),
+                        icon: Icon(Icons.keyboard_arrow_down, color: selectedStatusFilter != null ? AppTheme.colors.primary : const Color(0xFF94A3B8)),
+                        style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.black, fontWeight: FontWeight.w500),
+                        dropdownColor: Colors.white,
+                        items: [
+                          DropdownMenuItem<String>(
+                            value: null,
+                            child: Text(
+                              'Tanlanmagan',
+                              style: TextStyle(fontSize: 14.sp, color: const Color(0xFF94A3B8)),
+                            ),
+                          ),
+                          ...statusFilterOptions.map((option) {
+                            return DropdownMenuItem<String>(value: option['value'], child: Text(option['label']!));
+                          }),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedStatusFilter = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15.h),
+                  // Sort Section
+                  Text(
+                    'Tartiblash',
+                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
+                  ),
+                  SizedBox(height: 15.h),
 
                   // Sort Dropdown
                   Container(
@@ -221,7 +268,7 @@ class _ClientFilterBottomSheetState extends State<ClientFilterBottomSheet> {
                           DropdownMenuItem<String>(
                             value: null,
                             child: Text(
-                              'Hammasi',
+                              'Tanlanmagan',
                               style: TextStyle(fontSize: 14.sp, color: const Color(0xFF94A3B8)),
                             ),
                           ),
@@ -238,56 +285,10 @@ class _ClientFilterBottomSheetState extends State<ClientFilterBottomSheet> {
                     ),
                   ),
 
-                  SizedBox(height: 12.h),
 
-                  // Status Filter Section
-                  Text(
-                    'Status',
-                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
-                  ),
-                  SizedBox(height: 12.h),
 
-                  // Status Filter Dropdown
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(color: selectedStatusFilter != null ? AppTheme.colors.primary : AppTheme.colors.colorE1EOEE),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        borderRadius: BorderRadius.circular(12.r),
-                        isExpanded: true,
-                        value: selectedStatusFilter,
-                        hint: Text(
-                          'Tanlang',
-                          style: TextStyle(fontSize: 14.sp, color: const Color(0xFF94A3B8)),
-                        ),
-                        icon: Icon(Icons.keyboard_arrow_down, color: selectedStatusFilter != null ? AppTheme.colors.primary : const Color(0xFF94A3B8)),
-                        style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.black, fontWeight: FontWeight.w500),
-                        dropdownColor: Colors.white,
-                        items: [
-                          DropdownMenuItem<String>(
-                            value: null,
-                            child: Text(
-                              'Hammasi',
-                              style: TextStyle(fontSize: 14.sp, color: const Color(0xFF94A3B8)),
-                            ),
-                          ),
-                          ...statusFilterOptions.map((option) {
-                            return DropdownMenuItem<String>(value: option['value'], child: Text(option['label']!));
-                          }),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            selectedStatusFilter = value;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: MediaQuery.of(context).padding.bottom),
+
+                  SizedBox(height: MediaQuery.of(context).padding.bottom+60),
                   // Apply Button
                   SizedBox(
                     width: double.infinity,
