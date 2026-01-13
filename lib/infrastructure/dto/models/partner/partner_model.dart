@@ -3,7 +3,7 @@ class PartnerModel {
   String? name;
   String? phone;
   String? additionalPhone;
-  List<String>? files;
+  List<PartnerFile>? files;
   int? mainCurrencyTypeId;
   String? mainCurrencyTypeName;
   String? createdAt;
@@ -28,7 +28,12 @@ class PartnerModel {
     name = json['name'];
     phone = json['phone'];
     additionalPhone = json['additional_phone'];
-    files = json['files'] != null ? (json['files'] as List).cast<String>() : null;
+    if (json['files'] != null) {
+      files = <PartnerFile>[];
+      json['files'].forEach((v) {
+        files!.add(PartnerFile.fromJson(v));
+      });
+    }
     mainCurrencyTypeId = json['main_currency_type_id'];
     mainCurrencyTypeName = json['main_currency_type_name'];
     createdAt = json['created_at'];
@@ -42,7 +47,9 @@ class PartnerModel {
     data['name'] = name;
     data['phone'] = phone;
     data['additional_phone'] = additionalPhone;
-    data['files'] = files;
+    if (files != null) {
+      data['files'] = files!.map((v) => v.toJson()).toList();
+    }
     data['main_currency_type_id'] = mainCurrencyTypeId;
     data['main_currency_type_name'] = mainCurrencyTypeName;
     data['created_at'] = createdAt;
@@ -50,6 +57,25 @@ class PartnerModel {
     if (balance != null) {
       data['balance'] = balance!.toJson();
     }
+    return data;
+  }
+}
+
+class PartnerFile {
+  int? id;
+  String? url;
+
+  PartnerFile({this.id, this.url});
+
+  PartnerFile.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    url = json['url'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['url'] = url;
     return data;
   }
 }

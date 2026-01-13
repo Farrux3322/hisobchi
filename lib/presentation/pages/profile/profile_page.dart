@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/presentation/pages/auth/passcode/set_passcode_page.dart';
@@ -49,7 +50,7 @@ class _ProfilePageState extends State<ProfilePage> {
             decoration: BoxDecoration(
               color: AppTheme.colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF10B981).withOpacity(0.2)),
+              border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.2)),
             ),
             child: IconButton(
               icon: Icon(Icons.notifications, color: AppTheme.colors.primary, size: 20),
@@ -114,6 +115,8 @@ class _ProfilePageState extends State<ProfilePage> {
               _buildSectionTitle('Xavfsizlik'),
               const SizedBox(height: 12),
               _buildPinCodeSwitch(),
+              const SizedBox(height: 8),
+              _buildBiometricSwitch(),
               const SizedBox(height: 8),
               _buildMenuItem(
                 icon: AppIcons.lock,
@@ -210,41 +213,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppTheme.colors.white,
-        boxShadow: [BoxShadow(color: AppTheme.colors.divider, blurRadius: 8, offset: const Offset(0, 2))],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Profil',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
-          ),
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppTheme.colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF10B981).withOpacity(0.2)),
-            ),
-            child: IconButton(
-              icon: Icon(Icons.notifications, color: Color(0xFF10B981), size: 20),
-              onPressed: () {
-                print('Fartsda');
-                pushScreen(context, screen: const NotificationPage());
-              },
-              padding: EdgeInsets.zero,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildUserCard() {
     final userName = UserData.name.isEmpty ? 'Samandarbek' : UserData.name;
@@ -264,9 +232,9 @@ class _ProfilePageState extends State<ProfilePage> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [AppTheme.colors.primary, AppTheme.colors.primary.withOpacity(0.8)]),
+              gradient: LinearGradient(colors: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: 0.8)]),
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [BoxShadow(color: AppTheme.colors.primary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))],
+              boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
             ),
             child: const Icon(Icons.person, color: Colors.white, size: 28),
           ),
@@ -319,7 +287,7 @@ class _ProfilePageState extends State<ProfilePage> {
           decoration: BoxDecoration(
             color: AppTheme.colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.colors.primary.withOpacity(0.3)),
+            border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [
@@ -362,7 +330,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 decoration: BoxDecoration(
                   color: AppTheme.colors.background,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.colors.primary.withOpacity(0.2)),
+                  border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.2)),
                 ),
                 child: IconButton(
                   icon: Icon(Icons.add, color: AppTheme.colors.primary, size: 20),
@@ -459,7 +427,7 @@ class _ProfilePageState extends State<ProfilePage> {
           decoration: BoxDecoration(
             color: AppTheme.colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3)),
+            border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
           ),
           child: Column(
             children: [
@@ -492,7 +460,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     decoration: BoxDecoration(
                       color: AppTheme.colors.background,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF10B981).withOpacity(0.2)),
+                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.2)),
                     ),
                     child: const IconButton(
                       icon: Icon(Icons.add, color: Color(0xFF10B981), size: 20),
@@ -654,7 +622,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: AppTheme.colors.primary.withOpacity(0.1),
+                    color: AppTheme.colors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(Icons.pin, color: AppTheme.colors.primary, size: 16),
@@ -668,7 +636,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Switch.adaptive(
                   value: isEnabled,
-                  activeColor: AppTheme.colors.primary,
+                  activeTrackColor: AppTheme.colors.primary.withValues(alpha: 0.5),
+                  activeThumbColor: AppTheme.colors.primary,
                   onChanged: (value) async {
                     final pref = await SharedPrefService.initialize();
 
@@ -697,6 +666,74 @@ class _ProfilePageState extends State<ProfilePage> {
                       pref.setPasscodeEnabled(false);
                       setState(() {});
                     }
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBiometricSwitch() {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: () async {
+        final pref = await SharedPrefService.initialize();
+        final localAuth = LocalAuthentication();
+        final canCheck = await localAuth.canCheckBiometrics;
+        final available = await localAuth.getAvailableBiometrics();
+        final isPinEnabled = pref.isPasscodeEnabled;
+        
+        return {
+          'canCheck': canCheck && available.isNotEmpty,
+          'isEnabled': pref.isBiometricEnabled,
+          'isPinEnabled': isPinEnabled,
+        };
+      }(),
+      builder: (context, snapshot) {
+        final data = snapshot.data;
+        if (data == null || !(data['canCheck'] as bool) || !(data['isPinEnabled'] as bool)) {
+          return const SizedBox.shrink();
+        }
+
+        final isEnabled = data['isEnabled'] as bool;
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 0),
+          decoration: BoxDecoration(
+            color: AppTheme.colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppTheme.colors.divider),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: AppTheme.colors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.fingerprint, color: AppTheme.colors.primary, size: 16),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Biometrik autentifikatsiya',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.colors.black),
+                  ),
+                ),
+                Switch.adaptive(
+                  value: isEnabled,
+                  activeTrackColor: AppTheme.colors.primary.withValues(alpha: 0.5),
+                  activeThumbColor: AppTheme.colors.primary,
+                  onChanged: (value) async {
+                    final pref = await SharedPrefService.initialize();
+                    pref.setBiometricEnabled(value);
+                    setState(() {});
                   },
                 ),
               ],

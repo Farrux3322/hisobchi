@@ -1,4 +1,4 @@
-// // ///Local
+// ///Local
 // const baseUrlApp = "http://10.100.104.111/api";
 
 ///Global

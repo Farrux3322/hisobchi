@@ -31,8 +31,8 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
   final _phoneController = TextEditingController(text: "+998");
   final _additionalPhoneController = TextEditingController(text: "+998");
   final ImagePicker _picker = ImagePicker();
-  var maskFormatter1 = MaskTextInputFormatter(mask: '+998 (##) ###-##-##', filter: {"#": RegExp(r'[0-9]')}, initialText: "+998", type: MaskAutoCompletionType.lazy);
-  var maskFormatter2 = MaskTextInputFormatter(mask: '+998 (##) ###-##-##', filter: {"#": RegExp(r'[0-9]')}, initialText: "+998", type: MaskAutoCompletionType.lazy);
+  var maskFormatter1 = MaskTextInputFormatter(mask: '+998 (##) ### ## ##', filter: {"#": RegExp(r'[0-9]')}, initialText: "+998", type: MaskAutoCompletionType.lazy);
+  var maskFormatter2 = MaskTextInputFormatter(mask: '+998 (##) ### ## ##', filter: {"#": RegExp(r'[0-9]')}, initialText: "+998", type: MaskAutoCompletionType.lazy);
 
   bool _isLoading = false;
   File? _selectedImage;
@@ -338,12 +338,7 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (context) => ImageViewerPage(
-          images: [
-            ImageItem(
-              path: _selectedImage!.path,
-              isNetwork: false,
-            ),
-          ],
+          images: [ImageItem(path: _selectedImage!.path, isNetwork: false)],
           initialIndex: 0,
           onDelete: (index, item) {
             setState(() {
@@ -379,8 +374,8 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
   void _submitClient(String? additionalPhone, int? imageId) {
     final data = {
       'name': _nameController.text,
-      'phone': _phoneController.text,
-      'additional_phone': additionalPhone,
+      'phone': maskFormatter1.getUnmaskedText(),
+      'additional_phone': maskFormatter2.getUnmaskedText(),
       if (imageId != null) 'file_id': [imageId],
       if (_selectedCurrency?.id != null) 'currency_type_id': _selectedCurrency!.id,
     };
@@ -409,27 +404,27 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
 
     try {
       final decoded = jsonDecode(errorMessage);
-      
+
       if (decoded is Map<String, dynamic>) {
         // 1. Priority: Field-level validation errors
         final errors = decoded['errors'] as Map<String, dynamic>?;
-        
+
         if (errors != null && errors.isNotEmpty) {
           final validationErrors = <String, String>{};
-          
+
           errors.forEach((field, messages) {
             final fieldName = _getFieldNameInUzbek(field);
             String message = '';
-            
+
             if (messages is List && messages.isNotEmpty) {
               message = messages.first.toString();
             } else {
               message = messages.toString();
             }
-            
+
             validationErrors[fieldName] = _translateErrorMessage(field, message);
           });
-          
+
           if (validationErrors.isNotEmpty) {
             _showValidationErrorDialog(context, validationErrors);
             return;
@@ -439,18 +434,12 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
         // 2. Next Priority: Top-level message
         if (decoded.containsKey('message')) {
           final msg = decoded['message'].toString();
-          _showErrorDialog(
-            context, 
-            title: 'Xatolik', 
-            message: _translateErrorMessage('', msg), 
-            icon: Icons.error_outline_rounded
-          );
+          _showErrorDialog(context, title: 'Xatolik', message: _translateErrorMessage('', msg), icon: Icons.error_outline_rounded);
           return;
         }
       }
-      
+
       _showErrorDialog(context, title: 'Xatolik', message: errorMessage, icon: Icons.error_outline_rounded);
-      
     } catch (e) {
       _showErrorDialog(context, title: 'Xatolik', message: errorMessage, icon: Icons.error_outline_rounded);
     }
@@ -477,7 +466,7 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
   /// Server xabarini o'zbekchaga tarjima qiladi
   String _translateErrorMessage(String field, String message) {
     final msg = message.toLowerCase();
-    
+
     // "Already taken" check
     if (msg.contains('already been taken') || msg.contains('already taken')) {
       switch (field.toLowerCase()) {

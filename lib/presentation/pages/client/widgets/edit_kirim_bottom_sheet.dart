@@ -123,7 +123,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
     final existingFiles = widget.transaction.files ?? [];
     for (int i = 0; i < existingFiles.length && i < 3; i++) {
       _images[i] = _ImageUploadItem(
-        existingUrl: existingFiles[i],
+        existingUrl: existingFiles[i].url,
         uploadedId: null, // Existing files don't have uploadedId yet
       );
     }

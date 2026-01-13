@@ -17,6 +17,7 @@ class SharedPrefService {
   static const String _userId = 'user_id';
   static const String _isAdmin = 'is_admin';
   static const String _authorGuid = 'author_guid';
+  static const String _biometricEnabled = 'biometric_enabled';
 
 
   static late SharedPreferences _preference;
@@ -84,6 +85,10 @@ class SharedPrefService {
   void setGuid(String guid) => _preference.setString(_guid, guid);
 
   String get getGuid => _preference.getString(_guid) ?? '';
+
+  void setBiometricEnabled(bool value) => _preference.setBool(_biometricEnabled, value);
+
+  bool get isBiometricEnabled => _preference.getBool(_biometricEnabled) ?? false;
 
   void clear() => _preference.clear();
 }

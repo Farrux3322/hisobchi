@@ -32,7 +32,7 @@ class Result {
   String? currencyTypeName;
   String? summa;
   String? description;
-  List<String>? files;
+  List<IncomeFile>? files;
   String? returnDate;
   String? type;
   int? isCancelled;
@@ -62,7 +62,12 @@ class Result {
     currencyTypeName = json['currency_type_name'];
     summa = json['summa'];
     description = json['description'];
-    files = json['files'].cast<String>();
+    if (json['files'] != null) {
+      files = <IncomeFile>[];
+      json['files'].forEach((v) {
+        files!.add(IncomeFile.fromJson(v));
+      });
+    }
     returnDate = json['return_date'];
     type = json['type'];
     isCancelled = json['is_cancelled'];
@@ -79,12 +84,33 @@ class Result {
     data['currency_type_name'] = currencyTypeName;
     data['summa'] = summa;
     data['description'] = description;
-    data['files'] = files;
+    if (files != null) {
+      data['files'] = files!.map((v) => v.toJson()).toList();
+    }
     data['return_date'] = returnDate;
     data['type'] = type;
     data['is_cancelled'] = isCancelled;
     data['created_at'] = createdAt;
     data['deleted_at'] = deletedAt;
+    return data;
+  }
+}
+
+class IncomeFile {
+  int? id;
+  String? url;
+
+  IncomeFile({this.id, this.url});
+
+  IncomeFile.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    url = json['url'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['url'] = url;
     return data;
   }
 }

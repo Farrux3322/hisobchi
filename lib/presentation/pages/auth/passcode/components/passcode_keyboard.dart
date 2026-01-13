@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/auth/passcode/passcode_cubit.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/infrastructure/services/shared_service.dart';
 import 'package:local_auth/local_auth.dart';
 
 class PasscodeKeyboard extends StatefulWidget {
@@ -44,6 +45,17 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
         _availableBiometrics = availableBiometrics;
       });
 
+      // Senior: Auto-prompt biometrics if available and enabled
+      final pref = await SharedPrefService.initialize();
+      if (canCheckBiometrics && availableBiometrics.isNotEmpty && pref.isBiometricEnabled) {
+        // Delay slightly to allow UI to settle and avoid issues on some devices
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) {
+            _authenticateWithBiometrics();
+          }
+        });
+      }
+
       debugPrint('Can check biometrics: $canCheckBiometrics');
       debugPrint('Available biometrics: $_availableBiometrics');
     }
@@ -67,12 +79,12 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
     } catch (e) {
       debugPrint('Biometric authentication error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Autentifikatsiya xatosi: $e'),
-            backgroundColor: AppTheme.colors.red,
-          ),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text('Autentifikatsiya xatosi: $e'),
+        //     backgroundColor: AppTheme.colors.red,
+        //   ),
+        // );
       }
     }
   }

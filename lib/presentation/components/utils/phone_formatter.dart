@@ -4,15 +4,16 @@ class PhoneFormatter {
     // Faqat raqamlarni olib qolamiz
     phone = phone.replaceAll(RegExp(r'\D'), '');
 
-    if (phone.length < 12) return phone;
+    if (phone.length >= 9) {
+      final last9 = phone.substring(phone.length - 9);
+      final operatorCode = last9.substring(0, 2);
+      final first = last9.substring(2, 5);
+      final second = last9.substring(5, 7);
+      final third = last9.substring(7, 9);
 
-    // +9989 (93) 737 33 22 formatga keltiramiz
-    final countryCode = '+${phone.substring(0, 3)}';
-    final operatorCode = phone.substring(3, 5);
-    final first = phone.substring(5, 8);
-    final second = phone.substring(8, 10);
-    final third = phone.substring(10, 12);
+      return '+998 ($operatorCode) $first $second $third';
+    }
 
-    return '$countryCode ($operatorCode) $first $second $third';
+    return phone;
   }
 }

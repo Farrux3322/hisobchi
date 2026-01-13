@@ -23,32 +23,19 @@ class EditClientBottomSheet extends StatefulWidget {
   final Function(String name, String phone, String? additionalPhone, int? imageId)? onSubmit;
   final PartnerModel partnerModel;
 
-  const EditClientBottomSheet({
-    super.key,
-    this.onSubmit,
-   required this.partnerModel,
-  });
+  const EditClientBottomSheet({super.key, this.onSubmit, required this.partnerModel});
 
   @override
   State<EditClientBottomSheet> createState() => _AddClientBottomSheetState();
 
-  static Future<void> show(
-      BuildContext context, {
-        required PartnerModel partnerModel,
-        Function(String name, String phone, String? additionalPhone, int? imageId)? onSubmit,
-      }) {
+  static Future<void> show(BuildContext context, {required PartnerModel partnerModel, Function(String name, String phone, String? additionalPhone, int? imageId)? onSubmit}) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => BlocProvider(
-        create: (context) => FileUploadBloc(
-          repository: FileUploadRepository(),
-        ),
-        child: EditClientBottomSheet(
-          partnerModel: partnerModel,
-          onSubmit: onSubmit,
-        ),
+        create: (context) => FileUploadBloc(repository: FileUploadRepository()),
+        child: EditClientBottomSheet(partnerModel: partnerModel, onSubmit: onSubmit),
       ),
     );
   }
@@ -61,13 +48,13 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
   final _additionalPhoneController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   late var maskFormatter1 = MaskTextInputFormatter(
-    mask: '+998 (##) ###-##-##',
+    mask: '+998 (##) ### ## ##',
     filter: {"#": RegExp(r'[0-9]')},
-    initialText: widget.partnerModel.phone ?? "+998",
+    initialText: widget.partnerModel.phone ?? '+998',
     type: MaskAutoCompletionType.lazy,
   );
   late var maskFormatter2 = MaskTextInputFormatter(
-    mask: '+998 (##) ###-##-##',
+    mask: '+998 (##) ### ## ##',
     filter: {"#": RegExp(r'[0-9]')},
     initialText: widget.partnerModel.additionalPhone ?? "+998",
     type: MaskAutoCompletionType.lazy,
@@ -90,8 +77,8 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
   void initState() {
     super.initState();
     _nameController.text = widget.partnerModel.name ?? '';
-    _phoneController.text = widget.partnerModel.phone ?? '';
-    _additionalPhoneController.text = widget.partnerModel.additionalPhone ?? '';
+    _phoneController.text = maskFormatter1.getMaskedText();
+    _additionalPhoneController.text = maskFormatter2.getMaskedText();
     // Load currencies when widget initializes
     context.read<CurrencyBloc>().add(const GetCurrency());
   }
@@ -115,33 +102,20 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                   Container(
                     width: 40,
                     height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+                    decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
                   ),
                   const SizedBox(height: 20),
                   const Text(
                     'Rasm tanlash',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E293B),
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                   ),
                   const SizedBox(height: 20),
                   ListTile(
                     leading: Container(
                       width: 48,
                       height: 48,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEFF6FF),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt_rounded,
-                        color: Color(0xFF3B82F6),
-                      ),
+                      decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(12)),
+                      child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF3B82F6)),
                     ),
                     title: const Text('Kamera', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                     subtitle: const Text('Yangi rasm olish', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
@@ -155,10 +129,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                     leading: Container(
                       width: 48,
                       height: 48,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF0FDF4),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(12)),
                       child: const Icon(Icons.photo_library_rounded, color: Color(0xFF10B981)),
                     ),
                     title: const Text('Galereya', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
@@ -175,13 +146,13 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                       leading: Container(
                         width: 48,
                         height: 48,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFEE2E2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(12)),
                         child: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444)),
                       ),
-                      title: const Text('Rasmni o\'chirish', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFFEF4444))),
+                      title: const Text(
+                        'Rasmni o\'chirish',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFFEF4444)),
+                      ),
                       onTap: () {
                         Navigator.pop(context);
                         setState(() {
@@ -258,7 +229,10 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Valyuta tanlash', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+                                  Text(
+                                    'Valyuta tanlash',
+                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                                  ),
                                   SizedBox(height: 2),
                                   Text('Asosiy valyutani tanlang', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
                                 ],
@@ -289,7 +263,10 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                       child: const Icon(Icons.search_off_rounded, size: 40, color: Color(0xFF94A3B8)),
                                     ),
                                     const SizedBox(height: 16),
-                                    const Text('Valyuta topilmadi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+                                    const Text(
+                                      'Valyuta topilmadi',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                                    ),
                                     const SizedBox(height: 6),
                                     const Text('Boshqa nom bilan qidiring', style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
                                   ],
@@ -337,7 +314,10 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                               Container(
                                                 width: 28,
                                                 height: 28,
-                                                decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0), width: 2), shape: BoxShape.circle),
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(color: const Color(0xFFE2E8F0), width: 2),
+                                                  shape: BoxShape.circle,
+                                                ),
                                               ),
                                           ],
                                         ),
@@ -358,15 +338,9 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
     );
   }
 
-
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final XFile? pickedFile = await _picker.pickImage(
-        source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 85,
-      );
+      final XFile? pickedFile = await _picker.pickImage(source: source, maxWidth: 1024, maxHeight: 1024, imageQuality: 85);
 
       if (pickedFile != null) {
         final imageFile = File(pickedFile.path);
@@ -376,14 +350,12 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
         });
 
         if (mounted) {
-          context.read<FileUploadBloc>().add(UploadFileEvent(file: imageFile,type: 'client'));
+          context.read<FileUploadBloc>().add(UploadFileEvent(file: imageFile, type: 'client'));
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Xatolik: ${e.toString()}'), backgroundColor: Colors.red),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xatolik: ${e.toString()}'), backgroundColor: Colors.red));
       }
     }
   }
@@ -397,52 +369,38 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
 
     if (!_formKey.currentState!.validate()) return;
 
-    final additionalPhone = _additionalPhoneController.text.trim().isEmpty
-        ? null
-        : _additionalPhoneController.text;
+    final additionalPhone = _additionalPhoneController.text.trim().isEmpty ? null : _additionalPhoneController.text;
 
     _submitClient(additionalPhone, _uploadedImageId);
   }
 
-
   void _submitClient(String? additionalPhone, int? imageId) {
     final data = {
       'name': _nameController.text,
-      'phone': _phoneController.text,
+      'phone': maskFormatter1.getUnmaskedText(),
       'additional_phone': additionalPhone,
-      if (imageId != null) 'file_id': [imageId],
-      if (_selectedCurrency?.id != null) 'currency_type_id': _selectedCurrency!.id,
+      'file_id': imageId == null ? [] : [imageId],
+      'currency_type_id': _selectedCurrency!.id,
     };
 
-    context.read<PartnerBloc>().add(
-      UpdateEvent(
-        data: data,
-        id: widget.partnerModel.id ?? 0,
-      ),
-    );
+    context.read<PartnerBloc>().add(UpdateEvent(data: data, id: widget.partnerModel.id ?? 0));
   }
 
   /// Full screen image viewer with zoom capability
   void _showFullScreenImage(BuildContext context) {
     // Check if we have a selected image or network image
-    final hasImage = _selectedImage != null ||
-        (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty);
+    final hasImage = _selectedImage != null || (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty);
 
     if (!hasImage) return;
 
     final isNetwork = _selectedImage == null && !_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty;
-    final imagePath = isNetwork ? widget.partnerModel.files!.first : _selectedImage!.path;
+    final imagePath = isNetwork ? widget.partnerModel.files!.first.url : _selectedImage!.path;
 
     Navigator.of(context).push(
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (context) => ImageViewerPage(
-          images: [
-            ImageItem(
-              path: imagePath,
-              isNetwork: isNetwork,
-            ),
-          ],
+          images: [ImageItem(path: imagePath ?? '', isNetwork: isNetwork)],
           initialIndex: 0,
           onDelete: (index, item) {
             setState(() {
@@ -470,27 +428,27 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
 
     try {
       final decoded = jsonDecode(errorMessage);
-      
+
       if (decoded is Map<String, dynamic>) {
         // 1. Priority: Field-level validation errors
         final errors = decoded['errors'] as Map<String, dynamic>?;
-        
+
         if (errors != null && errors.isNotEmpty) {
           final validationErrors = <String, String>{};
-          
+
           errors.forEach((field, messages) {
             final fieldName = _getFieldNameInUzbek(field);
             String message = '';
-            
+
             if (messages is List && messages.isNotEmpty) {
               message = messages.first.toString();
             } else {
               message = messages.toString();
             }
-            
+
             validationErrors[fieldName] = _translateErrorMessage(field, message);
           });
-          
+
           if (validationErrors.isNotEmpty) {
             _showValidationErrorDialog(context, validationErrors);
             return;
@@ -500,18 +458,12 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
         // 2. Next Priority: Top-level message
         if (decoded.containsKey('message')) {
           final msg = decoded['message'].toString();
-          _showErrorDialog(
-            context, 
-            title: 'Xatolik', 
-            message: _translateErrorMessage('', msg), 
-            icon: Icons.error_outline_rounded
-          );
+          _showErrorDialog(context, title: 'Xatolik', message: _translateErrorMessage('', msg), icon: Icons.error_outline_rounded);
           return;
         }
       }
-      
+
       _showErrorDialog(context, title: 'Xatolik', message: errorMessage, icon: Icons.error_outline_rounded);
-      
     } catch (e) {
       _showErrorDialog(context, title: 'Xatolik', message: errorMessage, icon: Icons.error_outline_rounded);
     }
@@ -538,7 +490,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
   /// Server xabarini o'zbekchaga tarjima qiladi
   String _translateErrorMessage(String field, String message) {
     final msg = message.toLowerCase();
-    
+
     // "Already taken" check
     if (msg.contains('already been taken') || msg.contains('already taken')) {
       switch (field.toLowerCase()) {
@@ -573,35 +525,22 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
   }
 
   /// Validatsiya xatolari uchun chiroyli dialog
-  void _showValidationErrorDialog(
-    BuildContext context,
-    Map<String, String> errors,
-  ) {
+  void _showValidationErrorDialog(BuildContext context, Map<String, String> errors) {
     showDialog(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext dialogContext) {
         return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           elevation: 0,
           backgroundColor: Colors.transparent,
           child: Container(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
-            ),
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -610,39 +549,21 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                 Container(
                   width: 64,
                   height: 64,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFEF2F2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.warning_amber_rounded,
-                    color: Color(0xFFEF4444),
-                    size: 32,
-                  ),
+                  decoration: const BoxDecoration(color: Color(0xFFFEF2F2), shape: BoxShape.circle),
+                  child: const Icon(Icons.warning_amber_rounded, color: Color(0xFFEF4444), size: 32),
                 ),
                 const SizedBox(height: 20),
 
                 // Title
                 const Text(
                   'Ma\'lumotlarni tekshiring',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E293B),
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 4),
 
                 // Error count subtitle
-                if (errors.length > 1)
-                  Text(
-                    '${errors.length} ta xatolik topildi',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF64748B),
-                    ),
-                  ),
+                if (errors.length > 1) Text('${errors.length} ta xatolik topildi', style: const TextStyle(fontSize: 13, color: Color(0xFF64748B))),
                 const SizedBox(height: 12),
 
                 // Error messages (scrollable if many errors)
@@ -654,10 +575,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                       decoration: BoxDecoration(
                         color: const Color(0xFFFEF2F2),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFFFECACA),
-                          width: 1,
-                        ),
+                        border: Border.all(color: const Color(0xFFFECACA), width: 1),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -668,11 +586,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(
-                                  Icons.info_outline_rounded,
-                                  color: Color(0xFFEF4444),
-                                  size: 20,
-                                ),
+                                const Icon(Icons.info_outline_rounded, color: Color(0xFFEF4444), size: 20),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
@@ -680,21 +594,10 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                     children: [
                                       Text(
                                         entry.key,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF991B1B),
-                                        ),
+                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF991B1B)),
                                       ),
                                       const SizedBox(height: 4),
-                                      Text(
-                                        entry.value,
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: Color(0xFF7F1D1D),
-                                          height: 1.4,
-                                        ),
-                                      ),
+                                      Text(entry.value, style: const TextStyle(fontSize: 13, color: Color(0xFF7F1D1D), height: 1.4)),
                                     ],
                                   ),
                                 ),
@@ -717,18 +620,10 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.colors.primary,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Tushundim',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: const Text('Tushundim', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   ),
                 ),
               ],
@@ -740,20 +635,13 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
   }
 
   /// Umumiy xatolik dialog
-  void _showErrorDialog(
-    BuildContext context, {
-    required String title,
-    required String message,
-    required IconData icon,
-  }) {
+  void _showErrorDialog(BuildContext context, {required String title, required String message, required IconData icon}) {
     showDialog(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext dialogContext) {
         return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           elevation: 0,
           backgroundColor: Colors.transparent,
           child: Container(
@@ -761,13 +649,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -776,26 +658,15 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                 Container(
                   width: 64,
                   height: 64,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFEF2F2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    icon,
-                    color: const Color(0xFFEF4444),
-                    size: 32,
-                  ),
+                  decoration: const BoxDecoration(color: Color(0xFFFEF2F2), shape: BoxShape.circle),
+                  child: Icon(icon, color: const Color(0xFFEF4444), size: 32),
                 ),
                 const SizedBox(height: 20),
 
                 // Title
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E293B),
-                  ),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
@@ -803,11 +674,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                 // Message
                 Text(
                   message,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF64748B),
-                    height: 1.5,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: Color(0xFF64748B), height: 1.5),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
@@ -821,18 +688,10 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.colors.primary,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Yopish',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: const Text('Yopish', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   ),
                 ),
               ],
@@ -853,13 +712,9 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
             _isLoading = false;
           });
         } else if (state.status == FileUploadStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Rasm yuklashda xatolik: ${state.errorMessage ?? "Noma'lum xatolik"}'),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Rasm yuklashda xatolik: ${state.errorMessage ?? "Noma'lum xatolik"}'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
           setState(() {
             _isLoading = false;
             _selectedImage = null;
@@ -903,12 +758,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                       return SingleChildScrollView(
                         controller: scrollController,
                         child: Padding(
-                          padding: EdgeInsets.only(
-                            left: 20,
-                            right: 20,
-                            top: 20,
-                            bottom: MediaQuery.of(context).padding.bottom + 20,
-                          ),
+                          padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: MediaQuery.of(context).padding.bottom + 20),
                           child: Form(
                             key: _formKey,
                             child: Stack(
@@ -921,14 +771,14 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                       child: Container(
                                         width: 62,
                                         height: 8,
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.colors.primary,
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
+                                        decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(10)),
                                       ),
                                     ),
                                     const SizedBox(height: 24),
-                                    const Text('Mijoz tahrirlash', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Color(0xFF1E293B))),
+                                    const Text(
+                                      'Mijoz tahrirlash',
+                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+                                    ),
                                     const SizedBox(height: 24),
 
                                     // Camera/Avatar with Image Preview
@@ -937,8 +787,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                         onTap: isUploading
                                             ? null
                                             : () {
-                                                final hasImage = _selectedImage != null ||
-                                                    (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty);
+                                                final hasImage = _selectedImage != null || (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty);
                                                 if (hasImage) {
                                                   _showFullScreenImage(context);
                                                 } else {
@@ -962,31 +811,20 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                                   child: _selectedImage != null
                                                       ? Image.file(_selectedImage!, fit: BoxFit.cover)
                                                       : (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty)
-                                                          ? CachedNetworkImage(
-                                                              imageUrl: widget.partnerModel.files!.first,
-                                                              fit: BoxFit.cover,
-                                                              placeholder: (context, url) => const Center(
-                                                                child: CircularProgressIndicator(strokeWidth: 2),
-                                                              ),
-                                                              errorWidget: (context, url, error) => Padding(
-                                                                padding: const EdgeInsets.all(35),
-                                                                child: SvgPicture.asset(AppIcons.photo),
-                                                              ),
-                                                            )
-                                                          : Padding(
-                                                              padding: const EdgeInsets.all(35),
-                                                              child: SvgPicture.asset(AppIcons.photo),
-                                                            ),
+                                                      ? CachedNetworkImage(
+                                                          imageUrl: widget.partnerModel.files!.first.url ?? '',
+                                                          fit: BoxFit.cover,
+                                                          placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                                          errorWidget: (context, url, error) => Padding(padding: const EdgeInsets.all(35), child: SvgPicture.asset(AppIcons.photo)),
+                                                        )
+                                                      : Padding(padding: const EdgeInsets.all(35), child: SvgPicture.asset(AppIcons.photo)),
                                                 ),
                                               ),
                                             ),
                                             if (isUploading)
                                               Positioned.fill(
                                                 child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.black.withValues(alpha: 0.7),
-                                                    borderRadius: BorderRadius.circular(20),
-                                                  ),
+                                                  decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(20)),
                                                   child: Column(
                                                     mainAxisAlignment: MainAxisAlignment.center,
                                                     children: [
@@ -1003,20 +841,10 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                                       const SizedBox(height: 8),
                                                       Text(
                                                         '${uploadState.progress.toStringAsFixed(0)}%',
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 16,
-                                                          fontWeight: FontWeight.w600,
-                                                        ),
+                                                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
                                                       ),
                                                       const SizedBox(height: 4),
-                                                      const Text(
-                                                        'Yuklanmoqda...',
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
+                                                      const Text('Yuklanmoqda...', style: TextStyle(color: Colors.white, fontSize: 12)),
                                                     ],
                                                   ),
                                                 ),
@@ -1033,7 +861,10 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                         text: 'Ism ',
                                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
                                         children: [
-                                          TextSpan(text: '*', style: TextStyle(color: Colors.red)),
+                                          TextSpan(
+                                            text: '*',
+                                            style: TextStyle(color: Colors.red),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -1045,10 +876,22 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                         hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
                                         filled: true,
                                         fillColor: const Color(0xFFF8FAFC),
-                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-                                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-                                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2)),
-                                        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red)),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+                                        ),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: Colors.red),
+                                        ),
                                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                       ),
                                       validator: (value) {
@@ -1066,7 +909,10 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                         text: 'Tel raqami ',
                                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
                                         children: [
-                                          TextSpan(text: '*', style: TextStyle(color: Colors.red)),
+                                          TextSpan(
+                                            text: '*',
+                                            style: TextStyle(color: Colors.red),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -1079,10 +925,22 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                         hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
                                         filled: true,
                                         fillColor: const Color(0xFFF8FAFC),
-                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-                                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-                                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2)),
-                                        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red)),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+                                        ),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: Colors.red),
+                                        ),
                                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                       ),
                                       validator: (value) {
@@ -1095,7 +953,10 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                     const SizedBox(height: 16),
 
                                     // Additional phone input
-                                    const Text('Qo\'shimcha tel raqami', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B))),
+                                    const Text(
+                                      'Qo\'shimcha tel raqami',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+                                    ),
                                     const SizedBox(height: 8),
                                     TextFormField(
                                       controller: _additionalPhoneController,
@@ -1105,10 +966,22 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                         hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
                                         filled: true,
                                         fillColor: const Color(0xFFF8FAFC),
-                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-                                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-                                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2)),
-                                        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red)),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+                                        ),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: Colors.red),
+                                        ),
                                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                       ),
                                     ),
@@ -1136,7 +1009,10 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                                 text: 'Valyuta ',
                                                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
                                                 children: [
-                                                  TextSpan(text: '*', style: TextStyle(color: Colors.red)),
+                                                  TextSpan(
+                                                    text: '*',
+                                                    style: TextStyle(color: Colors.red),
+                                                  ),
                                                 ],
                                               ),
                                             ),
@@ -1159,7 +1035,10 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                                     // Currency name or placeholder
                                                     Expanded(
                                                       child: _selectedCurrency != null
-                                                          ? Text(_selectedCurrency!.name ?? '', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)))
+                                                          ? Text(
+                                                              _selectedCurrency!.name ?? '',
+                                                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                                                            )
                                                           : Text(isLoadingCurrencies ? 'Yuklanmoqda...' : 'Asosiy valyutani tanlang', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14)),
                                                     ),
 
@@ -1198,7 +1077,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                   Padding(
                                     padding: EdgeInsets.only(top: (MediaQuery.of(context).size.height / 3)),
                                     child: Loading(),
-                                  )
+                                  ),
                               ],
                             ),
                           ),

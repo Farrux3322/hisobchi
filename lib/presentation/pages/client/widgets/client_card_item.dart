@@ -69,7 +69,7 @@ class ClientCardItem extends StatelessWidget {
                       child: CachedNetworkImage(
                         
                         imageUrl: (partnerModel?.files ?? []).isNotEmpty
-                            ? partnerModel?.files?.first ?? ''
+                            ? partnerModel?.files?.first.url ?? ''
                             : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEM7h-3_xucDg6PXVOyOxh9QOnMkS0dvydRA&s',
                         width: 40,
                         height: 40,

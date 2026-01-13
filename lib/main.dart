@@ -36,7 +36,6 @@ import 'domain/common/app_init.dart';
 import 'infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'presentation/assets/theme/app_theme.dart';
 import 'presentation/pages/app_widget.dart';
-import 'package:showcaseview/showcaseview.dart';
 
 
 @pragma('vm:entry-point')
@@ -51,9 +50,9 @@ Future<void> getDeviceToken() async {
 
   if (settings.authorizationStatus == AuthorizationStatus.authorized) {
     String? token = await messaging.getToken();
-    print('Device Token: $token');
+    debugPrint('Device Token: $token');
   } else {
-    print('Push notificationga ruxsat berilmadi');
+    debugPrint('Push notificationga ruxsat berilmadi');
   }
 }
 Future<void> main() async {

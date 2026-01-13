@@ -126,7 +126,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                       borderRadius: BorderRadius.circular(8.r),
                                       child: CachedNetworkImage(
                                         imageUrl: (widget.partnerModel.files ?? []).isNotEmpty
-                                            ? widget.partnerModel.files?.first ?? ''
+                                            ? widget.partnerModel.files?.first.url ?? ''
                                             : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEM7h-3_xucDg6PXVOyOxh9QOnMkS0dvydRA&s',
                                         width: 60,
                                         height: 60,
