@@ -38,7 +38,7 @@ class _DashboardPageState extends State<DashboardPage> {
     AppManagerCubit.context = context;
     // ignore: deprecated_member_use
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      // backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
         child: BlocConsumer<DashboardBloc, DashboardState>(
           listener: (context, state) {
