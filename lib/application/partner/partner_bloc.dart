@@ -68,7 +68,15 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
   Future<void> getIncomeHistory(IncomeHistoryEvent event, Emitter<PartnerState> emit) async {
     emit(state.copyWith(statusIncomeHistory: Status.loading, statusKirimAdd: Status.pure));
     try {
-      final data = await _repo.incomeHistory(id: event.id, search: event.search, startDate: event.startDate, endDate: event.endDate, type: event.type);
+      final data = await _repo.incomeHistory(
+        id: event.id,
+        search: event.search,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        type: event.type,
+        isCancelled: event.isCancelled,
+        currencyId: event.currencyId,
+      );
 
       if (data["status"] == true) {
         final model = IncomeHistoryModel.fromJson(data);

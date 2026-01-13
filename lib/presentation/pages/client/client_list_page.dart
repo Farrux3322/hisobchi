@@ -80,63 +80,66 @@ class _ClientPageState extends State<ClientPage> {
   Widget build(BuildContext context) {
     AppManagerCubit.context = context;
     return DeFocus(
-      child: BlocConsumer<PartnerBloc, PartnerState>(
-        listener: (context, state) {
-          // Handle create success
-          if (state.statusAdd == Status.success) {
-            Toast.showSuccessToast(message: 'Muvaffaqiyatli saqlandi');
-            // Refresh the list
-            context.read<PartnerBloc>().add(const GetAllEvent());
-          }
+      child: Padding(
+        padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+        child: BlocConsumer<PartnerBloc, PartnerState>(
+          listener: (context, state) {
+            // Handle create success
+            if (state.statusAdd == Status.success) {
+              Toast.showSuccessToast(message: 'Muvaffaqiyatli saqlandi');
+              // Refresh the list
+              context.read<PartnerBloc>().add(const GetAllEvent());
+            }
 
-          // Handle create error
-          if (state.statusAdd == Status.error) {
-            Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-          }
+            // Handle create error
+            if (state.statusAdd == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            }
 
-          // Handle fetch error
-          if (state.status == Status.error) {
-            Toast.showErrorToast(message: state.errorMessage ?? 'Ma\'lumotlarni yuklashda xatolik');
-          }
-        },
-        builder: (context, state) {
-          // ignore: deprecated_member_use
-          return    Scaffold(
-            // backgroundColor: AppTheme.colors.background,
-            body: SafeArea(
-              bottom: false,
-              child: Column(
-                children: [
-                  _buildHeader(),
-                  Expanded(child: _buildBody(state)),
-                ],
+            // Handle fetch error
+            if (state.status == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Ma\'lumotlarni yuklashda xatolik');
+            }
+          },
+          builder: (context, state) {
+            // ignore: deprecated_member_use
+            return    Scaffold(
+              // backgroundColor: AppTheme.colors.background,
+              body: SafeArea(
+                bottom: false,
+                child: Column(
+                  children: [
+                    _buildHeader(),
+                    Expanded(child: _buildBody(state)),
+                  ],
+                ),
               ),
-            ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) =>
-                      BlocProvider(
-                        create: (context) =>
-                            FileUploadBloc(
-                              repository: FileUploadRepository(),
-                            ),
-                        child: AddClientBottomSheet(),
-                      ),
-                ).then((v){
-                  if(v==true && context.mounted){
-                    context.read<PartnerBloc>().add(const GetAllEvent());
-                  }
-                });
-              },
-              backgroundColor: AppTheme.colors.primary,
-              child: SvgPicture.asset(AppIcons.clientAdd),
-            ),
-          );
-        },
+              floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) =>
+                        BlocProvider(
+                          create: (context) =>
+                              FileUploadBloc(
+                                repository: FileUploadRepository(),
+                              ),
+                          child: AddClientBottomSheet(),
+                        ),
+                  ).then((v){
+                    if(v==true && context.mounted){
+                      context.read<PartnerBloc>().add(const GetAllEvent());
+                    }
+                  });
+                },
+                backgroundColor: AppTheme.colors.primary,
+                child: SvgPicture.asset(AppIcons.clientAdd),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

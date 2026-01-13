@@ -16,6 +16,13 @@ import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+
+/// Edit mode enum for better state management
+enum EditMode {
+  viewing, // Read-only mode
+  editing, // Edit mode
+}
+
 class EditKirimBottomSheetContent extends StatefulWidget {
   final Result transaction;
   final ScrollController scrollController;
@@ -63,16 +70,25 @@ class _NumberInputFormatter extends TextInputFormatter {
   }
 }
 
-class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetContent> {
+class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetContent> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
 
+  // State management
+  EditMode _currentMode = EditMode.viewing;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
   int _selectedCurrencyId = 1; // 1 = UZS, 2 = USD
   DateTime? _selectedDate;
 
   bool get isKirim => widget.transaction.type == 'debt';
+
+  bool get isViewing => _currentMode == EditMode.viewing;
+
+  bool get isEditing => _currentMode == EditMode.editing;
 
   // 3 tagacha rasm uchun list
   final List<_ImageUploadItem> _images = [_ImageUploadItem(), _ImageUploadItem(), _ImageUploadItem()];
@@ -82,7 +98,33 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
   @override
   void initState() {
     super.initState();
+    _initializeAnimations();
     _loadInitialValues();
+  }
+
+  /// Initialize animations for smooth transitions
+  void _initializeAnimations() {
+    _animationController = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
+
+    _fadeAnimation = CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
+  }
+
+  /// Toggle between viewing and editing modes
+  void _toggleEditMode() {
+    HapticFeedback.mediumImpact();
+    setState(() {
+      if (_currentMode == EditMode.viewing) {
+        _currentMode = EditMode.editing;
+        _animationController.forward();
+      } else {
+        _currentMode = EditMode.viewing;
+        _animationController.reverse();
+        // Unfocus any active text fields
+        FocusScope.of(context).unfocus();
+        // Reset to original values when canceling
+        _loadInitialValues();
+      }
+    });
   }
 
   String _formatNumber(String value) {
@@ -131,6 +173,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
 
   @override
   void dispose() {
+    _animationController.dispose();
     _amountController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -179,19 +222,12 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                   Container(
                     width: 48.w,
                     height: 4.h,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.circular(2.r),
-                    ),
+                    decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(2.r)),
                   ),
                   SizedBox(height: 24.h),
                   Text(
                     'Rasm tanlash',
-                    style: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.colors.black,
-                    ),
+                    style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
                   ),
                   SizedBox(height: 24.h),
                   _buildImageSourceOption(
@@ -238,13 +274,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
     );
   }
 
-  Widget _buildImageSourceOption({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildImageSourceOption({required IconData icon, required String title, required String subtitle, required Color color, required VoidCallback onTap}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -265,10 +295,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
               Container(
                 width: 56.w,
                 height: 56.h,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(14.r),
-                ),
+                decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14.r)),
                 child: Icon(icon, color: color, size: 28.sp),
               ),
               SizedBox(width: 16.w),
@@ -278,19 +305,12 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.colors.black,
-                      ),
+                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
                     ),
                     SizedBox(height: 4.h),
                     Text(
                       subtitle,
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        color: const Color(0xFF64748B),
-                      ),
+                      style: TextStyle(fontSize: 13.sp, color: const Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -394,8 +414,8 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
           return GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration: BoxDecoration(
+                color: AppTheme.colors.background,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
               padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
@@ -431,10 +451,39 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                 ),
                                 const SizedBox(height: 24),
 
-                                // Title
-                                Text(
-                                  isKirim ? 'Kirimni tahrirlash' : 'Chiqimni tahrirlash',
-                                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+                                // Title with Edit Button
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      isKirim ? 'Kirim ma\'lumotlari' : 'Chiqim ma\'lumotlari',
+                                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                                    ),
+                                    // Edit/Cancel Button with animation
+                                    Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: _toggleEditMode,
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            // color: isEditing ? const Color(0xFFEF4444).withValues(alpha: 0.1) : AppTheme.colors.primary.withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(10),
+                                            border: Border.all(color: AppTheme.colors.primary, width: 1),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(isEditing ? Icons.close_rounded : Icons.edit, size: 18, color: AppTheme.colors.primary),
+                                              const SizedBox(width: 6),
+                                              Text(isEditing ? 'Bekor qilish' : 'Tahrirlash', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 24),
 
@@ -462,6 +511,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                       flex: 5,
                                       child: TextFormField(
                                         controller: _amountController,
+                                        enabled: isEditing,
                                         keyboardType: TextInputType.number,
                                         inputFormatters: [_NumberInputFormatter()],
                                         decoration: InputDecoration(
@@ -534,7 +584,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                                   borderRadius: BorderRadius.circular(12),
                                                   borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                                                 ),
-                                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                               ),
                                               icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.colors.primary),
                                               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
@@ -543,13 +593,15 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                                 DropdownMenuItem(value: 1, child: Text('UZS')),
                                                 DropdownMenuItem(value: 2, child: Text('USD')),
                                               ],
-                                              onChanged: (value) {
-                                                if (value != null) {
-                                                  setState(() {
-                                                    _selectedCurrencyId = value;
-                                                  });
-                                                }
-                                              },
+                                              onChanged: isEditing
+                                                  ? (value) {
+                                                      if (value != null) {
+                                                        setState(() {
+                                                          _selectedCurrencyId = value;
+                                                        });
+                                                      }
+                                                    }
+                                                  : null,
                                             );
                                           }
 
@@ -573,19 +625,21 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                                 borderRadius: BorderRadius.circular(12),
                                                 borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                                               ),
-                                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                             ),
                                             icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.colors.primary),
                                             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                                             dropdownColor: Colors.white,
                                             items: currencies.map((currency) => DropdownMenuItem<int>(value: currency.id, child: Text(currency.name ?? ''))).toList(),
-                                            onChanged: (value) {
-                                              if (value != null) {
-                                                setState(() {
-                                                  _selectedCurrencyId = value;
-                                                });
-                                              }
-                                            },
+                                            onChanged: isEditing
+                                                ? (value) {
+                                                    if (value != null) {
+                                                      setState(() {
+                                                        _selectedCurrencyId = value;
+                                                      });
+                                                    }
+                                                  }
+                                                : null,
                                           );
                                         },
                                       ),
@@ -602,7 +656,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                 if (!isKirim) const SizedBox(height: 8),
                                 if (!isKirim)
                                   GestureDetector(
-                                    onTap: _selectDate,
+                                    onTap: isEditing ? _selectDate : null,
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                       decoration: BoxDecoration(
@@ -636,6 +690,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                 const SizedBox(height: 8),
                                 TextFormField(
                                   controller: _descriptionController,
+                                  enabled: isEditing,
                                   maxLines: 3,
                                   decoration: InputDecoration(
                                     hintText: 'Izoh qoldiring (ixtiyoriy)',
@@ -677,7 +732,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                     return Expanded(
                                       child: GestureDetector(
                                         onTap: () {
-                                          if (canPick && !isUploading) {
+                                          if (canPick && !isUploading && isEditing) {
                                             _showImageSourceDialog(index);
                                           }
                                         },
@@ -767,22 +822,24 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                                 ),
                                 const SizedBox(height: 24),
 
-                                // Submit button
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 52,
-                                  child: ElevatedButton(
-                                    onPressed: _handleSubmit,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppTheme.colors.primary,
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      elevation: 0,
+                                // Submit button - Only visible in edit mode
+                                if (isEditing) ...[
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 52,
+                                    child: ElevatedButton(
+                                      onPressed: _handleSubmit,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppTheme.colors.primary,
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        elevation: 0,
+                                      ),
+                                      child: Text(isKirim ? 'Saqlash' : 'Saqlash', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                                     ),
-                                    child: Text(isKirim ? 'Kirimni tahrirlash' : 'Chiqimni tahrirlash', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                                   ),
-                                ),
-                                const SizedBox(height: 16),
+                                  const SizedBox(height: 16),
+                                ],
                               ],
                             ),
                           ),

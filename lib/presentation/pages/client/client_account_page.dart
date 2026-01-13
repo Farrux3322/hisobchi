@@ -99,290 +99,286 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             ),
             title: Text('Hisob-kitob', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
           ),
-          body: Stack(
-            children: [
-              Column(
+          body: RefreshIndicator(
+            onRefresh: () async {
+              context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
+            },
+            child: SingleChildScrollView(
+              // physics: NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
+              child: Column(
                 children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      // physics: NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
-                      child: Column(
-                        children: [
-                          // Profile card
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
-                            ),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      child: CachedNetworkImage(
-                                        imageUrl: (widget.partnerModel.files ?? []).isNotEmpty
-                                            ? widget.partnerModel.files?.first.url ?? ''
-                                            : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEM7h-3_xucDg6PXVOyOxh9QOnMkS0dvydRA&s',
-                                        width: 60,
-                                        height: 60,
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) => CupertinoActivityIndicator(),
-                                        errorWidget: (context, url, error) => Icon(Icons.error),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(widget.partnerModel.name ?? 'Noma\'lum', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                                          const SizedBox(height: 4),
-                                          Text(PhoneFormatter.formatPhoneNumber(widget.partnerModel.phone ?? ''), style: const TextStyle(fontSize: 13, color: Colors.grey)),
-                                        ],
-                                      ),
-                                    ),
-                                    // edit and delete icons
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          onPressed: () {
-                                            EditClientBottomSheet.show(
-                                              context,
-                                              partnerModel: widget.partnerModel,
-                                              onSubmit: (name, phone, additionalPhone, imageId) {
-                                                context.read<PartnerBloc>().add(
-                                                  UpdateEvent(
-                                                    data: {
-                                                      'name': name,
-                                                      'phone': phone,
-                                                      'additional_phone': additionalPhone,
-                                                      if (imageId != null) 'photo': [imageId],
-                                                    },
-                                                    id: widget.partnerModel.id ?? 0,
-                                                  ),
-                                                );
-                                              },
-                                            );
-                                          },
-                                          icon: SvgPicture.asset(AppIcons.edit),
-                                        ),
-                                        if (widget.partnerModel.deletedAt != null)
-                                          IconButton(
-                                            onPressed: () {
-                                              showDeleteDialog(
-                                                context,
-                                                isDelete: false,
-                                                onConfirm: () {
-                                                  context.read<PartnerBloc>().add(RestoreEvent(id: widget.partnerModel.id ?? 0));
-                                                },
-                                              );
-                                            },
-                                            icon: Icon(Icons.restore, color: AppTheme.colors.color9E97FF),
-                                          ),
-                                        IconButton(
-                                          onPressed: () {
-                                            showDeleteDialog(
-                                              context,
-                                              isDelete: true,
-                                              onConfirm: () {
-                                                if (widget.partnerModel.deletedAt == null) {
-                                                  context.read<PartnerBloc>().add(DeleteEvent(id: widget.partnerModel.id ?? 0));
-                                                } else {
-                                                  context.read<PartnerBloc>().add(ForceDeleteEvent(id: widget.partnerModel.id ?? 0));
-                                                }
-                                              },
-                                            );
-                                          },
-                                          icon: SvgPicture.asset(AppIcons.delete),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 12),
-
-                                // small action row (Hisobot + icons)
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.colors.white,
-                                          border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
-                                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            SvgPicture.asset(AppIcons.report),
-                                            SizedBox(width: 10),
-                                            Text('Hisobot', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15)),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    _iconButton(
-                                      AppIcons.phoneSms,
-                                      onTap: () async {
-                                        try {
-                                          await launchSms(widget.partnerModel.phone ?? '');
-                                        } catch (e) {
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xato: $e')));
-                                        }
-                                      },
-                                    ),
-                                    const SizedBox(width: 8),
-                                    _iconButton(
-                                      AppIcons.phone,
-                                      onTap: () async {
-                                        try {
-                                          await launchPhone(widget.partnerModel.phone ?? '');
-                                        } catch (e) {
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xato: $e')));
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          // Currency TabBar - Professional Design
-                          Container(
-                            padding: EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
-
-                              borderRadius: BorderRadius.circular(10.r),
-                            ),
-
-                            child: TabBar(
-                              controller: _tabController,
-                              indicator: BoxDecoration(
-                                color: AppTheme.colors.primary.withValues(alpha: 0.8),
-                                borderRadius: BorderRadius.circular(12.r),
-                                boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
+                  // Profile card
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8.r),
+                              child: CachedNetworkImage(
+                                imageUrl: (widget.partnerModel.files ?? []).isNotEmpty
+                                    ? widget.partnerModel.files?.first.url ?? ''
+                                    : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEM7h-3_xucDg6PXVOyOxh9QOnMkS0dvydRA&s',
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => CupertinoActivityIndicator(),
+                                errorWidget: (context, url, error) => Icon(Icons.error),
                               ),
-                              indicatorSize: TabBarIndicatorSize.tab,
-                              dividerColor: Colors.transparent,
-                              labelColor: AppTheme.colors.white,
-                              unselectedLabelColor: const Color(0xFF64748B),
-                              labelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
-                              unselectedLabelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500),
-                              indicatorPadding: EdgeInsets.all(4.w),
-                              tabs: const [
-                                Tab(child: Text('UZS Hisob')),
-                                Tab(child: Text('USD Hisob')),
-                              ],
                             ),
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          // TabBarView with Currency Data
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final screenHeight = MediaQuery.of(context).size.height;
-                              final availableHeight = screenHeight * 0.40; // Responsive height
-
-                              return Container(
-                                width: double.infinity,
-                                height: availableHeight.clamp(300, 500), // Min 300, Max 500
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
-                                  child: state.statusIncomeStatement == Status.success
-                                      ? TabBarView(
-                                          controller: _tabController,
-                                          children: [
-                                            // UZS Tab Content
-                                            _buildCurrencyContent(
-                                              state: state,
-                                              debt: state.incomeStatementModel?.result?.uzsAccount?.debt ?? 0,
-                                              credit: state.incomeStatementModel?.result?.uzsAccount?.credit ?? 0,
-                                              balance: state.incomeStatementModel?.result?.uzsAccount?.balance ?? 0,
-                                              currencySymbol: 'UZS',
-                                            ),
-                                            // USD Tab Content
-                                            _buildCurrencyContent(
-                                              state: state,
-                                              debt: state.incomeStatementModel?.result?.usdAccount?.debt ?? 0,
-                                              credit: state.incomeStatementModel?.result?.usdAccount?.credit ?? 0,
-                                              balance: state.incomeStatementModel?.result?.usdAccount?.balance ?? 0,
-                                              currencySymbol: 'USD',
-                                            ),
-                                          ],
-                                        )
-                                      : _buildShimmerCards(),
-                                ),
-                              );
-                            },
-                          ),
-
-                          const SizedBox(height: 8),
-
-                          // Bottom action outlined button
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => BlocProvider.value(
-                                      value: context.read<PartnerBloc>(),
-                                      child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0),
-                                    ),
-                                  ),
-                                );
-                              },
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 18),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                side: BorderSide(color: AppTheme.colors.primary, width: 1.5),
-                                backgroundColor: AppTheme.colors.primary.withValues(alpha: 0.04),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'Kirim-chiqim tarixlari',
-                                    style: TextStyle(color: AppTheme.colors.primary, fontSize: 16, fontWeight: FontWeight.w600),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Icon(Icons.arrow_forward, color: AppTheme.colors.primary),
+                                  Text(widget.partnerModel.name ?? 'Noma\'lum', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                  const SizedBox(height: 4),
+                                  Text(PhoneFormatter.formatPhoneNumber(widget.partnerModel.phone ?? ''), style: const TextStyle(fontSize: 13, color: Colors.grey)),
                                 ],
                               ),
                             ),
-                          ),
+                            // edit and delete icons
+                            Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    EditClientBottomSheet.show(
+                                      context,
+                                      partnerModel: widget.partnerModel,
+                                      onSubmit: (name, phone, additionalPhone, imageId) {
+                                        context.read<PartnerBloc>().add(
+                                          UpdateEvent(
+                                            data: {
+                                              'name': name,
+                                              'phone': phone,
+                                              'additional_phone': additionalPhone,
+                                              if (imageId != null) 'photo': [imageId],
+                                            },
+                                            id: widget.partnerModel.id ?? 0,
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  icon: SvgPicture.asset(AppIcons.edit),
+                                ),
+                                if (widget.partnerModel.deletedAt != null)
+                                  IconButton(
+                                    onPressed: () {
+                                      showDeleteDialog(
+                                        context,
+                                        isDelete: false,
+                                        onConfirm: () {
+                                          context.read<PartnerBloc>().add(RestoreEvent(id: widget.partnerModel.id ?? 0));
+                                        },
+                                      );
+                                    },
+                                    icon: Icon(Icons.restore, color: AppTheme.colors.color9E97FF),
+                                  ),
+                                IconButton(
+                                  onPressed: () {
+                                    showDeleteDialog(
+                                      context,
+                                      isDelete: true,
+                                      onConfirm: () {
+                                        if (widget.partnerModel.deletedAt == null) {
+                                          context.read<PartnerBloc>().add(DeleteEvent(id: widget.partnerModel.id ?? 0));
+                                        } else {
+                                          context.read<PartnerBloc>().add(ForceDeleteEvent(id: widget.partnerModel.id ?? 0));
+                                        }
+                                      },
+                                    );
+                                  },
+                                  icon: SvgPicture.asset(AppIcons.delete),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
 
-                          const SizedBox(height: 28),
-                          SizedBox(height: MediaQuery.of(context).padding.bottom),
+                        const SizedBox(height: 12),
+
+                        // small action row (Hisobot + icons)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.colors.white,
+                                  border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
+                                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SvgPicture.asset(AppIcons.report),
+                                    SizedBox(width: 10),
+                                    Text('Hisobot', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            _iconButton(
+                              AppIcons.phoneSms,
+                              onTap: () async {
+                                try {
+                                  await launchSms(widget.partnerModel.phone ?? '');
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xato: $e')));
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            _iconButton(
+                              AppIcons.phone,
+                              onTap: () async {
+                                try {
+                                  await launchPhone(widget.partnerModel.phone ?? '');
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xato: $e')));
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Currency TabBar - Professional Design
+                  Container(
+                    padding: EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+
+                    child: TabBar(
+                      controller: _tabController,
+                      indicator: BoxDecoration(
+                        color: AppTheme.colors.primary.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(12.r),
+                        boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
+                      ),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      dividerColor: Colors.transparent,
+                      labelColor: AppTheme.colors.white,
+                      unselectedLabelColor: const Color(0xFF64748B),
+                      labelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
+                      unselectedLabelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500),
+                      indicatorPadding: EdgeInsets.all(4.w),
+                      tabs: const [
+                        Tab(child: Text('UZS Hisob')),
+                        Tab(child: Text('USD Hisob')),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // TabBarView with Currency Data
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final screenHeight = MediaQuery.of(context).size.height;
+                      final availableHeight = screenHeight * 0.40; // Responsive height
+
+                      return Container(
+                        width: double.infinity,
+                        height: availableHeight.clamp(300, 500), // Min 300, Max 500
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
+                          child: state.statusIncomeStatement == Status.success
+                              ? TabBarView(
+                                  controller: _tabController,
+                                  children: [
+                                    // UZS Tab Content
+                                    _buildCurrencyContent(
+                                      state: state,
+                                      debt: state.incomeStatementModel?.result?.uzsAccount?.debt ?? 0,
+                                      credit: state.incomeStatementModel?.result?.uzsAccount?.credit ?? 0,
+                                      balance: state.incomeStatementModel?.result?.uzsAccount?.balance ?? 0,
+                                      currencySymbol: 'UZS',
+                                      currencyId: 1,
+                                    ),
+                                    // USD Tab Content
+                                    _buildCurrencyContent(
+                                      state: state,
+                                      debt: state.incomeStatementModel?.result?.usdAccount?.debt ?? 0,
+                                      credit: state.incomeStatementModel?.result?.usdAccount?.credit ?? 0,
+                                      balance: state.incomeStatementModel?.result?.usdAccount?.balance ?? 0,
+                                      currencySymbol: 'USD',
+                                      currencyId: 2,
+                                    ),
+                                  ],
+                                )
+                              : _buildShimmerCards(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Bottom action outlined button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BlocProvider.value(
+                              value: context.read<PartnerBloc>(),
+                              child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0),
+                            ),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        side: BorderSide(color: AppTheme.colors.primary, width: 1.5),
+                        backgroundColor: AppTheme.colors.primary.withValues(alpha: 0.04),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Kirim-chiqim tarixlari',
+                            style: TextStyle(color: AppTheme.colors.primary, fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(Icons.arrow_forward, color: AppTheme.colors.primary),
                         ],
                       ),
                     ),
                   ),
+
+                  const SizedBox(height: 28),
+                  SizedBox(height: MediaQuery.of(context).padding.bottom),
                 ],
               ),
-              if (state.statusAdd == Status.loading) Loading(),
-            ],
+            ),
           ),
         );
       },
@@ -390,11 +386,18 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   }
 
   // Build Currency Content - Minimalist & Clean Design
-  Widget _buildCurrencyContent({required PartnerState state, required num debt, required num credit, required num balance, required String currencySymbol}) {
+  Widget _buildCurrencyContent({
+    required PartnerState state,
+    required num debt,
+    required num credit,
+    required num balance,
+    required String currencySymbol,
+    required int currencyId,
+  }) {
     final screenWidth = MediaQuery.of(context).size.width;
     final cardPadding = screenWidth * 0.035; // Responsive padding
     final iconPadding = screenWidth * 0.02; // Responsive icon padding
-    final iconSize = screenWidth * 0.06; // Responsive icon size
+    final iconSize = screenWidth * 0.05; // Responsive icon size
 
     return SingleChildScrollView(
       physics: NeverScrollableScrollPhysics(),
@@ -411,55 +414,58 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 children: [
                   // Kirim Card
                   Expanded(
-                    child: Container(
-                      padding: EdgeInsets.all(cardPadding.clamp(10, 16)),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF3CC293).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFF3CC293).withValues(alpha: 0.25), width: 1),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.all(iconPadding.clamp(6, 10)),
-                                decoration: BoxDecoration(color: const Color(0xFF3CC293).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
-                                child: SvgPicture.asset(
-                                  AppIcons.income,
-                                  width: iconSize.clamp(20, 26),
-                                  height: iconSize.clamp(20, 26),
-                                  colorFilter: const ColorFilter.mode(Color(0xFF3CC293), BlendMode.srcIn),
-                                ),
-                              ),
-                              SizedBox(width: availableWidth * 0.02),
-                              Flexible(
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    'Kirim',
-                                    style: TextStyle(color: const Color(0xFF3CC293), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                    child: GestureDetector(
+                      onTap: () => _navigateToHistory(type: 'debt', currencyId: currencyId),
+                      child: Container(
+                        padding: EdgeInsets.all(cardPadding.clamp(10, 16)),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF3CC293).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFF3CC293).withValues(alpha: 0.25), width: 1),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(iconPadding.clamp(6, 10)),
+                                  decoration: BoxDecoration(color: const Color(0xFF3CC293).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                                  child: SvgPicture.asset(
+                                    AppIcons.income,
+                                    width: iconSize.clamp(20, 26),
+                                    height: iconSize.clamp(20, 26),
+                                    colorFilter: const ColorFilter.mode(Color(0xFF3CC293), BlendMode.srcIn),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: screenWidth * 0.025),
-                          RichText(
-                            textAlign: TextAlign.end,
-                            text: TextSpan(
-                              text: PriceFormatter.priceFormat('$debt'),
-                              style: TextStyle(color: Color(0xFF1E293B), fontSize: 18.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
-                              children: [
-                                TextSpan(
-                                  text: ' $currencySymbol',
-                                  style:  TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                                SizedBox(width: availableWidth * 0.02),
+                                Flexible(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      'Kirim',
+                                      style: TextStyle(color:  Color(0xFF3CC293), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
+                            SizedBox(height: screenWidth * 0.025),
+                            RichText(
+                              textAlign: TextAlign.end,
+                              text: TextSpan(
+                                text: PriceFormatter.priceFormat('$debt'),
+                                style: TextStyle(color: Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                                children: [
+                                  TextSpan(
+                                    text: ' $currencySymbol',
+                                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -468,56 +474,58 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
 
                   // Chiqim Card
                   Expanded(
-                    child: Container(
-                      padding: EdgeInsets.all(cardPadding.clamp(10, 16)),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDE5050).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFFDE5050).withValues(alpha: 0.25), width: 1),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.all(iconPadding.clamp(6, 10)),
-                                decoration: BoxDecoration(color: const Color(0xFFDE5050).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
-                                child: SvgPicture.asset(
-                                  AppIcons.chiqim,
-                                  width: iconSize.clamp(20, 26),
-                                  height: iconSize.clamp(20, 26),
-                                  colorFilter: const ColorFilter.mode(Color(0xFFDE5050), BlendMode.srcIn),
-                                ),
-                              ),
-                              SizedBox(width: availableWidth * 0.02),
-                              Flexible(
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    'Chiqim',
-                                    style: TextStyle(color: const Color(0xFFDE5050), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                    child: GestureDetector(
+                      onTap: () => _navigateToHistory(type: 'credit', currencyId: currencyId),
+                      child: Container(
+                        padding: EdgeInsets.all(cardPadding.clamp(10, 16)),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDE5050).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFDE5050).withValues(alpha: 0.25), width: 1),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(iconPadding.clamp(6, 10)),
+                                  decoration: BoxDecoration(color: const Color(0xFFDE5050).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                                  child: SvgPicture.asset(
+                                    AppIcons.chiqim,
+                                    width: iconSize.clamp(20, 26),
+                                    height: iconSize.clamp(20, 26),
+                                    colorFilter: const ColorFilter.mode(Color(0xFFDE5050), BlendMode.srcIn),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: screenWidth * 0.025),
-                          RichText(
-                            textAlign: TextAlign.end,
-                            text: TextSpan(
-
-                              text: PriceFormatter.priceFormat('$credit'),
-                              style: TextStyle(color: Color(0xFF1E293B), fontSize: 18.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
-                              children: [
-                                TextSpan(
-                                  text: ' $currencySymbol',
-                                  style:  TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                                SizedBox(width: availableWidth * 0.02),
+                                Flexible(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      'Chiqim',
+                                      style: TextStyle(color:  Color(0xFFDE5050), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
+                            SizedBox(height: screenWidth * 0.025),
+                            RichText(
+                              textAlign: TextAlign.end,
+                              text: TextSpan(
+                                text: PriceFormatter.priceFormat('$credit'),
+                                style: TextStyle(color: Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                                children: [
+                                  TextSpan(
+                                    text: ' $currencySymbol',
+                                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -552,18 +560,18 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                   SizedBox(width: screenWidth * 0.035),
                   Text(
                     'Qoldiq',
-                    style: TextStyle(color: balanceColor, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.4),
+                    style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.4),
                   ),
                   Expanded(
                     child: RichText(
                       textAlign: TextAlign.end,
                       text: TextSpan(
                         text: PriceFormatter.priceFormat('$balance'),
-                        style: TextStyle(color: balanceColor, fontSize: 20.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                        style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
                         children: [
                           TextSpan(
                             text: ' $currencySymbol',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: balanceColor.withValues(alpha: 0.7)),
+                            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: balanceColor.withValues(alpha: 0.7)),
                           ),
                         ],
                       ),
@@ -809,6 +817,22 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _navigateToHistory({String? type, int? currencyId}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: context.read<PartnerBloc>(),
+          child: HisobKitobTarixPage(
+            id: widget.partnerModel.id ?? 0,
+            initialType: type,
+            initialCurrencyId: currencyId,
+          ),
+        ),
       ),
     );
   }

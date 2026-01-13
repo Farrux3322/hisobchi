@@ -428,7 +428,7 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                           // Agar currencies bo'sh bo'lsa yoki loading bo'lsa, default qiymat
                                           if (currencies.isEmpty) {
                                             return DropdownButtonFormField<int>(
-                                              value: _selectedCurrencyId,
+                                              initialValue: _selectedCurrencyId,
                                               borderRadius: BorderRadius.circular(12.r),
                                               isExpanded: true,
                                               focusColor: Theme.of(context).scaffoldBackgroundColor,
@@ -449,7 +449,7 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                                 ),
                                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                                               ),
-                                              icon: const Icon(Icons.lock, color: Color(0xFF94A3B8), size: 18),
+                                              // icon: const Icon(Icons.lock, color: Color(0xFF94A3B8), size: 18),
                                               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                                               dropdownColor: Colors.white,
                                               items: const [
@@ -461,7 +461,7 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                           }
 
                                           return DropdownButtonFormField<int>(
-                                            value: _selectedCurrencyId,
+                                            initialValue: _selectedCurrencyId,
                                             isExpanded: true,
                                             focusColor: Theme.of(context).scaffoldBackgroundColor,
                                             borderRadius: BorderRadius.circular(12.r),
@@ -480,7 +480,7 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                                 borderRadius: BorderRadius.circular(12),
                                                 borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                                               ),
-                                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                             ),
                                             icon: const Icon(Icons.lock, color: Color(0xFF94A3B8), size: 18),
                                             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),

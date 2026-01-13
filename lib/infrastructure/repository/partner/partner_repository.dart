@@ -66,6 +66,8 @@ class PartnerRepository {
     DateTime? startDate,
     DateTime? endDate,
     String? type,
+    bool? isCancelled,
+    int? currencyId,
   }) async {
     final Map<String, dynamic> params = {
       'partner_id': id,
@@ -82,6 +84,12 @@ class PartnerRepository {
     }
     if (type != null && type.isNotEmpty) {
       params['type'] = type;
+    }
+    if (isCancelled != null) {
+      params['is_cancelled'] = isCancelled ? 1 : 0;
+    }
+    if (currencyId != null) {
+      params['currency_type_id'] = currencyId;
     }
 
     final response = await dio.get(

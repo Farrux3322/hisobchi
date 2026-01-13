@@ -57,11 +57,12 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
   Future<void> _showImageSourceDialog() async {
     return showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppTheme.colors.background,
+      // backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return Container(
           decoration: const BoxDecoration(
-            color: Colors.white,
+            // color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: SafeArea(
@@ -156,13 +157,14 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
 
     await showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppTheme.colors.background,
+      // backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (BuildContext bottomSheetContext) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return Container(
-              height: MediaQuery.of(context).size.height * 0.75,
+              height: MediaQuery.of(context).size.height * 0.5,
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),

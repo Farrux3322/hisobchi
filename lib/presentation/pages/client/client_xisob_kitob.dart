@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
@@ -18,9 +19,11 @@ import 'package:shimmer/shimmer.dart';
 import '../../assets/asset_index.dart';
 
 class HisobKitobTarixPage extends StatefulWidget {
-  const HisobKitobTarixPage({super.key, this.id});
+  const HisobKitobTarixPage({super.key, this.id, this.initialType, this.initialCurrencyId});
 
   final int? id;
+  final String? initialType;
+  final int? initialCurrencyId;
 
   @override
   State<HisobKitobTarixPage> createState() => _HisobKitobTarixPageState();
@@ -31,10 +34,15 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
   DateTime? _startDate;
   DateTime? _endDate;
   String? _selectedType;
+  bool? _isCancelled;
+  int? _currencyId;
   bool _hasActiveFilters = false;
 
   @override
   void initState() {
+    _selectedType = widget.initialType;
+    _currencyId = widget.initialCurrencyId;
+    _updateActiveFilters();
     _loadData();
     super.initState();
   }
@@ -47,13 +55,21 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
 
   void _loadData() {
     context.read<PartnerBloc>().add(
-      IncomeHistoryEvent(id: widget.id ?? 0, search: _searchController.text.trim().isEmpty ? null : _searchController.text.trim(), startDate: _startDate, endDate: _endDate, type: _selectedType),
+      IncomeHistoryEvent(
+        id: widget.id ?? 0,
+        search: _searchController.text.trim().isEmpty ? null : _searchController.text.trim(),
+        startDate: _startDate,
+        endDate: _endDate,
+        type: _selectedType,
+        isCancelled: _isCancelled ?? false, // Default false
+        currencyId: _currencyId,
+      ),
     );
   }
 
   void _updateActiveFilters() {
     setState(() {
-      _hasActiveFilters = _startDate != null || _endDate != null || _selectedType != null;
+      _hasActiveFilters = _startDate != null || _endDate != null || _selectedType != null || (_isCancelled != null && _isCancelled == true) || _currencyId != null;
     });
   }
 
@@ -62,7 +78,13 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => FilterBottomSheet(initialStartDate: _startDate, initialEndDate: _endDate, initialType: _selectedType),
+      builder: (context) => FilterBottomSheet(
+        initialStartDate: _startDate,
+        initialEndDate: _endDate,
+        initialType: _selectedType,
+        initialIsCancelled: _isCancelled,
+        initialCurrencyId: _currencyId,
+      ),
     );
 
     if (result != null && mounted) {
@@ -70,6 +92,8 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
         _startDate = result['startDate'];
         _endDate = result['endDate'];
         _selectedType = result['type'];
+        _isCancelled = result['is_cancelled'];
+        _currencyId = result['currency_id'];
       });
       _updateActiveFilters();
       _loadData();
@@ -324,6 +348,24 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                       });
                       _updateActiveFilters();
                       _loadData();
+                    },
+                  ),
+                if (_currencyId != null)
+                  Builder(
+                    builder: (context) {
+                      final currencyState = context.watch<CurrencyBloc>().state;
+                      final currencies = currencyState.currencyModel?.result ?? [];
+                      final currency = currencies.firstWhereOrNull((c) => c.id == _currencyId);
+                      return _buildFilterChip(
+                        label: currency?.name ?? 'Valyuta',
+                        icon: Icons.monetization_on_outlined,
+                        color: const Color(0xFFFBBF24),
+                        onRemove: () {
+                          setState(() => _currencyId = null);
+                          _updateActiveFilters();
+                          _loadData();
+                        },
+                      );
                     },
                   ),
               ],
