@@ -17,24 +17,32 @@ class LiquidGlassShell extends StatefulWidget {
   State<LiquidGlassShell> createState() => _LiquidGlassShellState();
 }
 
-class _LiquidGlassShellState extends State<LiquidGlassShell> {
-  late PageController _pageController;
+class _LiquidGlassShellState extends State<LiquidGlassShell> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late double _pageValue;
   bool _isDragging = false;
   double _lastDragPosition = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: widget.navigationShell.currentIndex);
+    _pageValue = widget.navigationShell.currentIndex.toDouble();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    )..addListener(() {
+      setState(() {
+        _pageValue = _animationController.value * (widget.items.length - 1);
+      });
+    });
   }
 
   @override
   void didUpdateWidget(LiquidGlassShell oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.navigationShell.currentIndex != oldWidget.navigationShell.currentIndex && !_isDragging) {
-      _pageController.animateToPage(
-        widget.navigationShell.currentIndex,
-        duration: const Duration(milliseconds: 600),
+      _animationController.animateTo(
+        widget.navigationShell.currentIndex / (widget.items.length - 1),
         curve: const Cubic(0.2, 0.0, 0.0, 1.0),
       );
     }
@@ -42,125 +50,63 @@ class _LiquidGlassShellState extends State<LiquidGlassShell> {
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
   void _handleDragStart(DragStartDetails details) {
     _isDragging = true;
     _lastDragPosition = details.globalPosition.dx;
+    _animationController.stop();
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    if (!_pageController.hasClients) return;
-    
     final double currentPosition = details.globalPosition.dx;
     final double delta = currentPosition - _lastDragPosition;
     _lastDragPosition = currentPosition;
     
-    // Sensitivity: how much the drag on the bar translates to page movement
-    // Since the bar is smaller than the screen, we need a multiplier to cover all tabs
-    final double moveRatio = 3.0; 
+    // Calculate move ratio based on bar width vs total pages
+    final double barWidth = MediaQuery.of(context).size.width - 40.w;
+    final double widthPerTab = barWidth / widget.items.length;
+    final double normalizedDelta = delta / widthPerTab;
     
-    final double newOffset = _pageController.offset + (delta * moveRatio);
-    _pageController.jumpTo(newOffset.clamp(
-      0.0, 
-      _pageController.position.maxScrollExtent,
-    ));
+    setState(() {
+      _pageValue = (_pageValue + normalizedDelta).clamp(0.0, widget.items.length - 1.0);
+    });
   }
 
   void _handleDragEnd(DragEndDetails details) {
     _isDragging = false;
-    final int currentPage = _pageController.page?.round() ?? 0;
+    final int targetPage = _pageValue.round();
     
-    // Animate to the final snapped page
-    _pageController.animateToPage(
-      currentPage,
-      duration: const Duration(milliseconds: 400),
+    // Animate indicator to the final snapped tab
+    _animationController.value = _pageValue / (widget.items.length - 1);
+    _animationController.animateTo(
+      targetPage / (widget.items.length - 1),
       curve: Curves.easeOutCubic,
     );
     
-    if (currentPage != widget.navigationShell.currentIndex) {
-      widget.navigationShell.goBranch(currentPage);
+    // ONLY switch branch on release to ensure comfort and state preservation
+    if (targetPage != widget.navigationShell.currentIndex) {
+      widget.navigationShell.goBranch(targetPage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _pageController,
-      builder: (context, _) {
-        double pageValue = 0.0;
-        if (_pageController.hasClients && _pageController.position.hasContentDimensions) {
-          pageValue = _pageController.page ?? widget.navigationShell.currentIndex.toDouble();
-        } else {
-          pageValue = widget.navigationShell.currentIndex.toDouble();
-        }
-
-        return Scaffold(
-          extendBody: true,
-          body: Stack(
-            children: [
-              NotificationListener<ScrollNotification>(
-                onNotification: (notification) {
-                  if (notification is ScrollStartNotification) {
-                    if (notification.dragDetails != null) _isDragging = true;
-                  } else if (notification is ScrollEndNotification) {
-                    _isDragging = false;
-                    final int currentPage = _pageController.page?.round() ?? 0;
-                    if (currentPage != widget.navigationShell.currentIndex) {
-                      widget.navigationShell.goBranch(currentPage);
-                    }
-                  }
-                  return false;
-                },
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: widget.items.length,
-                  physics: const BouncingScrollPhysics(),
-                  onPageChanged: (index) {
-                    if (_isDragging) {
-                      widget.navigationShell.goBranch(index);
-                    }
-                  },
-                  itemBuilder: (context, index) {
-                    final double pageOffset = pageValue - index;
-                    final double absOffset = pageOffset.abs();
-                    
-                    // Premium transition logic: Liquid scale + fade
-                    final double scale = 1.0 - (absOffset * 0.12).clamp(0.0, 0.12);
-                    final double opacity = 1.0 - (absOffset).clamp(0.0, 1.0);
-                    final double translation = pageOffset * 60.w;
-
-                    return Opacity(
-                      opacity: opacity.clamp(0.0, 1.0),
-                      child: Transform.translate(
-                        offset: Offset(translation, 0),
-                        child: Transform.scale(
-                          scale: scale,
-                          child: index == widget.navigationShell.currentIndex 
-                              ? widget.navigationShell 
-                              : const SizedBox.shrink(),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-          bottomNavigationBar: LiquidBottomBar(
-            pageOffset: pageValue,
-            onItemSelected: (index) {
-              widget.navigationShell.goBranch(index);
-            },
-            onHorizontalDragStart: _handleDragStart,
-            onHorizontalDragUpdate: _handleDragUpdate,
-            onHorizontalDragEnd: _handleDragEnd,
-            items: widget.items,
-          ),
-        );
-      },
+    return Scaffold(
+      extendBody: true,
+      body: widget.navigationShell, // Direct use of navigationShell preserves state (IndexedStack)
+      bottomNavigationBar: LiquidBottomBar(
+        pageOffset: _pageValue,
+        onItemSelected: (index) {
+          widget.navigationShell.goBranch(index);
+        },
+        onHorizontalDragStart: _handleDragStart,
+        onHorizontalDragUpdate: _handleDragUpdate,
+        onHorizontalDragEnd: _handleDragEnd,
+        items: widget.items,
+      ),
     );
   }
 }

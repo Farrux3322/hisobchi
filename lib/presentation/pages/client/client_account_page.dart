@@ -295,7 +295,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                   LayoutBuilder(
                     builder: (context, constraints) {
                       final screenHeight = MediaQuery.of(context).size.height;
-                      final availableHeight = screenHeight * 0.40; // Responsive height
+                      final availableHeight = screenHeight * 0.37; // Responsive height
 
                       return Container(
                         width: double.infinity,

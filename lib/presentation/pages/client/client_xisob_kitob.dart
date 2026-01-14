@@ -61,7 +61,8 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
         startDate: _startDate,
         endDate: _endDate,
         type: _selectedType,
-        isCancelled: _isCancelled ?? false, // Default false
+        isCancelled: _isCancelled ?? false,
+        // Default false
         currencyId: _currencyId,
       ),
     );
@@ -78,13 +79,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => FilterBottomSheet(
-        initialStartDate: _startDate,
-        initialEndDate: _endDate,
-        initialType: _selectedType,
-        initialIsCancelled: _isCancelled,
-        initialCurrencyId: _currencyId,
-      ),
+      builder: (context) => FilterBottomSheet(initialStartDate: _startDate, initialEndDate: _endDate, initialType: _selectedType, initialIsCancelled: _isCancelled, initialCurrencyId: _currencyId),
     );
 
     if (result != null && mounted) {
@@ -435,19 +430,35 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
         ),
         content: const Text('Ushbu tranzaksiyani o\'chirmoqchimisiz? Keyinchalik tiklash mumkin.', style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Yo\'q', style: TextStyle(color: Color(0xFF64748B))),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              elevation: 0,
-            ),
-            child: const Text('Ha, o\'chirish'),
+
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.colors.background,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  child: const Text('Qaytish',style: TextStyle(color: Colors.black),),
+                ),
+              ),
+              Gap(10.w),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(dialogContext, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.colors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  child: const Text('Ha, o\'chirish'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -493,19 +504,35 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Yo\'q', style: TextStyle(color: Color(0xFF64748B))),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade700,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              elevation: 0,
-            ),
-            child: const Text('Ha, butunlay o\'chirish'),
+
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.colors.background,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  child: const Text('Qaytish',style: TextStyle(color: Colors.black),),
+                ),
+              ),
+              Gap(10.w),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(dialogContext, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.colors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  child: const Text('Ha, butunlay o\'chirish',textAlign: TextAlign.center,),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -537,19 +564,35 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
         ),
         content: const Text('Ushbu tranzaksiyani tiklashni xohlaysizmi?', style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Yo\'q', style: TextStyle(color: Color(0xFF64748B))),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              elevation: 0,
-            ),
-            child: const Text('Ha, tiklash'),
+
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.colors.background,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  child: const Text('Qaytish',style: TextStyle(color: Colors.black),),
+                ),
+              ),
+              Gap(10.w),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(dialogContext, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.colors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  child: const Text('Ha, tiklash'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -722,13 +765,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
           ),
           child: Row(
             children: [
@@ -739,10 +776,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                 child: Container(
                   height: 40,
                   width: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(width: 12),
@@ -757,10 +791,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                       child: Container(
                         height: 14,
                         width: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -770,10 +801,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                       child: Container(
                         height: 12,
                         width: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                       ),
                     ),
                   ],
@@ -786,10 +814,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                 child: Container(
                   height: 16,
                   width: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                 ),
               ),
             ],
@@ -847,6 +872,7 @@ class _CancelDialogWidgetState extends State<_CancelDialogWidget> {
               controller: _reasonController,
               maxLines: 3,
               autofocus: true,
+              cursorColor: AppTheme.colors.primary,
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(
                 hintText: 'Sabab...',
@@ -863,7 +889,7 @@ class _CancelDialogWidgetState extends State<_CancelDialogWidget> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.orange, width: 2),
+                  borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -885,24 +911,41 @@ class _CancelDialogWidgetState extends State<_CancelDialogWidget> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Bekor qilish', style: TextStyle(color: Color(0xFF64748B))),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              final reason = _reasonController.text.trim();
-              Navigator.pop(context, reason); // Sababni qaytarish
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.orange,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            elevation: 0,
-          ),
-          child: const Text('Tasdiqlash'),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.colors.background,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  elevation: 0,
+                ),
+                child: Text('Qaytish', style: TextStyle(color: Colors.black)),
+              ),
+            ),
+            Gap(10.w),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    final reason = _reasonController.text.trim();
+                    Navigator.pop(context, reason); // Sababni qaytarish
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.colors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  elevation: 0,
+                ),
+                child: const Text('Tasdiqlash'),
+              ),
+            ),
+          ],
         ),
       ],
     );
