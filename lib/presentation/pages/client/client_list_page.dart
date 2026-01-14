@@ -11,6 +11,7 @@ import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/client/client_account_page.dart';
+import 'package:hisobchi/presentation/pages/client/components/client_filter_field.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_add_bottom_sheet.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_card_item.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_filter_bottom_sheet.dart';
@@ -24,7 +25,7 @@ class ClientPage extends StatefulWidget {
 }
 
 class _ClientPageState extends State<ClientPage> {
-  String searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
   DateTime? filterStartDate;
   DateTime? filterEndDate;
   String? filterSort;
@@ -39,12 +40,18 @@ class _ClientPageState extends State<ClientPage> {
     context.read<CurrencyBloc>().add(const GetExchangeRates());
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
 
   void _fetchPartners() {
     context.read<PartnerBloc>().add(GetAllEvent(
       startDate: filterStartDate,
       endDate: filterEndDate,
-      search: searchQuery.isNotEmpty ? searchQuery : null,
+      search: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
       sort: filterSort,
       statusFilter: filterStatusFilter,
     ));
@@ -64,12 +71,12 @@ class _ClientPageState extends State<ClientPage> {
       filterStartDate != null || filterEndDate != null || filterSort != null || filterStatusFilter != null;
 
   List<PartnerModel> _filterPartners(List<PartnerModel> partners) {
-    if (searchQuery.isEmpty) return partners;
+    if (_searchController.text.isEmpty) return partners;
 
     return partners.where((partner) {
       final name = partner.name?.toLowerCase() ?? '';
       final phone = partner.phone ?? '';
-      final query = searchQuery.toLowerCase();
+      final query = _searchController.text.toLowerCase();
 
       return name.contains(query) || phone.contains(query);
     }).toList();
@@ -209,102 +216,56 @@ class _ClientPageState extends State<ClientPage> {
   }
 
   Widget _buildHeader() {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              // Qidiruv
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          searchQuery = value;
-                        });
-                      },
-                      style: const TextStyle(fontSize: 14),
-                      decoration: InputDecoration(
-                        hintText: 'Ism, Telefon raqami',
-                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.only(left: 10.w),
-                          child: const Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) => ClientFilterBottomSheet(
-                          initialStartDate: filterStartDate,
-                          initialEndDate: filterEndDate,
-                          initialSort: filterSort,
-                          initialStatusFilter: filterStatusFilter,
-                          onApply: _handleFilterApply,
-                        ),
-                      );
-                    },
-                    child: Stack(
-                      children: [
-                        Container(
-                          height: 48,
-                          width: 48,
-                          padding: EdgeInsets.all(12.w),
-                          decoration: BoxDecoration(
-                            color: hasActiveFilters
-                                ? AppTheme.colors.primary.withValues(alpha: 0.1)
-                                : const Color(0xFFF8FAFC),
-                            borderRadius: BorderRadius.circular(12.r),
-                            border: Border.all(
-                              color: hasActiveFilters
-                                  ? AppTheme.colors.primary
-                                  : AppTheme.colors.colorE1EOEE,
-                            ),
-                          ),
-                          child: SvgPicture.asset(
-                            AppIcons.filter,
-                            fit: BoxFit.contain,
-                            colorFilter: hasActiveFilters
-                                ? ColorFilter.mode(
-                              AppTheme.colors.primary,
-                              BlendMode.srcIn,
-                            )
-                                : null,
-                          ),
-                        ),
-                        if (hasActiveFilters)
-                          Positioned(
-                            top: 6,
-                            right: 6,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: AppTheme.colors.primary,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 1.5),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: ClientFilterField(
+        searchController: _searchController,
+        hasActiveFilters: hasActiveFilters,
+        onFilterTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => ClientFilterBottomSheet(
+              initialStartDate: filterStartDate,
+              initialEndDate: filterEndDate,
+              initialSort: filterSort,
+              initialStatusFilter: filterStatusFilter,
+              onApply: _handleFilterApply,
+            ),
+          );
+        },
+        onSearchChanged: () {
+          setState(() {});
+          if (_searchController.text.isEmpty || _searchController.text.length >= 2) {
+            _fetchPartners();
+          }
+        },
+        onClearSearch: () {
+          _searchController.clear();
+          setState(() {});
+          _fetchPartners();
+        },
+        startDate: filterStartDate,
+        endDate: filterEndDate,
+        selectedSort: filterSort,
+        selectedStatusFilter: filterStatusFilter,
+        onRemoveDate: () {
+          setState(() {
+            filterStartDate = null;
+            filterEndDate = null;
+          });
+          _fetchPartners();
+        },
+        onRemoveSort: () {
+          setState(() => filterSort = null);
+          _fetchPartners();
+        },
+        onRemoveStatusFilter: () {
+          setState(() => filterStatusFilter = null);
+          _fetchPartners();
+        },
+      ),
     );
   }
 

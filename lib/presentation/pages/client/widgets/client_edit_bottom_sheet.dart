@@ -47,12 +47,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
   final _phoneController = TextEditingController();
   final _additionalPhoneController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
-  late var maskFormatter1 = MaskTextInputFormatter(
-    mask: '+998 (##) ### ## ##',
-    filter: {"#": RegExp(r'[0-9]')},
-    initialText: widget.partnerModel.phone ?? '+998',
-    type: MaskAutoCompletionType.lazy,
-  );
+  late var maskFormatter1 = MaskTextInputFormatter(mask: '+998 (##) ### ## ##', filter: {"#": RegExp(r'[0-9]')}, initialText: widget.partnerModel.phone ?? '+998', type: MaskAutoCompletionType.lazy);
   late var maskFormatter2 = MaskTextInputFormatter(
     mask: '+998 (##) ### ## ##',
     filter: {"#": RegExp(r'[0-9]')},
@@ -751,347 +746,348 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                     ),
                     child: BlocConsumer<PartnerBloc, PartnerState>(
-                    listener: (context, state) {
-                      if (state.statusAdd == Status.success) {
-                        Navigator.pop(context, true);
-                      }
-                      if (state.statusAdd == Status.error) {
-                        _handleValidationError(context, state.errorMessage);
-                      }
-                    },
-                    builder: (context, state) {
-                      return SingleChildScrollView(
-                        controller: scrollController,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: MediaQuery.of(context).padding.bottom + 20),
-                          child: Form(
-                            key: _formKey,
-                            child: Stack(
-                              children: [
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Center(
-                                      child: Container(
-                                        width: 62,
-                                        height: 8,
-                                        decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(10)),
+                      listener: (context, state) {
+                        if (state.statusAdd == Status.success) {
+                          Navigator.pop(context, true);
+                        }
+                        if (state.statusAdd == Status.error) {
+                          _handleValidationError(context, state.errorMessage);
+                        }
+                      },
+                      builder: (context, state) {
+                        return SingleChildScrollView(
+                          controller: scrollController,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: MediaQuery.of(context).padding.bottom + 20),
+                            child: Form(
+                              key: _formKey,
+                              child: Stack(
+                                children: [
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Center(
+                                        child: Container(
+                                          width: 62,
+                                          height: 8,
+                                          decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(10)),
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 24),
-                                    const Text(
-                                      'Mijoz tahrirlash',
-                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
-                                    ),
-                                    const SizedBox(height: 24),
+                                      const SizedBox(height: 24),
+                                      const Text(
+                                        'Mijoz tahrirlash',
+                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+                                      ),
+                                      const SizedBox(height: 24),
 
-                                    // Camera/Avatar with Image Preview
-                                    Center(
-                                      child: GestureDetector(
-                                        onTap: isUploading
-                                            ? null
-                                            : () {
-                                                final hasImage = _selectedImage != null || (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty);
-                                                if (hasImage) {
-                                                  _showFullScreenImage(context);
-                                                } else {
-                                                  _showImageSourceDialog();
-                                                }
-                                              },
-                                        child: Stack(
-                                          children: [
-                                            Hero(
-                                              tag: 'client_edit_image_preview',
-                                              child: Container(
-                                                width: 120,
-                                                height: 120,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius: BorderRadius.circular(20),
-                                                  border: Border.all(color: const Color(0xFFE2E8F0), width: 2),
-                                                ),
-                                                child: ClipRRect(
-                                                  borderRadius: BorderRadius.circular(18),
-                                                  child: _selectedImage != null
-                                                      ? Image.file(_selectedImage!, fit: BoxFit.cover)
-                                                      : (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty)
-                                                      ? CachedNetworkImage(
-                                                          imageUrl: widget.partnerModel.files!.first.url ?? '',
-                                                          fit: BoxFit.cover,
-                                                          placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                                                          errorWidget: (context, url, error) => Padding(padding: const EdgeInsets.all(35), child: SvgPicture.asset(AppIcons.photo)),
-                                                        )
-                                                      : Padding(padding: const EdgeInsets.all(35), child: SvgPicture.asset(AppIcons.photo)),
+                                      // Camera/Avatar with Image Preview
+                                      Center(
+                                        child: GestureDetector(
+                                          onTap: isUploading
+                                              ? null
+                                              : () {
+                                                  final hasImage = _selectedImage != null || (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty);
+                                                  if (hasImage) {
+                                                    _showFullScreenImage(context);
+                                                  } else {
+                                                    _showImageSourceDialog();
+                                                  }
+                                                },
+                                          child: Stack(
+                                            children: [
+                                              Hero(
+                                                tag: 'client_edit_image_preview',
+                                                child: Container(
+                                                  width: 120,
+                                                  height: 120,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius: BorderRadius.circular(20),
+                                                    border: Border.all(color: const Color(0xFFE2E8F0), width: 2),
+                                                  ),
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius.circular(18),
+                                                    child: _selectedImage != null
+                                                        ? Image.file(_selectedImage!, fit: BoxFit.cover)
+                                                        : (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty)
+                                                        ? CachedNetworkImage(
+                                                            imageUrl: widget.partnerModel.files!.first.url ?? '',
+                                                            fit: BoxFit.cover,
+                                                            placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                                            errorWidget: (context, url, error) => Padding(padding: const EdgeInsets.all(35), child: SvgPicture.asset(AppIcons.photo)),
+                                                          )
+                                                        : Padding(padding: const EdgeInsets.all(35), child: SvgPicture.asset(AppIcons.photo)),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            if (isUploading)
-                                              Positioned.fill(
-                                                child: Container(
-                                                  decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(20)),
-                                                  child: Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    children: [
-                                                      SizedBox(
-                                                        width: 40,
-                                                        height: 40,
-                                                        child: CircularProgressIndicator(
-                                                          value: uploadState.progress / 100,
-                                                          backgroundColor: Colors.white.withValues(alpha: 0.3),
-                                                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                                                          strokeWidth: 3,
+                                              if (isUploading)
+                                                Positioned.fill(
+                                                  child: Container(
+                                                    decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(20)),
+                                                    child: Column(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        SizedBox(
+                                                          width: 40,
+                                                          height: 40,
+                                                          child: CircularProgressIndicator(
+                                                            value: uploadState.progress / 100,
+                                                            backgroundColor: Colors.white.withValues(alpha: 0.3),
+                                                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                                            strokeWidth: 3,
+                                                          ),
                                                         ),
+                                                        const SizedBox(height: 8),
+                                                        Text(
+                                                          '${uploadState.progress.toStringAsFixed(0)}%',
+                                                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                                                        ),
+                                                        const SizedBox(height: 4),
+                                                        const Text('Yuklanmoqda...', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 24),
+
+                                      // Name input
+                                      RichText(
+                                        text: const TextSpan(
+                                          text: 'Ism ',
+                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+                                          children: [
+                                            TextSpan(
+                                              text: '*',
+                                              style: TextStyle(color: Colors.red),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextFormField(
+                                        controller: _nameController,
+                                        decoration: InputDecoration(
+                                          hintText: 'Mijozni ismini kiriting...',
+                                          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                                          filled: true,
+                                          fillColor: const Color(0xFFF8FAFC),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: const BorderSide(color: Colors.red),
+                                          ),
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Iltimos, ismni kiriting';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                      const SizedBox(height: 16),
+
+                                      // Phone input
+                                      RichText(
+                                        text: const TextSpan(
+                                          text: 'Tel raqami ',
+                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+                                          children: [
+                                            TextSpan(
+                                              text: '*',
+                                              style: TextStyle(color: Colors.red),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextFormField(
+                                        controller: _phoneController,
+                                        keyboardType: TextInputType.phone,
+                                        inputFormatters: [maskFormatter1],
+                                        decoration: InputDecoration(
+                                          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                                          filled: true,
+                                          fillColor: const Color(0xFFF8FAFC),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: const BorderSide(color: Colors.red),
+                                          ),
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Iltimos, telefon raqamni kiriting';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                      const SizedBox(height: 16),
+
+                                      // Additional phone input
+                                      const Text(
+                                        'Qo\'shimcha tel raqami',
+                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextFormField(
+                                        controller: _additionalPhoneController,
+                                        keyboardType: TextInputType.phone,
+                                        inputFormatters: [maskFormatter2],
+                                        decoration: InputDecoration(
+                                          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                                          filled: true,
+                                          fillColor: const Color(0xFFF8FAFC),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: const BorderSide(color: Colors.red),
+                                          ),
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+
+                                      // Currency selector
+                                      BlocBuilder<CurrencyBloc, CurrencyState>(
+                                        builder: (context, currencyState) {
+                                          final currencies = currencyState.currencyModel?.result ?? [];
+                                          final isLoadingCurrencies = currencyState.status == Status.loading;
+
+                                          // Set initial currency based on partner's mainCurrencyTypeId
+                                          if (_selectedCurrency == null && widget.partnerModel.mainCurrencyTypeId != null) {
+                                            _selectedCurrency = currencies.firstWhere(
+                                              (currency) => currency.id == widget.partnerModel.mainCurrencyTypeId,
+                                              orElse: () => currencies.isNotEmpty ? currencies.first : Result(),
+                                            );
+                                          }
+
+                                          return Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              RichText(
+                                                text: const TextSpan(
+                                                  text: 'Valyuta ',
+                                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+                                                  children: [
+                                                    TextSpan(
+                                                      text: '*',
+                                                      style: TextStyle(color: Colors.red),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+
+                                              // Currency selector card
+                                              GestureDetector(
+                                                onTap: isLoadingCurrencies || currencies.isEmpty ? null : () => _showCurrencySelectionBottomSheet(currencies),
+                                                child: Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFFF8FAFC),
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      if (_selectedCurrency != null) const SizedBox(width: 12),
+
+                                                      // Currency name or placeholder
+                                                      Expanded(
+                                                        child: _selectedCurrency != null
+                                                            ? Text(
+                                                                _selectedCurrency!.name ?? '',
+                                                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                                                              )
+                                                            : Text(isLoadingCurrencies ? 'Yuklanmoqda...' : 'Asosiy valyutani tanlang', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14)),
                                                       ),
-                                                      const SizedBox(height: 8),
-                                                      Text(
-                                                        '${uploadState.progress.toStringAsFixed(0)}%',
-                                                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-                                                      ),
-                                                      const SizedBox(height: 4),
-                                                      const Text('Yuklanmoqda...', style: TextStyle(color: Colors.white, fontSize: 12)),
+
+                                                      // Arrow icon
+                                                      Icon(Icons.arrow_forward_ios_rounded, size: 16, color: _selectedCurrency != null ? AppTheme.colors.primary : const Color(0xFF64748B)),
                                                     ],
                                                   ),
                                                 ),
                                               ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 24),
-
-                                    // Name input
-                                    RichText(
-                                      text: const TextSpan(
-                                        text: 'Ism ',
-                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
-                                        children: [
-                                          TextSpan(
-                                            text: '*',
-                                            style: TextStyle(color: Colors.red),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    TextFormField(
-                                      controller: _nameController,
-                                      decoration: InputDecoration(
-                                        hintText: 'Mijozni ismini kiriting...',
-                                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                                        filled: true,
-                                        fillColor: const Color(0xFFF8FAFC),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
-                                        ),
-                                        errorBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: Colors.red),
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Iltimos, ismni kiriting';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-
-                                    // Phone input
-                                    RichText(
-                                      text: const TextSpan(
-                                        text: 'Tel raqami ',
-                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
-                                        children: [
-                                          TextSpan(
-                                            text: '*',
-                                            style: TextStyle(color: Colors.red),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    TextFormField(
-                                      controller: _phoneController,
-                                      keyboardType: TextInputType.phone,
-                                      inputFormatters: [maskFormatter1],
-                                      decoration: InputDecoration(
-                                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                                        filled: true,
-                                        fillColor: const Color(0xFFF8FAFC),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
-                                        ),
-                                        errorBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: Colors.red),
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Iltimos, telefon raqamni kiriting';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-
-                                    // Additional phone input
-                                    const Text(
-                                      'Qo\'shimcha tel raqami',
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    TextFormField(
-                                      controller: _additionalPhoneController,
-                                      keyboardType: TextInputType.phone,
-                                      inputFormatters: [maskFormatter2],
-                                      decoration: InputDecoration(
-                                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                                        filled: true,
-                                        fillColor: const Color(0xFFF8FAFC),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
-                                        ),
-                                        errorBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: Colors.red),
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-
-                                    // Currency selector
-                                    BlocBuilder<CurrencyBloc, CurrencyState>(
-                                      builder: (context, currencyState) {
-                                        final currencies = currencyState.currencyModel?.result ?? [];
-                                        final isLoadingCurrencies = currencyState.status == Status.loading;
-
-                                        // Set initial currency based on partner's mainCurrencyTypeId
-                                        if (_selectedCurrency == null && widget.partnerModel.mainCurrencyTypeId != null) {
-                                          _selectedCurrency = currencies.firstWhere(
-                                            (currency) => currency.id == widget.partnerModel.mainCurrencyTypeId,
-                                            orElse: () => currencies.isNotEmpty ? currencies.first : Result(),
+                                            ],
                                           );
-                                        }
-
-                                        return Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            RichText(
-                                              text: const TextSpan(
-                                                text: 'Valyuta ',
-                                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
-                                                children: [
-                                                  TextSpan(
-                                                    text: '*',
-                                                    style: TextStyle(color: Colors.red),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(height: 8),
-
-                                            // Currency selector card
-                                            GestureDetector(
-                                              onTap: isLoadingCurrencies || currencies.isEmpty ? null : () => _showCurrencySelectionBottomSheet(currencies),
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                                decoration: BoxDecoration(
-                                                  color: const Color(0xFFF8FAFC),
-                                                  borderRadius: BorderRadius.circular(12),
-                                                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    if (_selectedCurrency != null) const SizedBox(width: 12),
-
-                                                    // Currency name or placeholder
-                                                    Expanded(
-                                                      child: _selectedCurrency != null
-                                                          ? Text(
-                                                              _selectedCurrency!.name ?? '',
-                                                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-                                                            )
-                                                          : Text(isLoadingCurrencies ? 'Yuklanmoqda...' : 'Asosiy valyutani tanlang', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14)),
-                                                    ),
-
-                                                    // Arrow icon
-                                                    Icon(Icons.arrow_forward_ios_rounded, size: 16, color: _selectedCurrency != null ? AppTheme.colors.primary : const Color(0xFF64748B)),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                    const SizedBox(height: 24),
-
-                                    // Submit button
-                                    SizedBox(
-                                      width: double.infinity,
-                                      height: 52,
-                                      child: ElevatedButton(
-                                        onPressed: _handleSubmit,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppTheme.colors.primary,
-                                          foregroundColor: Colors.white,
-                                          disabledBackgroundColor: const Color(0xFF6366F1).withValues(alpha: 0.6),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                          elevation: 0,
-                                        ),
-                                        child: const Text('Mijoz tahrirlash', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                        },
                                       ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                  ],
-                                ),
-                                if (state.statusAdd == Status.loading)
-                                  Padding(
-                                    padding: EdgeInsets.only(top: (MediaQuery.of(context).size.height / 3)),
-                                    child: Loading(),
+                                      const SizedBox(height: 24),
+
+                                      // Submit button
+                                      SizedBox(
+                                        width: double.infinity,
+                                        height: 52,
+                                        child: ElevatedButton(
+                                          onPressed: _handleSubmit,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppTheme.colors.primary,
+                                            foregroundColor: Colors.white,
+                                            disabledBackgroundColor: const Color(0xFF6366F1).withValues(alpha: 0.6),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                            elevation: 0,
+                                          ),
+                                          child: const Text('Mijoz tahrirlash', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                    ],
                                   ),
-                              ],
+                                  if (state.statusAdd == Status.loading)
+                                    Padding(
+                                      padding: EdgeInsets.only(top: (MediaQuery.of(context).size.height / 3)),
+                                      child: Loading(),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
-              ));
+              );
             },
           );
         },
