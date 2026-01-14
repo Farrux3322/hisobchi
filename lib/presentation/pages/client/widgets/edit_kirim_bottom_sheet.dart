@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_event.dart';
@@ -11,11 +10,18 @@ import 'package:hisobchi/application/file_upload/file_upload_state.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/income_history_model.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
+import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+
+import 'edit_kirim_components/edit_kirim_header.dart';
+import 'edit_kirim_components/edit_kirim_inputs.dart';
+import 'edit_kirim_components/edit_kirim_image_picker.dart';
+import 'edit_kirim_components/edit_kirim_footer.dart';
 
 /// Edit mode enum for better state management
 enum EditMode {
@@ -33,42 +39,6 @@ class EditKirimBottomSheetContent extends StatefulWidget {
   State<EditKirimBottomSheetContent> createState() => _EditKirimBottomSheetContentState();
 }
 
-class _ImageUploadItem {
-  File? file;
-  int? uploadedId;
-  String? existingUrl; // Mavjud rasm URL
-  bool isUploading;
-  double progress;
-
-  _ImageUploadItem({this.file, this.uploadedId, this.existingUrl, this.isUploading = false, this.progress = 0});
-}
-
-class _NumberInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    // Remove all non-digits
-    final cleanText = newValue.text.replaceAll(RegExp(r'\D'), '');
-
-    if (cleanText.isEmpty) {
-      return newValue.copyWith(text: '', selection: const TextSelection.collapsed(offset: 0));
-    }
-
-    // Format with spaces every 3 digits from right
-    final reversed = cleanText.split('').reversed.join();
-    final chunks = <String>[];
-    for (var i = 0; i < reversed.length; i += 3) {
-      final end = i + 3;
-      chunks.add(reversed.substring(i, end > reversed.length ? reversed.length : end));
-    }
-    final formatted = chunks.join(' ').split('').reversed.join();
-
-    // Keep cursor at end
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
-  }
-}
 
 class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetContent> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
@@ -91,7 +61,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
   bool get isEditing => _currentMode == EditMode.editing;
 
   // 3 tagacha rasm uchun list
-  final List<_ImageUploadItem> _images = [_ImageUploadItem(), _ImageUploadItem(), _ImageUploadItem()];
+  final List<ImageUploadItem> _images = [ImageUploadItem(), ImageUploadItem(), ImageUploadItem()];
 
   int? _currentUploadingIndex;
 
@@ -129,16 +99,20 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
 
   String _formatNumber(String value) {
     if (value.isEmpty) return '';
-    // Remove all spaces first
     final cleanValue = value.replaceAll(' ', '');
-    // Format with spaces every 3 digits from right
-    final reversed = cleanValue.split('').reversed.join();
+    final parts = cleanValue.split('.');
+    final integerPart = parts[0];
+    final decimalPart = parts.length > 1 ? parts[1] : null;
+
+    final reversed = integerPart.split('').reversed.join();
     final chunks = <String>[];
     for (var i = 0; i < reversed.length; i += 3) {
       final end = i + 3;
       chunks.add(reversed.substring(i, end > reversed.length ? reversed.length : end));
     }
-    return chunks.join(' ').split('').reversed.join();
+    String formattedInteger = chunks.join(' ').split('').reversed.join();
+
+    return decimalPart != null ? '$formattedInteger.$decimalPart' : formattedInteger;
   }
 
   void _loadInitialValues() {
@@ -164,9 +138,9 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
     // Mavjud rasmlar
     final existingFiles = widget.transaction.files ?? [];
     for (int i = 0; i < existingFiles.length && i < 3; i++) {
-      _images[i] = _ImageUploadItem(
+      _images[i] = ImageUploadItem(
         existingUrl: existingFiles[i].url,
-        uploadedId: null, // Existing files don't have uploadedId yet
+        id: existingFiles[i].id, // Use existing file ID
       );
     }
   }
@@ -188,7 +162,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(primary: isKirim ? AppTheme.colors.color3CC293 : AppTheme.colors.colorDE5050, onPrimary: Colors.white, surface: Colors.white, onSurface: Colors.black),
+            colorScheme: ColorScheme.light(primary: AppTheme.colors.primary, onPrimary: Colors.white, surface: Colors.white, onSurface: Colors.black),
           ),
           child: child!,
         );
@@ -274,7 +248,140 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
     );
   }
 
-  Widget _buildImageSourceOption({required IconData icon, required String title, required String subtitle, required Color color, required VoidCallback onTap}) {
+
+  void _removeImage(int index) {
+    setState(() {
+      _images.removeAt(index);
+      _images.add(ImageUploadItem());
+
+      // Update uploading index if needed
+      if (_currentUploadingIndex == index) {
+        _currentUploadingIndex = null;
+      } else if (_currentUploadingIndex != null && _currentUploadingIndex! > index) {
+        _currentUploadingIndex = _currentUploadingIndex! - 1;
+      }
+    });
+  }
+
+  Future<void> _pickImage(ImageSource source, int index) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: source, maxWidth: 1024, maxHeight: 1024, imageQuality: 85);
+
+      if (pickedFile != null) {
+        final imageFile = File(pickedFile.path);
+        setState(() {
+          _images[index].file = imageFile;
+          _images[index].id = null; // Clear old ID
+          _images[index].existingUrl = null; // Clear existing URL
+          _images[index].isUploading = true;
+          _currentUploadingIndex = index;
+        });
+
+        if (mounted) {
+          context.read<FileUploadBloc>().add(UploadFileEvent(file: imageFile, type: 'transaction'));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xatolik: ${e.toString()}'), backgroundColor: Colors.red));
+      }
+    }
+  }
+
+  void _showFullScreenImage(int initialIndex) {
+    // Collect all valid images (either local file or existing URL)
+    final List<ImageItem> imageItems = [];
+    final Map<int, int> listToSlotIndex = {};
+
+    for (int i = 0; i < _images.length; i++) {
+      final img = _images[i];
+      if (img.file != null) {
+        listToSlotIndex[imageItems.length] = i;
+        imageItems.add(ImageItem(path: img.file!.path, isNetwork: false));
+      } else if (img.existingUrl != null) {
+        listToSlotIndex[imageItems.length] = i;
+        imageItems.add(ImageItem(path: img.existingUrl!, isNetwork: true));
+      }
+    }
+
+    if (imageItems.isEmpty) return;
+
+    // Find the current index in the filtered list
+    int filteredInitialIndex = 0;
+    for (var entry in listToSlotIndex.entries) {
+      if (entry.value == initialIndex) {
+        filteredInitialIndex = entry.key;
+        break;
+      }
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (context) => ImageViewerPage(
+          images: imageItems,
+          initialIndex: filteredInitialIndex,
+          onDelete: (index, item) {
+            final slotIndex = listToSlotIndex[index];
+            if (slotIndex != null) {
+              if (!isEditing) {
+                setState(() => _currentMode = EditMode.editing);
+              }
+              _removeImage(slotIndex);
+              Navigator.of(context).pop();
+            }
+          },
+          onUpdate: (index, item) {
+            final slotIndex = listToSlotIndex[index];
+            if (slotIndex != null) {
+              if (!isEditing) {
+                setState(() => _currentMode = EditMode.editing);
+              }
+              Navigator.of(context).pop();
+              _showImageSourceDialog(slotIndex);
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  void _handleSubmit() {
+    if (!_formKey.currentState!.validate()) return;
+
+    // Yuklangan rasmlar ID larini olish
+    final uploadedImageIds = _images.where((img) => img.id != null).map((img) => img.id!).toList();
+
+    // Remove spaces from amount before sending
+    final cleanAmount = _amountController.text.replaceAll(' ', '');
+
+    final data = {
+      'partner_id': widget.transaction.partnerId,
+      'currency_type_id': _selectedCurrencyId,
+      'summa': cleanAmount,
+      'description': _descriptionController.text.isEmpty ? null : _descriptionController.text,
+      'file_id': uploadedImageIds.isEmpty ? [] : uploadedImageIds,
+      'return_date': _selectedDate?.toIso8601String(),
+      'type': isKirim ? 'debt' : 'credit',
+    };
+
+    context.read<PartnerBloc>().add(UpdateKirim(data: data, id: widget.transaction.id ?? 0));
+  }
+
+  bool _canPickImage(int index) {
+    // Birinchi rasmni doim tanlash mumkin
+    if (index == 0) return true;
+    // Keyingi rasmlarni faqat oldingisi yuklangan yoki mavjud bo'lsa tanlash mumkin
+    return _images[index - 1].id != null || _images[index - 1].existingUrl != null;
+  }
+
+  Widget _buildImageSourceOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -295,7 +402,7 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
               Container(
                 width: 56.w,
                 height: 56.h,
-                decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14.r)),
+                decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(14.r)),
                 child: Icon(icon, color: color, size: 28.sp),
               ),
               SizedBox(width: 16.w),
@@ -323,74 +430,13 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
     );
   }
 
-  void _removeImage(int index) {
-    setState(() {
-      for (int i = index; i < _images.length; i++) {
-        _images[i] = _ImageUploadItem();
-      }
-    });
-  }
-
-  Future<void> _pickImage(ImageSource source, int index) async {
-    try {
-      final XFile? pickedFile = await _picker.pickImage(source: source, maxWidth: 1024, maxHeight: 1024, imageQuality: 85);
-
-      if (pickedFile != null) {
-        final imageFile = File(pickedFile.path);
-        setState(() {
-          _images[index].file = imageFile;
-          _images[index].existingUrl = null; // Clear existing URL
-          _images[index].isUploading = true;
-          _currentUploadingIndex = index;
-        });
-
-        if (mounted) {
-          context.read<FileUploadBloc>().add(UploadFileEvent(file: imageFile, type: 'transaction'));
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xatolik: ${e.toString()}'), backgroundColor: Colors.red));
-      }
-    }
-  }
-
-  void _handleSubmit() {
-    if (!_formKey.currentState!.validate()) return;
-
-    // Yuklangan rasmlar ID larini olish
-    final uploadedImageIds = _images.where((img) => img.uploadedId != null).map((img) => img.uploadedId!).toList();
-
-    // Remove spaces from amount before sending
-    final cleanAmount = _amountController.text.replaceAll(' ', '');
-
-    final data = {
-      'partner_id': widget.transaction.partnerId,
-      'currency_type_id': _selectedCurrencyId,
-      'summa': cleanAmount,
-      'description': _descriptionController.text.isEmpty ? null : _descriptionController.text,
-      if (uploadedImageIds.isNotEmpty) 'file_id': uploadedImageIds,
-      'return_date': _selectedDate?.toIso8601String(),
-      'type': isKirim ? 'debt' : 'credit',
-    };
-
-    context.read<PartnerBloc>().add(UpdateKirim(data: data, id: widget.transaction.id ?? 0));
-  }
-
-  bool _canPickImage(int index) {
-    // Birinchi rasmni doim tanlash mumkin
-    if (index == 0) return true;
-    // Keyingi rasmlarni faqat oldingisi yuklangan yoki mavjud bo'lsa tanlash mumkin
-    return _images[index - 1].uploadedId != null || _images[index - 1].existingUrl != null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<FileUploadBloc, FileUploadState>(
       listener: (context, state) {
         if (state.status == FileUploadStatus.success && _currentUploadingIndex != null) {
           setState(() {
-            _images[_currentUploadingIndex!].uploadedId = state.uploadedFileId;
+            _images[_currentUploadingIndex!].id = state.uploadedFileId;
             _images[_currentUploadingIndex!].isUploading = false;
             _images[_currentUploadingIndex!].progress = 100;
             _currentUploadingIndex = null;
@@ -398,9 +444,9 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
         } else if (state.status == FileUploadStatus.failure && _currentUploadingIndex != null) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('Rasm yuklashda xatolik: ${state.errorMessage ?? "Noma'lum xatolik"}'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
+          ).showSnackBar(SnackBar(content: Text('Rasm yuklashda xatolik: ${state.errorMessage ?? "Noma\'lum xatolik"}'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
           setState(() {
-            _images[_currentUploadingIndex!] = _ImageUploadItem();
+            _images[_currentUploadingIndex!] = ImageUploadItem();
             _currentUploadingIndex = null;
           });
         } else if (state.status == FileUploadStatus.uploading && _currentUploadingIndex != null) {
@@ -441,405 +487,36 @@ class _EditKirimBottomSheetContentState extends State<EditKirimBottomSheetConten
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Handle
-                                Center(
-                                  child: Container(
-                                    width: 62,
-                                    height: 8,
-                                    decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(10)),
-                                  ),
+                                EditKirimHeader(
+                                  isKirim: isKirim,
+                                  isEditing: isEditing,
+                                  onToggleEdit: _toggleEditMode,
                                 ),
                                 const SizedBox(height: 24),
-
-                                // Title with Edit Button
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      isKirim ? 'Kirim ma\'lumotlari' : 'Chiqim ma\'lumotlari',
-                                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-                                    ),
-                                    // Edit/Cancel Button with animation
-                                    Material(
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                        onTap: _toggleEditMode,
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                          decoration: BoxDecoration(
-                                            // color: isEditing ? const Color(0xFFEF4444).withValues(alpha: 0.1) : AppTheme.colors.primary.withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(10),
-                                            border: Border.all(color: AppTheme.colors.primary, width: 1),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(isEditing ? Icons.close_rounded : Icons.edit, size: 18, color: AppTheme.colors.primary),
-                                              const SizedBox(width: 6),
-                                              Text(isEditing ? 'Bekor qilish' : 'Tahrirlash', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 24),
-
-                                // Amount and Currency
-                                RichText(
-                                  text: const TextSpan(
-                                    text: 'Miqdor ',
-                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
-                                    children: [
-                                      TextSpan(
-                                        text: '*',
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-
-                                // Amount input and Currency dropdown in row
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Amount input
-                                    Expanded(
-                                      flex: 5,
-                                      child: TextFormField(
-                                        controller: _amountController,
-                                        enabled: isEditing,
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [_NumberInputFormatter()],
-                                        decoration: InputDecoration(
-                                          hintText: 'Miqdorni kiriting',
-                                          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                                          filled: true,
-                                          fillColor: const Color(0xFFF8FAFC),
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
-                                          ),
-                                          errorBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            borderSide: const BorderSide(color: Colors.red),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                        ),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Iltimos, miqdorni kiriting';
-                                          }
-                                          // Remove spaces for validation
-                                          final cleanValue = value.replaceAll(' ', '');
-                                          if (int.tryParse(cleanValue) == null) {
-                                            return 'Faqat butun sonlar';
-                                          }
-                                          if (int.parse(cleanValue) <= 0) {
-                                            return 'Miqdor 0 dan katta bo\'lishi kerak';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-
-                                    // Currency dropdown - Dynamic from API
-                                    Expanded(
-                                      flex: 2,
-                                      child: BlocBuilder<CurrencyBloc, CurrencyState>(
-                                        builder: (context, currencyState) {
-                                          final currencies = currencyState.currencyModel?.result ?? [];
-
-                                          // Agar currencies bo'sh bo'lsa, default qiymat
-                                          if (currencies.isEmpty) {
-                                            return DropdownButtonFormField<int>(
-                                              initialValue: _selectedCurrencyId,
-                                              isExpanded: true,
-                                              focusColor: Theme.of(context).scaffoldBackgroundColor,
-                                              borderRadius: BorderRadius.circular(12.r),
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: const Color(0xFFF8FAFC),
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(12),
-                                                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                                ),
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(12),
-                                                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                                ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(12),
-                                                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                                ),
-                                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                              ),
-                                              icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.colors.primary),
-                                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-                                              dropdownColor: Colors.white,
-                                              items: const [
-                                                DropdownMenuItem(value: 1, child: Text('UZS')),
-                                                DropdownMenuItem(value: 2, child: Text('USD')),
-                                              ],
-                                              onChanged: isEditing
-                                                  ? (value) {
-                                                      if (value != null) {
-                                                        setState(() {
-                                                          _selectedCurrencyId = value;
-                                                        });
-                                                      }
-                                                    }
-                                                  : null,
-                                            );
-                                          }
-
-                                          return DropdownButtonFormField<int>(
-                                            initialValue: _selectedCurrencyId,
-                                            isExpanded: true,
-                                            focusColor: Theme.of(context).scaffoldBackgroundColor,
-                                            borderRadius: BorderRadius.circular(12.r),
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: const Color(0xFFF8FAFC),
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                              ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                              ),
-                                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                            ),
-                                            icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.colors.primary),
-                                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-                                            dropdownColor: Colors.white,
-                                            items: currencies.map((currency) => DropdownMenuItem<int>(value: currency.id, child: Text(currency.name ?? ''))).toList(),
-                                            onChanged: isEditing
-                                                ? (value) {
-                                                    if (value != null) {
-                                                      setState(() {
-                                                        _selectedCurrencyId = value;
-                                                      });
-                                                    }
-                                                  }
-                                                : null,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                if (!isKirim) const SizedBox(height: 10),
-
-                                if (!isKirim)
-                                  const Text(
-                                    'Qaytarish sanasi',
-                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
-                                  ),
-                                if (!isKirim) const SizedBox(height: 8),
-                                if (!isKirim)
-                                  GestureDetector(
-                                    onTap: isEditing ? _selectDate : null,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF8FAFC),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.calendar_today_outlined, color: AppTheme.colors.primary, size: 20),
-                                          const SizedBox(width: 12),
-                                          Text(
-                                            _selectedDate == null ? 'Sanani tanlang' : DateFormat('dd MMM yyyy').format(_selectedDate!),
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: _selectedDate == null ? const Color(0xFF94A3B8) : const Color(0xFF1E293B),
-                                              fontWeight: _selectedDate == null ? FontWeight.w400 : FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                const SizedBox(height: 20),
-
-                                // Description
-                                const Text(
-                                  'Izoh',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
-                                ),
-                                const SizedBox(height: 8),
-                                TextFormField(
-                                  controller: _descriptionController,
-                                  enabled: isEditing,
-                                  maxLines: 3,
-                                  decoration: InputDecoration(
-                                    hintText: 'Izoh qoldiring (ixtiyoriy)',
-                                    hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                                    filled: true,
-                                    fillColor: const Color(0xFFF8FAFC),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: isKirim ? AppTheme.colors.color3CC293 : AppTheme.colors.colorDE5050, width: 2),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                  ),
+                                EditKirimInputs(
+                                  isEditing: isEditing,
+                                  isKirim: isKirim,
+                                  amountController: _amountController,
+                                  descriptionController: _descriptionController,
+                                  selectedCurrencyId: _selectedCurrencyId,
+                                  onCurrencyChanged: (val) {
+                                    if (val != null) setState(() => _selectedCurrencyId = val);
+                                  },
+                                  selectedDate: _selectedDate,
+                                  onSelectDate: _selectDate,
                                 ),
                                 const SizedBox(height: 20),
-
-                                // Multiple images upload
-                                const Text(
-                                  'Rasmlar',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+                                EditKirimImagePicker(
+                                  images: _images,
+                                  isEditing: isEditing,
+                                  onAddImage: _showImageSourceDialog,
+                                  onViewImage: _showFullScreenImage,
                                 ),
-                                const SizedBox(height: 8),
-
-                                // 3 ta rasm uchun row
-                                Row(
-                                  children: List.generate(3, (index) {
-                                    final imageItem = _images[index];
-                                    final canPick = _canPickImage(index);
-                                    final isUploading = imageItem.isUploading;
-                                    final hasImage = imageItem.file != null || imageItem.existingUrl != null;
-
-                                    return Expanded(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          if (canPick && !isUploading && isEditing) {
-                                            _showImageSourceDialog(index);
-                                          }
-                                        },
-                                        child: Container(
-                                          height: 100,
-                                          margin: EdgeInsets.only(right: index < 2 ? 12 : 0),
-                                          decoration: BoxDecoration(
-                                            color: canPick ? Colors.white : const Color(0xFFF9FAFB),
-                                            borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(color: canPick ? AppTheme.colors.primary : const Color(0xFFE2E8F0), width: 2),
-                                          ),
-                                          child: hasImage
-                                              ? Stack(
-                                                  children: [
-                                                    ClipRRect(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                      child: imageItem.file != null
-                                                          ? Image.file(imageItem.file!, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
-                                                          : Image.network(
-                                                              imageItem.existingUrl!,
-                                                              fit: BoxFit.cover,
-                                                              width: double.infinity,
-                                                              height: double.infinity,
-                                                              errorBuilder: (context, error, stackTrace) {
-                                                                return const Center(child: Icon(Icons.broken_image_outlined, color: Color(0xFF94A3B8), size: 32));
-                                                              },
-                                                              loadingBuilder: (context, child, loadingProgress) {
-                                                                if (loadingProgress == null) return child;
-                                                                return Center(
-                                                                  child: CircularProgressIndicator(
-                                                                    color: AppTheme.colors.primary,
-                                                                    value: loadingProgress.expectedTotalBytes != null
-                                                                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                                                        : null,
-                                                                    strokeWidth: 1,
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ),
-                                                    ),
-                                                    if (isUploading)
-                                                      Positioned.fill(
-                                                        child: Container(
-                                                          decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(10)),
-                                                          child: Column(
-                                                            mainAxisAlignment: MainAxisAlignment.center,
-                                                            children: [
-                                                              SizedBox(
-                                                                width: 30,
-                                                                height: 30,
-                                                                child: CircularProgressIndicator(
-                                                                  value: imageItem.progress / 100,
-                                                                  backgroundColor: Colors.white.withValues(alpha: 0.3),
-                                                                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                                                                  strokeWidth: 3,
-                                                                ),
-                                                              ),
-                                                              const SizedBox(height: 4),
-                                                              Text(
-                                                                '${imageItem.progress.toStringAsFixed(0)}%',
-                                                                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    if (!isUploading && (imageItem.uploadedId != null || imageItem.existingUrl != null))
-                                                      Positioned(
-                                                        top: 4,
-                                                        right: 4,
-                                                        child: Container(
-                                                          padding: const EdgeInsets.all(4),
-                                                          decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
-                                                          child: const Icon(Icons.check, color: Colors.white, size: 12),
-                                                        ),
-                                                      ),
-                                                  ],
-                                                )
-                                              : Column(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: canPick ? [SvgPicture.asset(AppIcons.photo, colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn))] : [],
-                                                ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
+                                EditKirimFooter(
+                                  isEditing: isEditing,
+                                  isKirim: isKirim,
+                                  onSubmit: _handleSubmit,
                                 ),
-                                const SizedBox(height: 24),
-
-                                // Submit button - Only visible in edit mode
-                                if (isEditing) ...[
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 52,
-                                    child: ElevatedButton(
-                                      onPressed: _handleSubmit,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppTheme.colors.primary,
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                        elevation: 0,
-                                      ),
-                                      child: Text(isKirim ? 'Saqlash' : 'Saqlash', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                ],
                               ],
                             ),
                           ),

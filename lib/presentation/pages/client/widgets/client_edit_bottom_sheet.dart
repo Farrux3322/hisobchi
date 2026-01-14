@@ -734,18 +734,23 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
           }
 
           return DraggableScrollableSheet(
-            initialChildSize: 0.99,
+            initialChildSize: 0.9,
             minChildSize: 0.8,
-            maxChildSize: 0.99,
+            maxChildSize: 0.95,
+            expand: false,
             builder: (BuildContext context, ScrollController scrollController) {
-              return GestureDetector(
-                onTap: () => FocusScope.of(context).unfocus(),
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                  child: BlocConsumer<PartnerBloc, PartnerState>(
+              return Focus(
+                onFocusChange: (hasFocus) {
+                  if (!hasFocus) FocusScope.of(context).unfocus();
+                },
+                child: GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
+                    child: BlocConsumer<PartnerBloc, PartnerState>(
                     listener: (context, state) {
                       if (state.statusAdd == Status.success) {
                         Navigator.pop(context, true);
@@ -1086,7 +1091,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                     },
                   ),
                 ),
-              );
+              ));
             },
           );
         },

@@ -16,31 +16,44 @@ import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-// Number formatter - raqamlarni space bilan ajratadi
-class NumberTextInputFormatter extends TextInputFormatter {
+// Number formatter - raqamlarni space bilan ajratadi va kasr sonlarni qo'llab-quvvatlaydi
+class DecimalTextInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     if (newValue.text.isEmpty) {
       return newValue;
     }
 
-    // Faqat raqamlarni qoldirish
-    final digitsOnly = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-
-    if (digitsOnly.isEmpty) {
-      return const TextEditingValue();
+    // Faqat raqamlar va bitta nuqtani qoldirish
+    String baseText = newValue.text.replaceAll(' ', '');
+    
+    // Agar birdan ortiq nuqta bo'lsa, faqat birinchisini qoldirish
+    if (baseText.split('.').length > 2) {
+      baseText = oldValue.text.replaceAll(' ', '');
     }
 
-    // Raqamlarni 3 tadan space bilan ajratish
+    // Faqat raqamlar va nuqta ekanligini tekshirish
+    if (!RegExp(r'^\d*\.?\d*$').hasMatch(baseText)) {
+      return oldValue;
+    }
+
+    final parts = baseText.split('.');
+    String integerPart = parts[0];
+    String? decimalPart = parts.length > 1 ? parts[1] : null;
+
+    // Butun qismni 3 tadan space bilan ajratish
     final buffer = StringBuffer();
-    for (int i = 0; i < digitsOnly.length; i++) {
-      if (i > 0 && (digitsOnly.length - i) % 3 == 0) {
+    for (int i = 0; i < integerPart.length; i++) {
+      if (i > 0 && (integerPart.length - i) % 3 == 0) {
         buffer.write(' ');
       }
-      buffer.write(digitsOnly[i]);
+      buffer.write(integerPart[i]);
     }
 
-    final formattedText = buffer.toString();
+    String formattedText = buffer.toString();
+    if (decimalPart != null) {
+      formattedText += '.$decimalPart';
+    }
 
     return TextEditingValue(
       text: formattedText,
@@ -375,8 +388,8 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                       flex: 3,
                                       child: TextFormField(
                                         controller: _amountController,
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [NumberTextInputFormatter()],
+                                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                        inputFormatters: [DecimalTextInputFormatter()],
                                         decoration: InputDecoration(
                                           hintText: 'Miqdorni kiriting',
                                           hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
@@ -405,11 +418,12 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                             return 'Iltimos, miqdorni kiriting';
                                           }
                                           // Space larni olib validatsiya qilish
-                                          final digitsOnly = value.replaceAll(' ', '');
-                                          if (int.tryParse(digitsOnly) == null) {
-                                            return 'Faqat butun sonlar';
+                                          final cleanValue = value.replaceAll(' ', '');
+                                          final parsedValue = double.tryParse(cleanValue);
+                                          if (parsedValue == null) {
+                                            return 'Faqat son kiritish mumkin';
                                           }
-                                          if (int.parse(digitsOnly) <= 0) {
+                                          if (parsedValue <= 0) {
                                             return 'Miqdor 0 dan katta bo\'lishi kerak';
                                           }
                                           return null;
@@ -541,7 +555,7 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                 const SizedBox(height: 8),
                                 TextFormField(
                                   controller: _descriptionController,
-                                  maxLines: 1,
+                                  maxLines: null,
                                   decoration: InputDecoration(
                                     hintText: 'Izoh qoldiring (ixtiyoriy)',
                                     hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),

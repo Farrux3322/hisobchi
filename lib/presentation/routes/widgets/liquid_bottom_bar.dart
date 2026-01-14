@@ -8,6 +8,7 @@ class LiquidBottomBar extends StatelessWidget {
   final double pageOffset;
   final Function(int) onItemSelected;
   final List<LiquidTabItem> items;
+  final bool isDragging;
   final Function(DragUpdateDetails)? onHorizontalDragUpdate;
   final Function(DragEndDetails)? onHorizontalDragEnd;
   final Function(DragStartDetails)? onHorizontalDragStart;
@@ -17,6 +18,7 @@ class LiquidBottomBar extends StatelessWidget {
     required this.pageOffset,
     required this.onItemSelected,
     required this.items,
+    this.isDragging = false,
     this.onHorizontalDragUpdate,
     this.onHorizontalDragEnd,
     this.onHorizontalDragStart,
@@ -57,28 +59,45 @@ class LiquidBottomBar extends StatelessWidget {
                 -1.0 + (pageOffset * (2.0 / (items.length - 1))),
                 0,
               ),
-              child: Container(
-                width: (MediaQuery.of(context).size.width - 40.w) / items.length * 0.82,
-                height: 54.h,
-                margin: EdgeInsets.symmetric(horizontal: 10.w),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppTheme.colors.primary,
-                      AppTheme.colors.primary.withValues(alpha: 0.85),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(28.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.colors.primary.withValues(alpha: 0.35),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0, end: 1),
+                duration: const Duration(milliseconds: 200),
+                builder: (context, value, child) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOutCubic,
+                    transform: Matrix4.identity()
+                      ..scale(isDragging ? 1.08 : 1.0), // Scale up only when dragging
+                    transformAlignment: Alignment.center,
+                    child: Transform.scale(
+                      // Subtle liquid grow effect during move
+                      scale: 1.0 + (0.04 * (1.0 - (pageOffset - pageOffset.round()).abs() * 2).clamp(0.0, 1.0)),
+                      child: Container(
+                        width: (MediaQuery.of(context).size.width - 40.w) / items.length * 0.84,
+                        height: 54.h,
+                        margin: EdgeInsets.symmetric(horizontal: 10.w),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppTheme.colors.primary,
+                              AppTheme.colors.primary.withValues(alpha: 0.85),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(28.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.colors.primary.withValues(alpha: 0.35),
+                              blurRadius: 18,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
             
@@ -99,18 +118,21 @@ class LiquidBottomBar extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Transform.scale(
-                          scale: 1.0 + (0.15 * t),
-                          child: SvgPicture.asset(
-                            item.icon,
-                            height: 22.sp,
-                            colorFilter: ColorFilter.mode(
-                              Color.lerp(const Color(0xFF94A3B8), Colors.white, t)!,
-                              BlendMode.srcIn,
+                        Transform.translate(
+                          offset: Offset(0, -4.h * t), // Pop up effect
+                          child: Transform.scale(
+                            scale: 1.0 + (0.22 * t), // Intensified scale
+                            child: SvgPicture.asset(
+                              item.icon,
+                              height: 20.sp,
+                              colorFilter: ColorFilter.mode(
+                                Color.lerp(const Color(0xFF94A3B8), Colors.white, t)!,
+                                BlendMode.srcIn,
+                              ),
                             ),
                           ),
                         ),
-                        SizedBox(height: 4.h),
+                        SizedBox(height: 2.h),
                         Text(
                           item.label,
                           style: TextStyle(

@@ -99,6 +99,7 @@ class _LiquidGlassShellState extends State<LiquidGlassShell> with SingleTickerPr
       body: widget.navigationShell, // Direct use of navigationShell preserves state (IndexedStack)
       bottomNavigationBar: LiquidBottomBar(
         pageOffset: _pageValue,
+        isDragging: _isDragging,
         onItemSelected: (index) {
           widget.navigationShell.goBranch(index);
         },
