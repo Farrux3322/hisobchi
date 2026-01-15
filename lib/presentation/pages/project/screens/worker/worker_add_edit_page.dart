@@ -65,10 +65,7 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
 
       // Edit holatda position ID va name dan WorkerPositionModel yaratamiz
       if (widget.worker!.workerPositionId != null) {
-        _selectedPosition = WorkerPositionModel(
-          id: widget.worker!.workerPositionId,
-          name: widget.worker!.workerPositionName,
-        );
+        _selectedPosition = WorkerPositionModel(id: widget.worker!.workerPositionId, name: widget.worker!.workerPositionName);
       }
 
       _uploadedFileIds = widget.worker!.files ?? [];
@@ -111,35 +108,27 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
 
       if (_isEditing) {
         context.read<WorkerBloc>().add(
-              UpdateWorkerEvent(
-                workerId: widget.worker!.id!,
-                name: _nameController.text.trim(),
-                phone: _phoneController.text.trim(),
-                additionalPhone: _additionalPhoneController.text.trim().isEmpty
-                    ? null
-                    : _additionalPhoneController.text.trim(),
-                fileIds: _uploadedFileIds.isEmpty ? null : _uploadedFileIds,
-                workerPositionId: _selectedPosition!.id!,
-                description: _descriptionController.text.trim().isEmpty
-                    ? null
-                    : _descriptionController.text.trim(),
-              ),
-            );
+          UpdateWorkerEvent(
+            workerId: widget.worker!.id!,
+            name: _nameController.text.trim(),
+            phone: _maskFormatter1.getUnmaskedText(),
+            additionalPhone: _maskFormatter2.getUnmaskedText(),
+            fileIds: _uploadedFileIds.isEmpty ? null : _uploadedFileIds,
+            workerPositionId: _selectedPosition!.id!,
+            description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+          ),
+        );
       } else {
         context.read<WorkerBloc>().add(
-              CreateWorkerEvent(
-                name: _nameController.text.trim(),
-                phone: _phoneController.text.trim(),
-                additionalPhone: _additionalPhoneController.text.trim().isEmpty
-                    ? null
-                    : _additionalPhoneController.text.trim(),
-                fileIds: _uploadedFileIds.isEmpty ? null : _uploadedFileIds,
-                workerPositionId: _selectedPosition!.id!,
-                description: _descriptionController.text.trim().isEmpty
-                    ? null
-                    : _descriptionController.text.trim(),
-              ),
-            );
+          CreateWorkerEvent(
+            name: _nameController.text.trim(),
+            phone: _maskFormatter1.getUnmaskedText(),
+            additionalPhone: _maskFormatter2.getUnmaskedText(),
+            fileIds: _uploadedFileIds.isEmpty ? null : _uploadedFileIds,
+            workerPositionId: _selectedPosition!.id!,
+            description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+          ),
+        );
       }
     }
   }
@@ -155,30 +144,21 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
         leading: IconButton(
           icon: Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
             child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           _isEditing ? 'Ishchini tahrirlash' : 'Yangi ishchi',
-          style: const TextStyle(
-            color: Color(0xFF1E293B),
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+          style: const TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
       ),
       body: BlocConsumer<WorkerBloc, WorkerState>(
         listener: (context, state) {
           if (state.statusAction == Status.success) {
-            Toast.showSuccessToast(
-              message: _isEditing ? 'Ishchi yangilandi' : 'Ishchi yaratildi',
-            );
+            Toast.showSuccessToast(message: _isEditing ? 'Ishchi yangilandi' : 'Ishchi yaratildi');
             Navigator.pop(context, true);
           }
           if (state.statusAction == Status.error) {
@@ -238,13 +218,7 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
                       const SizedBox(height: 16),
                       _buildPositionSelector(),
                       const SizedBox(height: 16),
-                      _buildTextField(
-                        controller: _descriptionController,
-                        label: 'Izoh',
-                        hint: 'Qo\'shimcha ma\'lumot',
-                        icon: Icons.description_outlined,
-                        maxLines: 4,
-                      ),
+                      _buildTextField(controller: _descriptionController, label: 'Izoh', hint: 'Qo\'shimcha ma\'lumot', icon: Icons.description_outlined, maxLines: 4),
                       const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
@@ -255,17 +229,9 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
                             backgroundColor: AppTheme.colors.primary,
                             foregroundColor: Colors.white,
                             elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
-                          child: Text(
-                            _isEditing ? 'Saqlash' : 'Yaratish',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          child: Text(_isEditing ? 'Saqlash' : 'Yaratish', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                         ),
                       ),
                     ],
@@ -299,11 +265,7 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1E293B),
-          ),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
         ),
         const SizedBox(height: 8),
         TextFormField(
@@ -352,11 +314,7 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
       children: [
         const Text(
           'Lavozim*',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1E293B),
-          ),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
         ),
         const SizedBox(height: 8),
         GestureDetector(
@@ -373,15 +331,7 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
                 const Icon(Icons.work_outline, color: Color(0xFF64748B), size: 20),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    _selectedPosition?.name ?? 'Lavozimni tanlang',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: _selectedPosition == null
-                          ? const Color(0xFF94A3B8)
-                          : const Color(0xFF1E293B),
-                    ),
-                  ),
+                  child: Text(_selectedPosition?.name ?? 'Lavozimni tanlang', style: TextStyle(fontSize: 14, color: _selectedPosition == null ? const Color(0xFF94A3B8) : const Color(0xFF1E293B))),
                 ),
                 const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF64748B)),
               ],

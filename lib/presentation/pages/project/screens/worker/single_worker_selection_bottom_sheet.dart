@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gap/gap.dart';
 import 'package:hisobchi/application/worker/worker_bloc.dart';
 import 'package:hisobchi/application/worker/worker_event.dart';
 import 'package:hisobchi/application/worker/worker_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/worker_model.dart';
+import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_selection_bottom_sheet.dart';
@@ -65,15 +65,12 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
       enableDrag: true,
       builder: (bottomSheetContext) => BlocProvider.value(
         value: context.read<WorkerBloc>(),
-        child: WorkerSelectionBottomSheet(
-          projectId: widget.projectId,
-          isSelectionMode: true,
-        ),
+        child: WorkerSelectionBottomSheet(projectId: widget.projectId, isSelectionMode: true),
       ),
     );
 
     // Only close this bottom sheet if a worker was actually selected
-    if (result != null && result==true && mounted) {
+    if (result != null && result == true && mounted) {
       context.read<WorkerBloc>().add(GetProjectWorkersEvent(projectId: widget.projectId));
       // Navigator.pop(context, result);
     }
@@ -117,10 +114,7 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
                     child: Container(
                       width: 40,
                       height: 4,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE2E8F0),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+                      decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(2)),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -137,20 +131,17 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
                           icon: const Icon(Icons.close, color: Color(0xFF64748B)),
                           onPressed: () => Navigator.pop(context),
                         ),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Ishchi tanlash',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                            'Loyihaga biriktirilgan ishchilar',
+                            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                             textAlign: TextAlign.center,
                           ),
                         ),
                         IconButton(
                           icon: Container(
                             padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)]),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(8)),
                             child: const Icon(Icons.add, color: Colors.white, size: 20),
                           ),
                           onPressed: _openWorkerSelectionBottomSheet,
@@ -192,25 +183,20 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
                     child: state.status == Status.loading && _allWorkers.isEmpty
                         ? const Center(child: Loading())
                         : _filteredWorkers.isEmpty
-                            ? Padding(
-                              padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-                              child: _buildEmptyState(),
-                            )
-                            : ListView.separated(
-                                controller: scrollController,
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                itemCount: _filteredWorkers.length,
-                                separatorBuilder: (context, index) => const SizedBox(height: 12),
-                                itemBuilder: (context, index) {
-                                  final worker = _filteredWorkers[index];
-                                  return Column(
-                                    children: [
-                                      _buildWorkerItem(worker),
-                                      if (index == _filteredWorkers.length - 1) Gap(MediaQuery.of(context).padding.bottom + 10)
-                                    ],
-                                  );
-                                },
-                              ),
+                        ? Padding(
+                            padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+                            child: _buildEmptyState(),
+                          )
+                        : ListView.separated(
+                            controller: scrollController,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: _filteredWorkers.length,
+                            separatorBuilder: (context, index) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final worker = _filteredWorkers[index];
+                              return Column(children: [_buildWorkerItem(worker), if (index == _filteredWorkers.length - 1) Gap(MediaQuery.of(context).padding.bottom + 10)]);
+                            },
+                          ),
                   ),
                 ],
               ),
@@ -233,28 +219,15 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: const Color(0xFFE2E8F0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              )
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2))],
           ),
           child: Row(
             children: [
               Container(
                 height: 48,
                 width: 48,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF5B4FFF).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.person_outline,
-                  color: Color(0xFF5B4FFF),
-                  size: 24,
-                ),
+                decoration: BoxDecoration(color: const Color(0xFF5B4FFF).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                child: const Icon(Icons.person_outline, color: Color(0xFF5B4FFF), size: 24),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -263,11 +236,7 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
                   children: [
                     Text(
                       worker.name ?? '',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E293B),
-                      ),
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                     ),
                     const SizedBox(height: 4),
                     Row(
@@ -280,9 +249,7 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (worker.phone != null) ...[
-                            const Text(' • ', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
-                          ],
+                          if (worker.phone != null) ...[const Text(' • ', style: TextStyle(fontSize: 13, color: Color(0xFF64748B)))],
                         ],
                         if (worker.phone != null)
                           Flexible(

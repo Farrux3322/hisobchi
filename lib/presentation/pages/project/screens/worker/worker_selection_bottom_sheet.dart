@@ -97,8 +97,8 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
     //   final selectedWorker = _allWorkers.firstWhere((w) => w.id == _selectedWorkerIds.first);
     //   Navigator.pop(context, selectedWorker);
     // } else {
-      // Add multiple workers to project
-      context.read<WorkerBloc>().add(AddWorkersToProjectEvent(workerIds: _selectedWorkerIds.toList(), projectId: widget.projectId));
+    // Add multiple workers to project
+    context.read<WorkerBloc>().add(AddWorkersToProjectEvent(workerIds: _selectedWorkerIds.toList(), projectId: widget.projectId));
     // }
   }
 
@@ -120,7 +120,7 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
             if (state.statusAllWorkers == Status.error) {
               Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
             }
-            if (state.statusAction == Status.success ) {
+            if (state.statusAction == Status.success) {
               HapticFeedback.mediumImpact();
               Toast.showSuccessToast(message: '${_selectedWorkerIds.length} ta ishchi qo\'shildi');
               Navigator.pop(context, true);
@@ -163,15 +163,15 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                         Expanded(
                           child: Column(
                             children: [
-                              const Text(
-                                'Ishchi tanlash',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                              Text(
+                                'Ushbu loyihaga biriktirilmagan ishchilar',
+                                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                                 textAlign: TextAlign.center,
                               ),
                               if (_selectedWorkerIds.isNotEmpty)
                                 Text(
                                   '${_selectedWorkerIds.length} ta tanlandi',
-                                  style: const TextStyle(fontSize: 13, color: Color(0xFF5B4FFF), fontWeight: FontWeight.w500),
+                                  style:  TextStyle(fontSize: 13, color: AppTheme.colors.primary, fontWeight: FontWeight.w500),
                                 ),
                             ],
                           ),
@@ -196,7 +196,10 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                       decoration: InputDecoration(
                         hintText: 'Qidirish...',
                         hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                        prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                        prefixIcon:  Padding(
+                          padding:  EdgeInsets.only(left: 8.0,right: 4),
+                          child: Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                        ),
                         filled: true,
                         fillColor: const Color(0xFFF8FAFC),
                         border: OutlineInputBorder(
@@ -209,7 +212,7 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
+                          borderSide:  BorderSide(color: AppTheme.colors.primary, width: 2),
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
@@ -263,10 +266,10 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                           child: ElevatedButton(
                             onPressed: state.statusAction == Status.loading ? null : _submitSelectedWorkers,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF5B4FFF),
+                              backgroundColor: AppTheme.colors.primary,
                               foregroundColor: Colors.white,
                               elevation: 0,
-                              disabledBackgroundColor: const Color(0xFF5B4FFF).withValues(alpha: 0.5),
+                              disabledBackgroundColor: AppTheme.colors.primary.withValues(alpha: 0.5),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                             child: Row(
@@ -275,7 +278,7 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                                 if (state.statusAction == Status.loading)
                                   const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
                                 else
-                                  Text('Saqlash (${_selectedWorkerIds.length})', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                  Text('Loyihaga biriktirish (${_selectedWorkerIds.length})', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                               ],
                             ),
                           ),
@@ -300,7 +303,7 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFF5B4FFF).withValues(alpha: 0.05) : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? const Color(0xFF5B4FFF) : const Color(0xFFE2E8F0), width: isSelected ? 2 : 1),
+          border: Border.all(color: isSelected ? AppTheme.colors.primary : const Color(0xFFE2E8F0), width: isSelected ? 2 : 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: isSelected ? 0.05 : 0.02),
@@ -347,9 +350,9 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF5B4FFF) : Colors.transparent,
+                color: isSelected ? AppTheme.colors.primary : Colors.transparent,
                 shape: BoxShape.circle,
-                border: Border.all(color: isSelected ? const Color(0xFF5B4FFF) : const Color(0xFF94A3B8), width: 2),
+                border: Border.all(color: isSelected ? AppTheme.colors.primary : const Color(0xFF94A3B8), width: 2),
               ),
               child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 16) : null,
             ),

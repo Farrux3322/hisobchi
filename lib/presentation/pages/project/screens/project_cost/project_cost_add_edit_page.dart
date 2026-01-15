@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hisobchi/application/cost_type/cost_type_bloc.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
@@ -18,10 +19,15 @@ import 'package:hisobchi/infrastructure/models/project_cost_model.dart';
 import 'package:hisobchi/infrastructure/models/worker_model.dart';
 import 'package:hisobchi/infrastructure/repository/cost_type/cost_type_repository.dart';
 import 'package:hisobchi/infrastructure/repository/worker/worker_repository.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_cost/cost_type_bottom_sheet.dart';
+import 'package:hisobchi/presentation/pages/project/screens/project_cost/widgets/project_cost_inputs.dart';
+import 'package:hisobchi/presentation/pages/project/screens/project_cost/widgets/project_cost_image_picker.dart';
+import 'package:hisobchi/presentation/pages/project/screens/project_cost/widgets/project_cost_submit_button.dart';
+import 'package:hisobchi/presentation/pages/project/screens/project_cost/widgets/project_cost_type_selector.dart';
+import 'package:hisobchi/presentation/pages/project/screens/project_cost/widgets/project_cost_worker_selector.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/single_worker_selection_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -39,7 +45,6 @@ class ProjectCostAddEditPage extends StatefulWidget {
   State<ProjectCostAddEditPage> createState() => _ProjectCostAddEditPageState();
 }
 
-
 class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _summaController = TextEditingController();
@@ -52,10 +57,10 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
   CostTypeModel? _selectedCostType;
   WorkerModel? _selectedWorker;
   currency.Result? _selectedCurrency;
-  final List<ImageData> _images = [
-    ImageData(),
-    ImageData(),
-    ImageData(),
+  final List<ProjectCostImageData> _images = [
+    ProjectCostImageData(),
+    ProjectCostImageData(),
+    ProjectCostImageData(),
   ];
   bool _isEditing = false;
   final FocusNode _summaFocusNode = FocusNode();
@@ -63,11 +68,9 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
 
   String _formatNumber(String value) {
     if (value.isEmpty) return '';
-    // Remove all non-digits first
     final cleanValue = value.replaceAll(RegExp(r'\D'), '');
     if (cleanValue.isEmpty) return '';
 
-    // Format with spaces every 3 digits from right
     final reversed = cleanValue.split('').reversed.join();
     final chunks = <String>[];
     for (var i = 0; i < reversed.length; i += 3) {
@@ -82,7 +85,6 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
     super.initState();
     _isEditing = widget.cost != null;
 
-    // Animation setup
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -100,12 +102,10 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
     _animationController.forward();
 
     if (_isEditing) {
-      // Format summa with spaces
       final summa = widget.cost!.summa ?? '';
       _summaController.text = _formatNumber(summa);
       _descriptionController.text = widget.cost!.description ?? '';
 
-      // Set selected values from existing cost
       if (widget.cost!.costTypeId != null) {
         _selectedCostType = CostTypeModel(
           id: widget.cost!.costTypeId,
@@ -127,11 +127,9 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
         );
       }
 
-      // Load existing images if available
       _loadExistingImages();
     }
 
-    // Load currencies
     context.read<CurrencyBloc>().add(const GetCurrency());
   }
 
@@ -159,7 +157,6 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
     if (result != null && result is CostTypeModel && mounted) {
       setState(() {
         _selectedCostType = result;
-        // Reset worker selection if cost type doesn't require worker
         if (result.isWorkerJoin != true) {
           _selectedWorker = null;
         }
@@ -194,7 +191,6 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
         return;
       }
 
-      // Only validate worker if cost type requires worker join
       if (_selectedCostType!.isWorkerJoin == true && _selectedWorker == null) {
         Toast.showErrorToast(message: 'Ishchini tanlang');
         return;
@@ -211,7 +207,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       }
 
       final double summa = double.tryParse(_summaController.text.replaceAll(',', '').replaceAll(' ', '')) ?? 0;
-      final fileIds = _images.where((img) => img.fileId != null).map((img) => img.fileId!).toList();
+      final fileIds = _images.map((img) => img.fileId ?? img.existingId).whereType<int>().toList();
 
       if (_isEditing) {
         context.read<ProjectCostBloc>().add(
@@ -222,7 +218,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
                 currencyTypeId: _selectedCurrency!.id!,
                 summa: summa,
                 description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
-                fileId: fileIds.isEmpty ? null : fileIds,
+                fileId: fileIds.isEmpty ? [] : fileIds,
                 projectId: widget.projectId,
               ),
             );
@@ -234,7 +230,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
                 currencyTypeId: _selectedCurrency!.id!,
                 summa: summa,
                 description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
-                fileId: fileIds.isEmpty ? null : fileIds,
+                fileId: fileIds.isEmpty ? [] : fileIds,
                 projectId: widget.projectId,
               ),
             );
@@ -284,48 +280,44 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildCostTypeSelector(),
+                            ProjectCostTypeSelector(
+                              selectedCostType: _selectedCostType,
+                              onTap: _selectCostType,
+                            ),
                             SizedBox(height: 10.h),
-                            if (_selectedCostType?.isWorkerJoin == true) ...[
-                              _buildWorkerSelector(),
+                            if (_selectedCostType?.isWorkerJoin == true || _selectedWorker != null) ...[
+                              ProjectCostWorkerSelector(
+                                selectedWorker: _selectedWorker,
+                                onTap: _selectWorker,
+                              ),
                               SizedBox(height: 10.h),
                             ],
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 3,
-                                  child: _buildPriceTextField(
-                                    controller: _summaController,
-                                    focusNode: _summaFocusNode,
-                                    label: 'Miqdor',
-                                    hint: 'Summani kiriting',
-                                    icon: Icons.payments_outlined,
-                                    isRequired: true,
-                                  ),
-                                ),
-                                SizedBox(width: 12.w),
-                                Expanded(
-                                  flex: 2,
-                                  child: _buildCurrencySelector(),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 10.h),
-                            _buildTextField(
-                              controller: _descriptionController,
-                              focusNode: _descriptionFocusNode,
-                              label: 'Izoh',
-                              hint: 'Qo\'shimcha ma\'lumot (ixtiyoriy)',
-                              icon: Icons.description_outlined,
-                              maxLines: 1,
+                            ProjectCostInputs(
+                              summaController: _summaController,
+                              summaFocusNode: _summaFocusNode,
+                              descriptionController: _descriptionController,
+                              descriptionFocusNode: _descriptionFocusNode,
+                              selectedCurrency: _selectedCurrency,
+                              onCurrencySelected: (currency) {
+                                setState(() {
+                                  _selectedCurrency = currency;
+                                });
+                                HapticFeedback.selectionClick();
+                              },
                             ),
                             SizedBox(height: 12.h),
-                            _buildSectionHeader('Hujjat rasmlari', Icons.image_outlined),
+                            ProjectCostImagePicker(
+                              images: _images,
+                              onAddImage: (index) => _showImageSourceDialog(index),
+                              onRemoveImage: (index) => _removeImage(index),
+                              onUpdateImage: (index) => _showImageSourceDialog(index),
+                            ),
                             SizedBox(height: 12.h),
-                            _buildImagePickers(),
-                            SizedBox(height: 12.h),
-                            _buildSubmitButton(state),
+                            ProjectCostSubmitButton(
+                              state: state,
+                              isEditing: _isEditing,
+                              onPressed: _submit,
+                            ),
                             SizedBox(height: MediaQuery.of(context).padding.bottom + 20.h),
                           ],
                         ),
@@ -376,631 +368,129 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
     );
   }
 
-  Widget _buildSectionHeader(String title, IconData icon) {
-    return Row(
-      children: [
-        Container(
-          padding: EdgeInsets.all(8.w),
+  Widget _buildLoadingOverlay() {
+    return Container(
+      color: Colors.black.withValues(alpha: 0.4),
+      child: Center(
+        child: Container(
+          padding: EdgeInsets.all(32.w),
           decoration: BoxDecoration(
-            color: AppTheme.colors.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10.r),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20.r),
           ),
-          child: Icon(icon, size: 20.sp, color: AppTheme.colors.primary),
-        ),
-        SizedBox(width: 12.w),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.colors.black,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCostTypeSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              'Chiqim turi',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.colors.black,
-              ),
-            ),
-            Text(
-              ' *',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFFEF4444),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 8.h),
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: _selectCostType,
-            borderRadius: BorderRadius.circular(16.r),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(
-                  color: _selectedCostType != null ? AppTheme.colors.primary : const Color(0xFFE2E8F0),
-                  width: _selectedCostType != null ? 2 : 1.5,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.category_outlined, color: AppTheme.colors.primary, size: 20.sp),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Text(
-                      _selectedCostType?.name ?? 'Chiqim turini tanlang',
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: _selectedCostType != null ? FontWeight.w500 : FontWeight.w400,
-                        color: _selectedCostType == null ? const Color(0xFF94A3B8) : AppTheme.colors.black,
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward_ios, size: 18.sp, color: const Color(0xFF94A3B8)),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWorkerSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              'Ishchi',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.colors.black,
-              ),
-            ),
-            Text(
-              ' *',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFFEF4444),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 8.h),
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: _selectWorker,
-            borderRadius: BorderRadius.circular(16.r),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(
-                  color: _selectedWorker != null ? AppTheme.colors.primary : const Color(0xFFE2E8F0),
-                  width: _selectedWorker != null ? 2 : 1.5,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.person_outline, color: AppTheme.colors.primary, size: 20.sp),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Text(
-                      _selectedWorker?.name ?? 'Ishchini tanlang',
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: _selectedWorker != null ? FontWeight.w500 : FontWeight.w400,
-                        color: _selectedWorker == null ? const Color(0xFF94A3B8) : AppTheme.colors.black,
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward_ios, size: 18.sp, color: const Color(0xFF94A3B8)),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPriceTextField({
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required String label,
-    required String hint,
-    required IconData icon,
-    bool isRequired = false,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.colors.black,
-              ),
-            ),
-            if (isRequired)
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Loading(),
+              SizedBox(height: 16.h),
               Text(
-                ' *',
+                'Yuklanmoqda...',
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFFEF4444),
+                  color: AppTheme.colors.black,
                 ),
               ),
-          ],
-        ),
-        SizedBox(height: 8.h),
-        TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            _NumberInputFormatter(),
-          ],
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Summani kiriting';
-            }
-            final number = double.tryParse(value.replaceAll(',', '').replaceAll(' ', ''));
-            if (number == null || number <= 0) {
-              return 'To\'g\'ri summa kiriting';
-            }
-            return null;
-          },
-          style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(
-              color: const Color(0xFF94A3B8),
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w400,
-            ),
-            prefixIcon: Container(
-              margin: EdgeInsets.only(right: 12.w, left: 12.w),
-              child: Icon(icon, color: AppTheme.colors.primary, size: 22.sp),
-            ),
-            prefixIconConstraints: BoxConstraints(minWidth: 44.w),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2),
-            ),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            ],
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required String label,
-    required String hint,
-    required IconData icon,
-    TextInputType? keyboardType,
-    int maxLines = 1,
-    bool isRequired = false,
-    String? Function(String?)? validator,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.colors.black,
-              ),
-            ),
-            if (isRequired)
-              Text(
-                ' *',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFFEF4444),
-                ),
-              ),
-          ],
-        ),
-        SizedBox(height: 8.h),
-        TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          keyboardType: keyboardType,
-          maxLines: maxLines,
-          validator: validator,
-          style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(
-              color: const Color(0xFF94A3B8),
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w400,
-            ),
-            prefixIcon: Container(
-              margin: EdgeInsets.only(right: 12.w, left: 12.w),
-              child: Icon(icon, color: AppTheme.colors.primary, size: 22.sp),
-            ),
-            prefixIconConstraints: BoxConstraints(minWidth: 44.w),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2),
-            ),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCurrencySelector() {
-    return BlocBuilder<CurrencyBloc, CurrencyState>(
-      builder: (context, currencyState) {
-        final currencies = currencyState.currencyModel?.result ?? [];
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  'Valyuta',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.colors.black,
-                  ),
-                ),
-                Text(
-                  ' *',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFFEF4444),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 8.h),
-            Container(
-              height: 48.h,
-              padding: EdgeInsets.symmetric(horizontal: 12.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(
-                  color: _selectedCurrency != null ? AppTheme.colors.primary : const Color(0xFFE2E8F0),
-                  width: _selectedCurrency != null ? 2 : 1.5,
-                ),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<currency.Result>(
-                  value: _selectedCurrency,
-                  isExpanded: true,
-                  hint: Text(
-                    'Tanlang',
-                    style: TextStyle(
-                      color: const Color(0xFF94A3B8),
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  icon: Icon(Icons.keyboard_arrow_down, color: AppTheme.colors.primary, size: 20.sp),
-                  dropdownColor: Colors.white,
-                  borderRadius: BorderRadius.circular(16.r),
-                  elevation: 8,
-                  itemHeight: 56.h,
-                  menuMaxHeight: 300.h,
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.colors.black,
-                  ),
-                  items: currencies.map((currency.Result currencyItem) {
-                    return DropdownMenuItem<currency.Result>(
-                      value: currencyItem,
-                      child: Text(
-                        currencyItem.name ?? '',
-                        style: TextStyle(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w500,
-                          color: AppTheme.colors.black,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (currency.Result? value) {
-                    setState(() {
-                      _selectedCurrency = value;
-                    });
-                    HapticFeedback.selectionClick();
-                  },
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildImagePickers() {
-    return GridView.builder(
-      shrinkWrap: true,
-      padding: EdgeInsets.zero,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 12.w,
-        mainAxisSpacing: 12.h,
-        childAspectRatio: 1,
-      ),
-      itemCount: 3,
-      itemBuilder: (context, index) {
-        final imageData = _images[index];
-        final hasImage = imageData.file != null || imageData.imageUrl != null;
-        final canAddImage = index == 0 || (_images[index - 1].file != null || _images[index - 1].imageUrl != null);
-
-        return GestureDetector(
-          onTap: canAddImage && !hasImage
-              ? () {
-                  HapticFeedback.lightImpact();
-                  _showImageSourceDialog(index);
-                }
-              : null,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            decoration: BoxDecoration(
-              color: hasImage ? Colors.white : const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(16.r),
-              border: Border.all(
-                color: hasImage ? AppTheme.colors.primary.withValues(alpha: 0.3) : const Color(0xFFE2E8F0),
-                width: hasImage ? 2 : 1.5,
-              ),
-              boxShadow: hasImage
-                  ? [
-                      BoxShadow(
-                        color: AppTheme.colors.primary.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: hasImage ? _buildImagePreview(imageData, index) : _buildImagePlaceholder(canAddImage, index),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildImagePreview(ImageData imageData, int index) {
-    return Stack(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(14.r),
-          child: imageData.isFromServer
-              ? Image.network(
-                  imageData.imageUrl!,
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                            : null,
-                        color: AppTheme.colors.primary,
-                        strokeWidth: 2,
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error_outline, color: const Color(0xFFEF4444), size: 24.sp),
-                          SizedBox(height: 4.h),
-                          Text(
-                            'Yuklashda xato',
-                            style: TextStyle(
-                              fontSize: 10.sp,
-                              color: const Color(0xFFEF4444),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                )
-              : Image.file(
-                  imageData.file!,
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-        ),
-        if (imageData.isUploading)
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.7),
-                borderRadius: BorderRadius.circular(14.r),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 32.w,
-                    height: 32.h,
-                    child: CircularProgressIndicator(
-                      value: imageData.progress / 100,
-                      backgroundColor: Colors.white.withValues(alpha: 0.2),
-                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary),
-                      strokeWidth: 3,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    '${imageData.progress.toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        else ...[
-          Positioned(
-            top: 6.h,
-            right: 6.w,
-            child: GestureDetector(
-              onTap: () {
-                HapticFeedback.mediumImpact();
-                _removeImage(index);
-              },
-              child: Container(
-                padding: EdgeInsets.all(6.w),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEF4444),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Icon(Icons.close, color: Colors.white, size: 14.sp),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 6.h,
-            right: 6.w,
-            child: Container(
-              padding: EdgeInsets.all(6.w),
-              decoration: BoxDecoration(
-                color: const Color(0xFF10B981),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(Icons.check, color: Colors.white, size: 12.sp),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildImagePlaceholder(bool canAddImage, int index) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            canAddImage ? Icons.add_photo_alternate_outlined : Icons.image_outlined,
-            color: canAddImage ? AppTheme.colors.primary : const Color(0xFF94A3B8),
-            size: 32.sp,
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Rasm ${index + 1}',
-            style: TextStyle(
-              fontSize: 11.sp,
-              color: canAddImage ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
       ),
     );
+  }
+
+  void _handleFileUploadState(BuildContext context, FileUploadState state) {
+    if (state.status == FileUploadStatus.success) {
+      final uploadingIndex = _images.indexWhere((img) => img.isUploading);
+      if (uploadingIndex != -1) {
+        setState(() {
+          _images[uploadingIndex] = ProjectCostImageData(
+            file: _images[uploadingIndex].file,
+            fileId: state.uploadedFileId,
+            isUploading: false,
+            progress: 100,
+          );
+        });
+      }
+    } else if (state.status == FileUploadStatus.failure) {
+      final uploadingIndex = _images.indexWhere((img) => img.isUploading);
+      if (uploadingIndex != -1) {
+        setState(() {
+          _images[uploadingIndex] = ProjectCostImageData();
+        });
+      }
+      Toast.showErrorToast(message: 'Rasm yuklashda xatolik: ${state.errorMessage}');
+    } else if (state.status == FileUploadStatus.uploading) {
+      final uploadingIndex = _images.indexWhere((img) => img.isUploading);
+      if (uploadingIndex != -1) {
+        setState(() {
+          _images[uploadingIndex] = ProjectCostImageData(
+            file: _images[uploadingIndex].file,
+            isUploading: true,
+            progress: state.progress,
+          );
+        });
+      }
+    }
+  }
+
+  Future<void> _pickImage(ImageSource source, int index) async {
+    if (index > 0) {
+      final previousImage = _images[index - 1];
+      final hasPreviousImage = previousImage.file != null || previousImage.existingUrl != null;
+
+      if (!hasPreviousImage) {
+        Toast.showErrorToast(message: 'Avval $index-rasmni yuklang');
+        return;
+      }
+    }
+
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        imageQuality: 85,
+        maxWidth: 1920,
+        maxHeight: 1080,
+      );
+
+      if (image != null && mounted) {
+        final imageFile = File(image.path);
+        setState(() {
+          _images[index] = ProjectCostImageData(file: imageFile, isUploading: true);
+        });
+
+        context.read<FileUploadBloc>().add(
+              UploadFileEvent(file: imageFile, type: 'project_cost'),
+            );
+      }
+    } catch (e) {
+      Toast.showErrorToast(message: 'Xatolik yuz berdi: $e');
+    }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      for (int i = index; i < _images.length; i++) {
+        _images[i] = ProjectCostImageData();
+      }
+    });
+    context.read<FileUploadBloc>().add(ResetUploadEvent());
+  }
+
+  void _loadExistingImages() {
+    final cost = widget.cost;
+    if (cost == null) return;
+
+    if (cost.files != null && cost.files!.isNotEmpty) {
+      for (int i = 0; i < cost.files!.length && i < 3; i++) {
+        final file = cost.files![i];
+        setState(() {
+           _images[i] = ProjectCostImageData(
+            existingUrl: file.url,
+            existingId: file.id,
+          );
+        });
+      }
+    }
   }
 
   Future<void> _showImageSourceDialog(int index) async {
@@ -1131,230 +621,6 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSubmitButton(ProjectCostState state) {
-    final isLoading = state.statusAction == Status.loading;
-
-    return SizedBox(
-      width: double.infinity,
-      height: 56.h,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : _submit,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.colors.primary,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          disabledBackgroundColor: AppTheme.colors.primary.withValues(alpha: 0.5),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-          shadowColor: AppTheme.colors.primary.withValues(alpha: 0.4),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (isLoading)
-              SizedBox(
-                width: 20.w,
-                height: 20.h,
-                child: const CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            else
-              Text(
-                isLoading ? 'Yuklanmoqda...' : (_isEditing ? 'Saqlash' : 'Yaratish'),
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingOverlay() {
-    return Container(
-      color: Colors.black.withValues(alpha: 0.4),
-      child: Center(
-        child: Container(
-          padding: EdgeInsets.all(32.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Loading(),
-              SizedBox(height: 16.h),
-              Text(
-                'Yuklanmoqda...',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.colors.black,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _handleFileUploadState(BuildContext context, FileUploadState state) {
-    if (state.status == FileUploadStatus.success) {
-      final uploadingIndex = _images.indexWhere((img) => img.isUploading);
-      if (uploadingIndex != -1) {
-        setState(() {
-          _images[uploadingIndex] = ImageData(
-            file: _images[uploadingIndex].file,
-            fileId: state.uploadedFileId,
-            isUploading: false,
-            progress: 100,
-          );
-        });
-      }
-    } else if (state.status == FileUploadStatus.failure) {
-      final uploadingIndex = _images.indexWhere((img) => img.isUploading);
-      if (uploadingIndex != -1) {
-        setState(() {
-          _images[uploadingIndex] = ImageData();
-        });
-      }
-      Toast.showErrorToast(message: 'Rasm yuklashda xatolik: ${state.errorMessage}');
-    } else if (state.status == FileUploadStatus.uploading) {
-      final uploadingIndex = _images.indexWhere((img) => img.isUploading);
-      if (uploadingIndex != -1) {
-        setState(() {
-          _images[uploadingIndex] = ImageData(
-            file: _images[uploadingIndex].file,
-            isUploading: true,
-            progress: state.progress,
-          );
-        });
-      }
-    }
-  }
-
-  Future<void> _pickImage(ImageSource source, int index) async {
-    // Check if previous image exists (either from server or local file)
-    if (index > 0) {
-      final previousImage = _images[index - 1];
-      final hasPreviousImage = previousImage.file != null || previousImage.imageUrl != null;
-
-      if (!hasPreviousImage) {
-        Toast.showErrorToast(message: 'Avval $index-rasmni yuklang');
-        return;
-      }
-    }
-
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        imageQuality: 85,
-        maxWidth: 1920,
-        maxHeight: 1080,
-      );
-
-      if (image != null && mounted) {
-        final imageFile = File(image.path);
-        setState(() {
-          _images[index] = ImageData(file: imageFile, isUploading: true);
-        });
-
-        context.read<FileUploadBloc>().add(
-              UploadFileEvent(file: imageFile, type: 'project_cost'),
-            );
-      }
-    } catch (e) {
-      Toast.showErrorToast(message: 'Xatolik yuz berdi: $e');
-    }
-  }
-
-  void _removeImage(int index) {
-    setState(() {
-      for (int i = index; i < _images.length; i++) {
-        _images[i] = ImageData();
-      }
-    });
-    context.read<FileUploadBloc>().add(ResetUploadEvent());
-  }
-
-  void _loadExistingImages() {
-    final cost = widget.cost;
-    if (cost == null) return;
-
-    try {
-      // Get files array from response
-      final dynamic filesData = cost.toJson()['files'];
-
-      if (filesData != null && filesData is List) {
-        final List<String> fileUrls = filesData.cast<String>();
-
-        // Load up to 3 images
-        for (int i = 0; i < fileUrls.length && i < 3; i++) {
-          setState(() {
-            _images[i] = ImageData(
-              imageUrl: fileUrls[i],
-              isFromServer: true,
-            );
-          });
-        }
-      }
-    } catch (e) {
-      // Silently fail - existing images are optional
-      debugPrint('Error loading existing images: $e');
-    }
-  }
-}
-
-class ImageData {
-  final File? file;
-  final int? fileId;
-  final bool isUploading;
-  final double progress;
-  final bool isFromServer;
-  final String? imageUrl;
-
-  ImageData({
-    this.file,
-    this.fileId,
-    this.isUploading = false,
-    this.progress = 0,
-    this.isFromServer = false,
-    this.imageUrl,
-  });
-}
-
-class _NumberInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    // Remove all non-digits
-    final cleanText = newValue.text.replaceAll(RegExp(r'\D'), '');
-
-    if (cleanText.isEmpty) {
-      return newValue.copyWith(text: '', selection: const TextSelection.collapsed(offset: 0));
-    }
-
-    // Format with spaces every 3 digits from right
-    final reversed = cleanText.split('').reversed.join();
-    final chunks = <String>[];
-    for (var i = 0; i < reversed.length; i += 3) {
-      final end = i + 3;
-      chunks.add(reversed.substring(i, end > reversed.length ? reversed.length : end));
-    }
-    final formatted = chunks.join(' ').split('').reversed.join();
-
-    // Keep cursor at end
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }

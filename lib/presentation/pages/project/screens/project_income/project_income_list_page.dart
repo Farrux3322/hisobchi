@@ -9,6 +9,7 @@ import 'package:hisobchi/application/project_income/project_income_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/project_income_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_add_edit_page.dart';
@@ -453,133 +454,138 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
       },
       child: Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-        child: Scaffold(
-          backgroundColor: const Color(0xFFF7F7FA),
-          appBar: AppBar(
-            elevation: 0,
-            surfaceTintColor: Colors.white,
-            leading: InkWell(
-              onTap: () {
-                final result = _hasChanges ? ProjectIncomeListResult.modified() : ProjectIncomeListResult.noChanges();
-                Navigator.of(context).pop(result);
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                    BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                    BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-                  ],
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+        child: DeFocus(
+          child: Scaffold(
+            backgroundColor: const Color(0xFFF7F7FA),
+            appBar: AppBar(
+              elevation: 0,
+              surfaceTintColor: Colors.white,
+              leading: InkWell(
+                onTap: () {
+                  final result = _hasChanges ? ProjectIncomeListResult.modified() : ProjectIncomeListResult.noChanges();
+                  Navigator.of(context).pop(result);
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+                      BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+                      BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
+                    ],
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.arrow_back, color: Colors.black),
                 ),
-                child: const Icon(Icons.arrow_back, color: Colors.black),
               ),
+              title: const Text(
+                'Loyiha kirimlari',
+                style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              centerTitle: true,
             ),
-            title: const Text(
-              'Loyiha kirimlari',
-              style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            centerTitle: true,
-          ),
-          floatingActionButton: FloatingActionButton(onPressed: _navigateToAddCost, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
+            floatingActionButton: FloatingActionButton(onPressed: _navigateToAddCost, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
 
-          body: BlocConsumer<ProjectIncomeBloc, ProjectIncomeState>(
-            listener: (context, state) {
-              // Toast xabarlarini ko'rsatish
-              if (state.statusAction == Status.success) {
-                _markAsChanged(); // Mark changes when delete/restore/force delete succeeds
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
-                  }
-                });
-              } else if (state.statusAction == Status.error) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-                  }
-                });
-              }
+            body: BlocConsumer<ProjectIncomeBloc, ProjectIncomeState>(
+              listener: (context, state) {
+                // Toast xabarlarini ko'rsatish
+                if (state.statusAction == Status.success) {
+                  _markAsChanged(); // Mark changes when delete/restore/force delete succeeds
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
+                    }
+                  });
+                } else if (state.statusAction == Status.error) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+                    }
+                  });
+                }
 
-              // Ma'lumotlarni yangilash
-              if (state.status == Status.success) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    setState(() {
-                      _allCosts = state.incomes;
-                      _filterCosts();
-                    });
-                  }
-                });
-              } else if (state.status == Status.error) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-                  }
-                });
-              }
-            },
-            builder: (context, state) {
-              return SafeArea(
-                child: Column(
-                  children: [
-                    // Search Bar
-                    Container(
-                      color: Colors.transparent,
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Qidirish...',
-                          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                          prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
-                          filled: true,
-                          fillColor: const Color(0xFFF8FAFC),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                // Ma'lumotlarni yangilash
+                if (state.status == Status.success) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      setState(() {
+                        _allCosts = state.incomes;
+                        _filterCosts();
+                      });
+                    }
+                  });
+                } else if (state.status == Status.error) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+                    }
+                  });
+                }
+              },
+              builder: (context, state) {
+                return SafeArea(
+                  child: Column(
+                    children: [
+                      // Search Bar
+                      Container(
+                        color: Colors.transparent,
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: 'Qidirish...',
+                            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                            prefixIcon:  Padding(
+                              padding:  EdgeInsets.only(left: 8.0,right: 4),
+                              child: Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                            ),
+                            filled: true,
+                            fillColor:  Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         ),
                       ),
-                    ),
 
-                    // Costs List
-                    Expanded(
-                      child: state.status == Status.loading && _allCosts.isEmpty
-                          ? _buildShimmerLoading()
-                          : _filteredCosts.isEmpty
-                          ? _buildEmptyState()
-                          : Stack(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(16, 0, 6, 0),
-                                  child: CustomScrollView(slivers: _buildGroupedCosts()),
-                                ),
-                                if (state.statusAction == Status.loading)
-                                  Container(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    child: const Center(child: Loading()),
+                      // Costs List
+                      Expanded(
+                        child: state.status == Status.loading && _allCosts.isEmpty
+                            ? _buildShimmerLoading()
+                            : _filteredCosts.isEmpty
+                            ? _buildEmptyState()
+                            : Stack(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(16, 0, 6, 0),
+                                    child: CustomScrollView(slivers: _buildGroupedCosts()),
                                   ),
-                              ],
-                            ),
-                    ),
-                  ],
-                ),
-              );
-            },
+                                  if (state.statusAction == Status.loading)
+                                    Container(
+                                      color: Colors.black.withValues(alpha: 0.3),
+                                      child: const Center(child: Loading()),
+                                    ),
+                                ],
+                              ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -623,6 +629,18 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
   Widget _buildCostCard(ProjectIncomeModel cost) {
     final String timeText = _formatTimeOnly(cost.createdAt);
     final bool isDeleted = cost.isDeleted;
+
+    // Helper to format amount
+    String formattedAmount = '0';
+    if (cost.summa != null) {
+      try {
+        final number = double.parse(cost.summa!);
+        final formatter = NumberFormat('#,##0.##', 'uz');
+        formattedAmount = formatter.format(number);
+      } catch (e) {
+        formattedAmount = cost.summa!;
+      }
+    }
 
     return GestureDetector(
       onTap: isDeleted ? null : () => _navigateToEditCost(cost),
@@ -683,7 +701,7 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
               Container(
                 height: 40,
                 width: 40,
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(12)),
                 child: SvgPicture.asset(AppIcons.income),
               ),
@@ -693,22 +711,54 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _formatCurrency(cost.summa, cost.currencyTypeName),
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: isDeleted ? Colors.grey : const Color(0xFF10B981), decoration: isDeleted ? TextDecoration.lineThrough : null),
-                    ),
-                    if (cost.description != null && cost.description!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        cost.description!,
-                        style: TextStyle(color: isDeleted ? Colors.grey : Colors.black54, fontSize: 13),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      cost.description?.isNotEmpty == true ? cost.description! : 'Kirim',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDeleted ? Colors.grey : const Color(0xFF1E293B),
+                        decoration: isDeleted ? TextDecoration.lineThrough : null,
                       ),
-                    ],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      timeText,
+                      style: TextStyle(color: isDeleted ? Colors.grey : const Color(0xFF64748B), fontSize: 13),
+                    ),
                   ],
                 ),
               ),
-              Text(timeText, style: TextStyle(color: isDeleted ? Colors.grey : Colors.black54, fontSize: 12)),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: formattedAmount,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: isDeleted ? Colors.grey : const Color(0xFF10B981),
+                            decoration: isDeleted ? TextDecoration.lineThrough : null,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' ${cost.currencyTypeName ?? ''}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isDeleted ? Colors.grey : const Color(0xFF10B981).withValues(alpha: 0.8),
+                            decoration: isDeleted ? TextDecoration.lineThrough : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

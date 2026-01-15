@@ -3,12 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gap/gap.dart';
 import 'package:hisobchi/application/project/project_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/project/project_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/utils/phone_formatter.dart';
 import 'package:hisobchi/presentation/pages/project/project_edit_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/contract_list_page.dart';
@@ -18,7 +16,6 @@ import 'package:hisobchi/presentation/pages/project/screens/project_income/proje
 import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/report/project_report_page.dart';
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Result object returned when navigating back from ProjectShowPage
@@ -93,61 +90,61 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                padding: const EdgeInsets.all(8),
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    const BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                    const BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                    const BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-                  ],
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+                  padding: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      const BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+                      const BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+                      const BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
+                    ],
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
                 ),
-                child: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
               ),
-            ),
-            centerTitle: true,
-            title: const Text(
-              'Loyiha tafsilotlari',
-              style: TextStyle(color: Color(0xFF1E293B), fontSize: 17, fontWeight: FontWeight.w600),
-            ),
-            actions: [
-              if (project != null && state.statusDetail != Status.loading)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => ProjectEditPage(projectModel: project))).then((v) {
-                        if (!context.mounted) return;
+              centerTitle: true,
+              title: const Text(
+                'Loyiha tafsilotlari',
+                style: TextStyle(color: Color(0xFF1E293B), fontSize: 17, fontWeight: FontWeight.w600),
+              ),
+              actions: [
+                if (project != null && state.statusDetail != Status.loading)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => ProjectEditPage(projectModel: project))).then((v) {
+                          if (!context.mounted) return;
 
-                        if (v is Map) {
-                          final action = v['action'];
-                          if (action == 'delete' || action == 'force_delete') {
-                            _markAsChanged();
-                            Navigator.of(context).pop(ProjectShowResult.modified());
-                            return;
+                          if (v is Map) {
+                            final action = v['action'];
+                            if (action == 'delete' || action == 'force_delete') {
+                              _markAsChanged();
+                              Navigator.of(context).pop(ProjectShowResult.modified());
+                              return;
+                            }
+                            if (action == 'restore') {
+                              _markAsChanged();
+                              context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                              return;
+                            }
                           }
-                          if (action == 'restore') {
+
+                          if (v == true) {
                             _markAsChanged();
                             context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-                            return;
                           }
-                        }
-
-                        if (v == true) {
-                          _markAsChanged();
-                          context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-                        }
-                      });
-                    },
-                    icon: SvgPicture.asset(AppIcons.edit, width: 22, colorFilter: const ColorFilter.mode(Color(0xFF1E293B), BlendMode.srcIn)),
-                    tooltip: 'Tahrirlash',
+                        });
+                      },
+                      icon: SvgPicture.asset(AppIcons.edit, width: 22, colorFilter: const ColorFilter.mode(Color(0xFF1E293B), BlendMode.srcIn)),
+                      tooltip: 'Tahrirlash',
+                    ),
                   ),
-                ),
-            ],
-          ),
-          body: _buildBody(state),
+              ],
+            ),
+            body: _buildBody(state),
           );
         },
       ),
@@ -205,7 +202,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
         await Future.delayed(const Duration(milliseconds: 500));
       },
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32).copyWith(bottom: MediaQuery.of(context).padding.bottom+10),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32).copyWith(bottom: MediaQuery.of(context).padding.bottom + 10),
         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         child: Column(children: [_buildProjectInfoExpansion(project), const Gap(16), _buildFinancialOverview(project), const Gap(16), _buildManagementMenu(project)]),
       ),
@@ -225,6 +222,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
           initiallyExpanded: false,
           tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          collapsedShape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(24)),
           iconColor: const Color(0xFF94A3B8),
           collapsedIconColor: const Color(0xFF94A3B8),
           title: Row(
@@ -342,7 +340,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
   Widget _buildFinancialOverview(ProjectModel project) {
     return Container(
       padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(color:  Colors.white, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           // Totals Row (Income & Expense)
@@ -403,9 +401,9 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   color: const Color(0xFF10B981),
                   onTap: () {
                     // Adding new income transaction
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeAddEditPage(projectId: project.id ?? 0))).then((_) {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeAddEditPage(projectId: project.id ?? 0))).then((v) {
                       // Transaction added, refresh detail page and mark as changed
-                      if (mounted) {
+                      if (mounted && v == true) {
                         _markAsChanged();
                         context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
                       }
@@ -421,9 +419,9 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   color: const Color(0xFFEF4444),
                   onTap: () {
                     // Adding new expense transaction
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostAddEditPage(projectId: project.id ?? 0))).then((_) {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostAddEditPage(projectId: project.id ?? 0))).then((v) {
                       // Transaction added, refresh detail page and mark as changed
-                      if (mounted) {
+                      if (mounted && v == true) {
                         _markAsChanged();
                         context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
                       }
@@ -480,7 +478,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   children: [
                     Text(
                       _formatCurrency(amountUzs),
-                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B)),
+                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black),
                     ),
                     const Gap(4),
                     Text(
@@ -504,7 +502,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   children: [
                     Text(
                       _formatCurrency(amountUsd),
-                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: color),
+                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black),
                     ),
                     const Gap(4),
                     Text(
@@ -528,7 +526,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [ color.withValues(alpha: .6),color.withValues(alpha: 0.6),color.withValues(alpha: .75),], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(colors: [color.withValues(alpha: .6), color.withValues(alpha: 0.6), color.withValues(alpha: .75)], begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 8))],
       ),
@@ -542,7 +540,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
           const Gap(16),
           Text(
             'Qoldiq',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white),
+            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.white),
           ),
 
           const Spacer(),
@@ -555,7 +553,11 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 children: [
                   Text(
                     _formatCurrency(balance?.uzs),
-                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: (balance?.uzs ?? 0) < 0 ? const Color(0xFFFF5252) : const Color(0xFF69F0AE),
+                    ),
                   ),
                   const Gap(6),
                   Text(
@@ -571,7 +573,11 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 children: [
                   Text(
                     _formatCurrency(balance?.usd),
-                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: (balance?.usd ?? 0) < 0 ? const Color(0xFFFF5252) : const Color(0xFF69F0AE),
+                    ),
                   ),
                   const Gap(6),
                   Text(
@@ -711,7 +717,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
 
   Widget _buildShimmerItem({required double height, required double borderRadius}) {
     return Shimmer.fromColors(
-      baseColor:  Colors.grey.shade400,
+      baseColor: Colors.grey.shade400,
       highlightColor: Colors.white,
       child: Container(
         height: height,

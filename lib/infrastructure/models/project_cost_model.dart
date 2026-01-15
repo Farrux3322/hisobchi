@@ -1,3 +1,4 @@
+import 'package:hisobchi/infrastructure/dto/models/project/project_model.dart';
 
 class ProjectCostModel {
   final int? id;
@@ -9,7 +10,7 @@ class ProjectCostModel {
   final String? currencyTypeName;
   final String? summa;
   final String? description;
-  final List<String>? files;
+  final List<ProjectFile>? files;
   final int? projectId;
   final String? createdAt;
   final String? deletedAt;
@@ -43,7 +44,9 @@ class ProjectCostModel {
       currencyTypeName: json['currency_type_name'] as String?,
       summa: json['summa']?.toString(),
       description: json['description'] as String?,
-      files: json['files'] != null ? List<String>.from(json['files']) : null,
+      files: json['files'] != null
+          ? (json['files'] as List).map((e) => ProjectFile.fromJson(e)).toList()
+          : null,
       projectId: json['project_id'] as int?,
       createdAt: json['created_at'] as String?,
       deletedAt: json['deleted_at'] as String?,
@@ -61,7 +64,7 @@ class ProjectCostModel {
       'currency_type_name': currencyTypeName,
       'summa': summa,
       'description': description,
-      'files': files,
+      'files': files?.map((e) => e.toJson()).toList(),
       'project_id': projectId,
       'created_at': createdAt,
       'deleted_at': deletedAt,
@@ -78,7 +81,7 @@ class ProjectCostModel {
     String? currencyTypeName,
     String? summa,
     String? description,
-    List<String>? files,
+    List<ProjectFile>? files,
     int? projectId,
     String? createdAt,
     String? deletedAt,
