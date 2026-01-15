@@ -42,7 +42,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
 
   Future<void> getById(GetProjectByIdEvent event, Emitter<ProjectState> emit) async {
     // Reset statusAction when navigating back from edit page
-    emit(state.copyWith(statusDetail: Status.loading, statusAction: Status.pure));
+    emit(state.copyWith(statusDetail: Status.loading, statusAction: Status.pure,statusAdd: Status.pure));
     try {
       final data = await _repo.getById(id: event.id);
 

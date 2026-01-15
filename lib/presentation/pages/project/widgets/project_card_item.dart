@@ -77,7 +77,7 @@ class ProjectCardItem extends StatelessWidget {
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(14.r),
                               child: CachedNetworkImage(
-                                imageUrl: projectModel!.files!.first,
+                                imageUrl: projectModel!.files!.first.url ?? '',
                                 fit: BoxFit.cover,
                                 width: 52.w,
                                 height: 52.h,

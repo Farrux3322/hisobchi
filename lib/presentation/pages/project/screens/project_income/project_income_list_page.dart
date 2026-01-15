@@ -156,14 +156,26 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                 child: const Icon(Icons.delete_outline, color: Colors.white, size: 40),
               ),
               const SizedBox(height: 24),
-              const Text('Kirimni o\'chirish', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)), textAlign: TextAlign.center),
+              const Text(
+                'Kirimni o\'chirish',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 12),
-              const Text('Ushbu kirimni o\'chirishni xohlaysizmi?', style: TextStyle(fontSize: 15, color: Color(0xFF64748B), height: 1.5), textAlign: TextAlign.center),
+              const Text(
+                'Ushbu kirimni o\'chirishni xohlaysizmi?',
+                style: TextStyle(fontSize: 15, color: Color(0xFF64748B), height: 1.5),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(color: const Color(0xFFFBBF24).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                child: const Text('Kirimni keyinchalik qayta tiklash mumkin', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFFF59E0B)), textAlign: TextAlign.center),
+                child: const Text(
+                  'Kirimni keyinchalik qayta tiklash mumkin',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFFF59E0B)),
+                  textAlign: TextAlign.center,
+                ),
               ),
               const SizedBox(height: 24),
               Row(
@@ -171,15 +183,28 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5)),
-                      child: const Text('Yo\'q', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+                      ),
+                      child: const Text(
+                        'Yo\'q',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(true),
-                      style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: const Color(0xFFFBBF24), foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: const Color(0xFFFBBF24),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
                       child: const Text('Ha', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                     ),
                   ),
@@ -225,14 +250,26 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                 child: const Icon(Icons.restore, color: Colors.white, size: 40),
               ),
               const SizedBox(height: 24),
-              const Text('Kirimni tiklash', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)), textAlign: TextAlign.center),
+              const Text(
+                'Kirimni tiklash',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 12),
-              const Text('Ushbu kirimni tiklashni xohlaysizmi?', style: TextStyle(fontSize: 15, color: Color(0xFF64748B), height: 1.5), textAlign: TextAlign.center),
+              const Text(
+                'Ushbu kirimni tiklashni xohlaysizmi?',
+                style: TextStyle(fontSize: 15, color: Color(0xFF64748B), height: 1.5),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                child: const Text('Kirim barcha ma\'lumotlari bilan tiklanadi', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF059669)), textAlign: TextAlign.center),
+                child: const Text(
+                  'Kirim barcha ma\'lumotlari bilan tiklanadi',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF059669)),
+                  textAlign: TextAlign.center,
+                ),
               ),
               const SizedBox(height: 24),
               Row(
@@ -240,15 +277,28 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5)),
-                      child: const Text('Yo\'q', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+                      ),
+                      child: const Text(
+                        'Yo\'q',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(true),
-                      style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: const Color(0xFF10B981), foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: const Color(0xFF10B981),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
                       child: const Text('Ha', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                     ),
                   ),
@@ -294,18 +344,33 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                 child: const Icon(Icons.delete_forever, color: Colors.white, size: 40),
               ),
               const SizedBox(height: 24),
-              const Text('Butunlay o\'chirish', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)), textAlign: TextAlign.center),
+              const Text(
+                'Butunlay o\'chirish',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 12),
-              const Text('Ushbu kirimni butunlay o\'chirishni xohlaysizmi?', style: TextStyle(fontSize: 15, color: Color(0xFF64748B), height: 1.5), textAlign: TextAlign.center),
+              const Text(
+                'Ushbu kirimni butunlay o\'chirishni xohlaysizmi?',
+                style: TextStyle(fontSize: 15, color: Color(0xFF64748B), height: 1.5),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(color: const Color(0xFFEF4444).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
                 child: const Column(
                   children: [
-                    Text('⚠️ DIQQAT', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFFDC2626))),
+                    Text(
+                      '⚠️ DIQQAT',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFFDC2626)),
+                    ),
                     SizedBox(height: 4),
-                    Text('Bu amal qaytarib bo\'lmaydi!\nBarcha ma\'lumotlar butunlay yo\'qoladi', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFFDC2626)), textAlign: TextAlign.center),
+                    Text(
+                      'Bu amal qaytarib bo\'lmaydi!\nBarcha ma\'lumotlar butunlay yo\'qoladi',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFFDC2626)),
+                      textAlign: TextAlign.center,
+                    ),
                   ],
                 ),
               ),
@@ -315,15 +380,28 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5)),
-                      child: const Text('Yo\'q', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+                      ),
+                      child: const Text(
+                        'Yo\'q',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(true),
-                      style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: const Color(0xFFEF4444), foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: const Color(0xFFEF4444),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
                       child: const Text('Ha', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                     ),
                   ),
@@ -342,130 +420,132 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F7FA),
-      appBar: AppBar(
-        elevation: 0,
-        surfaceTintColor: Colors.white,
-        leading: InkWell(
-          onTap: () => Navigator.of(context).maybePop(),
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            margin: const EdgeInsets.all(8),
-
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-              ],
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF7F7FA),
+        appBar: AppBar(
+          elevation: 0,
+          surfaceTintColor: Colors.white,
+          leading: InkWell(
+            onTap: () => Navigator.of(context).maybePop(),
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+                  BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+                  BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
+                ],
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.arrow_back, color: Colors.black),
             ),
-            child: const Icon(Icons.arrow_back, color: Colors.black),
           ),
+          title: const Text(
+            'Loyiha kirimlari',
+            style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+          centerTitle: true,
         ),
-        title: const Text(
-          'Loyiha kirimlari',
-          style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        centerTitle: true,
-      ),
-      floatingActionButton: FloatingActionButton(onPressed: _navigateToAddCost, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
+        floatingActionButton: FloatingActionButton(onPressed: _navigateToAddCost, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
 
-      body: BlocConsumer<ProjectIncomeBloc, ProjectIncomeState>(
-        listener: (context, state) {
-          // Toast xabarlarini ko'rsatish
-          if (state.statusAction == Status.success) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
-              }
-            });
-          } else if (state.statusAction == Status.error) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-              }
-            });
-          }
+        body: BlocConsumer<ProjectIncomeBloc, ProjectIncomeState>(
+          listener: (context, state) {
+            // Toast xabarlarini ko'rsatish
+            if (state.statusAction == Status.success) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
+                }
+              });
+            } else if (state.statusAction == Status.error) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+                }
+              });
+            }
 
-          // Ma'lumotlarni yangilash
-          if (state.status == Status.success) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                setState(() {
-                  _allCosts = state.incomes;
-                  _filterCosts();
-                });
-              }
-            });
-          } else if (state.status == Status.error) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-              }
-            });
-          }
-        },
-        builder: (context, state) {
-          return SafeArea(
-            child: Column(
-              children: [
-                // Search Bar
-                Container(
-                  color: Colors.transparent,
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Qidirish...',
-                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                      prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
-                      filled: true,
-                      fillColor: const Color(0xFFF8FAFC),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+            // Ma'lumotlarni yangilash
+            if (state.status == Status.success) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() {
+                    _allCosts = state.incomes;
+                    _filterCosts();
+                  });
+                }
+              });
+            } else if (state.status == Status.error) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+                }
+              });
+            }
+          },
+          builder: (context, state) {
+            return SafeArea(
+              child: Column(
+                children: [
+                  // Search Bar
+                  Container(
+                    color: Colors.transparent,
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Qidirish...',
+                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                        prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                        filled: true,
+                        fillColor: const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                   ),
-                ),
 
-                // Costs List
-                Expanded(
-                  child: state.status == Status.loading && _allCosts.isEmpty
-                      ? _buildShimmerLoading()
-                      : _filteredCosts.isEmpty
-                      ? _buildEmptyState()
-                      : Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 6, 0),
-                              child: CustomScrollView(slivers: _buildGroupedCosts()),
-                            ),
-                            if (state.statusAction == Status.loading)
-                              Container(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                child: const Center(child: Loading()),
+                  // Costs List
+                  Expanded(
+                    child: state.status == Status.loading && _allCosts.isEmpty
+                        ? _buildShimmerLoading()
+                        : _filteredCosts.isEmpty
+                        ? _buildEmptyState()
+                        : Stack(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 0, 6, 0),
+                                child: CustomScrollView(slivers: _buildGroupedCosts()),
                               ),
-                          ],
-                        ),
-                ),
-              ],
-            ),
-          );
-        },
+                              if (state.statusAction == Status.loading)
+                                Container(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  child: const Center(child: Loading()),
+                                ),
+                            ],
+                          ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

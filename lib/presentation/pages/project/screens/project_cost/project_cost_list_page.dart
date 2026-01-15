@@ -150,13 +150,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -166,36 +160,18 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFBBF24), Color(0xFFF59E0B)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: const LinearGradient(colors: [Color(0xFFFBBF24), Color(0xFFF59E0B)], begin: Alignment.topLeft, end: Alignment.bottomRight),
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFFBBF24).withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: const Color(0xFFFBBF24).withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10))],
                 ),
-                child: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.white,
-                  size: 40,
-                ),
+                child: const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 40),
               ),
               const SizedBox(height: 24),
 
               // Title
               const Text(
                 'Chiqimni o\'chirish',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B),
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
@@ -203,11 +179,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
               // Description
               Text(
                 'Ushbu chiqimni o\'chirmoqchimisiz?',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey[600],
-                  height: 1.5,
-                ),
+                style: TextStyle(fontSize: 15, color: Colors.grey[600], height: 1.5),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -218,26 +190,16 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                 decoration: BoxDecoration(
                   color: const Color(0xFFFEF3C7),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFFBBF24).withValues(alpha: 0.3),
-                  ),
+                  border: Border.all(color: const Color(0xFFFBBF24).withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.info_outline_rounded,
-                      color: Color(0xFFF59E0B),
-                      size: 20,
-                    ),
+                    const Icon(Icons.info_outline_rounded, color: Color(0xFFF59E0B), size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Keyinchalik qayta tiklash mumkin',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[800],
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: TextStyle(fontSize: 13, color: Colors.grey[800], fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
@@ -254,17 +216,11 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: const BorderSide(color: Color(0xFFE2E8F0), width: 2),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: const Text(
                         'Yo\'q',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF64748B),
-                        ),
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ),
                   ),
@@ -276,17 +232,11 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor: const Color(0xFFF59E0B),
                         elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: const Text(
                         'Ha',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white),
                       ),
                     ),
                   ),
@@ -317,13 +267,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -333,36 +277,18 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF10B981), Color(0xFF059669)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF059669)], begin: Alignment.topLeft, end: Alignment.bottomRight),
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF10B981).withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10))],
                 ),
-                child: const Icon(
-                  Icons.restore_rounded,
-                  color: Colors.white,
-                  size: 40,
-                ),
+                child: const Icon(Icons.restore_rounded, color: Colors.white, size: 40),
               ),
               const SizedBox(height: 24),
 
               // Title
               const Text(
                 'Chiqimni tiklash',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B),
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
@@ -370,11 +296,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
               // Description
               Text(
                 'Ushbu chiqimni tiklashni xohlaysizmi?',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey[600],
-                  height: 1.5,
-                ),
+                style: TextStyle(fontSize: 15, color: Colors.grey[600], height: 1.5),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -385,26 +307,16 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                 decoration: BoxDecoration(
                   color: const Color(0xFFD1FAE5),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.3),
-                  ),
+                  border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.info_outline_rounded,
-                      color: Color(0xFF059669),
-                      size: 20,
-                    ),
+                    const Icon(Icons.info_outline_rounded, color: Color(0xFF059669), size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Chiqim qayta faol holatga qaytadi',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[800],
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: TextStyle(fontSize: 13, color: Colors.grey[800], fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
@@ -421,17 +333,11 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: const BorderSide(color: Color(0xFFE2E8F0), width: 2),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: const Text(
                         'Yo\'q',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF64748B),
-                        ),
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ),
                   ),
@@ -443,17 +349,11 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor: const Color(0xFF10B981),
                         elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: const Text(
                         'Ha',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white),
                       ),
                     ),
                   ),
@@ -484,13 +384,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -500,36 +394,18 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: const LinearGradient(colors: [Color(0xFFEF4444), Color(0xFFDC2626)], begin: Alignment.topLeft, end: Alignment.bottomRight),
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFEF4444).withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: const Color(0xFFEF4444).withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10))],
                 ),
-                child: const Icon(
-                  Icons.delete_forever_rounded,
-                  color: Colors.white,
-                  size: 40,
-                ),
+                child: const Icon(Icons.delete_forever_rounded, color: Colors.white, size: 40),
               ),
               const SizedBox(height: 24),
 
               // Title
               const Text(
                 'Butunlay o\'chirish',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B),
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
@@ -537,11 +413,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
               // Description
               Text(
                 'Ushbu chiqimni butunlay o\'chirmoqchimisiz?',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey[600],
-                  height: 1.5,
-                ),
+                style: TextStyle(fontSize: 15, color: Colors.grey[600], height: 1.5),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -552,26 +424,16 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                 decoration: BoxDecoration(
                   color: const Color(0xFFFEE2E2),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFEF4444).withValues(alpha: 0.3),
-                  ),
+                  border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.warning_rounded,
-                      color: Color(0xFFDC2626),
-                      size: 20,
-                    ),
+                    const Icon(Icons.warning_rounded, color: Color(0xFFDC2626), size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Bu amalni ortga qaytarib bo\'lmaydi!',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[800],
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: TextStyle(fontSize: 13, color: Colors.grey[800], fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
@@ -588,17 +450,11 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: const BorderSide(color: Color(0xFFE2E8F0), width: 2),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: const Text(
                         'Yo\'q',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF64748B),
-                        ),
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ),
                   ),
@@ -610,17 +466,11 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor: const Color(0xFFEF4444),
                         elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: const Text(
                         'Ha',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white),
                       ),
                     ),
                   ),
@@ -639,111 +489,117 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F7FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        surfaceTintColor: Colors.white,
-        leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-              ],
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Scaffold(
+        // backgroundColor: const Color(0xFFF7F7FA),
+        appBar: AppBar(
+          // backgroundColor: Colors.white,
+          elevation: 0,
+          surfaceTintColor: Colors.white,
+          leading: IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+                  BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+                  BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
+                ],
+              ),
+              child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
             ),
-            child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+            onPressed: () => Navigator.pop(context),
           ),
-          onPressed: () => Navigator.pop(context),
+          title: const Text(
+            'Loyiha chiqimlari',
+            style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+          centerTitle: true,
         ),
-        title: const Text(
-          'Loyiha chiqimlari',
-          style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        centerTitle: true,
-      ),
-      floatingActionButton: FloatingActionButton(onPressed: _navigateToAddCost, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
+        floatingActionButton: FloatingActionButton(onPressed: _navigateToAddCost, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
 
-      body: BlocConsumer<ProjectCostBloc, ProjectCostState>(
-        listener: (context, state) {
-          if (state.statusAction == Status.success) {
-            Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
-            _loadCosts();
-          } else if (state.statusAction == Status.error) {
-            Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-          }
+        body: BlocConsumer<ProjectCostBloc, ProjectCostState>(
+          listener: (context, state) {
+            if (state.statusAction == Status.success) {
+              Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
+              _loadCosts();
+            } else if (state.statusAction == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            }
 
-          if (state.status == Status.success) {
-            setState(() {
-              _allCosts = state.projectCosts;
-              _filterCosts();
-            });
-          } else if (state.status == Status.error) {
-            Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-          }
-        },
-        builder: (context, state) {
-          return SafeArea(
-            child: Column(
-              children: [
-                // Search Bar
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 5),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Qidirish...',
-                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                      prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
-                      filled: true,
-                      fillColor: const Color(0xFFF8FAFC),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+            if (state.status == Status.success) {
+              setState(() {
+                _allCosts = state.projectCosts;
+                _filterCosts();
+              });
+            } else if (state.status == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            }
+          },
+          builder: (context, state) {
+            return SafeArea(
+              child: Column(
+                children: [
+                  // Search Bar
+                  Container(
+                    // color: Colors.white,
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 5),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Qidirish...',
+                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                        prefixIcon: Padding(
+                          padding: EdgeInsets.only(left: 8, right: 4),
+                          child: Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                   ),
-                ),
 
-                // Costs List
-                Expanded(
-                  child: state.status == Status.loading && _allCosts.isEmpty
-                      ? _buildShimmerLoading()
-                      : _filteredCosts.isEmpty
-                      ? _buildEmptyState()
-                      : Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
-                              child: CustomScrollView(slivers: _buildGroupedCosts()),
-                            ),
-                            if (state.statusAction == Status.loading)
-                              Container(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                child: const Center(child: Loading()),
+                  // Costs List
+                  Expanded(
+                    child: state.status == Status.loading && _allCosts.isEmpty
+                        ? _buildShimmerLoading()
+                        : _filteredCosts.isEmpty
+                        ? _buildEmptyState()
+                        : Stack(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
+                                child: CustomScrollView(slivers: _buildGroupedCosts()),
                               ),
-                          ],
-                        ),
-                ),
-              ],
-            ),
-          );
-        },
+                              if (state.statusAction == Status.loading)
+                                Container(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  child: const Center(child: Loading()),
+                                ),
+                            ],
+                          ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -979,5 +835,4 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
       ),
     );
   }
-
 }

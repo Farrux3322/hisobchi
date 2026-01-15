@@ -94,14 +94,17 @@ final router = GoRouter(
         StatefulShellRoute.indexedStack(
           parentNavigatorKey: parentKey,
           builder: (context, state, navigatorShell) {
-            return LiquidGlassShell(
-              navigationShell: navigatorShell,
-              items: [
-                LiquidTabItem(icon: AppIcons.home, label: 'Asosiy'),
-                LiquidTabItem(icon: AppIcons.clients, label: 'Hamkorlar'),
-                LiquidTabItem(icon: AppIcons.project, label: 'Loyihalar'),
-                LiquidTabItem(icon: AppIcons.profile, label: 'Profile'),
-              ],
+            return PopScope(
+              canPop: false,
+              child: LiquidGlassShell(
+                navigationShell: navigatorShell,
+                items: [
+                  LiquidTabItem(icon: AppIcons.home, label: 'Asosiy'),
+                  LiquidTabItem(icon: AppIcons.clients, label: 'Hamkorlar'),
+                  LiquidTabItem(icon: AppIcons.project, label: 'Loyihalar'),
+                  LiquidTabItem(icon: AppIcons.profile, label: 'Profile'),
+                ],
+              ),
             );
           },
           branches: branches,

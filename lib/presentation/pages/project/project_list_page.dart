@@ -1,8 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/application/project/project_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
@@ -48,41 +45,44 @@ class _ProjectListPageState extends State<ProjectListPage> {
   Widget build(BuildContext context) {
     AppManagerCubit.context = context;
     return DeFocus(
-      child: BlocConsumer<ProjectBloc, ProjectState>(
-        listener: (context, state) {
-          if (state.statusAdd == Status.success) {
-            Toast.showSuccessToast(message: 'Muvaffaqiyatli saqlandi');
-            context.read<ProjectBloc>().add(const GetAllProjectEvent());
-          }
+      child: Padding(
+        padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+        child: BlocConsumer<ProjectBloc, ProjectState>(
+          listener: (context, state) {
+            if (state.statusAdd == Status.success) {
+              Toast.showSuccessToast(message: 'Muvaffaqiyatli saqlandi');
+              context.read<ProjectBloc>().add(const GetAllProjectEvent());
+            }
 
-          if (state.statusAdd == Status.error) {
-            Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-          }
+            if (state.statusAdd == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            }
 
-          if (state.status == Status.error) {
-            Toast.showErrorToast(message: state.errorMessage ?? 'Ma\'lumotlarni yuklashda xatolik');
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            body: SafeArea(
-              bottom: false,
-              child: Column(
-                children: [
-                  _buildHeader(),
-                  Expanded(child: _buildBody(state)),
-                ],
+            if (state.status == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Ma\'lumotlarni yuklashda xatolik');
+            }
+          },
+          builder: (context, state) {
+            return Scaffold(
+              body: SafeArea(
+                bottom: false,
+                child: Column(
+                  children: [
+                    _buildHeader(),
+                    Expanded(child: _buildBody(state)),
+                  ],
+                ),
               ),
-            ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                context.pushNamed(Routes.projectAddPage.name);
-              },
-              backgroundColor: AppTheme.colors.primary,
-              child: SvgPicture.asset(AppIcons.projectAdd),
-            ),
-          );
-        },
+              floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  context.pushNamed(Routes.projectAddPage.name);
+                },
+                backgroundColor: AppTheme.colors.primary,
+                child: SvgPicture.asset(AppIcons.projectAdd),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

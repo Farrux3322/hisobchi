@@ -5,7 +5,7 @@ class ProjectModel {
   String? phone;
   String? address;
   String? location;
-  List<String>? files;
+  List<ProjectFile>? files;
   String? createdAt;
   String? deletedAt;
   ProjectAccounts? accounts;
@@ -30,7 +30,14 @@ class ProjectModel {
     phone = json['phone'];
     address = json['address'];
     location = json['location'];
-    files = json['files'] != null ? List<String>.from(json['files']) : [];
+    if (json['files'] != null) {
+      files = <ProjectFile>[];
+      json['files'].forEach((v) {
+        files!.add(ProjectFile.fromJson(v));
+      });
+    } else {
+      files = [];
+    }
     createdAt = json['created_at'];
     deletedAt = json['deleted_at'];
     accounts = json['accounts'] != null ? ProjectAccounts.fromJson(json['accounts']) : null;
@@ -44,7 +51,9 @@ class ProjectModel {
     data['phone'] = phone;
     data['address'] = address;
     data['location'] = location;
-    data['files'] = files;
+    if (files != null) {
+      data['files'] = files!.map((v) => v.toJson()).toList();
+    }
     data['created_at'] = createdAt;
     data['deleted_at'] = deletedAt;
     if (accounts != null) {
@@ -54,15 +63,36 @@ class ProjectModel {
   }
 }
 
+class ProjectFile {
+  int? id;
+  String? url;
+
+  ProjectFile({this.id, this.url});
+
+  ProjectFile.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    url = json['url'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['url'] = url;
+    return data;
+  }
+}
+
 class ProjectAccounts {
   CurrencyAmount? debt;
   CurrencyAmount? credit;
+  CurrencyAmount? balance;
 
-  ProjectAccounts({this.debt, this.credit});
+  ProjectAccounts({this.debt, this.credit, this.balance});
 
   ProjectAccounts.fromJson(Map<String, dynamic> json) {
     debt = json['debt'] != null ? CurrencyAmount.fromJson(json['debt']) : null;
     credit = json['credit'] != null ? CurrencyAmount.fromJson(json['credit']) : null;
+    balance = json['balance'] != null ? CurrencyAmount.fromJson(json['balance']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -72,6 +102,9 @@ class ProjectAccounts {
     }
     if (credit != null) {
       data['credit'] = credit!.toJson();
+    }
+    if (balance != null) {
+      data['balance'] = balance!.toJson();
     }
     return data;
   }

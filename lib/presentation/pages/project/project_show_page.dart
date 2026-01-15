@@ -1,17 +1,24 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gap/gap.dart';
 import 'package:hisobchi/application/project/project_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/project/project_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/utils/phone_formatter.dart';
 import 'package:hisobchi/presentation/pages/project/project_edit_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/contract_list_page.dart';
+import 'package:hisobchi/presentation/pages/project/screens/project_cost/project_cost_add_edit_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_cost/project_cost_list_page.dart';
+import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_add_edit_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/report/project_report_page.dart';
+import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProjectShowPage extends StatefulWidget {
@@ -38,534 +45,557 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Loyiha tafsilotlari',
-          style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.w600),
-        ),
-      ),
-      body: BlocBuilder<ProjectBloc, ProjectState>(
-        buildWhen: (previous, current) => previous.statusDetail != current.statusDetail || previous.selectedProject != current.selectedProject,
-        builder: (context, state) {
-          if (state.statusDetail == Status.loading) {
-            return _buildLoadingShimmer();
-          }
+    return BlocBuilder<ProjectBloc, ProjectState>(
+      buildWhen: (previous, current) => previous.statusDetail != current.statusDetail || previous.selectedProject != current.selectedProject,
+      builder: (context, state) {
+        final project = state.selectedProject;
 
-          if (state.statusDetail == Status.error) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                    const SizedBox(height: 16),
-                    Text(
-                      state.errorMessage ?? 'Xatolik yuz berdi',
-                      style: const TextStyle(fontSize: 16, color: Colors.red),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-                      },
-                      child: const Text('Qayta urinish'),
-                    ),
+        return Scaffold(
+          appBar: AppBar(
+            elevation: 0,
+            leading: InkWell(
+              onTap: () => Navigator.of(context).maybePop(),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    const BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+                    const BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+                    const BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
                   ],
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                child: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
               ),
-            );
-          }
-
-          final project = state.selectedProject;
-          if (project == null) {
-            return const Center(child: Text('Loyiha topilmadi'));
-          }
-
-          return _buildContent(project);
-        },
-      ),
-    );
-  }
-
-  Widget _buildContent(ProjectModel project) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return RefreshIndicator(
-          onRefresh: () async {
-            context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-            await Future.delayed(const Duration(milliseconds: 500));
-          },
-          child: SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                    Container(
-                      margin: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                        child: ExpansionTile(
-                          initiallyExpanded: false,
-                          tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          childrenPadding: const EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 12),
-                          collapsedShape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(8),
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [Colors.blue.shade400, Colors.blue.shade600],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                borderRadius: BorderRadius.circular(10),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.blue.withValues(alpha: 0.3),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 2),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: const Icon(Icons.business_center, color: Colors.white, size: 20),
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    'Loyiha nomi',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight: FontWeight.w500,
-                                                      color: Colors.grey.shade600,
-                                                      letterSpacing: 0.2,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    project.projectName ?? '-',
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.w700,
-                                                      color: Color(0xFF1E293B),
-                                                      letterSpacing: -0.3,
-                                                    ),
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Row(
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(8),
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [Colors.purple.shade400, Colors.purple.shade600],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                borderRadius: BorderRadius.circular(10),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.purple.withValues(alpha: 0.3),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 2),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: const Icon(Icons.person, color: Colors.white, size: 20),
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    'Loyiha egasi',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight: FontWeight.w500,
-                                                      color: Colors.grey.shade600,
-                                                      letterSpacing: 0.2,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    project.projectOwner ?? '-',
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.w700,
-                                                      color: Color(0xFF1E293B),
-                                                      letterSpacing: -0.3,
-                                                    ),
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          trailing: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: IconButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => ProjectEditPage(projectModel: project)),
-                                ).then((v) {
-                                  if (v == true && context.mounted) {
-                                    context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-                                  }
-                                });
-                              },
-                              icon: SvgPicture.asset(AppIcons.edit),
-                              iconSize: 18,
-                              padding: const EdgeInsets.all(8),
-                              constraints: const BoxConstraints(),
-                              tooltip: 'Tahrirlash',
-                            ),
-                          ),
-                          children: [
-                            const Divider(height: 1, thickness: 1.5, color: Color(0xFFE2E8F0)),
-                            const SizedBox(height: 16),
-                            _buildCompactInfoRow(
-                              icon: Icons.phone,
-                              iconColor: const Color(0xFF10B981),
-                              label: 'Tel raqami',
-                              value: PhoneFormatter.formatPhoneNumber(project.phone ?? ''),
-                            ),
-                            const SizedBox(height: 14),
-                            _buildCompactInfoRow(
-                              icon: Icons.location_on,
-                              iconColor: const Color(0xFFEF4444),
-                              label: 'Manzil',
-                              value: project.address ?? '',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ProjectIncomeListPage(projectId: project.id ?? 0),
-                                ),
-                              ).then((_) {
-                                // Income sahifasidan qaytganda refresh qilamiz
-                                if (context.mounted) {
-                                  context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-                                }
-                              });
-                            },
-                            child: _buildActionButton(
-                              icon: AppIcons.income,
-                              label: 'Kirim',
-                              amountWidget: _buildAmountWidget(project.accounts?.debt),
-                              color: Color(0xFF3CC293),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ProjectCostListPage(projectId: project.id ?? 0),
-                                ),
-                              ).then((_) {
-                                // Cost sahifasidan qaytganda refresh qilamiz
-                                if (context.mounted) {
-                                  context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-                                }
-                              });
-                            },
-                            child: _buildActionButton(
-                              icon: AppIcons.chiqim,
-                              label: 'Chiqim',
-                              amountWidget: _buildAmountWidget(project.accounts?.credit),
-                              color: Color(0xFFDE5050),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          _buildMenuButton(
-                            icon: Icons.description,
-                            label: 'Shartnoma',
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => ContractListPage(projectId: project.id ?? 0)));
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                          _buildMenuButton(
-                            icon: Icons.people,
-                            label: 'Ishchilar',
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => WorkerListPage(projectId: project.id ?? 0)));
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                          _buildMenuButton(
-                            icon: Icons.edit_document,
-                            label: 'Hisobot',
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectReportPage(projectId: project.id ?? 0)));
-                            },
-                          ),
-                          const SizedBox(height: 24),
-                        ],
-                      ),
-                    ),
-                  ],
             ),
+            centerTitle: true,
+            title: const Text(
+              'Loyiha tafsilotlari',
+              style: TextStyle(color: Color(0xFF1E293B), fontSize: 17, fontWeight: FontWeight.w600),
+            ),
+            actions: [
+              if (project != null && state.statusDetail != Status.loading)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ProjectEditPage(projectModel: project))).then((v) {
+                        if (v == true && context.mounted) {
+                          context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                        }
+                      });
+                    },
+                    icon: SvgPicture.asset(AppIcons.edit, width: 22, colorFilter: const ColorFilter.mode(Color(0xFF1E293B), BlendMode.srcIn)),
+                    tooltip: 'Tahrirlash',
+                  ),
+                ),
+            ],
           ),
+          body: _buildBody(state),
         );
       },
     );
   }
 
-  /// Senior darajadagi amount widget - RichText bilan formatlangan
-  Widget _buildAmountWidget(CurrencyAmount? amount) {
-    if (amount == null) {
-      return RichText(
-        textAlign: TextAlign.right,
-        text: const TextSpan(
-          children: [
-            TextSpan(
-              text: '0 ',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            TextSpan(
-              text: 'UZS',
-              style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-            ),
-            TextSpan(
-              text: '\n0 ',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            TextSpan(
-              text: 'USD',
-              style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-            ),
-          ],
+  Widget _buildBody(ProjectState state) {
+    if (state.statusDetail == Status.loading) {
+      return _buildLoadingShimmer();
+    }
+
+    if (state.statusDetail == Status.error) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline_rounded, size: 64, color: Color(0xFFEF4444)),
+              const Gap(16),
+              Text(
+                state.errorMessage ?? 'Xatolik yuz berdi',
+                style: const TextStyle(fontSize: 16, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center,
+              ),
+              const Gap(24),
+              ElevatedButton(
+                onPressed: () => context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.colors.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text(
+                  'Qayta urinish',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
-    final uzs = _formatCurrency(amount.uzs);
-    final usd = _formatCurrency(amount.usd);
-    return RichText(
-      textAlign: TextAlign.right,
-      text: TextSpan(
-        children: [
-          TextSpan(
-            text: '$uzs ',
-            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          const TextSpan(
-            text: 'UZS',
-            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-          ),
-          TextSpan(
-            text: '\n$usd ',
-            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          const TextSpan(
-            text: 'USD',
-            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-          ),
-        ],
+
+    final project = state.selectedProject;
+    if (project == null) {
+      return const Center(
+        child: Text('Loyiha topilmadi', style: TextStyle(color: Color(0xFF64748B))),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+        await Future.delayed(const Duration(milliseconds: 500));
+      },
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32).copyWith(bottom: MediaQuery.of(context).padding.bottom+10),
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        child: Column(children: [_buildProjectInfoExpansion(project), const Gap(16), _buildFinancialOverview(project), const Gap(16), _buildManagementMenu(project)]),
       ),
     );
   }
 
-  /// Senior darajadagi compact info row widget
-  Widget _buildCompactInfoRow({
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required String value,
-  }) {
+  Widget _buildProjectInfoExpansion(ProjectModel project) {
     return Container(
-      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            iconColor.withValues(alpha: 0.05),
-            iconColor.withValues(alpha: 0.02),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 10))],
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: false,
+          tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          iconColor: const Color(0xFF94A3B8),
+          collapsedIconColor: const Color(0xFF94A3B8),
+          title: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                ),
+                child: project.files != null && project.files!.isNotEmpty
+                    ? ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl: project.files!.first.url ?? '',
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(child: CupertinoActivityIndicator(radius: 8)),
+                          errorWidget: (context, url, error) => const Icon(Icons.business_center_rounded, color: Color(0xFF6366F1), size: 24),
+                        ),
+                      )
+                    : const Icon(Icons.business_center_rounded, color: Color(0xFF6366F1), size: 24),
+              ),
+              const Gap(16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Loyiha nomi',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF94A3B8), letterSpacing: 0.2),
+                    ),
+                    const Gap(2),
+                    Text(
+                      project.projectName ?? '-',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 4),
+              child: Divider(color: Color(0xFFF1F5F9), thickness: 1),
+            ),
+            const Gap(12),
+            _buildInfoRow(icon: Icons.person_outline_rounded, iconColor: const Color(0xFFF59E0B), label: 'Loyiha egasi', value: project.projectOwner ?? '-'),
+            const Gap(12),
+            _buildInfoRow(icon: Icons.phone_android_rounded, iconColor: const Color(0xFF10B981), label: 'Tel raqami', value: PhoneFormatter.formatPhoneNumber(project.phone ?? '')),
+            const Gap(12),
+            _buildInfoRow(icon: Icons.location_on_outlined, iconColor: const Color(0xFFEF4444), label: 'Manzil', value: project.address ?? '-'),
+            if (project.location != null && project.location!.isNotEmpty) ...[
+              const Gap(12),
+              _buildInfoRow(
+                icon: Icons.map_outlined,
+                iconColor: const Color(0xFF3B82F6),
+                label: 'Lokatsiya',
+                value: 'Havolani ko\'rish',
+                isLink: true,
+                onTap: () {
+                  // Handle location link
+                },
+              ),
+            ],
           ],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
         ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: iconColor.withValues(alpha: 0.15),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: iconColor.withValues(alpha: 0.2),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Icon(icon, color: iconColor, size: 20),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey.shade600,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value.isEmpty ? '-' : value,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E293B),
-                    letterSpacing: -0.2,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  /// Senior darajadagi action button - RichText amount bilan
-  Widget _buildActionButton({
-    required String icon,
-    required String label,
-    required Widget amountWidget,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
-      ),
-      child: Row(
-        children: [
-          SvgPicture.asset(icon),
-          const SizedBox(width: 12),
-          Text(
-            label,
-            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-          const Spacer(),
-          amountWidget,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMenuButton({required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildInfoRow({required IconData icon, required Color iconColor, required String label, required String value, bool isLink = false, VoidCallback? onTap}) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal:  20,vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
-        ),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(16)),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: Colors.blue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-              child: Icon(icon, color: Colors.blue, size: 24),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+              child: Icon(icon, color: iconColor, size: 20),
             ),
-            const SizedBox(width: 12),
+            const Gap(12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF94A3B8)),
+                  ),
+                  const Gap(1),
+                  Text(
+                    value,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isLink ? const Color(0xFF3B82F6) : const Color(0xFF1E293B)),
+                  ),
+                ],
+              ),
+            ),
+            if (isLink) const Icon(Icons.open_in_new_rounded, size: 14, color: Color(0xFF3B82F6)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFinancialOverview(ProjectModel project) {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(color:  Colors.white, borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        children: [
+          // Totals Row (Income & Expense)
+          Row(
+            children: [
+              Expanded(
+                child: _buildMetricCard(
+                  label: 'Kirim',
+                  amountUzs: project.accounts?.debt?.uzs,
+                  amountUsd: project.accounts?.debt?.usd,
+                  icon: AppIcons.income,
+                  color: const Color(0xFF10B981),
+                  // Emerald
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeListPage(projectId: project.id ?? 0))).then((_) {
+                      if (mounted) context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                    });
+                  },
+                ),
+              ),
+              const Gap(12),
+              Expanded(
+                child: _buildMetricCard(
+                  label: 'Chiqim',
+                  amountUzs: project.accounts?.credit?.uzs,
+                  amountUsd: project.accounts?.credit?.usd,
+                  icon: AppIcons.chiqim,
+                  color: const Color(0xFFEF4444),
+                  // Rose
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostListPage(projectId: project.id ?? 0))).then((_) {
+                      if (mounted) context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+          const Gap(12),
+          // Large Balance Card
+          _buildMainBalanceCard(project),
+          const Gap(12),
+          // Quick Action Buttons
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionButton(
+                  label: 'Kirim',
+                  icon: AppIcons.income,
+                  color: const Color(0xFF10B981),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeAddEditPage(projectId: project.id ?? 0))).then((_) {
+                      if (mounted) context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                    });
+                  },
+                ),
+              ),
+              const Gap(12),
+              Expanded(
+                child: _buildActionButton(
+                  label: 'Chiqim',
+                  icon: AppIcons.chiqim,
+                  color: const Color(0xFFEF4444),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostAddEditPage(projectId: project.id ?? 0))).then((_) {
+                      if (mounted) context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetricCard({required String label, num? amountUzs, num? amountUsd, required String icon, required Color color, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          border: Border.all(color: color),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                  child: SvgPicture.asset(icon, width: 20, height: 20, colorFilter: ColorFilter.mode(color, BlendMode.srcIn)),
+                ),
+                const Gap(8),
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.black),
+                ),
+              ],
+            ),
+            // const Gap(12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      _formatCurrency(amountUzs),
+                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B)),
+                    ),
+                    const Gap(4),
+                    Text(
+                      'UZS',
+                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const Gap(4),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      _formatCurrency(amountUsd),
+                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: color),
+                    ),
+                    const Gap(4),
+                    Text(
+                      'USD',
+                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainBalanceCard(ProjectModel project) {
+    var color = AppTheme.colors.primary; // Indigo
+    final balance = project.accounts?.balance;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [ color.withValues(alpha: .6),color.withValues(alpha: 0.6),color.withValues(alpha: .75),], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 8))],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
+            child: SvgPicture.asset(AppIcons.balance, width: 24, height: 24, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+          ),
+          const Gap(16),
+          Text(
+            'Qoldiq',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white),
+          ),
+
+          const Spacer(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    _formatCurrency(balance?.uzs),
+                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: Colors.white),
+                  ),
+                  const Gap(6),
+                  Text(
+                    'UZS',
+                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.white70),
+                  ),
+                ],
+              ),
+              const Gap(2),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    _formatCurrency(balance?.usd),
+                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.white),
+                  ),
+                  const Gap(6),
+                  Text(
+                    'USD',
+                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.white70),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({required String label, required String icon, required Color color, required VoidCallback onTap}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.80),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: color.withValues(alpha: 0.15), width: 1.5),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(icon, colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+              const Gap(8),
+              Text(
+                label,
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.white),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildManagementMenu(ProjectModel project) {
+    return Column(
+      children: [
+        _buildMenuButton(
+          icon: Icons.description_outlined,
+          label: 'Shartnomalar',
+          color: const Color(0xFF3B82F6),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ContractListPage(projectId: project.id ?? 0))),
+        ),
+        const Gap(12),
+        _buildMenuButton(
+          icon: Icons.people_outline_rounded,
+          label: 'Ishchilar',
+          color: const Color(0xFF8B5CF6),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => WorkerListPage(projectId: project.id ?? 0))),
+        ),
+        const Gap(12),
+        _buildMenuButton(
+          icon: Icons.analytics_outlined,
+          label: 'Loyiha hisoboti',
+          color: const Color(0xFF64748B),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectReportPage(projectId: project.id ?? 0))),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMenuButton({required IconData icon, required String label, required Color color, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const Gap(16),
             Text(
               label,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
             ),
             const Spacer(),
-            const Icon(Icons.chevron_right, color: Colors.grey, size: 24),
+            const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1), size: 20),
           ],
         ),
       ),
@@ -574,139 +604,47 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
 
   Widget _buildLoadingShimmer() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Loyiha ma'lumotlari shimmer
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildShimmerBox(width: 150, height: 20),
-                    _buildShimmerBox(width: 40, height: 40, borderRadius: 20),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 16),
-                _buildShimmerInfoRow(),
-                const SizedBox(height: 16),
-                _buildShimmerInfoRow(),
-                const SizedBox(height: 16),
-                _buildShimmerInfoRow(),
-                const SizedBox(height: 16),
-                _buildShimmerInfoRow(),
-              ],
-            ),
-          ),
-          // Action buttons shimmer
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                _buildShimmerActionButton(color: Colors.green),
-                const SizedBox(height: 12),
-                _buildShimmerActionButton(color: Colors.red),
-                const SizedBox(height: 12),
-                _buildShimmerMenuButton(),
-                const SizedBox(height: 12),
-                _buildShimmerMenuButton(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildShimmerBox({required double width, required double height, double borderRadius = 8}) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShimmerInfoRow() {
-    return Row(
-      children: [
-        _buildShimmerBox(width: 36, height: 36, borderRadius: 8),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildShimmerBox(width: double.infinity, height: 16),
-        ),
-        const SizedBox(width: 12),
-        _buildShimmerBox(width: 100, height: 16),
-      ],
-    );
-  }
-
-  Widget _buildShimmerActionButton({required Color color}) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          _buildShimmerBox(width: 28, height: 28, borderRadius: 14),
-          const SizedBox(width: 12),
-          _buildShimmerBox(width: 60, height: 18),
-          const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          _buildShimmerItem(height: 80, borderRadius: 24), // Info
+          const Gap(16),
+          Row(
             children: [
-              _buildShimmerBox(width: 80, height: 16),
-              const SizedBox(height: 4),
-              _buildShimmerBox(width: 60, height: 16),
+              Expanded(child: _buildShimmerItem(height: 120, borderRadius: 24)), // Metric Left
+              const Gap(12),
+              Expanded(child: _buildShimmerItem(height: 120, borderRadius: 24)), // Metric Right
             ],
           ),
+          const Gap(12),
+          _buildShimmerItem(height: 110, borderRadius: 24), // Balance Card
+          const Gap(12),
+          Row(
+            children: [
+              Expanded(child: _buildShimmerItem(height: 54, borderRadius: 20)), // Action Left
+              const Gap(12),
+              Expanded(child: _buildShimmerItem(height: 54, borderRadius: 20)), // Action Right
+            ],
+          ),
+          const Gap(24),
+          _buildShimmerItem(height: 70, borderRadius: 20), // Menu 1
+          const Gap(12),
+          _buildShimmerItem(height: 70, borderRadius: 20), // Menu 2
+          const Gap(12),
+          _buildShimmerItem(height: 70, borderRadius: 20), // Menu 3
         ],
       ),
     );
   }
 
-  Widget _buildShimmerMenuButton() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
-      ),
-      child: Row(
-        children: [
-          _buildShimmerBox(width: 40, height: 40, borderRadius: 8),
-          const SizedBox(width: 12),
-          _buildShimmerBox(width: 100, height: 16),
-          const Spacer(),
-          _buildShimmerBox(width: 24, height: 24, borderRadius: 12),
-        ],
+  Widget _buildShimmerItem({required double height, required double borderRadius}) {
+    return Shimmer.fromColors(
+      baseColor: const Color(0xFFF1F5F9),
+      highlightColor: Colors.white,
+      child: Container(
+        height: height,
+        width: double.infinity,
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(borderRadius)),
       ),
     );
   }
