@@ -18,6 +18,20 @@ import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
+/// Result object returned when navigating back from ProjectCostListPage
+/// Indicates whether transactions were modified
+class ProjectCostListResult {
+  final bool hasChanges;
+
+  const ProjectCostListResult({required this.hasChanges});
+
+  /// Factory for when transactions were modified
+  factory ProjectCostListResult.modified() => const ProjectCostListResult(hasChanges: true);
+
+  /// Factory for when no changes were made
+  factory ProjectCostListResult.noChanges() => const ProjectCostListResult(hasChanges: false);
+}
+
 class ProjectCostListPage extends StatefulWidget {
   final int projectId;
 
@@ -31,6 +45,9 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
   final TextEditingController _searchController = TextEditingController();
   List<ProjectCostModel> _filteredCosts = [];
   List<ProjectCostModel> _allCosts = [];
+
+  /// Tracks whether any changes were made (add/edit/delete/restore transactions)
+  bool _hasChanges = false;
 
   @override
   void initState() {
@@ -47,6 +64,11 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
 
   void _loadCosts() {
     context.read<ProjectCostBloc>().add(GetProjectCostsEvent(projectId: widget.projectId));
+  }
+
+  /// Mark that changes were made - parent should refresh when going back
+  void _markAsChanged() {
+    _hasChanges = true;
   }
 
   void _filterCosts() {
@@ -116,6 +138,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
     );
 
     if (result == true && mounted) {
+      _markAsChanged();
       _loadCosts();
     }
   }
@@ -132,6 +155,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
     );
 
     if (result == true && mounted) {
+      _markAsChanged();
       _loadCosts();
     }
   }
@@ -489,30 +513,40 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: Scaffold(
-        // backgroundColor: const Color(0xFFF7F7FA),
-        appBar: AppBar(
-          // backgroundColor: Colors.white,
-          elevation: 0,
-          surfaceTintColor: Colors.white,
-          leading: IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [
-                  BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                  BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                  BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-                ],
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          final navResult = _hasChanges ? ProjectCostListResult.modified() : ProjectCostListResult.noChanges();
+        }
+      },
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+        child: Scaffold(
+          // backgroundColor: const Color(0xFFF7F7FA),
+          appBar: AppBar(
+            // backgroundColor: Colors.white,
+            elevation: 0,
+            surfaceTintColor: Colors.white,
+            leading: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: const [
+                    BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+                    BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+                    BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
+                  ],
+                ),
+                child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
               ),
-              child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+              onPressed: () {
+                final result = _hasChanges ? ProjectCostListResult.modified() : ProjectCostListResult.noChanges();
+                Navigator.of(context).pop(result);
+              },
             ),
-            onPressed: () => Navigator.pop(context),
-          ),
           title: const Text(
             'Loyiha chiqimlari',
             style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
@@ -525,6 +559,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
           listener: (context, state) {
             if (state.statusAction == Status.success) {
               Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
+              _markAsChanged(); // Mark changes when delete/restore/force delete succeeds
               _loadCosts();
             } else if (state.statusAction == Status.error) {
               Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
@@ -599,6 +634,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
               ),
             );
           },
+        ),
         ),
       ),
     );

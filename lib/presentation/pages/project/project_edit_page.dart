@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gap/gap.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_event.dart';
 import 'package:hisobchi/application/file_upload/file_upload_state.dart';
@@ -13,12 +12,10 @@ import 'package:hisobchi/application/project/project_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/project/project_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProjectEditPage extends StatefulWidget {
   final ProjectModel projectModel;
@@ -99,8 +96,7 @@ class _ProjectEditPageState extends State<ProjectEditPage> {
         'address': _addressController.text,
         'location': _locationController.text,
         if (_uploadedImageId != null) 'file_id': [_uploadedImageId],
-        if (_uploadedImageId == null && _selectedImage == null && _initialImageUrl == null && widget.projectModel.files?.isNotEmpty == true)
-          'file_id': [],
+        if (_uploadedImageId == null && _selectedImage == null && _initialImageUrl == null && widget.projectModel.files?.isNotEmpty == true) 'file_id': [],
       };
       context.read<ProjectBloc>().add(UpdateProjectEvent(data: data, id: widget.projectModel.id!));
     }
@@ -208,9 +204,9 @@ class _ProjectEditPageState extends State<ProjectEditPage> {
         ),
       ],
       onSelected: (value) {
-        if (value == 'restore')
+        if (value == 'restore') {
           _showRestoreDialog();
-        else if (value == 'force_delete')
+        } else if (value == 'force_delete')
           _showForceDeleteDialog();
       },
     );
@@ -490,8 +486,7 @@ class _ProjectEditPageState extends State<ProjectEditPage> {
       ),
     );
     if (result == true && mounted) {
-      Navigator.of(context).pop(true);
-      Navigator.of(context).pop(true);
+      Navigator.pop(context, {'action': 'delete'});
     }
   }
 
@@ -509,7 +504,7 @@ class _ProjectEditPageState extends State<ProjectEditPage> {
         onConfirm: () => context.read<ProjectBloc>().add(RestoreProjectEvent(id: widget.projectModel.id!)),
       ),
     );
-    if (result == true && mounted) Navigator.pop(context, true);
+    if (result == true && mounted) Navigator.pop(context, {'action': 'restore'});
   }
 
   Future<void> _showForceDeleteDialog() async {
@@ -528,8 +523,7 @@ class _ProjectEditPageState extends State<ProjectEditPage> {
       ),
     );
     if (result == true && mounted) {
-      Navigator.of(context).pop(true);
-      Navigator.of(context).pop(true);
+      Navigator.pop(context, {'action': 'force_delete'});
     }
   }
 }
@@ -562,10 +556,14 @@ class _ManagementActionDialog extends StatelessWidget {
         if (state.statusAction == Status.success) {
           HapticFeedback.mediumImpact();
           Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
-          Navigator.of(context).pop(true);
+          if (context.mounted) {
+            Navigator.of(context, rootNavigator: true).maybePop(true);
+          }
         } else if (state.statusAction == Status.error) {
           Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-          Navigator.of(context).pop(false);
+          if (context.mounted) {
+            Navigator.of(context, rootNavigator: true).maybePop(false);
+          }
         }
       },
       builder: (context, state) {

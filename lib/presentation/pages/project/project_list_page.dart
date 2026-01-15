@@ -46,7 +46,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
     AppManagerCubit.context = context;
     return DeFocus(
       child: Padding(
-        padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
         child: BlocConsumer<ProjectBloc, ProjectState>(
           listener: (context, state) {
             if (state.statusAdd == Status.success) {
@@ -122,29 +122,25 @@ class _ProjectListPageState extends State<ProjectListPage> {
         context.read<ProjectBloc>().add(const GetAllProjectEvent());
       },
       child: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding:  EdgeInsets.symmetric(horizontal:  16),
         itemCount: filteredProjects.length,
         itemBuilder: (context, index) {
           final project = filteredProjects[index];
-          return Column(
-            children: [
-              ProjectCardItem(
-                projectModel: project,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ProjectShowPage(projectId: project.id ?? 0),
-                    ),
-                  ).then((_) {
-                    if (context.mounted) {
-                      context.read<ProjectBloc>().add(const GetAllProjectEvent());
-                    }
-                  });
-                },
-              ),
-              if(index==filteredProjects.length-1)Gap(MediaQuery.of(context).padding.bottom)
-            ],
+          return ProjectCardItem(
+            projectModel: project,
+            onTap: () async {
+              final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectShowPage(projectId: project.id ?? 0)));
+              // Handle results: ProjectShowResult (from normal navigation) or true (from delete/force_delete)
+              if (context.mounted) {
+                if (result is ProjectShowResult && result.hasChanges) {
+                  // Changes made in ProjectShowPage (edit, income/expense modifications)
+                  context.read<ProjectBloc>().add(const GetAllProjectEvent());
+                } else if (result == true) {
+                  // Project was deleted or force deleted - refresh list
+                  context.read<ProjectBloc>().add(const GetAllProjectEvent());
+                }
+              }
+            },
           );
         },
       ),
@@ -193,7 +189,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
 
   Widget _buildEmptyState() {
     return Padding(
-      padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -248,10 +244,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
                       child: Container(
                         width: 52.w,
                         height: 52.h,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14.r),
-                        ),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14.r)),
                       ),
                     ),
                     SizedBox(width: 14.w),
@@ -265,10 +258,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
                             highlightColor: Colors.grey[100]!,
                             child: Container(
                               height: 16,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                             ),
                           ),
                           SizedBox(height: 4.h),
@@ -278,10 +268,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
                             child: Container(
                               width: 120,
                               height: 14,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                             ),
                           ),
                         ],
@@ -297,10 +284,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
                     highlightColor: Colors.grey[100]!,
                     child: Container(
                       height: 36,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12.r)),
                     ),
                   ),
                   SizedBox(height: 8.h),
@@ -311,10 +295,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
                   highlightColor: Colors.grey[100]!,
                   child: Container(
                     height: 36,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12.r)),
                   ),
                 ),
               ],

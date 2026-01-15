@@ -174,14 +174,14 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
                       key: formKey,
                       child: Column(
                         children: [
-                          SizedBox(height: 24.h),
+                          SizedBox(height: 20.h),
                           _buildLogoSection(),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: 20.h),
                           _buildWelcomeSection(),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: 20.h),
                           _buildFormSection(state),
                           if (_showPasswordField) ...[
-                            SizedBox(height: 24.h),
+                            SizedBox(height: 20.h),
                             _buildLoginButton(state),
                           ],
                         ],

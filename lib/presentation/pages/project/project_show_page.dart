@@ -21,6 +21,20 @@ import 'package:hisobchi/presentation/pages/project/screens/report/project_repor
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
+/// Result object returned when navigating back from ProjectShowPage
+/// Indicates whether data was modified and list should be refreshed
+class ProjectShowResult {
+  final bool hasChanges;
+
+  const ProjectShowResult({required this.hasChanges});
+
+  /// Factory for when project or transactions were modified
+  factory ProjectShowResult.modified() => const ProjectShowResult(hasChanges: true);
+
+  /// Factory for when no changes were made
+  factory ProjectShowResult.noChanges() => const ProjectShowResult(hasChanges: false);
+}
+
 class ProjectShowPage extends StatefulWidget {
   final int projectId;
 
@@ -31,10 +45,18 @@ class ProjectShowPage extends StatefulWidget {
 }
 
 class _ProjectShowPageState extends State<ProjectShowPage> {
+  /// Tracks whether any changes were made (project edit, income/expense transactions)
+  bool _hasChanges = false;
+
   @override
   void initState() {
     super.initState();
     context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+  }
+
+  /// Mark that changes were made - list should be refreshed when going back
+  void _markAsChanged() {
+    _hasChanges = true;
   }
 
   String _formatCurrency(num? value) {
@@ -45,18 +67,32 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ProjectBloc, ProjectState>(
-      buildWhen: (previous, current) => previous.statusDetail != current.statusDetail || previous.selectedProject != current.selectedProject,
-      builder: (context, state) {
-        final project = state.selectedProject;
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          // Return result based on whether changes were made
+          final navResult = _hasChanges ? ProjectShowResult.modified() : ProjectShowResult.noChanges();
+          // Note: In PopScope with canPop: true, we can't modify the result
+          // The calling page should use the newer navigation pattern
+        }
+      },
+      child: BlocBuilder<ProjectBloc, ProjectState>(
+        buildWhen: (previous, current) => previous.statusDetail != current.statusDetail || previous.selectedProject != current.selectedProject,
+        builder: (context, state) {
+          final project = state.selectedProject;
 
-        return Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            leading: InkWell(
-              onTap: () => Navigator.of(context).maybePop(),
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
+          return Scaffold(
+            appBar: AppBar(
+              elevation: 0,
+              leading: InkWell(
+                onTap: () {
+                  // Return result when manually popping
+                  final result = _hasChanges ? ProjectShowResult.modified() : ProjectShowResult.noChanges();
+                  Navigator.of(context).pop(result);
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
                 padding: const EdgeInsets.all(8),
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -83,7 +119,24 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   child: IconButton(
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => ProjectEditPage(projectModel: project))).then((v) {
-                        if (v == true && context.mounted) {
+                        if (!context.mounted) return;
+
+                        if (v is Map) {
+                          final action = v['action'];
+                          if (action == 'delete' || action == 'force_delete') {
+                            _markAsChanged();
+                            Navigator.of(context).pop(ProjectShowResult.modified());
+                            return;
+                          }
+                          if (action == 'restore') {
+                            _markAsChanged();
+                            context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                            return;
+                          }
+                        }
+
+                        if (v == true) {
+                          _markAsChanged();
                           context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
                         }
                       });
@@ -95,8 +148,9 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
             ],
           ),
           body: _buildBody(state),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -302,10 +356,14 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   icon: AppIcons.income,
                   color: const Color(0xFF10B981),
                   // Emerald
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeListPage(projectId: project.id ?? 0))).then((_) {
-                      if (mounted) context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-                    });
+                  onTap: () async {
+                    // Navigate to income list page and check if changes were made
+                    final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeListPage(projectId: project.id ?? 0)));
+                    // Only refresh if transactions were actually modified
+                    if (mounted && result is ProjectIncomeListResult && result.hasChanges) {
+                      _markAsChanged();
+                      context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                    }
                   },
                 ),
               ),
@@ -318,10 +376,14 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   icon: AppIcons.chiqim,
                   color: const Color(0xFFEF4444),
                   // Rose
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostListPage(projectId: project.id ?? 0))).then((_) {
-                      if (mounted) context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-                    });
+                  onTap: () async {
+                    // Navigate to expense list page and check if changes were made
+                    final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostListPage(projectId: project.id ?? 0)));
+                    // Only refresh if transactions were actually modified
+                    if (mounted && result is ProjectCostListResult && result.hasChanges) {
+                      _markAsChanged();
+                      context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                    }
                   },
                 ),
               ),
@@ -340,8 +402,13 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   icon: AppIcons.income,
                   color: const Color(0xFF10B981),
                   onTap: () {
+                    // Adding new income transaction
                     Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeAddEditPage(projectId: project.id ?? 0))).then((_) {
-                      if (mounted) context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                      // Transaction added, refresh detail page and mark as changed
+                      if (mounted) {
+                        _markAsChanged();
+                        context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                      }
                     });
                   },
                 ),
@@ -353,8 +420,13 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   icon: AppIcons.chiqim,
                   color: const Color(0xFFEF4444),
                   onTap: () {
+                    // Adding new expense transaction
                     Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostAddEditPage(projectId: project.id ?? 0))).then((_) {
-                      if (mounted) context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                      // Transaction added, refresh detail page and mark as changed
+                      if (mounted) {
+                        _markAsChanged();
+                        context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                      }
                     });
                   },
                 ),
@@ -639,7 +711,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
 
   Widget _buildShimmerItem({required double height, required double borderRadius}) {
     return Shimmer.fromColors(
-      baseColor: const Color(0xFFF1F5F9),
+      baseColor:  Colors.grey.shade400,
       highlightColor: Colors.white,
       child: Container(
         height: height,
