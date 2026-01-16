@@ -4,7 +4,7 @@ class ContractModel {
   String? workTypeName;
   String? description;
   String? summa;
-  List<String>? files;
+  List<ContractFileModel>? files;
   int? projectId;
   String? createdAt;
   String? deletedAt;
@@ -26,8 +26,13 @@ class ContractModel {
     workTypeId = json['work_type_id'];
     workTypeName = json['work_type_name'];
     description = json['description'];
-    summa = json['summa'];
-    files = json['files'] != null ? List<String>.from(json['files']) : null;
+    summa = json['summa']?.toString();
+    if (json['files'] != null) {
+      files = <ContractFileModel>[];
+      json['files'].forEach((v) {
+        files!.add(ContractFileModel.fromJson(v));
+      });
+    }
     projectId = json['project_id'];
     createdAt = json['created_at'];
     deletedAt = json['deleted_at'];
@@ -40,7 +45,9 @@ class ContractModel {
     data['work_type_name'] = workTypeName;
     data['description'] = description;
     data['summa'] = summa;
-    data['files'] = files;
+    if (files != null) {
+      data['files'] = files!.map((v) => v.toJson()).toList();
+    }
     data['project_id'] = projectId;
     data['created_at'] = createdAt;
     data['deleted_at'] = deletedAt;
@@ -67,5 +74,24 @@ class ContractModel {
     }
 
     return result.toString();
+  }
+}
+
+class ContractFileModel {
+  int? id;
+  String? url;
+
+  ContractFileModel({this.id, this.url});
+
+  ContractFileModel.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    url = json['url'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['url'] = url;
+    return data;
   }
 }

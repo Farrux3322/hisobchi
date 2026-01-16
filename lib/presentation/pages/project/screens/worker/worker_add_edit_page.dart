@@ -43,24 +43,27 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
     _isEditing = widget.worker != null;
 
     // Initialize mask formatters
+    final initialPhone = _isEditing ? _formatInitialPhoneNumber(widget.worker!.phone) : "+998 ";
+    final initialAdditionalPhone = _isEditing ? _formatInitialPhoneNumber(widget.worker!.additionalPhone) : "+998 ";
+
     _maskFormatter1 = MaskTextInputFormatter(
       mask: '+998 (##) ###-##-##',
       filter: {"#": RegExp(r'[0-9]')},
-      initialText: _isEditing ? (widget.worker!.phone ?? "+998") : "+998",
+      initialText: initialPhone,
       type: MaskAutoCompletionType.lazy,
     );
 
     _maskFormatter2 = MaskTextInputFormatter(
       mask: '+998 (##) ###-##-##',
       filter: {"#": RegExp(r'[0-9]')},
-      initialText: _isEditing ? (widget.worker!.additionalPhone ?? "+998") : "+998",
+      initialText: initialAdditionalPhone,
       type: MaskAutoCompletionType.lazy,
     );
 
     if (_isEditing) {
       _nameController.text = widget.worker!.name ?? '';
-      _phoneController.text = widget.worker!.phone ?? '+998';
-      _additionalPhoneController.text = widget.worker!.additionalPhone ?? '+998';
+      _phoneController.text = initialPhone;
+      _additionalPhoneController.text = initialAdditionalPhone;
       _descriptionController.text = widget.worker!.description ?? '';
 
       // Edit holatda position ID va name dan WorkerPositionModel yaratamiz
@@ -70,6 +73,25 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
 
       _uploadedFileIds = widget.worker!.files ?? [];
     }
+  }
+
+  String _formatInitialPhoneNumber(String? phone) {
+    if (phone == null || phone.isEmpty) return "+998 ";
+    
+    // Remove all non-digits
+    String cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
+    
+    // Check if it's a 9-digit local number (e.g., 901234567)
+    if (cleanPhone.length == 9) {
+      cleanPhone = '998$cleanPhone';
+    }
+    
+    // If it's a 12-digit number (e.g., 998901234567), format it
+    if (cleanPhone.length == 12 && cleanPhone.startsWith('998')) {
+      return '+998 (${cleanPhone.substring(3, 5)}) ${cleanPhone.substring(5, 8)}-${cleanPhone.substring(8, 10)}-${cleanPhone.substring(10, 12)}';
+    }
+    
+    return "+998 ";
   }
 
   @override

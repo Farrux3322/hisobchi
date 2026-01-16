@@ -12,6 +12,7 @@ import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/work_type_model.dart';
 import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/work_type_list_bottom_sheet.dart';
@@ -513,7 +514,7 @@ class _ContractAddPageState extends State<ContractAddPage> {
         color: Color(0xFF1E293B),
       ),
       decoration: const InputDecoration(
-        hintText: '100',
+       
         hintStyle: TextStyle(
           color: Color(0xFF94A3B8),
           fontSize: 18,
@@ -570,16 +571,38 @@ class _ContractAddPageState extends State<ContractAddPage> {
                     ]
                   : [],
             ),
-            child: hasImage
+                child: hasImage
                 ? Stack(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Image.file(
-                          imageData.file!,
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
+                      GestureDetector(
+                        onTap: () {
+                          final validImages =
+                              _images.where((img) => img.file != null).toList();
+                          final initialIndex = validImages.indexOf(imageData);
+                          
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ImageViewerPage(
+                                images: validImages
+                                    .map((img) => ImageItem(
+                                          path: img.file!.path,
+                                          isNetwork: false,
+                                        ))
+                                    .toList(),
+                                initialIndex: initialIndex,
+                              ),
+                            ),
+                          );
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Image.file(
+                            imageData.file!,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                       if (imageData.isUploading) ...[

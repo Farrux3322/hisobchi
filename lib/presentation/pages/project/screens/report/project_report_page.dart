@@ -1,13 +1,11 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gap/gap.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/project_report/project_report_bloc.dart';
 import 'package:hisobchi/infrastructure/dto/models/project_report/project_report_model.dart';
+import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/pages/project/screens/report/project_cost_details_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/report/project_income_details_page.dart';
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProjectReportPage extends StatelessWidget {
@@ -31,29 +29,33 @@ class _ProjectReportView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // Very light cool grey
+      backgroundColor: theme.background,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Moliya Hisoboti',
-          style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.w700, fontSize: 20),
+          style: TextStyle(color: theme.black, fontWeight: FontWeight.w700, fontSize: 20),
         ),
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: theme.background,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF1E293B)),
+        iconTheme: IconThemeData(color: theme.black),
         centerTitle: true,
       ),
-      body: BlocBuilder<ProjectReportBloc, ProjectReportState>(
-        builder: (context, state) {
-          if (state.status == ReportStatus.loading) {
-            return const _ReportLoadingShimmer();
-          } else if (state.status == ReportStatus.error) {
-            return _buildErrorState(context, state.errorMessage);
-          } else if (state.status == ReportStatus.success && state.report != null) {
-            return _buildModernContent(context, state.report!, projectId);
-          }
-          return const SizedBox.shrink();
-        },
+      body: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+        child: BlocBuilder<ProjectReportBloc, ProjectReportState>(
+          builder: (context, state) {
+            if (state.status == ReportStatus.loading) {
+              return const _ReportLoadingShimmer();
+            } else if (state.status == ReportStatus.error) {
+              return _buildErrorState(context, state.errorMessage);
+            } else if (state.status == ReportStatus.success && state.report != null) {
+              return _buildContent(context, state.report!, projectId);
+            }
+            return const SizedBox.shrink();
+          },
+        ),
       ),
     );
   }
@@ -67,10 +69,7 @@ class _ProjectReportView extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.05),
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.05), shape: BoxShape.circle),
               child: const Icon(Icons.cloud_off_rounded, size: 64, color: Colors.redAccent),
             ),
             const Gap(24),
@@ -84,23 +83,195 @@ class _ProjectReportView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14.sp, color: Colors.grey[600], height: 1.5),
             ),
-            const Gap(32),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  // User would typically need to reload here. 
-                  // Since we are stateless, we assume logic exists or user re-enters.
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3B82F6),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, ProjectReportModel report, int projectId) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 1. Qoldiq Card
+          _buildBalanceCard(report),
+          const Gap(16),
+
+          // 2. Kirim Card
+          _buildIncomeCard(context, report, projectId),
+          const Gap(16),
+
+          // 3. Chiqim Card with Categories
+          _buildExpenseCard(context, report, projectId),
+          const Gap(20),
+        ],
+      ),
+    );
+  }
+
+  // 1. Qoldiq Card
+  Widget _buildBalanceCard(ProjectReportModel report) {
+    final theme = AppTheme.colors;
+    final formatter = NumberFormat("#,###", "ru_RU");
+    final balanceUzs = report.balanceUzs ?? 0;
+    final balanceUsd = report.balanceUsd ?? 0;
+    final isPositive = balanceUzs >= 0;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [theme.primary, theme.primary]),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: theme.primary.withValues(alpha: 0.25), blurRadius: 20, offset: const Offset(0, 8))],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Left side - Title and Icon
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
+                      child: Icon(isPositive ? Icons.trending_up_rounded : Icons.trending_down_rounded, color: Colors.white, size: 20),
+                    ),
+                    const Gap(10),
+                    Text(
+                      'Qoldiq',
+                      style: TextStyle(fontSize: 16.sp, color: Colors.white.withValues(alpha: 0.95), fontWeight: FontWeight.w700, letterSpacing: 0.5),
+                    ),
+                  ],
                 ),
-                child: const Text('Qayta yuklash', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                const Gap(12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
+                  child: Text(
+                    isPositive ? 'Foyda' : 'Zarar',
+                    style: TextStyle(fontSize: 12.sp, color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Right side - Vertical Balance
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              RichText(
+                text: TextSpan(
+                  text: formatter.format(balanceUzs).replaceAll(',', ' '),
+                  style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w900, color: Colors.white, height: 1.2),
+                  children: [
+                    TextSpan(
+                      text: ' UZS',
+                      style: TextStyle(fontSize: 12.sp, color: Colors.white.withValues(alpha: 0.85), fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
               ),
+              if (balanceUsd != 0) ...[
+                const Gap(8),
+                RichText(
+                  text: TextSpan(
+                    text: formatter.format(balanceUsd).replaceAll(',', ' '),
+                    style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w900, color: Colors.white.withValues(alpha: 0.9), height: 1.2),
+                    children: [
+                      TextSpan(
+                        text: ' USD',
+                        style: TextStyle(fontSize: 12.sp, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 2. Kirim Card
+  Widget _buildIncomeCard(BuildContext context, ProjectReportModel report, int projectId) {
+    final formatter = NumberFormat("#,###", "ru_RU");
+    final incomeUzs = report.incomeUzs ?? 0;
+    final incomeUsd = report.incomeUsd ?? 0;
+
+    return InkWell(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeDetailsPage(projectId: projectId)));
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3), width: 1.5),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left side - Title and Icon
+            Expanded(
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                    child: SvgPicture.asset(AppIcons.income, width: 22, height: 22, colorFilter: const ColorFilter.mode(Color(0xFF10B981), BlendMode.srcIn)),
+                  ),
+                  const Gap(12),
+                  Text(
+                    'Kirim',
+                    style: TextStyle(fontSize: 16.sp, color: const Color(0xFF1E293B), fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+            ),
+
+            // Right side - Vertical Income
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    text: formatter.format(incomeUzs).replaceAll(',', ' '),
+                    style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: const Color(0xFF10B981), height: 1.2),
+                    children: [
+                      TextSpan(
+                        text: ' UZS',
+                        style: TextStyle(fontSize: 12.sp, color: const Color(0xFF10B981).withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+                if (incomeUsd > 0) ...[
+                  const Gap(6),
+                  RichText(
+                    text: TextSpan(
+                      text: formatter.format(incomeUsd).replaceAll(',', ' '),
+                      style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: const Color(0xFF059669), height: 1.2),
+                      children: [
+                        TextSpan(
+                          text: ' USD',
+                          style: TextStyle(fontSize: 12.sp, color: const Color(0xFF059669).withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),
@@ -108,334 +279,263 @@ class _ProjectReportView extends StatelessWidget {
     );
   }
 
-  Widget _buildModernContent(BuildContext context, ProjectReportModel report, int projectId) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildTotalBalanceCard(report),
-          const Gap(20),
-          Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ProjectIncomeDetailsPage(projectId: projectId),
-                      ),
-                    );
-                  },
-                  child: _buildStatCard(
-                    title: 'Kirim',
-                    amountUzs: report.incomeUzs,
-                    amountUsd: report.incomeUsd,
-                    color: const Color(0xFF10B981),
-                    icon: Icons.arrow_downward_rounded,
-                  ),
-                ),
-              ),
-              const Gap(16),
-              Expanded(
-                child: _buildStatCard(
-                  title: 'Chiqim',
-                  amountUzs: report.costs?.costUzs,
-                  amountUsd: report.costs?.costUsd,
-                  color: const Color(0xFFEF4444),
-                  icon: Icons.arrow_upward_rounded,
-                ),
-              ),
-            ],
-          ),
-          const Gap(32),
-          Text(
-            "Chiqimlar tarixi",
-            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
-          ),
-          const Gap(16),
-          _buildCostList(report.costs?.details, projectId, context),
-          const Gap(40),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTotalBalanceCard(ProjectReportModel report) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)], // Blue gradient
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF2563EB).withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 20),
-              ),
-              const Gap(10),
-              Text(
-                'Umumiy Balans',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: Colors.white.withOpacity(0.9),
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
-          ),
-          const Gap(24),
-          _buildBigCurrencyText(report.balanceUzs, 'UZS', textColor: Colors.white),
-          if ((report.balanceUsd ?? 0) != 0) ...[
-            const Gap(12),
-            Container(width: double.infinity, height: 1, color: Colors.white.withOpacity(0.15)),
-            const Gap(12),
-            _buildBigCurrencyText(report.balanceUsd, 'USD', textColor: Colors.white),
-          ]
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBigCurrencyText(num? amount, String symbol, {required Color textColor}) {
+  // 3. Chiqim Card with Categories
+  Widget _buildExpenseCard(BuildContext context, ProjectReportModel report, int projectId) {
     final formatter = NumberFormat("#,###", "ru_RU");
-    
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: [
-        Text(
-          formatter.format(amount ?? 0).replaceAll(',', ' '),
-          style: TextStyle(
-            fontSize: 28.sp,
-            fontWeight: FontWeight.w700,
-            color: textColor,
-            letterSpacing: -0.5,
-          ),
-        ),
-        const Gap(8),
-        Text(
-          symbol,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            color: textColor.withOpacity(0.8),
-          ),
-        ),
-      ],
-    );
-  }
+    final costUzs = report.costs?.costUzs ?? 0;
+    final costUsd = report.costs?.costUsd ?? 0;
+    final details = report.costs?.details ?? [];
 
-  Widget _buildStatCard({
-    required String title,
-    required num? amountUzs,
-    required num? amountUsd,
-    required Color color,
-    required IconData icon,
-  }) {
-    final formatter = NumberFormat("#,###", "ru_RU");
+    // Calculate total cost in UZS equivalent (1 USD = 13000 UZS)
+    // Sum all categories in UZS for accurate percentage calculation
+    final totalCostInUzs = details.fold<double>(0.0, (sum, detail) => sum + (detail.summaUzs ?? 0) + ((detail.summaUsd ?? 0) * 13000));
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3), width: 1.5),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+          // Header
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Left side - Title and Icon
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(color: const Color(0xFFEF4444).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                      child: SvgPicture.asset(AppIcons.chiqim, width: 22, height: 22, colorFilter: ColorFilter.mode(const Color(0xFFEF4444), BlendMode.srcIn)),
+                    ),
+                    const Gap(12),
+                    Text(
+                      'Chiqim',
+                      style: TextStyle(fontSize: 16.sp, color: const Color(0xFF1E293B), fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Right side - Vertical Expense
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      text: formatter.format(costUzs).replaceAll(',', ' '),
+                      style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: const Color(0xFFEF4444), height: 1.2),
+                      children: [
+                        TextSpan(
+                          text: ' UZS',
+                          style: TextStyle(fontSize: 12.sp, color: const Color(0xFFEF4444).withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (costUsd > 0) ...[
+                    const Gap(6),
+                    RichText(
+                      text: TextSpan(
+                        text: formatter.format(costUsd).replaceAll(',', ' '),
+                        style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: const Color(0xFFDC2626), height: 1.2),
+                        children: [
+                          TextSpan(
+                            text: ' USD',
+                            style: TextStyle(fontSize: 12.sp, color: const Color(0xFFDC2626).withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+
+          // Categories with Progress
+          if (details.isNotEmpty) ...[
+            const Gap(24),
+            Container(height: 1, color: Colors.grey[200]),
+            const Gap(20),
+
+            // Categories Title
+            Row(
+              children: [
+                Icon(Icons.category_rounded, size: 18, color: const Color(0xFF64748B)),
+                const Gap(8),
+                Text(
+                  'Kategoriyalar bo\'yicha',
+                  style: TextStyle(fontSize: 14.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w700),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(8)),
+                  child: Text(
+                    '${details.length}',
+                    style: TextStyle(fontSize: 11.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
             ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const Gap(16),
-          Text(
-            title,
-            style: TextStyle(fontSize: 14.sp, color: Colors.grey[500], fontWeight: FontWeight.w500),
-          ),
-          const Gap(8),
-          _buildStatCurrency(amountUzs, 'UZS'),
-          if ((amountUsd ?? 0) != 0) ...[
-            const Gap(4),
-            _buildStatCurrency(amountUsd, 'USD'),
-          ]
+            const Gap(16),
+
+            // Categories List
+            ...details.map((detail) {
+              final categoryTotalUzs = (detail.summaUzs ?? 0) + ((detail.summaUsd ?? 0) * 13000);
+              final percentage = totalCostInUzs > 0 ? (categoryTotalUzs / totalCostInUzs * 100) : 0.0;
+
+              return Padding(padding: const EdgeInsets.only(bottom: 16), child: _buildCategoryItem(context, detail, percentage, formatter, projectId));
+            }),
+          ] else ...[
+            const Gap(20),
+            Center(
+              child: Column(
+                children: [
+                  Icon(Icons.inbox_outlined, size: 48, color: Colors.grey[300]),
+                  const Gap(12),
+                  Text(
+                    'Xarajatlar mavjud emas',
+                    style: TextStyle(fontSize: 14.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+            const Gap(20),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildStatCurrency(num? amount, String symbol) {
-    if ((amount ?? 0) == 0) return const SizedBox.shrink();
-    final formatter = NumberFormat("#,###", "ru_RU");
-    return Row(
-      children: [
-        Flexible(
-          child: Text(
-            formatter.format(amount!).replaceAll(',', ' '),
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF1E293B),
-              letterSpacing: -0.5,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const Gap(4),
-        Text(
-          symbol,
-          style: TextStyle(
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[400],
-          ),
-        ),
-      ],
-    );
-  }
+  // Category Item with Progress Bar
+  Widget _buildCategoryItem(BuildContext context, ProjectCostDetail detail, double percentage, NumberFormat formatter, int projectId) {
+    final theme = AppTheme.colors;
+    final color = theme.primary;
+    // final color = _getCostColor(detail.costTypeName);
 
-  // Removed _buildChartSection as per request
-
-  Widget _buildCostList(List<ProjectCostDetail>? details, int projectId, BuildContext context) {
-    if (details == null || details.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.symmetric(vertical: 32),
-        alignment: Alignment.center,
-        child: Text(
-          "Xarajatlar mavjud emas",
-          style: TextStyle(color: Colors.grey[400], fontSize: 14.sp),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: details.length,
-      separatorBuilder: (_, __) => const Gap(12),
-      itemBuilder: (context, index) {
-        final item = details[index];
-        final colors = [
-           Colors.blue, Colors.red, Colors.green, Colors.orange, Colors.purple, Colors.teal, Colors.amber
-        ];
-        final color = colors[index % colors.length];
-
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.withOpacity(0.1)),
-          ),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ProjectCostDetailsPage(
-                    projectId: projectId,
-                    costTypeId: item.costTypeId ?? 0,
-                    costTypeName: item.costTypeName ?? 'Chiqim',
-                  ),
-                ),
-              );
-            },
-            borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Center(
-                      child: Text(
-                        (item.costTypeName?.isNotEmpty == true) ? item.costTypeName![0].toUpperCase() : '?',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: color),
-                      ),
-                    ),
-                  ),
-                  const Gap(16),
-                  Expanded(
-                    child: Text(
-                      item.costTypeName ?? 'Noma\'lum',
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Color(0xFF1E293B)),
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                       if ((item.summaUzs ?? 0) > 0)
-                        _buildListCurrency(item.summaUzs, 'UZS'),
-                       if ((item.summaUsd ?? 0) > 0)
-                        _buildListCurrency(item.summaUsd, 'USD'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProjectCostDetailsPage(projectId: projectId, costTypeId: detail.costTypeId ?? 0, costTypeName: detail.costTypeName ?? 'Chiqim'),
           ),
         );
       },
-    );
-  }
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.15), width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Row: Name and Amounts
+                Row(
+                  children: [
+                    // Category Name
+                    Expanded(
+                      child: Text(
+                        detail.costTypeName ?? 'Noma\'lum',
+                        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
 
-  Widget _buildListCurrency(num? amount, String symbol) {
-    final formatter = NumberFormat("#,###", "ru_RU");
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          formatter.format(amount ?? 0).replaceAll(',', ' '),
-          style: TextStyle(color: const Color(0xFF1E293B), fontSize: 14.sp, fontWeight: FontWeight.w700),
+                    const Gap(12),
+
+                    // Amounts
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        if ((detail.summaUzs ?? 0) > 0)
+                          RichText(
+                            text: TextSpan(
+                              text: formatter.format(detail.summaUzs ?? 0).replaceAll(',', ' '),
+                              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: color),
+                              children: [
+                                TextSpan(
+                                  text: ' UZS',
+                                  style: TextStyle(fontSize: 10.sp, color: color.withValues(alpha: 0.7), fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                          ),
+                        if ((detail.summaUsd ?? 0) > 0) ...[
+                          const Gap(4),
+                          RichText(
+                            text: TextSpan(
+                              text: formatter.format(detail.summaUsd ?? 0).replaceAll(',', ' '),
+                              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: color.withValues(alpha: 0.8)),
+                              children: [
+                                TextSpan(
+                                  text: ' USD',
+                                  style: TextStyle(fontSize: 10.sp, color: color.withValues(alpha: 0.6), fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+
+                    const Gap(8),
+                    Icon(Icons.chevron_right_rounded, size: 20, color: Colors.grey[400]),
+                  ],
+                ),
+
+                const Gap(12),
+
+                // Bottom Row: Progress Bar and Percentage
+                Row(
+                  children: [
+                    // Progress Bar
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: LinearProgressIndicator(
+                          value: percentage / 100,
+                          minHeight: 8,
+                          backgroundColor: theme.primary.withValues(alpha: 0.1),
+                          valueColor: AlwaysStoppedAnimation<Color>(theme.primary),
+                        ),
+                      ),
+                    ),
+                    const Gap(12),
+                    // Percentage Badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: theme.primary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(6)),
+                      child: Text(
+                        '${percentage.toStringAsFixed(1)}%',
+                        style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w800, color: theme.primary),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
-        const Gap(4),
-        Text(
-          symbol,
-          style: TextStyle(color: Colors.grey[500], fontSize: 11.sp, fontWeight: FontWeight.w600),
-        ),
-      ],
+      ),
     );
   }
 }
-
 
 class _ReportLoadingShimmer extends StatelessWidget {
   const _ReportLoadingShimmer();
@@ -449,26 +549,25 @@ class _ReportLoadingShimmer extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            Container(height: 180, width: double.infinity, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24))),
-            const Gap(20),
-            Row(
-              children: [
-                Expanded(child: Container(height: 100, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)))),
-                const Gap(16),
-                Expanded(child: Container(height: 100, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)))),
-              ],
+            // Balance Card Shimmer
+            Container(
+              height: 120,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
             ),
-            const Gap(24),
-            Container(height: 250, width: double.infinity, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24))),
-            const Gap(24),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: 3,
-              itemBuilder: (_, __) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Container(height: 70, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16))),
-              ),
-            )
+            const Gap(16),
+
+            // Income Card Shimmer
+            Container(
+              height: 100,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+            ),
+            const Gap(16),
+
+            // Expense Card Shimmer
+            Container(
+              height: 400,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+            ),
           ],
         ),
       ),

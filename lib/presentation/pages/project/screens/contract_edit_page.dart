@@ -13,6 +13,7 @@ import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/contract_model.dart';
 import 'package:hisobchi/infrastructure/models/work_type_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/work_type_list_bottom_sheet.dart';
@@ -67,7 +68,7 @@ class _ContractEditPageState extends State<ContractEditPage> {
     // Set existing images
     if (widget.contract.files != null && widget.contract.files!.isNotEmpty) {
       for (int i = 0; i < widget.contract.files!.length && i < 3; i++) {
-        _images[i] = ImageData(networkUrl: widget.contract.files![i]);
+        _images[i] = ImageData(networkUrl: widget.contract.files![i].url);
       }
     }
   }
@@ -271,11 +272,6 @@ class _ContractEditPageState extends State<ContractEditPage> {
       return false;
     }
 
-    if (_images[0].file == null && _images[0].networkUrl == null) {
-      Toast.showErrorToast(message: 'Kamida bitta rasm yuklang');
-      return false;
-    }
-
     if (_images.any((img) => img.isUploading)) {
       Toast.showErrorToast(message: 'Rasmlar yuklanishini kuting');
       return false;
@@ -294,14 +290,13 @@ class _ContractEditPageState extends State<ContractEditPage> {
       if (img.fileId != null) {
         // New uploaded image
         fileIds.add(img.fileId!);
-      } else if (img.networkUrl != null) {
-        // Existing image - extract ID from URL or use original files array
-        // For simplicity, we'll use the original files array indices
-        final index = _images.indexOf(img);
-        if (widget.contract.files != null &&
-            index < widget.contract.files!.length) {
-          // Keep original URL/ID - you may need to adjust based on API requirements
-          // For now, we'll skip if no fileId (meaning it's unchanged)
+      } else if (img.networkUrl != null && widget.contract.files != null) {
+        // Existing image - find ID by URL
+        for (var f in widget.contract.files!) {
+          if (f.url == img.networkUrl) {
+            if (f.id != null) fileIds.add(f.id!);
+            break;
+          }
         }
       }
     }
@@ -311,7 +306,7 @@ class _ContractEditPageState extends State<ContractEditPage> {
       'work_type_id': _selectedWorkType?.id,
       'description': _descriptionController.text.trim(),
       'summa': _amountController.text.trim().replaceAll(' ', ''),
-      if (fileIds.isNotEmpty) 'file_id': fileIds,
+      'file_id': fileIds,
       'project_id': widget.contract.projectId,
     };
 
@@ -644,37 +639,64 @@ class _ContractEditPageState extends State<ContractEditPage> {
             child: hasImage
                 ? Stack(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: imageData.file != null
-                            ? Image.file(
-                                imageData.file!,
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.cover,
-                              )
-                            : CachedNetworkImage(
-                                imageUrl: imageData.networkUrl!,
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => Container(
-                                  color: const Color(0xFFF1F5F9),
-                                  child: const Center(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Color(0xFF5B4FFF),
+                      GestureDetector(
+                        onTap: () {
+                          final validImages = _images
+                              .where((img) =>
+                                  img.file != null || img.networkUrl != null)
+                              .toList();
+                          final initialIndex = validImages.indexOf(imageData);
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ImageViewerPage(
+                                images: validImages.map((img) {
+                                  if (img.file != null) {
+                                    return ImageItem(
+                                        path: img.file!.path, isNetwork: false);
+                                  } else {
+                                    return ImageItem(
+                                        path: img.networkUrl!, isNetwork: true);
+                                  }
+                                }).toList(),
+                                initialIndex: initialIndex,
+                              ),
+                            ),
+                          );
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: imageData.file != null
+                              ? Image.file(
+                                  imageData.file!,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.cover,
+                                )
+                              : CachedNetworkImage(
+                                  imageUrl: imageData.networkUrl!,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => Container(
+                                    color: const Color(0xFFF1F5F9),
+                                    child: const Center(
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Color(0xFF5B4FFF),
+                                      ),
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) => Container(
+                                    color: const Color(0xFFF1F5F9),
+                                    child: const Icon(
+                                      Icons.broken_image,
+                                      color: Color(0xFF94A3B8),
                                     ),
                                   ),
                                 ),
-                                errorWidget: (context, url, error) => Container(
-                                  color: const Color(0xFFF1F5F9),
-                                  child: const Icon(
-                                    Icons.broken_image,
-                                    color: Color(0xFF94A3B8),
-                                  ),
-                                ),
-                              ),
+                        ),
                       ),
                       if (imageData.isUploading) ...[
                         Positioned.fill(

@@ -14,7 +14,6 @@ import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_add_edit_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_selection_bottom_sheet.dart';
 import 'package:collection/collection.dart';
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 class WorkerListPage extends StatefulWidget {
@@ -158,134 +157,136 @@ class _WorkerListPageState extends State<WorkerListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F7FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        surfaceTintColor: Colors.white,
-        leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color.fromRGBO(255, 255, 255, 0.1),
-                  blurRadius: 1,
-                  spreadRadius: 0,
-                  offset: Offset(0, 1),
-                ),
-                BoxShadow(
-                  color: Color.fromRGBO(50, 50, 93, 0.25),
-                  blurRadius: 100,
-                  spreadRadius: -20,
-                  offset: Offset(0, 50),
-                ),
-                BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.3),
-                  blurRadius: 60,
-                  spreadRadius: -30,
-                  offset: Offset(0, 30),
-                ),
-              ],
+    return Padding(
+      padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          surfaceTintColor: Colors.white,
+          leading: IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color.fromRGBO(255, 255, 255, 0.1),
+                    blurRadius: 1,
+                    spreadRadius: 0,
+                    offset: Offset(0, 1),
+                  ),
+                  BoxShadow(
+                    color: Color.fromRGBO(50, 50, 93, 0.25),
+                    blurRadius: 100,
+                    spreadRadius: -20,
+                    offset: Offset(0, 50),
+                  ),
+                  BoxShadow(
+                    color: Color.fromRGBO(0, 0, 0, 0.3),
+                    blurRadius: 60,
+                    spreadRadius: -30,
+                    offset: Offset(0, 30),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
             ),
-            child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+            onPressed: () => Navigator.pop(context),
           ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Ishchilar',
-          style: TextStyle(
-            color: Color(0xFF1E293B),
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+          title: const Text(
+            'Ishchilar',
+            style: TextStyle(
+              color: Color(0xFF1E293B),
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
           ),
+          centerTitle: true
         ),
-        centerTitle: true
-      ),
-      floatingActionButton: FloatingActionButton(onPressed: _showAddWorkerSelection, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.clientAdd)),
+        floatingActionButton: FloatingActionButton(onPressed: _showAddWorkerSelection, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.clientAdd)),
 
-      body: BlocConsumer<WorkerBloc, WorkerState>(
-        listener: (context, state) {
-          // statusAction - delete/restore uchun (bir marta ishlatiladi)
-          if (state.statusAction == Status.success) {
-            Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
-            _loadWorkers();
-          } else if (state.statusAction == Status.error) {
-            Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-          }
+        body: BlocConsumer<WorkerBloc, WorkerState>(
+          listener: (context, state) {
+            // statusAction - delete/restore uchun (bir marta ishlatiladi)
+            if (state.statusAction == Status.success) {
+              Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
+              _loadWorkers();
+            } else if (state.statusAction == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            }
 
-          // status - get workers uchun
-          if (state.status == Status.success) {
-            setState(() {
-              _allWorkers = state.projectWorkers;
-              _filterWorkers();
-            });
-          } else if (state.status == Status.error) {
-            Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-          }
-        },
-        builder: (context, state) {
-          return SafeArea(
-            child: Column(
-              children: [
-                // Search Bar
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Qidirish...',
-                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                      prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
-                      filled: true,
-                      fillColor: const Color(0xFFF8FAFC),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+            // status - get workers uchun
+            if (state.status == Status.success) {
+              setState(() {
+                _allWorkers = state.projectWorkers;
+                _filterWorkers();
+              });
+            } else if (state.status == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            }
+          },
+          builder: (context, state) {
+            return SafeArea(
+              child: Column(
+                children: [
+                  // Search Bar
+                  Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Qidirish...',
+                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                        prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                        filled: true,
+                        fillColor: const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                   ),
-                ),
 
-                // Workers List
-                Expanded(
-                  child: state.status == Status.loading && _allWorkers.isEmpty
-                      ? _buildShimmerLoading()
-                      : _filteredWorkers.isEmpty
-                          ? _buildEmptyState()
-                          : Stack(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
-                                  child: CustomScrollView(
-                                    slivers: _buildGroupedWorkers(),
+                  // Workers List
+                  Expanded(
+                    child: state.status == Status.loading && _allWorkers.isEmpty
+                        ? _buildShimmerLoading()
+                        : _filteredWorkers.isEmpty
+                            ? _buildEmptyState()
+                            : Stack(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
+                                    child: CustomScrollView(
+                                      slivers: _buildGroupedWorkers(),
+                                    ),
                                   ),
-                                ),
-                                if (state.statusAction == Status.loading)
-                                  Container(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    child: const Center(child: Loading()),
-                                  ),
-                              ],
-                            ),
-                ),
-              ],
-            ),
-          );
-        },
+                                  if (state.statusAction == Status.loading)
+                                    Container(
+                                      color: Colors.black.withValues(alpha: 0.3),
+                                      child: const Center(child: Loading()),
+                                    ),
+                                ],
+                              ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

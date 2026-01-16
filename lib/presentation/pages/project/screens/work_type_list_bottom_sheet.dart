@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:gap/gap.dart';
 import 'package:hisobchi/application/work_type/work_type_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/work_type_model.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:hisobchi/presentation/pages/client/components/history_dialogs.dart';
 import 'package:hisobchi/presentation/pages/project/screens/work_type_add_edit_bottom_sheet.dart';
 
 class WorkTypeListBottomSheet extends StatefulWidget {
@@ -75,41 +79,24 @@ class _WorkTypeListBottomSheetState extends State<WorkTypeListBottomSheet> {
     }
   }
 
-  Future<void> _showDeleteDialog(WorkTypeModel workType) async {
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Ishonchingiz komilmi?'),
-        content: Text(workType.isDeleted ? 'Ushbu ish turini butunlay o\'chirmoqchimisiz?' : 'Ushbu ish turini o\'chirmoqchimisiz?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Bekor qilish')),
-          if (workType.isDeleted) ...[
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'restore'),
-              child: const Text('Tiklash', style: TextStyle(color: Colors.green)),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'force_delete'),
-              child: const Text('Butunlay o\'chirish', style: TextStyle(color: Colors.red)),
-            ),
-          ] else
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'delete'),
-              child: const Text('O\'chirish', style: TextStyle(color: Colors.red)),
-            ),
-        ],
-      ),
-    );
+  Future<void> _onDelete(WorkTypeModel workType) async {
+    final confirm = await HistoryDialogs.showDeleteConfirmDialog(context);
+    if (confirm == true && mounted) {
+      context.read<WorkTypeBloc>().add(DeleteWorkTypeEvent(id: workType.id!));
+    }
+  }
 
-    if (result != null && mounted) {
-      if (result == 'delete') {
-        context.read<WorkTypeBloc>().add(DeleteWorkTypeEvent(id: workType.id!));
-      } else if (result == 'restore') {
-        context.read<WorkTypeBloc>().add(RestoreWorkTypeEvent(id: workType.id!));
-      } else if (result == 'force_delete') {
-        context.read<WorkTypeBloc>().add(ForceDeleteWorkTypeEvent(id: workType.id!));
-      }
+  Future<void> _onRestore(WorkTypeModel workType) async {
+    final confirm = await HistoryDialogs.showRestoreConfirmDialog(context);
+    if (confirm == true && mounted) {
+      context.read<WorkTypeBloc>().add(RestoreWorkTypeEvent(id: workType.id!));
+    }
+  }
+
+  Future<void> _onForceDelete(WorkTypeModel workType) async {
+    final confirm = await HistoryDialogs.showForceDeleteConfirmDialog(context);
+    if (confirm == true && mounted) {
+      context.read<WorkTypeBloc>().add(ForceDeleteWorkTypeEvent(id: workType.id!));
     }
   }
 
@@ -213,51 +200,48 @@ class _WorkTypeListBottomSheetState extends State<WorkTypeListBottomSheet> {
                       child: state.status == Status.loading && _allWorkTypes.isEmpty
                           ? const Center(child: Loading())
                           : _filteredList.isEmpty
-                          ? Padding(
-                            padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-                            child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.work_outlined, size: 64, color: AppTheme.colors.primary),
-                                    const SizedBox(height: 16),
-                                    Text(_searchController.text.isEmpty ? 'Ish turlari mavjud emas' : 'Hech narsa topilmadi', style: TextStyle(fontSize: 16, color: AppTheme.colors.primary)),
-                                  ],
-                                ),
-                              ),
-                          )
-                          : Stack(
-                              children: [
-                                ListView.separated(
-                                  controller: scrollController,
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                                  itemCount: _filteredList.length,
-                                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                                  itemBuilder: (context, index) {
-                                    final workType = _filteredList[index];
-                                    return Column(
+                              ? Padding(
+                                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        _WorkTypeItem(
+                                        Icon(Icons.work_outlined, size: 64, color: AppTheme.colors.primary),
+                                        const SizedBox(height: 16),
+                                        Text(_searchController.text.isEmpty ? 'Ish turlari mavjud emas' : 'Hech narsa topilmadi', style: TextStyle(fontSize: 16, color: AppTheme.colors.primary)),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : Stack(
+                                  children: [
+                                    ListView.separated(
+                                      controller: scrollController,
+                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                      itemCount: _filteredList.length,
+                                      separatorBuilder: (context, index) => const SizedBox(height: 12),
+                                      itemBuilder: (context, index) {
+                                        final workType = _filteredList[index];
+                                        return _WorkTypeItem(
                                           workType: workType,
                                           onTap: () {
                                             widget.onSelect(workType);
                                             Navigator.pop(context);
                                           },
                                           onEdit: () => _showEditWorkTypeBottomSheet(workType),
-                                          onDelete: () => _showDeleteDialog(workType),
-                                        ),
-                                        if (index == _filteredList.length - 1) Gap(MediaQuery.of(context).padding.bottom + 10),
-                                      ],
-                                    );
-                                  },
+                                          onDelete: () => _onDelete(workType),
+                                          onRestore: () => _onRestore(workType),
+                                          onForceDelete: () => _onForceDelete(workType),
+                                        );
+                                      },
+                                    ),
+                                    if (state.statusAdd == Status.loading)
+                                      Container(
+                                        color: Colors.black.withValues(alpha: 0.3),
+                                        child: const Center(child: Loading()),
+                                      ),
+                                  ],
                                 ),
-                                if (state.statusAdd == Status.loading)
-                                  Container(
-                                    color: Colors.black.withOpacity(0.3),
-                                    child: const Center(child: Loading()),
-                                  ),
-                              ],
-                            ),
                     ),
                   ],
                 );
@@ -275,93 +259,120 @@ class _WorkTypeItem extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback onRestore;
+  final VoidCallback onForceDelete;
 
-  const _WorkTypeItem({required this.workType, required this.onTap, required this.onEdit, required this.onDelete});
+  const _WorkTypeItem({
+    required this.workType,
+    required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onRestore,
+    required this.onForceDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: workType.isDeleted ? null : onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: workType.isDeleted ? Colors.grey[100] : const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: workType.isDeleted ? Colors.grey[300]! : const Color(0xFFE2E8F0)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(color: workType.isDeleted ? Colors.grey[300] : AppTheme.colors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-              child: Icon(Icons.work_outline, color: workType.isDeleted ? Colors.grey : AppTheme.colors.primary, size: 24),
+    return Slidable(
+      key: ValueKey(workType.id),
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(),
+        children: [
+          if (workType.isDeleted) ...[
+            SlidableAction(
+              onPressed: (_) => onRestore(),
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.white,
+              icon: Icons.restore,
+              label: 'Tiklash',
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(12.r), bottomLeft: Radius.circular(12.r)),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    workType.name ?? '',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: workType.isDeleted ? Colors.grey : const Color(0xFF1E293B),
-                      decoration: workType.isDeleted ? TextDecoration.lineThrough : null,
-                    ),
-                  ),
-                  if (workType.description != null && workType.description!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      workType.description!,
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
+            SlidableAction(
+              onPressed: (_) => onForceDelete(),
+              backgroundColor: const Color(0xFFEF4444),
+              foregroundColor: Colors.white,
+              icon: Icons.delete_forever,
+              label: 'O\'chirish',
+              borderRadius: BorderRadius.only(topRight: Radius.circular(12.r), bottomRight: Radius.circular(12.r)),
             ),
-            const SizedBox(width: 8),
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert, color: Color(0xFF64748B)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              itemBuilder: (context) => [
-                if (!workType.isDeleted)
-                  const PopupMenuItem(
-                    value: 'edit',
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit_outlined, size: 20, color: Color(0xFF64748B)),
-                        SizedBox(width: 8),
-                        Text('Tahrirlash'),
-                      ],
-                    ),
-                  ),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: Row(
-                    children: [
-                      Icon(workType.isDeleted ? Icons.restore : Icons.delete_outline, size: 20, color: workType.isDeleted ? Colors.green : Colors.red),
-                      const SizedBox(width: 8),
-                      Text(workType.isDeleted ? 'Tiklash/O\'chirish' : 'O\'chirish', style: TextStyle(color: workType.isDeleted ? Colors.green : Colors.red)),
-                    ],
-                  ),
-                ),
-              ],
-              onSelected: (value) {
-                if (value == 'edit') {
-                  onEdit();
-                } else if (value == 'delete') {
-                  onDelete();
-                }
-              },
+          ] else ...[
+            SlidableAction(
+              onPressed: (_) => onEdit(),
+              backgroundColor: const Color(0xFF3B82F6),
+              foregroundColor: Colors.white,
+              icon: Icons.edit,
+              label: 'Tahrirlash',
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(12.r), bottomLeft: Radius.circular(12.r)),
+            ),
+            SlidableAction(
+              onPressed: (_) => onDelete(),
+              backgroundColor: const Color(0xFFEF4444),
+              foregroundColor: Colors.white,
+              icon: Icons.delete_outline,
+              label: 'O\'chirish',
+              borderRadius: BorderRadius.only(topRight: Radius.circular(12.r), bottomRight: Radius.circular(12.r)),
             ),
           ],
+        ],
+      ),
+      child: InkWell(
+        onTap: workType.isDeleted ? null : onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: workType.isDeleted ? Colors.grey[100] : const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: workType.isDeleted ? Colors.grey[300]! : const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(color: workType.isDeleted ? Colors.grey[300] : AppTheme.colors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                child: Icon(Icons.work_outline, color: workType.isDeleted ? Colors.grey : AppTheme.colors.primary, size: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      workType.name ?? '',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: workType.isDeleted ? Colors.grey : const Color(0xFF1E293B),
+                        decoration: workType.isDeleted ? TextDecoration.lineThrough : null,
+                      ),
+                    ),
+                    if (workType.description != null && workType.description!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        workType.description!,
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              if (workType.isDeleted)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                  child: const Text('O\'chirilgan', style: TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold)),
+                )
+              else
+                Icon(Icons.chevron_left, color: const Color(0xFFCBD5E1), size: 24),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+

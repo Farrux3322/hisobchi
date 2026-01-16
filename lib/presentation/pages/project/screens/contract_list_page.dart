@@ -610,103 +610,109 @@ class _ContractListPageState extends State<ContractListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        surfaceTintColor: Colors.white,
-        leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
-            child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+    return Padding(
+      padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          surfaceTintColor: Colors.white,
+          leading: IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
+              child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+            ),
+            onPressed: () => Navigator.pop(context),
           ),
-          onPressed: () => Navigator.pop(context),
+          title: const Text(
+            'Shartnomalar',
+            style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+          centerTitle: true,
         ),
-        title: const Text(
-          'Shartnomalar',
-          style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        centerTitle: true,
-      ),
-      floatingActionButton: FloatingActionButton(onPressed: _navigateToAddContract, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
+        floatingActionButton: FloatingActionButton(onPressed: _navigateToAddContract, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
 
-      body: BlocConsumer<ContractBloc, ContractState>(
-        listener: (context, state) {
-          if (state.status == Status.success) {
-            _allContracts = state.contracts;
-            _filterContracts();
-          }
-          if (state.status == Status.error) {
-            Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-          }
-          if (state.statusAction == Status.success) {
-            Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
-            _loadContracts();
-          }
-          if (state.statusAction == Status.error) {
-            Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-          }
-        },
-        builder: (context, state) {
-          return SafeArea(
-            child: Column(
-              children: [
-                // Search Bar
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Qidirish...',
-                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                      prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
-                      filled: true,
-                      fillColor: const Color(0xFFF8FAFC),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        body: BlocConsumer<ContractBloc, ContractState>(
+          listener: (context, state) {
+            if (state.status == Status.success) {
+              _allContracts = state.contracts;
+              _filterContracts();
+            }
+            if (state.status == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            }
+            if (state.statusAction == Status.success) {
+              Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
+              _loadContracts();
+            }
+            if (state.statusAction == Status.error) {
+              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            }
+          },
+          builder: (context, state) {
+            return SafeArea(
+              child: Column(
+                children: [
+                  // Search Bar
+                  Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Qidirish...',
+                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                        prefixIcon:  Padding(
+                          padding:  EdgeInsets.only(left: 8.0,right: 4),
+                          child: Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                   ),
-                ),
 
-                // Contracts List
-                Expanded(
-                  child: state.status == Status.loading && _allContracts.isEmpty
-                      ? _buildShimmerLoading()
-                      : _filteredContracts.isEmpty
-                      ? _buildEmptyState()
-                      : Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
-                              child: CustomScrollView(
-                                slivers: _buildGroupedContracts(),
+                  // Contracts List
+                  Expanded(
+                    child: state.status == Status.loading && _allContracts.isEmpty
+                        ? _buildShimmerLoading()
+                        : _filteredContracts.isEmpty
+                        ? _buildEmptyState()
+                        : Stack(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
+                                child: CustomScrollView(
+                                  slivers: _buildGroupedContracts(),
+                                ),
                               ),
-                            ),
-                            if (state.statusAction == Status.loading)
-                              Container(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                child: const Center(child: Loading()),
-                              ),
-                          ],
-                        ),
-                ),
-              ],
-            ),
-          );
-        },
+                              if (state.statusAction == Status.loading)
+                                Container(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  child: const Center(child: Loading()),
+                                ),
+                            ],
+                          ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
