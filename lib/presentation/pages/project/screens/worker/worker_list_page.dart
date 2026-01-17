@@ -240,7 +240,10 @@ class _WorkerListPageState extends State<WorkerListPage> {
                       decoration: InputDecoration(
                         hintText: 'Qidirish...',
                         hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                        prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                        prefixIcon:  Padding(
+                          padding:  EdgeInsets.only(left: 8.0,right: 4),
+                          child: Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                        ),
                         filled: true,
                         fillColor: const Color(0xFFF8FAFC),
                         border: OutlineInputBorder(

@@ -139,7 +139,7 @@ class ProjectCostInputs extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.r),
-              borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
+              borderSide: BorderSide(color: AppTheme.colors.gray, width: 1),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.r),
@@ -223,7 +223,7 @@ class ProjectCostInputs extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.r),
-              borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
+              borderSide: BorderSide(color: AppTheme.colors.gray, width: 1),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.r),

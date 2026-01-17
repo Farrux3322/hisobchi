@@ -319,7 +319,7 @@ class _WorkTypeItem extends StatelessWidget {
         onTap: workType.isDeleted ? null : onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: workType.isDeleted ? Colors.grey[100] : const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(12),
@@ -328,10 +328,10 @@ class _WorkTypeItem extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(color: workType.isDeleted ? Colors.grey[300] : AppTheme.colors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                child: Icon(Icons.work_outline, color: workType.isDeleted ? Colors.grey : AppTheme.colors.primary, size: 24),
+                child: Icon(Icons.work_outline, color: workType.isDeleted ? Colors.grey : AppTheme.colors.primary, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -367,7 +367,7 @@ class _WorkTypeItem extends StatelessWidget {
                   child: const Text('O\'chirilgan', style: TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold)),
                 )
               else
-                Icon(Icons.chevron_left, color: const Color(0xFFCBD5E1), size: 24),
+                Icon(Icons.arrow_forward_ios_rounded, color: const Color(0xFFCBD5E1), size: 20),
             ],
           ),
         ),

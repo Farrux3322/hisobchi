@@ -227,7 +227,10 @@ class _ContractAddPageState extends State<ContractAddPage> {
       Toast.showErrorToast(message: 'Kelishuv summasini kiriting');
       return false;
     }
-
+    if (_descriptionController.text.trim().isEmpty) {
+      Toast.showErrorToast(message: 'Kelishuv tafsilotlarini kiriting');
+      return false;
+    }
     if (_images.any((img) => img.isUploading)) {
       Toast.showErrorToast(message: 'Rasmlar yuklanishini kuting');
       return false;
@@ -745,7 +748,7 @@ class _ContractAddPageState extends State<ContractAddPage> {
         color: AppTheme.colors.primary,
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF5B4FFF).withValues(alpha: 0.3),
+            color: AppTheme.colors.primary.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

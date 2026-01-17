@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/project_report/project_report_bloc.dart';
 import 'package:hisobchi/infrastructure/dto/models/project_report/project_report_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/report/project_cost_details_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/report/project_income_details_page.dart';
 import 'package:shimmer/shimmer.dart';
@@ -178,21 +179,19 @@ class _ProjectReportView extends StatelessWidget {
                   ],
                 ),
               ),
-              if (balanceUsd != 0) ...[
-                const Gap(8),
-                RichText(
-                  text: TextSpan(
-                    text: formatter.format(balanceUsd).replaceAll(',', ' '),
-                    style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w900, color: Colors.white.withValues(alpha: 0.9), height: 1.2),
-                    children: [
-                      TextSpan(
-                        text: ' USD',
-                        style: TextStyle(fontSize: 12.sp, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
+              const Gap(8),
+              RichText(
+                text: TextSpan(
+                  text: formatter.format(balanceUsd).replaceAll(',', ' '),
+                  style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w900, color: Colors.white.withValues(alpha: 0.9), height: 1.2),
+                  children: [
+                    TextSpan(
+                      text: ' USD',
+                      style: TextStyle(fontSize: 12.sp, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ],
           ),
         ],
@@ -208,7 +207,14 @@ class _ProjectReportView extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeDetailsPage(projectId: projectId)));
+        // Navigate to income list page and check if changes were made
+         Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeListPage(projectId: projectId)));
+        // Only refresh if transactions were actually modified
+        // if (mounted && result is ProjectIncomeListResult && result.hasChanges) {
+        //   _markAsChanged();
+        //   context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+        // }
+        // Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeDetailsPage(projectId: projectId)));
       },
       borderRadius: BorderRadius.circular(20),
       child: Container(

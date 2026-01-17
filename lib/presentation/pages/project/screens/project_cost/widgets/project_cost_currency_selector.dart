@@ -64,8 +64,8 @@ class ProjectCostCurrencySelector extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16.r),
               border: Border.all(
-                color: selectedCurrency != null ? AppTheme.colors.primary : const Color(0xFFE2E8F0),
-                width: selectedCurrency != null ? 2 : 1.5,
+                color:  AppTheme.colors.gray,
+                width:  1,
               ),
             ),
             child: Row(
