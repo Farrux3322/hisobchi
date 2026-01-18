@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'package:hisobchi/application/project/project_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
+import 'package:hisobchi/presentation/pages/client/widgets/add_client_components/add_client_dialogs.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
@@ -74,6 +76,89 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
     }
   }
 
+  void _handleValidationError(BuildContext context, String? errorMessage) {
+    if (errorMessage == null || errorMessage.isEmpty) {
+      AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: 'Kutilmagan xatolik yuz berdi', icon: Icons.error_outline_rounded);
+      return;
+    }
+
+    // Strip "Exception: " prefix if present
+    String cleanMessage = errorMessage;
+    if (cleanMessage.startsWith('Exception: ')) {
+      cleanMessage = cleanMessage.substring('Exception: '.length);
+    }
+
+    try {
+      final decoded = jsonDecode(cleanMessage);
+      if (decoded is Map<String, dynamic>) {
+        final errors = decoded['errors'] as Map<String, dynamic>?;
+
+        if (errors != null && errors.isNotEmpty) {
+          final validationErrors = <String, String>{};
+          errors.forEach((field, messages) {
+            final fieldName = _getFieldNameInUzbek(field);
+            String message = (messages is List && messages.isNotEmpty) ? messages.first.toString() : messages.toString();
+            validationErrors[fieldName] = _translateErrorMessage(field, message);
+          });
+
+          if (validationErrors.isNotEmpty) {
+            AddClientDialogs.showValidationErrorDialog(context, validationErrors);
+            return;
+          }
+        }
+
+        if (decoded.containsKey('message')) {
+          final msg = decoded['message'].toString();
+          AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: _translateErrorMessage('', msg), icon: Icons.error_outline_rounded);
+          return;
+        }
+      }
+      AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: cleanMessage, icon: Icons.error_outline_rounded);
+    } catch (e) {
+      // If JSON parsing fails, show the cleaned message as is
+      AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: cleanMessage, icon: Icons.error_outline_rounded);
+    }
+  }
+
+  String _getFieldNameInUzbek(String field) {
+    switch (field.toLowerCase()) {
+      case 'project_name':
+        return 'Loyiha nomi';
+      case 'project_owner':
+        return 'Loyiha egasi';
+      case 'phone':
+        return 'Telefon raqam';
+      case 'address':
+        return 'Manzil';
+      case 'location':
+        return 'Lokatsiya';
+      default:
+        return field;
+    }
+  }
+
+  String _translateErrorMessage(String field, String message) {
+    final msg = message.toLowerCase();
+    if (msg.contains('already been taken') || msg.contains('already taken')) {
+      switch (field.toLowerCase()) {
+        case 'phone':
+          return 'Bu telefon raqam allaqachon ro\'yxatdan o\'tgan.';
+        case 'project_name':
+          return 'Bu loyiha nomi allaqachon mavjud.';
+        default:
+          return 'Ushbu ma\'lumot allaqachon band qilingan.';
+      }
+    }
+    if (msg.contains('required') || msg.contains('field is required')) {
+      return 'Bu maydon to\'ldirilishi shart.';
+    }
+    if (msg.contains('invalid')) {
+      if (msg.contains('phone')) return 'Telefon raqam formati noto\'g\'ri.';
+      return 'Kiritilgan ma\'lumot noto\'g\'ri.';
+    }
+    return message;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocListener(
@@ -92,7 +177,7 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
           listener: (context, state) {
             if (state.statusAdd == Status.success) Navigator.pop(context, true);
             if (state.statusAdd == Status.error) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.errorMessage ?? 'Error'), backgroundColor: Colors.red));
+              _handleValidationError(context, state.errorMessage);
             }
           },
         ),

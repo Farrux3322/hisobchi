@@ -95,6 +95,26 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> with Single
     }
   }
 
+  String _formatPhone(String? phone) {
+    if (phone == null || phone.isEmpty) return '';
+    
+    // Remove all non-digit characters
+    String digits = phone.replaceAll(RegExp(r'\D'), '');
+    
+    // If starts with 998, use it; otherwise assume it's local number
+    if (digits.startsWith('998')) {
+      digits = digits.substring(3); // Remove country code
+    }
+    
+    // Format: +998 (XX) XXX XX XX
+    if (digits.length >= 9) {
+      return '+998 (${digits.substring(0, 2)}) ${digits.substring(2, 5)} ${digits.substring(5, 7)} ${digits.substring(7, 9)}';
+    }
+    
+    // Return original if can't format
+    return phone;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,7 +158,7 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> with Single
         icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.black54),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text('Mijozlar hisoboti', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+      title: const Text('Hamkorlar hisoboti', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
       centerTitle: true,
     );
   }
@@ -162,7 +182,7 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> with Single
         children: [
           Expanded(child: _buildStatItem('Jami', total.toString(), AppTheme.colors.primary)),
           Container(width: 1, height: 30.h, color: const Color(0xFFE2E8F0)),
-          Expanded(child: _buildStatItem('Qarz', debt.toString(), const Color(0xFFEF4444))),
+          Expanded(child: _buildStatItem('Qarzdor', debt.toString(), const Color(0xFFEF4444))),
           Container(width: 1, height: 30.h, color: const Color(0xFFE2E8F0)),
           Expanded(child: _buildStatItem('Haqdor', credit.toString(), const Color(0xFF10B981))),
         ],
@@ -260,7 +280,7 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> with Single
             Icon(Icons.people_outline, size: 48.sp, color: const Color(0xFF94A3B8)),
             SizedBox(height: 12.h),
             Text(
-              'Mijoz topilmadi',
+              'Hamkor topilmadi',
               style: TextStyle(fontSize: 16.sp, color: const Color(0xFF64748B)),
             ),
           ],
@@ -326,7 +346,7 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> with Single
                   ),
                   SizedBox(height: 2.h),
                   Text(
-                    partner.phone,
+                    _formatPhone(partner.phone),
                     style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B)),
                   ),
                 ],

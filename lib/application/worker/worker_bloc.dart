@@ -113,7 +113,7 @@ class WorkerBloc extends Bloc<WorkerEvent, WorkerState> {
     } catch (e) {
       emit(state.copyWith(
         statusAction: Status.error,
-        errorMessage: e.toString(),
+        errorMessage: _getErrorMessage(e),
       ));
     }
   }

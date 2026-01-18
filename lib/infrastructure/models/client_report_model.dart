@@ -67,8 +67,8 @@ class PartnerBalance {
 
   factory PartnerBalance.fromJson(Map<String, dynamic> json) {
     return PartnerBalance(
-      uzs: (json['uzs'] ?? json['UZS'] ?? 0).toDouble(),
-      usd: (json['usd'] ?? json['USD'] ?? 0).toDouble(),
+      usd: double.parse((json['usd'] ?? json['USD'] ?? '0').toString()).toDouble(),
+      uzs: double.parse((json['uzs'] ?? json['UZS'] ?? '0').toString()).toDouble(),
     );
   }
 

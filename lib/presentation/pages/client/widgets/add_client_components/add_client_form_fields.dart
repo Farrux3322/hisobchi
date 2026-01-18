@@ -39,7 +39,7 @@ class AddClientFormFields extends StatelessWidget {
         TextFormField(
           controller: nameController,
           decoration: InputDecoration(
-            hintText: 'Mijozni ismini kiriting...',
+            hintText: 'Hamkorni ismini kiriting...',
             hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
             filled: true,
             fillColor: const Color(0xFFF8FAFC),

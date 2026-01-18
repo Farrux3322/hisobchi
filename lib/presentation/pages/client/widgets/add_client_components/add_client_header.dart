@@ -24,7 +24,7 @@ class AddClientHeader extends StatelessWidget {
 
         // Title
         const Text(
-          'Mijoz qo\'shish',
+          'Hamkor qo\'shish',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w500,

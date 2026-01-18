@@ -284,12 +284,12 @@ class _ClientPageState extends State<ClientPage> {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Mijozlar topilmadi',
+              'Hamkorlar topilmadi',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
             ),
             const SizedBox(height: 8),
             Text(
-              'Yangi mijoz qo\'shish uchun\npastdagi tugmani bosing',
+              'Yangi hamkor qo\'shish uchun\npastdagi tugmani bosing',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: Colors.grey[600], height: 1.5),
             ),

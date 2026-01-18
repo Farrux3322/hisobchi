@@ -11,6 +11,7 @@ import 'package:hisobchi/presentation/pages/auth/reset_password/reset_otp.dart';
 import 'package:hisobchi/presentation/pages/auth/reset_password/reset_password.dart';
 import 'package:hisobchi/presentation/pages/client/client_list_page.dart';
 import 'package:hisobchi/presentation/pages/dashboard/dashboard_page.dart';
+import 'package:hisobchi/presentation/pages/onboarding/onboarding_page.dart';
 import 'package:hisobchi/presentation/pages/profile/profile_page.dart';
 import 'package:hisobchi/presentation/pages/project/project_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/project_add_page.dart';
@@ -26,12 +27,17 @@ final parentKey = GlobalKey<NavigatorState>();
 bool _isPasscodeVerifiedInSession = false;
 
 Future<String?> _redirects() async {
+  // Check onboarding first
+  final pref = await SharedPrefService.initialize();
+  if (!pref.hasCompletedOnboarding) {
+    return Routes.onboarding.path;
+  }
+
   if (UserData.token.isEmpty) {
     return Routes.signIn.path;
   }
 
   // PIN kod tekshiruvi
-  final pref = await SharedPrefService.initialize();
   if (pref.isPasscodeEnabled && pref.passcode.isNotEmpty && !_isPasscodeVerifiedInSession) {
     return Routes.checkPasscode.path;
   }
@@ -83,6 +89,11 @@ final router = GoRouter(
       name: Routes.createPasscode.name,
       path: Routes.createPasscode.path,
       pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const SetPasscodePage()),
+    ),
+    GoRoute(
+      name: Routes.onboarding.name,
+      path: Routes.onboarding.path,
+      pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const OnboardingPage()),
     ),
 
     GoRoute(

@@ -314,7 +314,7 @@ class _DashboardPageState extends State<DashboardPage> {
             },
             child: _buildStatCard(
               icon: AppIcons.clients,
-              title: 'Mijozlar',
+              title: 'Hamkorlar',
               value: '${result.totalPartnersCount ?? 0}',
               color: const Color(0xFF10B981),
               iconBgColor: const Color(0xFFD1FAE5),
@@ -559,7 +559,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  '$count ta mijoz to\'lovni kechiktirmoqda',
+                  '$count ta hamkor to\'lovni kechiktirmoqda',
                   style: TextStyle(
                     fontSize: 12.sp,
                     color: const Color(0xFF991B1B),

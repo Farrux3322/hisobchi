@@ -27,7 +27,7 @@ class AddClientSubmitButton extends StatelessWidget {
               elevation: 0,
             ),
             child: const Text(
-              'Mijoz qo\'shish',
+              'Hamkor qo\'shish',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),

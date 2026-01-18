@@ -827,7 +827,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                       ),
                                       const SizedBox(height: 24),
                                       const Text(
-                                        'Mijoz tahrirlash',
+                                        'Hamkor tahrirlash',
                                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
                                       ),
                                       const SizedBox(height: 24),
@@ -923,7 +923,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                       TextFormField(
                                         controller: _nameController,
                                         decoration: InputDecoration(
-                                          hintText: 'Mijozni ismini kiriting...',
+                                          hintText: 'Hamkorni ismini kiriting...',
                                           hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
                                           filled: true,
                                           fillColor: const Color(0xFFF8FAFC),
@@ -1118,7 +1118,7 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                             elevation: 0,
                                           ),
-                                          child: const Text('Mijoz tahrirlash', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                          child: const Text('Hamkor tahrirlash', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                                         ),
                                       ),
                                       const SizedBox(height: 16),

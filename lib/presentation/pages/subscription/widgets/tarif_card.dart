@@ -70,7 +70,7 @@ class TarifCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            _buildFeatureItem('Mijozlar soni:', _formatValue(tarif.maxCustomers), color),
+            _buildFeatureItem('Hamkorlar soni:', _formatValue(tarif.maxCustomers), color),
             _buildFeatureItem('Loyihalar soni:', _formatValue(tarif.maxProjects), color),
             _buildFeatureItem('SMS / Oy limit:', _formatValue(tarif.smsPerMonth), color),
             if (tarif.features?.reports == true) _buildFeatureItem('Hisobotlar:', 'Cheksiz', color),

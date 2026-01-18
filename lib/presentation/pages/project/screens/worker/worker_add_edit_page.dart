@@ -164,8 +164,14 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
       return;
     }
 
+    // Strip "Exception: " prefix if present
+    String cleanMessage = errorMessage;
+    if (cleanMessage.startsWith('Exception: ')) {
+      cleanMessage = cleanMessage.substring('Exception: '.length);
+    }
+
     try {
-      final decoded = jsonDecode(errorMessage);
+      final decoded = jsonDecode(cleanMessage);
       if (decoded is Map<String, dynamic>) {
         final errors = decoded['errors'] as Map<String, dynamic>?;
 
@@ -189,9 +195,10 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
           return;
         }
       }
-      AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: errorMessage, icon: Icons.error_outline_rounded);
+      AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: cleanMessage, icon: Icons.error_outline_rounded);
     } catch (e) {
-      AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: errorMessage, icon: Icons.error_outline_rounded);
+      // If JSON parsing fails, show the cleaned message as is
+      AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: cleanMessage, icon: Icons.error_outline_rounded);
     }
   }
 
@@ -266,6 +273,8 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
             Navigator.pop(context, true);
           }
           if (state.statusAction == Status.error) {
+            print('Messi');
+            print(state.errorMessage);
             _handleValidationError(context, state.errorMessage);
           }
         },
