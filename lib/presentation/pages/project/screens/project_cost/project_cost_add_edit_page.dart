@@ -35,11 +35,7 @@ class ProjectCostAddEditPage extends StatefulWidget {
   final int projectId;
   final ProjectCostModel? cost;
 
-  const ProjectCostAddEditPage({
-    super.key,
-    required this.projectId,
-    this.cost,
-  });
+  const ProjectCostAddEditPage({super.key, required this.projectId, this.cost});
 
   @override
   State<ProjectCostAddEditPage> createState() => _ProjectCostAddEditPageState();
@@ -57,11 +53,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
   CostTypeModel? _selectedCostType;
   WorkerModel? _selectedWorker;
   currency.Result? _selectedCurrency;
-  final List<ProjectCostImageData> _images = [
-    ProjectCostImageData(),
-    ProjectCostImageData(),
-    ProjectCostImageData(),
-  ];
+  final List<ProjectCostImageData> _images = [ProjectCostImageData(), ProjectCostImageData(), ProjectCostImageData()];
   bool _isEditing = false;
   final FocusNode _summaFocusNode = FocusNode();
   final FocusNode _descriptionFocusNode = FocusNode();
@@ -85,19 +77,11 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
     super.initState();
     _isEditing = widget.cost != null;
 
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
+    _animationController = AnimationController(duration: const Duration(milliseconds: 600), vsync: this);
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
-    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic));
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic));
 
     _animationController.forward();
 
@@ -107,24 +91,15 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       _descriptionController.text = widget.cost!.description ?? '';
 
       if (widget.cost!.costTypeId != null) {
-        _selectedCostType = CostTypeModel(
-          id: widget.cost!.costTypeId,
-          name: widget.cost!.costTypeName,
-        );
+        _selectedCostType = CostTypeModel(id: widget.cost!.costTypeId, name: widget.cost!.costTypeName);
       }
 
       if (widget.cost!.workerId != null) {
-        _selectedWorker = WorkerModel(
-          id: widget.cost!.workerId,
-          name: widget.cost!.workerName,
-        );
+        _selectedWorker = WorkerModel(id: widget.cost!.workerId, name: widget.cost!.workerName);
       }
 
       if (widget.cost!.currencyTypeId != null) {
-        _selectedCurrency = currency.Result(
-          id: widget.cost!.currencyTypeId,
-          name: widget.cost!.currencyTypeName,
-        );
+        _selectedCurrency = currency.Result(id: widget.cost!.currencyTypeId, name: widget.cost!.currencyTypeName);
       }
 
       _loadExistingImages();
@@ -144,15 +119,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
   }
 
   Future<void> _selectCostType() async {
-    final result = await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => BlocProvider(
-        create: (context) => CostTypeBloc(repository: CostTypeRepository()),
-        child: const CostTypeBottomSheet(),
-      ),
-    );
+    final result = await showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent, builder: (context) => const CostTypeBottomSheet());
 
     if (result != null && result is CostTypeModel && mounted) {
       setState(() {
@@ -211,29 +178,29 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
 
       if (_isEditing) {
         context.read<ProjectCostBloc>().add(
-              UpdateProjectCostEvent(
-                projectCostId: widget.cost!.id!,
-                costTypeId: _selectedCostType!.id!,
-                workerId: _selectedWorker?.id,
-                currencyTypeId: _selectedCurrency!.id!,
-                summa: summa,
-                description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
-                fileId: fileIds.isEmpty ? [] : fileIds,
-                projectId: widget.projectId,
-              ),
-            );
+          UpdateProjectCostEvent(
+            projectCostId: widget.cost!.id!,
+            costTypeId: _selectedCostType!.id!,
+            workerId: _selectedWorker?.id,
+            currencyTypeId: _selectedCurrency!.id!,
+            summa: summa,
+            description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+            fileId: fileIds.isEmpty ? [] : fileIds,
+            projectId: widget.projectId,
+          ),
+        );
       } else {
         context.read<ProjectCostBloc>().add(
-              CreateProjectCostEvent(
-                costTypeId: _selectedCostType!.id!,
-                workerId: _selectedWorker?.id,
-                currencyTypeId: _selectedCurrency!.id!,
-                summa: summa,
-                description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
-                fileId: fileIds.isEmpty ? [] : fileIds,
-                projectId: widget.projectId,
-              ),
-            );
+          CreateProjectCostEvent(
+            costTypeId: _selectedCostType!.id!,
+            workerId: _selectedWorker?.id,
+            currencyTypeId: _selectedCurrency!.id!,
+            summa: summa,
+            description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+            fileId: fileIds.isEmpty ? [] : fileIds,
+            projectId: widget.projectId,
+          ),
+        );
       }
     }
   }
@@ -245,13 +212,9 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       appBar: _buildAppBar(),
       body: MultiBlocListener(
         listeners: [
-          BlocListener<FileUploadBloc, FileUploadState>(
-            listener: _handleFileUploadState,
-          ),
+          BlocListener<FileUploadBloc, FileUploadState>(listener: _handleFileUploadState),
           BlocListener<ProjectCostBloc, ProjectCostState>(
-            listenWhen: (previous, current) =>
-                previous.statusAction != current.statusAction &&
-                (current.statusAction == Status.success || current.statusAction == Status.error),
+            listenWhen: (previous, current) => previous.statusAction != current.statusAction && (current.statusAction == Status.success || current.statusAction == Status.error),
             listener: (context, state) {
               if (state.statusAction == Status.success) {
                 HapticFeedback.mediumImpact();
@@ -280,16 +243,10 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ProjectCostTypeSelector(
-                              selectedCostType: _selectedCostType,
-                              onTap: _selectCostType,
-                            ),
+                            ProjectCostTypeSelector(selectedCostType: _selectedCostType, onTap: _selectCostType),
                             SizedBox(height: 10.h),
                             if (_selectedCostType?.isWorkerJoin == true || _selectedWorker != null) ...[
-                              ProjectCostWorkerSelector(
-                                selectedWorker: _selectedWorker,
-                                onTap: _selectWorker,
-                              ),
+                              ProjectCostWorkerSelector(selectedWorker: _selectedWorker, onTap: _selectWorker),
                               SizedBox(height: 10.h),
                             ],
                             ProjectCostInputs(
@@ -313,11 +270,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
                               onUpdateImage: (index) => _showImageSourceDialog(index),
                             ),
                             SizedBox(height: 12.h),
-                            ProjectCostSubmitButton(
-                              state: state,
-                              isEditing: _isEditing,
-                              onPressed: _submit,
-                            ),
+                            ProjectCostSubmitButton(state: state, isEditing: _isEditing, onPressed: _submit),
                             SizedBox(height: MediaQuery.of(context).padding.bottom + 20.h),
                           ],
                         ),
@@ -358,41 +311,26 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       ),
       title: Text(
         _isEditing ? 'Chiqimni tahrirlash' : 'Yangi chiqim',
-        style: TextStyle(
-          color: AppTheme.colors.black,
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(color: AppTheme.colors.black, fontSize: 18.sp, fontWeight: FontWeight.w600),
       ),
       centerTitle: true,
     );
   }
 
   Widget _buildLoadingOverlay() {
-    return Container(
-      color: Colors.black.withValues(alpha: 0.4),
-      child: Center(
-        child: Container(
-          padding: EdgeInsets.all(32.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Loading(),
-              SizedBox(height: 16.h),
-              Text(
-                'Yuklanmoqda...',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.colors.black,
-                ),
-              ),
-            ],
-          ),
+    return Center(
+      child: Container(
+        padding: EdgeInsets.all(32.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Loading(),
+            SizedBox(height: 16.h),
+            Text(
+              'Yuklanmoqda...',
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
+            ),
+          ],
         ),
       ),
     );
@@ -403,12 +341,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       final uploadingIndex = _images.indexWhere((img) => img.isUploading);
       if (uploadingIndex != -1) {
         setState(() {
-          _images[uploadingIndex] = ProjectCostImageData(
-            file: _images[uploadingIndex].file,
-            fileId: state.uploadedFileId,
-            isUploading: false,
-            progress: 100,
-          );
+          _images[uploadingIndex] = ProjectCostImageData(file: _images[uploadingIndex].file, fileId: state.uploadedFileId, isUploading: false, progress: 100);
         });
       }
     } else if (state.status == FileUploadStatus.failure) {
@@ -423,11 +356,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       final uploadingIndex = _images.indexWhere((img) => img.isUploading);
       if (uploadingIndex != -1) {
         setState(() {
-          _images[uploadingIndex] = ProjectCostImageData(
-            file: _images[uploadingIndex].file,
-            isUploading: true,
-            progress: state.progress,
-          );
+          _images[uploadingIndex] = ProjectCostImageData(file: _images[uploadingIndex].file, isUploading: true, progress: state.progress);
         });
       }
     }
@@ -445,12 +374,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
     }
 
     try {
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        imageQuality: 85,
-        maxWidth: 1920,
-        maxHeight: 1080,
-      );
+      final XFile? image = await _picker.pickImage(source: source, imageQuality: 85, maxWidth: 1920, maxHeight: 1080);
 
       if (image != null && mounted) {
         final imageFile = File(image.path);
@@ -458,9 +382,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
           _images[index] = ProjectCostImageData(file: imageFile, isUploading: true);
         });
 
-        context.read<FileUploadBloc>().add(
-              UploadFileEvent(file: imageFile, type: 'project_cost'),
-            );
+        context.read<FileUploadBloc>().add(UploadFileEvent(file: imageFile, type: 'project_cost'));
       }
     } catch (e) {
       Toast.showErrorToast(message: 'Xatolik yuz berdi: $e');
@@ -484,10 +406,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       for (int i = 0; i < cost.files!.length && i < 3; i++) {
         final file = cost.files![i];
         setState(() {
-           _images[i] = ProjectCostImageData(
-            existingUrl: file.url,
-            existingId: file.id,
-          );
+          _images[i] = ProjectCostImageData(existingUrl: file.url, existingId: file.id);
         });
       }
     }
@@ -513,19 +432,12 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
                   Container(
                     width: 48.w,
                     height: 4.h,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.circular(2.r),
-                    ),
+                    decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(2.r)),
                   ),
                   SizedBox(height: 24.h),
                   Text(
                     'Rasm tanlash',
-                    style: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.colors.black,
-                    ),
+                    style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
                   ),
                   SizedBox(height: 24.h),
                   _buildImageSourceOption(
@@ -559,13 +471,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
     );
   }
 
-  Widget _buildImageSourceOption({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildImageSourceOption({required IconData icon, required String title, required String subtitle, required Color color, required VoidCallback onTap}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -586,10 +492,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
               Container(
                 width: 56.w,
                 height: 56.h,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(14.r),
-                ),
+                decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14.r)),
                 child: Icon(icon, color: color, size: 28.sp),
               ),
               SizedBox(width: 16.w),
@@ -599,19 +502,12 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.colors.black,
-                      ),
+                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
                     ),
                     SizedBox(height: 4.h),
                     Text(
                       subtitle,
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        color: const Color(0xFF64748B),
-                      ),
+                      style: TextStyle(fontSize: 13.sp, color: const Color(0xFF64748B)),
                     ),
                   ],
                 ),

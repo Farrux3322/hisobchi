@@ -94,71 +94,98 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Container(
+                  //   width: 40,
+                  //   height: 4,
+                  //   decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                  // ),
+                  // const SizedBox(height: 20),
+                  // const Text(
+                  //   'Rasm tanlash',
+                  //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                  // ),
+                  // const SizedBox(height: 20),
+                  // ListTile(
+                  //   leading: Container(
+                  //     width: 48,
+                  //     height: 48,
+                  //     decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(12)),
+                  //     child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF3B82F6)),
+                  //   ),
+                  //   title: const Text('Kamera', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                  //   subtitle: const Text('Yangi rasm olish', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //     _pickImage(ImageSource.camera);
+                  //   },
+                  // ),
+                  // const SizedBox(height: 8),
+                  // ListTile(
+                  //   leading: Container(
+                  //     width: 48,
+                  //     height: 48,
+                  //     decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(12)),
+                  //     child: const Icon(Icons.photo_library_rounded, color: Color(0xFF10B981)),
+                  //   ),
+                  //   title: const Text('Galereya', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                  //   subtitle: const Text('Mavjud rasmdan tanlash', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //     _pickImage(ImageSource.gallery);
+                  //   },
+                  // ),
+                  // // Show delete option if there's any image (local or network)
+                  // if (_selectedImage != null || (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty)) ...[
+                  //   const SizedBox(height: 8),
+                  //   ListTile(
+                  //     leading: Container(
+                  //       width: 48,
+                  //       height: 48,
+                  //       decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(12)),
+                  //       child: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444)),
+                  //     ),
+                  //     title: const Text(
+                  //       'Rasmni o\'chirish',
+                  //       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFFEF4444)),
+                  //     ),
+                  //     onTap: () {
+                  //       Navigator.pop(context);
+                  //       setState(() {
+                  //         _selectedImage = null;
+                  //         _uploadedImageId = null;
+                  //         _isImageDeleted = true; // Mark as deleted
+                  //       });
+                  //     },
+                  //   ),
+                  // ],
+                  // const SizedBox(height: 10),
                   Container(
                     width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                    height: 5,
+                    decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(2.5)),
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Rasm tanlash',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-                  ),
-                  const SizedBox(height: 20),
-                  ListTile(
-                    leading: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(12)),
-                      child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF3B82F6)),
-                    ),
-                    title: const Text('Kamera', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                    subtitle: const Text('Yangi rasm olish', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
-                    onTap: () {
-                      Navigator.pop(context);
-                      _pickImage(ImageSource.camera);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  ListTile(
-                    leading: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(12)),
-                      child: const Icon(Icons.photo_library_rounded, color: Color(0xFF10B981)),
-                    ),
-                    title: const Text('Galereya', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                    subtitle: const Text('Mavjud rasmdan tanlash', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
-                    onTap: () {
-                      Navigator.pop(context);
-                      _pickImage(ImageSource.gallery);
-                    },
-                  ),
-                  // Show delete option if there's any image (local or network)
+                  const Gap(32),
+                  _buildSourceItem(Icons.camera_alt_rounded, 'Kamera', const Color(0xFF6366F1), () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.camera);
+                  }),
+                  const Gap(12),
+                  _buildSourceItem(Icons.photo_library_rounded, 'Galereya', const Color(0xFF10B981), () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.gallery);
+                  }),
                   if (_selectedImage != null || (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty)) ...[
-                    const SizedBox(height: 8),
-                    ListTile(
-                      leading: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(12)),
-                        child: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444)),
-                      ),
-                      title: const Text(
-                        'Rasmni o\'chirish',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFFEF4444)),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          _selectedImage = null;
-                          _uploadedImageId = null;
-                          _isImageDeleted = true; // Mark as deleted
-                        });
-                      },
-                    ),
+                    const Gap(12),
+                    _buildSourceItem(Icons.delete_outline_rounded, 'O\'chirish', Colors.redAccent, () {
+                            Navigator.pop(context);
+                            setState(() {
+                              _selectedImage = null;
+                              _uploadedImageId = null;
+                              _isImageDeleted = true; // Mark as deleted
+                            });
+                    }),
                   ],
-                  const SizedBox(height: 10),
+                  Gap(MediaQuery.of(context).padding.bottom),
                 ],
               ),
             ),
@@ -167,6 +194,30 @@ class _AddClientBottomSheetState extends State<EditClientBottomSheet> {
       },
     );
   }
+  Widget _buildSourceItem(IconData icon, String title, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+        decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(20)),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const Gap(16),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+            ),
+            const Spacer(),
+            const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF94A3B8)),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   /// Show currency selection bottom sheet with search
   Future<void> _showCurrencySelectionBottomSheet(List<Result> currencies) async {

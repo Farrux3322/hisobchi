@@ -252,30 +252,19 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> wit
   }
 
   Widget _buildLoadingOverlay() {
-    return Container(
-      color: Colors.black.withValues(alpha: 0.4),
-      child: Center(
-        child: Container(
-          padding: EdgeInsets.all(32.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Loading(),
-              SizedBox(height: 16.h),
-              Text(
-                'Yuklanmoqda...',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.colors.black,
-                ),
-              ),
-            ],
-          ),
+    return Center(
+      child: Container(
+        padding: EdgeInsets.all(32.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Loading(),
+            SizedBox(height: 16.h),
+            Text(
+              'Yuklanmoqda...',
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
+            ),
+          ],
         ),
       ),
     );

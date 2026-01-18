@@ -2,8 +2,9 @@ abstract class ProjectCostEvent {}
 
 class GetProjectCostsEvent extends ProjectCostEvent {
   final int projectId;
+  final int? costTypeId;
 
-  GetProjectCostsEvent({required this.projectId});
+  GetProjectCostsEvent({required this.projectId, this.costTypeId});
 }
 
 class CreateProjectCostEvent extends ProjectCostEvent {

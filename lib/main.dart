@@ -32,7 +32,9 @@ import 'package:hisobchi/infrastructure/repository/theme/theme_repository.dart';
 import 'package:hisobchi/infrastructure/repository/worker/worker_repository.dart';
 import 'package:hisobchi/presentation/components/notification.dart';
 import 'application/app_manager/app_manager_cubit.dart';
+import 'application/cost_type/cost_type_bloc.dart';
 import 'domain/common/app_init.dart';
+import 'infrastructure/repository/cost_type/cost_type_repository.dart';
 import 'infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'presentation/assets/theme/app_theme.dart';
 import 'presentation/pages/app_widget.dart';
@@ -149,6 +151,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => InitAuthBloc()),
         BlocProvider(create: (context) => PartnerBloc()),
         BlocProvider(create: (context) => ProjectBloc()),
+        BlocProvider(create: (context) => CostTypeBloc(repository: CostTypeRepository())),
         BlocProvider(create: (context) => DashboardBloc()),
         BlocProvider(create: (context) => WorkTypeBloc()),
         BlocProvider(create: (context) => ProjectCostBloc(repository: ProjectCostRepository())),

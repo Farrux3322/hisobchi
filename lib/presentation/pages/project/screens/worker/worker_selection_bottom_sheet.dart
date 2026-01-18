@@ -59,6 +59,26 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
     });
   }
 
+  String _formatPhone(String? phone) {
+    if (phone == null || phone.isEmpty) return '';
+    
+    // Remove all non-digit characters
+    String digits = phone.replaceAll(RegExp(r'\D'), '');
+    
+    // If starts with 998, use it; otherwise assume it's local number
+    if (digits.startsWith('998')) {
+      digits = digits.substring(3); // Remove country code
+    }
+    
+    // Format: +998 (XX) XXX XX XX
+    if (digits.length >= 9) {
+      return '+998 (${digits.substring(0, 2)}) ${digits.substring(2, 5)} ${digits.substring(5, 7)} ${digits.substring(7, 9)}';
+    }
+    
+    // Return original if can't format
+    return phone;
+  }
+
   Future<void> _navigateToAddWorker() async {
     final result = await Navigator.push(
       context,
@@ -341,7 +361,7 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
               Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: Text(
-                  worker.phone!,
+                  _formatPhone(worker.phone),
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
                 ),
               ),

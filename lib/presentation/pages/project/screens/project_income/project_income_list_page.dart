@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/project_income/project_income_bloc.dart';
 import 'package:hisobchi/application/project_income/project_income_event.dart';
 import 'package:hisobchi/application/project_income/project_income_state.dart';
@@ -14,7 +13,6 @@ import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_add_edit_page.dart';
 import 'package:collection/collection.dart';
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Result object returned when navigating back from ProjectIncomeListPage
@@ -107,16 +105,6 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
     return DateFormat('HH:mm').format(dt);
   }
 
-  String _formatCurrency(String? amount, String? currency) {
-    if (amount == null) return '0';
-    try {
-      final number = double.parse(amount);
-      final formatter = NumberFormat('#,##0.##', 'uz');
-      return '${formatter.format(number)} ${currency ?? ''}';
-    } catch (e) {
-      return '$amount ${currency ?? ''}';
-    }
-  }
 
   Future<void> _navigateToAddCost() async {
     final result = await Navigator.push(
@@ -538,12 +526,12 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                           decoration: InputDecoration(
                             hintText: 'Qidirish...',
                             hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                            prefixIcon:  Padding(
-                              padding:  EdgeInsets.only(left: 8.0,right: 4),
+                            prefixIcon: Padding(
+                              padding: EdgeInsets.only(left: 8.0, right: 4),
                               child: Icon(Icons.search, color: Color(0xFF64748B), size: 20),
                             ),
                             filled: true,
-                            fillColor:  Colors.white,
+                            fillColor: Colors.white,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -574,10 +562,7 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                                     child: CustomScrollView(slivers: _buildGroupedCosts()),
                                   ),
                                   if (state.statusAction == Status.loading)
-                                    Container(
-                                      color: Colors.black.withValues(alpha: 0.3),
-                                      child: const Center(child: Loading()),
-                                    ),
+                                    const Center(child: Loading()),
                                 ],
                               ),
                       ),
@@ -691,74 +676,74 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
           padding: const EdgeInsets.all(14),
           margin: const EdgeInsets.only(right: 10),
           decoration: BoxDecoration(
-            color: isDeleted ? Colors.red.shade50 : Colors.white,
+            color:isDeleted  ? Colors.red.shade50 : Colors.white,
             borderRadius: BorderRadius.circular(14),
-            border: isDeleted ? Border.all(color: Colors.red.shade300, width: 2) : null,
-            boxShadow: isDeleted ? null : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                height: 40,
-                width: 40,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(12)),
-                child: SvgPicture.asset(AppIcons.income),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      cost.description?.isNotEmpty == true ? cost.description! : 'Kirim',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: isDeleted ? Colors.grey : const Color(0xFF1E293B),
-                        decoration: isDeleted ? TextDecoration.lineThrough : null,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      timeText,
-                      style: TextStyle(color: isDeleted ? Colors.grey : const Color(0xFF64748B), fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              Row(
                 children: [
-                  RichText(
-                    text: TextSpan(
+                  Container(
+                    height: 40,
+                    width: 40,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(12)),
+                    child: SvgPicture.asset(AppIcons.income, colorFilter: isDeleted ? ColorFilter.mode(Colors.grey, BlendMode.srcIn) : null),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(
-                          text: formattedAmount,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: isDeleted ? Colors.grey : const Color(0xFF10B981),
-                            decoration: isDeleted ? TextDecoration.lineThrough : null,
-                          ),
+                        Text(
+                          cost.description?.isNotEmpty == true ? cost.description! : 'Kirim',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: const Color(0xFF1E293B)),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        TextSpan(
-                          text: ' ${cost.currencyTypeName ?? ''}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isDeleted ? Colors.grey : const Color(0xFF10B981).withValues(alpha: 0.8),
-                            decoration: isDeleted ? TextDecoration.lineThrough : null,
-                          ),
-                        ),
+                        const SizedBox(height: 4),
+                        Text(timeText, style: TextStyle(color: isDeleted ? Colors.grey : const Color(0xFF64748B), fontSize: 13)),
                       ],
                     ),
                   ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: formattedAmount,
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color:  const Color(0xFF10B981)),
+                            ),
+                            TextSpan(
+                              text: ' ${cost.currencyTypeName ?? ''}',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color:const Color(0xFF10B981).withValues(alpha: 0.8)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
+              if (isDeleted) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(color: Colors.red.shade100, borderRadius: BorderRadius.circular(6)),
+                    child: Text(
+                      'O\'chirilgan',
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.red.shade700),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

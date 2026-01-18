@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
@@ -11,6 +13,7 @@ import 'package:hisobchi/infrastructure/repository/worker/worker_repository.dart
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:hisobchi/presentation/pages/client/widgets/add_client_components/add_client_dialogs.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_position_bottom_sheet.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
@@ -155,6 +158,85 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
     }
   }
 
+  void _handleValidationError(BuildContext context, String? errorMessage) {
+    if (errorMessage == null || errorMessage.isEmpty) {
+      AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: 'Kutilmagan xatolik yuz berdi', icon: Icons.error_outline_rounded);
+      return;
+    }
+
+    try {
+      final decoded = jsonDecode(errorMessage);
+      if (decoded is Map<String, dynamic>) {
+        final errors = decoded['errors'] as Map<String, dynamic>?;
+
+        if (errors != null && errors.isNotEmpty) {
+          final validationErrors = <String, String>{};
+          errors.forEach((field, messages) {
+            final fieldName = _getFieldNameInUzbek(field);
+            String message = (messages is List && messages.isNotEmpty) ? messages.first.toString() : messages.toString();
+            validationErrors[fieldName] = _translateErrorMessage(field, message);
+          });
+
+          if (validationErrors.isNotEmpty) {
+            AddClientDialogs.showValidationErrorDialog(context, validationErrors);
+            return;
+          }
+        }
+
+        if (decoded.containsKey('message')) {
+          final msg = decoded['message'].toString();
+          AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: _translateErrorMessage('', msg), icon: Icons.error_outline_rounded);
+          return;
+        }
+      }
+      AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: errorMessage, icon: Icons.error_outline_rounded);
+    } catch (e) {
+      AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: errorMessage, icon: Icons.error_outline_rounded);
+    }
+  }
+
+
+  String _getFieldNameInUzbek(String field) {
+    switch (field.toLowerCase()) {
+      case 'name':
+        return 'Ism';
+      case 'phone':
+        return 'Telefon raqam';
+      case 'additional_phone':
+        return 'Qo\'shimcha telefon';
+      default:
+        return field;
+    }
+  }
+
+  String _translateErrorMessage(String field, String message) {
+    final msg = message.toLowerCase();
+    if (msg.contains('already been taken') || msg.contains('already taken')) {
+      switch (field.toLowerCase()) {
+        case 'phone':
+          return 'Bu telefon raqam allaqachon ro\'yxatdan o\'tgan.';
+        case 'name':
+          return 'Bu ism allaqachon mavjud.';
+        case 'additional_phone':
+          return 'Bu qo\'shimcha raqam allaqachon mavjud.';
+        default:
+          return 'Ushbu ma\'lumot allaqachon band qilingan.';
+      }
+    }
+    if (msg.contains('required') || msg.contains('field is required')) {
+      return 'Bu maydon to\'ldirilishi shart.';
+    }
+    if (msg.contains('invalid')) {
+      if (msg.contains('phone')) return 'Telefon raqam formati noto\'g\'ri.';
+      return 'Kiritilgan ma\'lumot noto\'g\'ri.';
+    }
+    if (msg.contains('the phone has already been taken')) {
+      return 'Bu telefon raqam allaqachon ro\'yxatdan o\'tgan.';
+    }
+    return message;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,7 +266,7 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
             Navigator.pop(context, true);
           }
           if (state.statusAction == Status.error) {
-            Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+            _handleValidationError(context, state.errorMessage);
           }
         },
         builder: (context, state) {

@@ -55,69 +55,262 @@ class _WorkerPositionBottomSheetState extends State<WorkerPositionBottomSheet> {
     final descriptionController = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
-    final result = await showDialog<bool>(
+    final result = await showModalBottomSheet<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Yangi lavozim'),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: 'Lavozim nomi*',
-                  hintText: 'Masalan: Muhandis',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Nomni kiriting';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: descriptionController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  labelText: 'Izoh',
-                  hintText: 'Qo\'shimcha ma\'lumot',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                  ),
-                ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (builderContext) => GestureDetector(
+        onTap: () => FocusScope.of(builderContext).unfocus(),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.white, Colors.grey.shade50],
+            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 20,
+                offset: const Offset(0, -5),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Bekor qilish'),
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 12,
+            bottom: MediaQuery.of(builderContext).padding.bottom + 24,
           ),
-          ElevatedButton(
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                Navigator.pop(context, true);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor:AppTheme.colors.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          child: SingleChildScrollView(
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Drag Handle
+                  Center(
+                    child: Container(
+                      width: 48,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [const Color(0xFFE2E8F0), Colors.grey.shade300],
+                        ),
+                        borderRadius: BorderRadius.circular(3),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade300.withOpacity(0.5),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Title with gradient icon
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient:  LinearGradient(
+                            colors: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: .9)],
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.colors.primary.withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.add_business_rounded, color: Colors.white, size: 28),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Text(
+                          'Yangi lavozim qo\'shish',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1E293B),
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 28),
+
+                  // Name Field
+                  Text(
+                    'Lavozim nomi',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade700,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: nameController,
+                    autofocus: true,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    decoration: InputDecoration(
+                      hintText: 'Masalan: Muhandis',
+                      hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+                      prefixIcon: Container(
+                        margin: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFF6366F1).withOpacity(0.1),
+                              const Color(0xFF8B5CF6).withOpacity(0.1),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.work_outline_rounded, color: Color(0xFF6366F1), size: 20),
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Lavozim nomini kiriting';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Description Field
+                  Text(
+                    'Izoh (ixtiyoriy)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade700,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: descriptionController,
+                    maxLines: 3,
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+                    decoration: InputDecoration(
+                      hintText: 'Qo\'shimcha ma\'lumot...',
+                      hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                      prefixIcon: Container(
+                        margin: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFF10B981).withOpacity(0.1),
+                              const Color(0xFF059669).withOpacity(0.1),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.description_outlined, color: Color(0xFF10B981), size: 20),
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFF10B981), width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // Buttons
+                  InkWell(
+                    onTap: () {
+                      if (formKey.currentState!.validate()) {
+                        Navigator.pop(builderContext, true);
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        gradient:  LinearGradient(
+                          colors: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: .9)],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.colors.primary.withValues(alpha: .3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_rounded, color: Colors.white, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Yaratish',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
-            child: const Text('Yaratish'),
           ),
-        ],
+        ),
       ),
     );
 
@@ -125,9 +318,7 @@ class _WorkerPositionBottomSheetState extends State<WorkerPositionBottomSheet> {
       context.read<WorkerBloc>().add(
             CreateWorkerPositionEvent(
               name: nameController.text.trim(),
-              description: descriptionController.text.trim().isEmpty
-                  ? null
-                  : descriptionController.text.trim(),
+              description: descriptionController.text.trim().isEmpty ? null : descriptionController.text.trim(),
             ),
           );
     }

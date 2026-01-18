@@ -11,12 +11,18 @@ class ProjectCostRepository {
   }
 
   // Get project costs
-  Future<ProjectCostListResponse> getProjectCosts(int projectId) async {
+  Future<ProjectCostListResponse> getProjectCosts(int projectId, {int? costTypeId}) async {
     try {
-      final response = await dio.get('/project/project-costs', data: {
+      final data = {
         'project_id': projectId,
         'search': '',
-      });
+      };
+
+      if (costTypeId != null) {
+        data['cost_type_id'] = costTypeId;
+      }
+
+      final response = await dio.get('/project/project-costs', data: data);
 
       if (response.statusCode == 200) {
         return ProjectCostListResponse.fromJson(response.data);

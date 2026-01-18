@@ -517,10 +517,10 @@ class _ContractAddPageState extends State<ContractAddPage> {
         color: Color(0xFF1E293B),
       ),
       decoration: const InputDecoration(
-       
+       hintText: 'Kelishuv summasini kiriting',
         hintStyle: TextStyle(
           color: Color(0xFF94A3B8),
-          fontSize: 18,
+          fontSize: 15,
           fontWeight: FontWeight.w600,
         ),
         border: InputBorder.none,

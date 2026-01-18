@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/project_report/project_report_bloc.dart';
 import 'package:hisobchi/infrastructure/dto/models/project_report/project_report_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/pages/project/screens/project_cost/project_cost_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/report/project_cost_details_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/report/project_income_details_page.dart';
@@ -427,12 +428,16 @@ class _ProjectReportView extends StatelessWidget {
     final color = theme.primary;
     // final color = _getCostColor(detail.costTypeName);
 
-    return InkWell(
+     return InkWell(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => ProjectCostDetailsPage(projectId: projectId, costTypeId: detail.costTypeId ?? 0, costTypeName: detail.costTypeName ?? 'Chiqim'),
+            builder: (_) => ProjectCostListPage(
+              projectId: projectId,
+              costTypeId: detail.costTypeId,
+              costTypeName: detail.costTypeName,
+            ),
           ),
         );
       },

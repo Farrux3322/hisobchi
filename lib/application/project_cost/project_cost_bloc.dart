@@ -25,7 +25,7 @@ class ProjectCostBloc extends Bloc<ProjectCostEvent, ProjectCostState> {
       statusAction: Status.initial,
     ));
     try {
-      final response = await repository.getProjectCosts(event.projectId);
+      final response = await repository.getProjectCosts(event.projectId, costTypeId: event.costTypeId);
       emit(state.copyWith(
         status: Status.success,
         projectCosts: response.result,

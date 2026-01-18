@@ -3,20 +3,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:hisobchi/application/cost_type/cost_type_bloc.dart';
 import 'package:hisobchi/application/project_cost/project_cost_bloc.dart';
 import 'package:hisobchi/application/project_cost/project_cost_event.dart';
 import 'package:hisobchi/application/project_cost/project_cost_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
+import 'package:hisobchi/infrastructure/models/cost_type_model.dart';
 import 'package:hisobchi/infrastructure/models/project_cost_model.dart';
-import 'package:hisobchi/presentation/assets/res/app_icons.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:hisobchi/presentation/pages/project/screens/project_cost/cost_type_bottom_sheet.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_cost/project_cost_add_edit_page.dart';
 import 'package:collection/collection.dart';
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../assets/asset_index.dart';
 
 /// Result object returned when navigating back from ProjectCostListPage
 /// Indicates whether transactions were modified
@@ -34,8 +35,10 @@ class ProjectCostListResult {
 
 class ProjectCostListPage extends StatefulWidget {
   final int projectId;
+  final int? costTypeId;
+  final String? costTypeName;
 
-  const ProjectCostListPage({super.key, required this.projectId});
+  const ProjectCostListPage({super.key, required this.projectId, this.costTypeId, this.costTypeName});
 
   @override
   State<ProjectCostListPage> createState() => _ProjectCostListPageState();
@@ -45,6 +48,8 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
   final TextEditingController _searchController = TextEditingController();
   List<ProjectCostModel> _filteredCosts = [];
   List<ProjectCostModel> _allCosts = [];
+  int? _selectedCostTypeId;
+  String? _selectedCostTypeName;
 
   /// Tracks whether any changes were made (add/edit/delete/restore transactions)
   bool _hasChanges = false;
@@ -52,6 +57,11 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
   @override
   void initState() {
     super.initState();
+    // Initialize filters from constructor parameters
+    if (widget.costTypeId != null) {
+      _selectedCostTypeId = widget.costTypeId;
+      _selectedCostTypeName = widget.costTypeName;
+    }
     _loadCosts();
     _searchController.addListener(_filterCosts);
   }
@@ -63,7 +73,32 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
   }
 
   void _loadCosts() {
-    context.read<ProjectCostBloc>().add(GetProjectCostsEvent(projectId: widget.projectId));
+    context.read<ProjectCostBloc>().add(GetProjectCostsEvent(projectId: widget.projectId, costTypeId: _selectedCostTypeId));
+  }
+
+  Future<void> _showFilterBottomSheet() async {
+    final result = await showModalBottomSheet<CostTypeModel>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BlocProvider.value(value: context.read<CostTypeBloc>(), child: const CostTypeBottomSheet()),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _selectedCostTypeId = result.id;
+        _selectedCostTypeName = result.name;
+      });
+      _loadCosts();
+    }
+  }
+
+  void _clearFilter() {
+    setState(() {
+      _selectedCostTypeId = null;
+      _selectedCostTypeName = null;
+    });
+    _loadCosts();
   }
 
   /// Mark that changes were made - parent should refresh when going back
@@ -513,128 +548,153 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
-          final navResult = _hasChanges ? ProjectCostListResult.modified() : ProjectCostListResult.noChanges();
-        }
-      },
-      child: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-        child: Scaffold(
-          // backgroundColor: const Color(0xFFF7F7FA),
-          appBar: AppBar(
-            // backgroundColor: Colors.white,
-            elevation: 0,
-            surfaceTintColor: Colors.white,
-            leading: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [
-                    BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                    BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                    BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-                  ],
+    return DeFocus(
+      child: PopScope(
+        canPop: true,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            final navResult = _hasChanges ? ProjectCostListResult.modified() : ProjectCostListResult.noChanges();
+          }
+        },
+        child: Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+          child: Scaffold(
+            appBar: AppBar(
+              elevation: 0,
+              surfaceTintColor: Colors.white,
+              leading: IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+                      BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+                      BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
+                    ],
+                  ),
+                  child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
                 ),
-                child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+                onPressed: () {
+                  final result = _hasChanges ? ProjectCostListResult.modified() : ProjectCostListResult.noChanges();
+                  Navigator.of(context).pop(result);
+                },
               ),
-              onPressed: () {
-                final result = _hasChanges ? ProjectCostListResult.modified() : ProjectCostListResult.noChanges();
-                Navigator.of(context).pop(result);
+              title: const Text(
+                'Loyiha chiqimlari',
+                style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              centerTitle: true,
+            ),
+            floatingActionButton: FloatingActionButton(onPressed: _navigateToAddCost, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
+            body: BlocConsumer<ProjectCostBloc, ProjectCostState>(
+              listener: (context, state) {
+                if (state.statusAction == Status.success) {
+                  Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
+                  _markAsChanged();
+                  _loadCosts();
+                } else if (state.statusAction == Status.error) {
+                  Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+                }
+
+                if (state.status == Status.success) {
+                  setState(() {
+                    _allCosts = state.projectCosts;
+                    _filterCosts();
+                  });
+                } else if (state.status == Status.error) {
+                  Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+                }
+              },
+              builder: (context, state) {
+                return SafeArea(
+                  child: Column(
+                    children: [
+                      // Search Bar
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: 'Qidirish...',
+                            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                            prefixIcon: const Padding(
+                              padding: EdgeInsets.only(left: 8, right: 4),
+                              child: Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                            ),
+                            suffixIcon: Padding(
+                              padding: const EdgeInsets.only(right: 4),
+                              child: IconButton(
+                                onPressed: _showFilterBottomSheet,
+                                icon: Icon(Icons.filter_list_rounded, color: _selectedCostTypeId != null ? AppTheme.colors.primary : const Color(0xFF64748B), size: 24),
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: const Color(0xFFF8FAFC),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          ),
+                        ),
+                      ),
+
+                      // Filter Chip
+                      if (_selectedCostTypeName != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          alignment: Alignment.centerLeft,
+                          child: Chip(
+                            avatar: Icon(Icons.filter_alt, size: 18, color: AppTheme.colors.primary),
+                            label: Text(
+                              _selectedCostTypeName!,
+                              style: TextStyle(color: AppTheme.colors.primary, fontWeight: FontWeight.w500, fontSize: 13),
+                            ),
+                            deleteIcon: Icon(Icons.close, size: 18, color: AppTheme.colors.primary),
+                            onDeleted: _clearFilter,
+                            backgroundColor: AppTheme.colors.primary.withValues(alpha: 0.1),
+                            side: BorderSide(color: AppTheme.colors.primary.withValues(alpha: 0.3), width: 1),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                          ),
+                        ),
+
+                      // Costs List
+                      Expanded(
+                        child: state.status == Status.loading && _allCosts.isEmpty
+                            ? _buildShimmerLoading()
+                            : _filteredCosts.isEmpty
+                            ? _buildEmptyState()
+                            : Stack(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
+                                    child: CustomScrollView(slivers: _buildGroupedCosts()),
+                                  ),
+                                  if (state.statusAction == Status.loading)
+                                    Container(
+                                      color: Colors.black.withValues(alpha: 0.3),
+                                      child: const Center(child: Loading()),
+                                    ),
+                                ],
+                              ),
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
-          title: const Text(
-            'Loyiha chiqimlari',
-            style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
           ),
-          centerTitle: true,
-        ),
-        floatingActionButton: FloatingActionButton(onPressed: _navigateToAddCost, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
-
-        body: BlocConsumer<ProjectCostBloc, ProjectCostState>(
-          listener: (context, state) {
-            if (state.statusAction == Status.success) {
-              Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
-              _markAsChanged(); // Mark changes when delete/restore/force delete succeeds
-              _loadCosts();
-            } else if (state.statusAction == Status.error) {
-              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-            }
-
-            if (state.status == Status.success) {
-              setState(() {
-                _allCosts = state.projectCosts;
-                _filterCosts();
-              });
-            } else if (state.status == Status.error) {
-              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-            }
-          },
-          builder: (context, state) {
-            return SafeArea(
-              child: Column(
-                children: [
-                  // Search Bar
-                  Container(
-                    // color: Colors.white,
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 5),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Qidirish...',
-                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.only(left: 8, right: 4),
-                          child: Icon(Icons.search, color: Color(0xFF64748B), size: 20),
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFFF8FAFC),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      ),
-                    ),
-                  ),
-
-                  // Costs List
-                  Expanded(
-                    child: state.status == Status.loading && _allCosts.isEmpty
-                        ? _buildShimmerLoading()
-                        : _filteredCosts.isEmpty
-                        ? _buildEmptyState()
-                        : Stack(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
-                                child: CustomScrollView(slivers: _buildGroupedCosts()),
-                              ),
-                              if (state.statusAction == Status.loading)
-                                Container(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  child: const Center(child: Loading()),
-                                ),
-                            ],
-                          ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
         ),
       ),
     );
@@ -657,7 +717,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
         header: Container(
           height: 40,
           color: AppTheme.colors.background,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           alignment: Alignment.centerLeft,
           child: Text(
             DateFormat('dd.MM.yyyy').format(dateKey),
@@ -672,132 +732,6 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
         ),
       );
     }).toList();
-  }
-
-  Widget _buildCostCard(ProjectCostModel cost) {
-    final String timeText = _formatTimeOnly(cost.createdAt);
-    final bool isDeleted = cost.isDeleted;
-
-    return GestureDetector(
-      onTap: isDeleted ? null : () => _navigateToEditCost(cost),
-      child: Slidable(
-        key: ValueKey(cost.id),
-
-        endActionPane: ActionPane(
-          motion: const DrawerMotion(),
-          extentRatio: isDeleted ? 0.6 : 0.55,
-          children: isDeleted
-              ? [
-                  SlidableAction(
-                    onPressed: (context) => _showRestoreDialog(cost),
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    icon: Icons.restore,
-                    label: "Tiklash",
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  SlidableAction(
-                    onPressed: (context) => _showForceDeleteDialog(cost),
-                    backgroundColor: Colors.red.shade700,
-                    foregroundColor: Colors.white,
-                    icon: Icons.delete_forever,
-                    label: "Butunlay",
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ]
-              : [
-                  SlidableAction(
-                    onPressed: (context) => _navigateToEditCost(cost),
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    icon: Icons.edit_outlined,
-                    label: "Tahrirlash",
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  SlidableAction(
-                    onPressed: (context) => _showDeleteDialog(cost),
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    icon: Icons.delete_outline,
-                    label: "O'chirish",
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ],
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          margin: const EdgeInsets.only(right: 10),
-          decoration: BoxDecoration(
-            color: isDeleted ? Colors.red.shade50 : Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: isDeleted ? Border.all(color: Colors.red.shade300, width: 2) : null,
-            boxShadow: isDeleted ? null : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
-          ),
-          child: Row(
-            children: [
-              Container(
-                height: 40,
-                width: 40,
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(12)),
-                child: SvgPicture.asset(AppIcons.chiqim),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      cost.costTypeName ?? 'Chiqim turi ko\'rsatilmagan',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: isDeleted ? Colors.grey : const Color(0xFF1E293B), decoration: isDeleted ? TextDecoration.lineThrough : null),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(cost.workerName ?? 'Ishchi ko\'rsatilmagan', style: TextStyle(color: isDeleted ? Colors.grey : Colors.black54, fontSize: 13)),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    _formatCurrency(cost.summa, cost.currencyTypeName),
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isDeleted ? Colors.grey : const Color(0xFFEF4444)),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(timeText, style: TextStyle(color: isDeleted ? Colors.grey : Colors.black54, fontSize: 12)),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-            child: SvgPicture.asset(AppIcons.chiqim, height: 40, width: 40, colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn)),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            _searchController.text.isEmpty ? 'Chiqimlar mavjud emas' : 'Hech narsa topilmadi',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _searchController.text.isEmpty ? 'Yangi chiqim qo\'shish uchun + tugmasini bosing' : 'Boshqa kalit so\'z bilan qidirib ko\'ring',
-            style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildShimmerLoading() {
@@ -868,6 +802,163 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+            child: SvgPicture.asset(AppIcons.chiqim, height: 40, width: 40, colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn)),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            _searchController.text.isEmpty ? 'Chiqimlar mavjud emas' : 'Hech narsa topilmadi',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _searchController.text.isEmpty ? 'Yangi chiqim qo\'shish uchun + tugmasini bosing' : 'Boshqa kalit so\'z bilan qidirib ko\'ring',
+            style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCostCard(ProjectCostModel cost) {
+    final String timeText = _formatTimeOnly(cost.createdAt);
+    final bool isDeleted = cost.isDeleted;
+
+    return GestureDetector(
+      onTap: isDeleted ? null : () => _navigateToEditCost(cost),
+      child: Slidable(
+        key: ValueKey(cost.id),
+
+        endActionPane: ActionPane(
+          motion: const DrawerMotion(),
+          extentRatio: isDeleted ? 0.6 : 0.55,
+          children: isDeleted
+              ? [
+                  SlidableAction(
+                    onPressed: (context) => _showRestoreDialog(cost),
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    icon: Icons.restore,
+                    label: "Tiklash",
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  SlidableAction(
+                    onPressed: (context) => _showForceDeleteDialog(cost),
+                    backgroundColor: Colors.red.shade700,
+                    foregroundColor: Colors.white,
+                    icon: Icons.delete_forever,
+                    label: "Butunlay",
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ]
+              : [
+                  SlidableAction(
+                    onPressed: (context) => _navigateToEditCost(cost),
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    icon: Icons.edit_outlined,
+                    label: "Tahrirlash",
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  SlidableAction(
+                    onPressed: (context) => _showDeleteDialog(cost),
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    icon: Icons.delete_outline,
+                    label: "O'chirish",
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ],
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          margin: const EdgeInsets.only(right: 10),
+          decoration: BoxDecoration(
+            color: isDeleted ? Colors.red.shade50 : Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    height: 40,
+                    width: 40,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isDeleted ? Colors.grey.withValues(alpha: 0.3) : Colors.red.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: SvgPicture.asset(
+                      AppIcons.chiqim,
+                      colorFilter: isDeleted ? ColorFilter.mode(Colors.grey, BlendMode.srcIn) : null,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          cost.costTypeName ?? 'Chiqim turi ko\'rsatilmagan',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: const Color(0xFF1E293B)),
+                        ),
+                        if(cost.workerName != null) const SizedBox(height: 4),
+                        if(cost.workerName != null)Text(cost.workerName ?? '', style: TextStyle(color: Colors.black54, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        _formatCurrency(cost.summa, cost.currencyTypeName),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFFEF4444)),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(timeText, style: TextStyle(color: Colors.black54, fontSize: 12)),
+                    ],
+                  ),
+                ],
+              ),
+              if (isDeleted) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade100,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'O\'chirilgan',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.red.shade700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

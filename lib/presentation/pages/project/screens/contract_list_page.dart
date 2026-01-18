@@ -701,10 +701,7 @@ class _ContractListPageState extends State<ContractListPage> {
                                 ),
                               ),
                               if (state.statusAction == Status.loading)
-                                Container(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  child: const Center(child: Loading()),
-                                ),
+                                const Center(child: Loading()),
                             ],
                           ),
                   ),
@@ -804,80 +801,109 @@ class _ContractListPageState extends State<ContractListPage> {
           decoration: BoxDecoration(
             color: isDeleted ? Colors.red.shade50 : Colors.white,
             borderRadius: BorderRadius.circular(14),
-            border: isDeleted ? Border.all(color: Colors.red.shade300, width: 2) : null,
             boxShadow: [
               BoxShadow(
-                color: isDeleted ? Colors.red.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.03),
+                color: Colors.black.withValues(alpha: 0.03),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               )
             ],
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                height: 40,
-                width: 40,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF5B4FFF).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.description_outlined, color: Color(0xFF5B4FFF), size: 24),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      contract.workTypeName ?? '',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        decoration: isDeleted ? TextDecoration.lineThrough : null,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      timeText,
-                      style: const TextStyle(color: Colors.black54, fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              Row(
                 children: [
-                  Text(
-                    '${contract.formattedSumma}',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF10B981),
+                  Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF5B4FFF).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.description_outlined,
+                      color:  const Color(0xFF5B4FFF),
+                      size: 24,
                     ),
                   ),
-                  if (contract.files != null && contract.files!.isNotEmpty)
-                    Container(
-                      margin: const EdgeInsets.only(top: 4),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF5B4FFF).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '${contract.files!.length}',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF5B4FFF)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          contract.workTypeName ?? '',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF1E293B),
                           ),
-                          const SizedBox(width: 2),
-                          const Icon(Icons.image_outlined, size: 14, color: Color(0xFF5B4FFF)),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          timeText,
+                          style: TextStyle(color:  Colors.black54, fontSize: 13),
+                        ),
+                      ],
                     ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        contract.formattedSumma,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color:const Color(0xFF10B981),
+                        ),
+                      ),
+                      if (contract.files != null && contract.files!.isNotEmpty)
+                        Container(
+                          margin: const EdgeInsets.only(top: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: isDeleted ? Colors.grey.withValues(alpha: 0.2) : const Color(0xFF5B4FFF).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '${contract.files!.length}',
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color:  const Color(0xFF5B4FFF)),
+                              ),
+                              const SizedBox(width: 2),
+                              Icon(Icons.image_outlined, size: 14, color: isDeleted ? Colors.grey : const Color(0xFF5B4FFF)),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
                 ],
               ),
+              if (isDeleted) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade100,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'O\'chirilgan',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.red.shade700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

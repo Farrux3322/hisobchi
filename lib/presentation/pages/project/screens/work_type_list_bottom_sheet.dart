@@ -174,7 +174,10 @@ class _WorkTypeListBottomSheetState extends State<WorkTypeListBottomSheet> {
                         decoration: InputDecoration(
                           hintText: 'Qidirish...',
                           hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                          prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B)),
+                          prefixIcon: Padding(
+                            padding: const EdgeInsets.only(left: 8.0, right: 4),
+                            child: Icon(Icons.search, color: Color(0xFF64748B)),
+                          ),
                           filled: true,
                           fillColor: const Color(0xFFF8FAFC),
                           border: OutlineInputBorder(
@@ -200,48 +203,48 @@ class _WorkTypeListBottomSheetState extends State<WorkTypeListBottomSheet> {
                       child: state.status == Status.loading && _allWorkTypes.isEmpty
                           ? const Center(child: Loading())
                           : _filteredList.isEmpty
-                              ? Padding(
-                                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.work_outlined, size: 64, color: AppTheme.colors.primary),
-                                        const SizedBox(height: 16),
-                                        Text(_searchController.text.isEmpty ? 'Ish turlari mavjud emas' : 'Hech narsa topilmadi', style: TextStyle(fontSize: 16, color: AppTheme.colors.primary)),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              : Stack(
+                          ? Padding(
+                              padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    ListView.separated(
-                                      controller: scrollController,
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                                      itemCount: _filteredList.length,
-                                      separatorBuilder: (context, index) => const SizedBox(height: 12),
-                                      itemBuilder: (context, index) {
-                                        final workType = _filteredList[index];
-                                        return _WorkTypeItem(
-                                          workType: workType,
-                                          onTap: () {
-                                            widget.onSelect(workType);
-                                            Navigator.pop(context);
-                                          },
-                                          onEdit: () => _showEditWorkTypeBottomSheet(workType),
-                                          onDelete: () => _onDelete(workType),
-                                          onRestore: () => _onRestore(workType),
-                                          onForceDelete: () => _onForceDelete(workType),
-                                        );
-                                      },
-                                    ),
-                                    if (state.statusAdd == Status.loading)
-                                      Container(
-                                        color: Colors.black.withValues(alpha: 0.3),
-                                        child: const Center(child: Loading()),
-                                      ),
+                                    Icon(Icons.work_outlined, size: 64, color: AppTheme.colors.primary),
+                                    const SizedBox(height: 16),
+                                    Text(_searchController.text.isEmpty ? 'Ish turlari mavjud emas' : 'Hech narsa topilmadi', style: TextStyle(fontSize: 16, color: AppTheme.colors.primary)),
                                   ],
                                 ),
+                              ),
+                            )
+                          : Stack(
+                              children: [
+                                ListView.separated(
+                                  controller: scrollController,
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8).copyWith(bottom: MediaQuery.of(context).padding.bottom),
+                                  itemCount: _filteredList.length,
+                                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                                  itemBuilder: (context, index) {
+                                    final workType = _filteredList[index];
+                                    return _WorkTypeItem(
+                                      workType: workType,
+                                      onTap: () {
+                                        widget.onSelect(workType);
+                                        Navigator.pop(context);
+                                      },
+                                      onEdit: () => _showEditWorkTypeBottomSheet(workType),
+                                      onDelete: () => _onDelete(workType),
+                                      onRestore: () => _onRestore(workType),
+                                      onForceDelete: () => _onForceDelete(workType),
+                                    );
+                                  },
+                                ),
+                                if (state.statusAdd == Status.loading)
+                                  Container(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    child: const Center(child: Loading()),
+                                  ),
+                              ],
+                            ),
                     ),
                   ],
                 );
@@ -262,14 +265,7 @@ class _WorkTypeItem extends StatelessWidget {
   final VoidCallback onRestore;
   final VoidCallback onForceDelete;
 
-  const _WorkTypeItem({
-    required this.workType,
-    required this.onTap,
-    required this.onEdit,
-    required this.onDelete,
-    required this.onRestore,
-    required this.onForceDelete,
-  });
+  const _WorkTypeItem({required this.workType, required this.onTap, required this.onEdit, required this.onDelete, required this.onRestore, required this.onForceDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -364,7 +360,10 @@ class _WorkTypeItem extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                  child: const Text('O\'chirilgan', style: TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'O\'chirilgan',
+                    style: TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
+                  ),
                 )
               else
                 Icon(Icons.arrow_forward_ios_rounded, color: const Color(0xFFCBD5E1), size: 20),
@@ -375,4 +374,3 @@ class _WorkTypeItem extends StatelessWidget {
     );
   }
 }
-

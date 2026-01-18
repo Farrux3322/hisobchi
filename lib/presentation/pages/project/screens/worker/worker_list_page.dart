@@ -95,6 +95,26 @@ class _WorkerListPageState extends State<WorkerListPage> {
     return DateFormat('HH:mm').format(dt);
   }
 
+  String _formatPhone(String? phone) {
+    if (phone == null || phone.isEmpty) return '';
+    
+    // Remove all non-digit characters
+    String digits = phone.replaceAll(RegExp(r'\D'), '');
+    
+    // If starts with 998, use it; otherwise assume it's local number
+    if (digits.startsWith('998')) {
+      digits = digits.substring(3); // Remove country code
+    }
+    
+    // Format: +998 (XX) XXX XX XX
+    if (digits.length >= 9) {
+      return '+998 (${digits.substring(0, 2)}) ${digits.substring(2, 5)} ${digits.substring(5, 7)} ${digits.substring(7, 9)}';
+    }
+    
+    // Return original if can't format
+    return phone;
+  }
+
   Future<void> _showAddWorkerSelection() async {
     final result = await showModalBottomSheet(
       context: context,
@@ -129,17 +149,27 @@ class _WorkerListPageState extends State<WorkerListPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Projectdan o\'chirish'),
-        content: Text('${worker.name} ishchini projectdan o\'chirmoqchimisiz?'),
+        title:  Text('Loyihadan o\'chirish',textAlign: TextAlign.center,),
+        content: Text('${worker.name} ishchini loyihadan o\'chirmoqchimisiz?',textAlign: TextAlign.center,),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Bekor qilish'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, 'remove'),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('O\'chirish'),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.colors.gray),
+                  child: const Text('Qaytish'),
+                ),
+              ),
+              Gap(8.2),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context, 'remove'),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  child: const Text('O\'chirish'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -413,7 +443,7 @@ class _WorkerListPageState extends State<WorkerListPage> {
                 children: [
                   if (worker.phone != null)
                     Text(
-                      worker.phone!,
+                      _formatPhone(worker.phone),
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,

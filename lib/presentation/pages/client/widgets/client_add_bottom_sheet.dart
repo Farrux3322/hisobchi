@@ -37,18 +37,8 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
   final _phoneController = TextEditingController(text: "+998");
   final _additionalPhoneController = TextEditingController(text: "+998");
   final ImagePicker _picker = ImagePicker();
-  var maskFormatter1 = MaskTextInputFormatter(
-    mask: '+998 (##) ### ## ##',
-    filter: {"#": RegExp(r'[0-9]')},
-    initialText: "+998",
-    type: MaskAutoCompletionType.lazy,
-  );
-  var maskFormatter2 = MaskTextInputFormatter(
-    mask: '+998 (##) ### ## ##',
-    filter: {"#": RegExp(r'[0-9]')},
-    initialText: "+998",
-    type: MaskAutoCompletionType.lazy,
-  );
+  var maskFormatter1 = MaskTextInputFormatter(mask: '+998 (##) ### ## ##', filter: {"#": RegExp(r'[0-9]')}, initialText: "+998", type: MaskAutoCompletionType.lazy);
+  var maskFormatter2 = MaskTextInputFormatter(mask: '+998 (##) ### ## ##', filter: {"#": RegExp(r'[0-9]')}, initialText: "+998", type: MaskAutoCompletionType.lazy);
 
   bool _isLoading = false;
   File? _selectedImage;
@@ -72,87 +62,122 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
   Future<void> _showImageSourceDialog() async {
     await showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.colors.background,
-      builder: (BuildContext context) {
-        return Container(
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Rasm tanlash',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-                  ),
-                  const SizedBox(height: 20),
-                  ListTile(
-                    leading: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(12)),
-                      child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF3B82F6)),
-                    ),
-                    title: const Text('Kamera', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                    subtitle: const Text('Yangi rasm olish', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
-                    onTap: () {
-                      Navigator.pop(context);
-                      _pickImage(ImageSource.camera);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  ListTile(
-                    leading: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(12)),
-                      child: const Icon(Icons.photo_library_rounded, color: Color(0xFF10B981)),
-                    ),
-                    title: const Text('Galereya', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                    subtitle: const Text('Mavjud rasmdan tanlash', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
-                    onTap: () {
-                      Navigator.pop(context);
-                      _pickImage(ImageSource.gallery);
-                    },
-                  ),
-                  if (_selectedImage != null) ...[
-                    const SizedBox(height: 8),
-                    ListTile(
-                      leading: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(12)),
-                        child: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444)),
-                      ),
-                      title: const Text(
-                        'Rasmni o\'chirish',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFFEF4444)),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          _selectedImage = null;
-                          _uploadedImageId = null;
-                        });
-                      },
-                    ),
-                  ],
-                  const SizedBox(height: 10),
-                ],
-              ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (builderContext) => Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Colors.white, Colors.grey.shade50]),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, -5))],
+        ),
+        padding: EdgeInsets.fromLTRB(24, 12, 24, 32 + MediaQuery.of(builderContext).viewInsets.bottom),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // // Drag Handle with glow effect
+            // Container(
+            //   width: 48,
+            //   height: 5,
+            //   decoration: BoxDecoration(
+            //     gradient: LinearGradient(
+            //       colors: [
+            //         const Color(0xFFE2E8F0),
+            //         Colors.grey.shade300,
+            //       ],
+            //     ),
+            //     borderRadius: BorderRadius.circular(3),
+            //     boxShadow: [
+            //       BoxShadow(
+            //         color: Colors.grey.shade300.withOpacity(0.5),
+            //         blurRadius: 4,
+            //         offset: const Offset(0, 2),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // const SizedBox(height: 32),
+            //
+            // // Camera Option
+            // _buildSourceItem(
+            //   Icons.camera_alt_rounded,
+            //   'Kamera',
+            //   const LinearGradient(
+            //     colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+            //   ),
+            //   () {
+            //     Navigator.pop(builderContext);
+            //     _pickImage(ImageSource.camera);
+            //   },
+            // ),
+            // const SizedBox(height: 12),
+            //
+            // // Gallery Option
+            // _buildSourceItem(
+            //   Icons.photo_library_rounded,
+            //   'Galereya',
+            //   const LinearGradient(
+            //     colors: [Color(0xFF10B981), Color(0xFF059669)],
+            //   ),
+            //   () {
+            //     Navigator.pop(builderContext);
+            //     _pickImage(ImageSource.gallery);
+            //   },
+            // ),
+            Container(
+              width: 40,
+              height: 5,
+              decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(2.5)),
             ),
-          ),
-        );
-      },
+            const Gap(32),
+            _buildSourceItem(Icons.camera_alt_rounded, 'Kamera', const Color(0xFF6366F1), () {
+              Navigator.pop(builderContext);
+              _pickImage(ImageSource.camera);
+            }),
+            const Gap(12),
+            _buildSourceItem(Icons.photo_library_rounded, 'Galereya', const Color(0xFF10B981), () {
+              Navigator.pop(builderContext);
+              _pickImage(ImageSource.gallery);
+            }),
+
+            // Delete Option (only if image selected)
+            if (_selectedImage != null) ...[
+              const SizedBox(height: 12),
+              _buildSourceItem(Icons.delete_outline_rounded, 'O\'chirish', Colors.redAccent, () {
+                Navigator.pop(builderContext);
+                setState(() {
+                  _selectedImage = null;
+                  _uploadedImageId = null;
+                });
+              }),
+            ],
+            SizedBox(height: MediaQuery.of(builderContext).padding.bottom),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSourceItem(IconData icon, String title, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+        decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(20)),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const Gap(16),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+            ),
+            const Spacer(),
+            const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF94A3B8)),
+          ],
+        ),
+      ),
     );
   }
 
@@ -204,12 +229,7 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
 
   Future<void> _handleSubmit() async {
     if (_selectedCurrency == null) {
-      AddClientDialogs.showErrorDialog(
-        context,
-        title: 'Valyuta tanlanmagan',
-        message: 'Iltimos, asosiy valyutani tanlang',
-        icon: Icons.currency_exchange_rounded,
-      );
+      AddClientDialogs.showErrorDialog(context, title: 'Valyuta tanlanmagan', message: 'Iltimos, asosiy valyutani tanlang', icon: Icons.currency_exchange_rounded);
       return;
     }
 
@@ -228,12 +248,7 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
 
   void _handleValidationError(BuildContext context, String? errorMessage) {
     if (errorMessage == null || errorMessage.isEmpty) {
-      AddClientDialogs.showErrorDialog(
-        context,
-        title: 'Xatolik',
-        message: 'Kutilmagan xatolik yuz berdi',
-        icon: Icons.error_outline_rounded,
-      );
+      AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: 'Kutilmagan xatolik yuz berdi', icon: Icons.error_outline_rounded);
       return;
     }
 
@@ -258,12 +273,7 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
 
         if (decoded.containsKey('message')) {
           final msg = decoded['message'].toString();
-          AddClientDialogs.showErrorDialog(
-            context,
-            title: 'Xatolik',
-            message: _translateErrorMessage('', msg),
-            icon: Icons.error_outline_rounded,
-          );
+          AddClientDialogs.showErrorDialog(context, title: 'Xatolik', message: _translateErrorMessage('', msg), icon: Icons.error_outline_rounded);
           return;
         }
       }
@@ -327,13 +337,9 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
             _isLoading = false;
           });
         } else if (state.status == FileUploadStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Rasm yuklashda xatolik: ${state.errorMessage ?? "Noma\'lum xatolik"}'),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Rasm yuklashda xatolik: ${state.errorMessage ?? "Noma\'lum xatolik"}'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
           setState(() {
             _isLoading = false;
             _selectedImage = null;
@@ -423,9 +429,7 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
                                           );
                                         },
                                       ),
-                                      AddClientSubmitButton(
-                                        onSubmit: _handleSubmit,
-                                      ),
+                                      AddClientSubmitButton(onSubmit: _handleSubmit),
                                       // Bottom padding to ensure content is not hidden by the keyboard or system bottom bar
                                       SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
                                     ],
@@ -440,9 +444,7 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
                                     color: Colors.white.withOpacity(0.5),
                                     borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                                   ),
-                                  child: Center(
-                                    child: Loading(),
-                                  ),
+                                  child: Center(child: Loading()),
                                 ),
                               ),
                           ],
