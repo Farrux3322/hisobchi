@@ -111,90 +111,93 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // PageView
-          PageView.builder(
-            controller: _pageController,
-            onPageChanged: _onPageChanged,
-            itemCount: _pages.length,
-            itemBuilder: (context, index) {
-              return OnboardingContent(
-                model: _pages[index],
-                pageIndex: index,
-              );
-            },
-          ),
+      body: PopScope(
+        canPop: false,
+        child: Stack(
+          children: [
+            // PageView
+            PageView.builder(
+              controller: _pageController,
+              onPageChanged: _onPageChanged,
+              itemCount: _pages.length,
+              itemBuilder: (context, index) {
+                return OnboardingContent(
+                  model: _pages[index],
+                  pageIndex: index,
+                );
+              },
+            ),
 
-          // Skip Button (only show if not on last page)
-          if (_currentPage < _pages.length - 1)
+            // Skip Button (only show if not on last page)
+            if (_currentPage < _pages.length - 1)
+              Positioned(
+                top: 8,
+                right: 24,
+                child: SafeArea(
+                  child: TextButton(
+                    onPressed: _skipOnboarding,
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.white.withOpacity(0.2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: const Text(
+                      'O\'tkazib yuborish',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+            // Bottom Navigation
             Positioned(
-              top: 8,
-              right: 24,
+              bottom: -25,
+              left: 0,
+              right: 0,
               child: SafeArea(
-                child: TextButton(
-                  onPressed: _skipOnboarding,
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.white.withOpacity(0.2),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: const Text(
-                    'O\'tkazib yuborish',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Page Indicator
+                      PageIndicator(
+                        currentPage: _currentPage,
+                        pageCount: _pages.length,
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.white.withOpacity(0.3),
+                      ),
 
-          // Bottom Navigation
-          Positioned(
-            bottom: -25,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Page Indicator
-                    PageIndicator(
-                      currentPage: _currentPage,
-                      pageCount: _pages.length,
-                      activeColor: Colors.white,
-                      inactiveColor: Colors.white.withOpacity(0.3),
-                    ),
-                    
-                    const SizedBox(height: 32),
-                    
-                    // Next/Start Button
-                    GradientButton(
-                      text: _currentPage == _pages.length - 1
-                          ? 'Boshlash'
-                          : 'Keyingisi',
-                      onPressed: _nextPage,
-                      gradientColors: [
-                        Colors.white,
-                        Colors.white.withOpacity(0.9),
-                      ],
-                      textColor: _pages[_currentPage].gradientColors.first,
-                    ),
-                  ],
+                      const SizedBox(height: 32),
+
+                      // Next/Start Button
+                      GradientButton(
+                        text: _currentPage == _pages.length - 1
+                            ? 'Boshlash'
+                            : 'Keyingisi',
+                        onPressed: _nextPage,
+                        gradientColors: [
+                          Colors.white,
+                          Colors.white.withOpacity(0.9),
+                        ],
+                        textColor: _pages[_currentPage].gradientColors.first,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -12,6 +12,7 @@ import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/client/client_account_page.dart';
 import 'package:hisobchi/presentation/pages/client/components/client_filter_field.dart';
+import 'package:hisobchi/presentation/pages/client/report/report_client_main_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_add_bottom_sheet.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_card_item.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_filter_bottom_sheet.dart';
@@ -111,6 +112,13 @@ class _ClientPageState extends State<ClientPage> {
           builder: (context, state) {
             // ignore: deprecated_member_use
             return    Scaffold(
+              appBar: AppBar(
+                actions: [
+                  IconButton(onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (_)=>ReportClientMainPage()));
+                  }, icon: Icon(Icons.add))
+                ],
+              ),
               // backgroundColor: AppTheme.colors.background,
               body: SafeArea(
                 bottom: false,

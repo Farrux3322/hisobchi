@@ -12,6 +12,7 @@ import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/utils/phone_formatter.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:hisobchi/presentation/pages/client/client_xisob_kitob.dart';
+import 'package:hisobchi/presentation/pages/client/report/report_client_show_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_delete_dialog.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_edit_bottom_sheet.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/kirim_bottom_sheet.dart';
@@ -210,21 +211,26 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                         Row(
                           children: [
                             Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.colors.white,
-                                  border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
-                                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(AppIcons.report),
-                                    SizedBox(width: 10),
-                                    Text('Hisobot', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15)),
-                                  ],
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => ReportClientShowPage()));
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.colors.white,
+                                    border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
+                                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SvgPicture.asset(AppIcons.report),
+                                      SizedBox(width: 10),
+                                      Text('Hisobot', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15)),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -386,14 +392,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   }
 
   // Build Currency Content - Minimalist & Clean Design
-  Widget _buildCurrencyContent({
-    required PartnerState state,
-    required num debt,
-    required num credit,
-    required num balance,
-    required String currencySymbol,
-    required int currencyId,
-  }) {
+  Widget _buildCurrencyContent({required PartnerState state, required num debt, required num credit, required num balance, required String currencySymbol, required int currencyId}) {
     final screenWidth = MediaQuery.of(context).size.width;
     final cardPadding = screenWidth * 0.035; // Responsive padding
     final iconPadding = screenWidth * 0.02; // Responsive icon padding
@@ -444,7 +443,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                     fit: BoxFit.scaleDown,
                                     child: Text(
                                       'Kirim',
-                                      style: TextStyle(color:  Color(0xFF3CC293), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                                      style: TextStyle(color: Color(0xFF3CC293), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3),
                                     ),
                                   ),
                                 ),
@@ -504,7 +503,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                     fit: BoxFit.scaleDown,
                                     child: Text(
                                       'Chiqim',
-                                      style: TextStyle(color:  Color(0xFFDE5050), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                                      style: TextStyle(color: Color(0xFFDE5050), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3),
                                     ),
                                   ),
                                 ),
@@ -827,11 +826,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       MaterialPageRoute(
         builder: (_) => BlocProvider.value(
           value: context.read<PartnerBloc>(),
-          child: HisobKitobTarixPage(
-            id: widget.partnerModel.id ?? 0,
-            initialType: type,
-            initialCurrencyId: currencyId,
-          ),
+          child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0, initialType: type, initialCurrencyId: currencyId),
         ),
       ),
     );
