@@ -1,0 +1,676 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
+import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:intl/intl.dart';
+
+class PartnerOperationDetailSheet extends StatelessWidget {
+  final PartnerOperation operation;
+
+  const PartnerOperationDetailSheet({
+    super.key,
+    required this.operation,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.colors.background,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 40,
+            offset: const Offset(0, -12),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle
+            Container(
+              margin: EdgeInsets.only(top: 12.h, bottom: 8.h),
+              width: 36.w,
+              height: 4.h,
+              decoration: BoxDecoration(
+                color: AppTheme.colors.gray.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+            ),
+
+            _buildDashboardContent(context),
+
+            SizedBox(height: 16.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDashboardContent(BuildContext context) {
+    final isIncoming = !operation.isCredit;
+
+    // Premium Curated Palette
+    final brandColor = isIncoming ? const Color(0xFF10B981) : const Color(0xFFE11D48); // Emerald-500 vs Rose-600
+    final surfaceColor = isIncoming ? const Color(0xFFECFDF5) : const Color(0xFFFFF1F2); // Emerald-50 vs Rose-50
+    final borderColor = isIncoming ? const Color(0xFFD1FAE5) : const Color(0xFFFECDD3); // Emerald-100 vs Rose-100
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Refined Minimalist Header
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+            decoration: BoxDecoration(
+              color: surfaceColor,
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(color: borderColor),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: brandColor,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: brandColor.withValues(alpha: 0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    isIncoming ? Icons.south_west_rounded : Icons.north_east_rounded,
+                    color: Colors.white,
+                    size: 16.sp,
+                  ),
+                ),
+                SizedBox(width: 14.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        operation.typeDisplay.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w800,
+                          color: brandColor.withValues(alpha: 0.6),
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '${isIncoming ? '+' : '-'}${_formatMoney(operation.remainingAmount)} ',
+                              style: TextStyle(
+                                fontSize: 22.sp,
+                                fontWeight: FontWeight.w900,
+                                color: const Color(0xFF0F172A),
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                            TextSpan(
+                              text: operation.currencyTypeName,
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF64748B), // Slate-500
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    padding: EdgeInsets.all(6.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.close_rounded, size: 18.sp, color: AppTheme.colors.gray),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 16.h),
+
+          // 2. High-Density Info Grid with Subtle Containers
+          Row(
+            children: [
+              Expanded(
+                child: _buildMinimalInfo(
+                  label: 'Hamkor',
+                  value: operation.partnerName,
+                  color: const Color(0xFF6366F1), // Indigo
+                  icon: Icons.person_rounded,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: _buildMinimalInfo(
+                  label: 'Sana',
+                  value: _formatDate(operation.createdAt),
+                  color: const Color(0xFFF59E0B), // Amber
+                  icon: Icons.calendar_today_rounded,
+                ),
+              ),
+            ],
+          ),
+
+          // Partner Phone (if available)
+          if (operation.partnerPhone != null && operation.partnerPhone!.isNotEmpty) ...[
+            SizedBox(height: 12.h),
+            _buildMinimalInfo(
+              label: 'Telefon raqami',
+              value: _formatPhoneNumber(operation.partnerPhone!),
+              color: const Color(0xFF8B5CF6), // Purple
+              icon: Icons.phone_rounded,
+            ),
+          ],
+
+          // Due Date and Status Row
+          if (operation.hasDueDate || operation.statusDisplay.isNotEmpty) ...[
+            SizedBox(height: 12.h),
+            Row(
+              children: [
+                if (operation.hasDueDate)
+                  Expanded(
+                    child: _buildMinimalInfo(
+                      label: operation.isOverdue
+                          ? "Muddati o'tgan"
+                          : operation.daysLeft != null && operation.daysLeft! <= 3
+                              ? 'Yaqinlashmoqda'
+                              : 'Qaytarish muddati',
+                      value: _formatDueDate(operation.dueDate!),
+                      color: operation.isOverdue
+                          ? const Color(0xFFEF4444)
+                          : operation.daysLeft != null && operation.daysLeft! <= 3
+                              ? const Color(0xFFF59E0B)
+                              : const Color(0xFF10B981),
+                      icon: operation.isOverdue
+                          ? Icons.error_outline_rounded
+                          : Icons.schedule_rounded,
+                      isUrgent: operation.isOverdue,
+                    ),
+                  ),
+                if (operation.hasDueDate && operation.statusDisplay.isNotEmpty)
+                  SizedBox(width: 12.w),
+                if (operation.statusDisplay.isNotEmpty)
+                  Expanded(
+                    child: _buildMinimalInfo(
+                      label: 'Holati',
+                      value: operation.statusDisplay,
+                      color: _getStatusColor(operation.status),
+                      icon: _getStatusIcon(operation.status),
+                      isUrgent: operation.status?.toLowerCase() == 'cancelled',
+                    ),
+                  ),
+              ],
+            ),
+          ],
+
+          // Overdue/Days Left Info
+          if (operation.isOverdue && operation.daysOverdue != null) ...[
+            SizedBox(height: 12.h),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF2F2), // Red-50
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: const Color(0xFFFECDD3)), // Red-100
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(6.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.notification_important_rounded,
+                      size: 16.sp,
+                      color: const Color(0xFFEF4444),
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: Text(
+                      '${operation.daysOverdue} kun muddati o\'tgan',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFFB91C1C), // Red-700
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else if (operation.daysLeft != null && operation.daysLeft! > 0) ...[
+            SizedBox(height: 12.h),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFBEB), // Amber-50
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: const Color(0xFFFDE68A)), // Amber-100
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(6.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.schedule_rounded,
+                      size: 16.sp,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: Text(
+                      operation.daysLeft == 0
+                          ? 'Bugun qaytarish muddati'
+                          : '${operation.daysLeft} kun qoldi',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFFB45309), // Amber-700
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          // Amount Details (Scheduled, Paid, Remaining)
+          if ((operation.scheduledAmount != null && operation.scheduledAmountValue > 0) &&
+              (operation.paidAmount != null && operation.paidAmountValue > 0)) ...[
+            SizedBox(height: 14.h),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC), // Slate-50
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: const Color(0xFFE2E8F0)), // Slate-200
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.account_balance_wallet_rounded, size: 12.sp, color: const Color(0xFF94A3B8)),
+                      SizedBox(width: 6.w),
+                      Text(
+                        'Summa tafsilotlari',
+                        style: TextStyle(
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF94A3B8),
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                  if (operation.scheduledAmount != null && operation.scheduledAmountValue > 0) ...[
+                    _buildAmountRow(
+                      'Rejalashtirilgan:',
+                      _formatMoney(operation.scheduledAmount!),
+                      operation.currencyTypeName,
+                    ),
+                    SizedBox(height: 4.h),
+                  ],
+                  if (operation.paidAmount != null && operation.paidAmountValue > 0) ...[
+                    _buildAmountRow(
+                      'To\'langan:',
+                      _formatMoney(operation.paidAmount!),
+                      operation.currencyTypeName,
+                      color: const Color(0xFF10B981),
+                    ),
+                    SizedBox(height: 4.h),
+                  ],
+                  _buildAmountRow(
+                    'Qoldiq:',
+                    _formatMoney(operation.remainingAmount),
+                    operation.currencyTypeName,
+                    color: const Color(0xFF6366F1),
+                    isBold: true,
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          // Description
+          if (operation.hasDescription) ...[
+            SizedBox(height: 14.h),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC), // Slate-50
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: const Color(0xFFE2E8F0)), // Slate-200
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.notes_rounded, size: 12.sp, color: const Color(0xFF94A3B8)),
+                      SizedBox(width: 6.w),
+                      Text(
+                        'Izoh',
+                        style: TextStyle(
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF94A3B8),
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    operation.description!,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: const Color(0xFF334155), // Slate-700
+                      height: 1.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          // Files (if available in API, currently files is List<String>)
+          if (operation.hasFiles) ...[
+            SizedBox(height: 14.h),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC), // Slate-50
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: const Color(0xFFE2E8F0)), // Slate-200
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.attach_file_rounded, size: 12.sp, color: const Color(0xFF94A3B8)),
+                      SizedBox(width: 6.w),
+                      Text(
+                        'Biriktirilgan fayllar',
+                        style: TextStyle(
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF94A3B8),
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                  Wrap(
+                    spacing: 8.w,
+                    runSpacing: 8.h,
+                    children: operation.files.map((file) {
+                      return Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.insert_drive_file_rounded, size: 14.sp, color: const Color(0xFF6366F1)),
+                            SizedBox(width: 4.w),
+                            Text(
+                              file.split('/').last,
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF334155),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMinimalInfo({
+    required String label,
+    required String value,
+    required Color color,
+    required IconData icon,
+    bool isUrgent = false,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFF1F5F9)), // Slate-100
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 10.sp, color: color.withValues(alpha: 0.5)),
+              SizedBox(width: 6.w),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 8.sp,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF94A3B8), // Slate-400
+                    letterSpacing: 0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: isUrgent ? FontWeight.w800 : FontWeight.w700,
+              color: isUrgent ? color : const Color(0xFF1E293B), // Slate-800
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAmountRow(String label, String amount, String currency, {Color? color, bool isBold = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF64748B),
+          ),
+        ),
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: amount,
+                style: TextStyle(
+                  fontSize: isBold ? 13.sp : 12.sp,
+                  fontWeight: isBold ? FontWeight.w800 : FontWeight.w700,
+                  color: color ?? const Color(0xFF334155),
+                ),
+              ),
+              TextSpan(
+                text: ' $currency',
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF94A3B8),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatMoney(String amount) {
+    final value = double.tryParse(amount) ?? 0.0;
+    final intValue = value.toInt();
+    return intValue.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]} ',
+        );
+  }
+
+  String _formatDate(String dateStr) {
+    try {
+      DateTime? date;
+      try {
+        date = DateTime.parse(dateStr);
+      } catch (_) {
+        final parts = dateStr.split('.');
+        if (parts.length == 3) {
+          final day = int.tryParse(parts[0]);
+          final month = int.tryParse(parts[1]);
+          final year = int.tryParse(parts[2]);
+          if (day != null && month != null && year != null) {
+            date = DateTime(year, month, day);
+          }
+        }
+      }
+
+      if (date == null) return dateStr;
+
+      return DateFormat('dd.MM.yyyy').format(date);
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  String _formatDueDate(String dateStr) {
+    try {
+      DateTime? date;
+      try {
+        date = DateTime.parse(dateStr);
+      } catch (_) {
+        final parts = dateStr.split('.');
+        if (parts.length == 3) {
+          final day = int.tryParse(parts[0]);
+          final month = int.tryParse(parts[1]);
+          final year = int.tryParse(parts[2]);
+          if (day != null && month != null && year != null) {
+            date = DateTime(year, month, day);
+          }
+        }
+      }
+
+      if (date == null) return dateStr;
+
+      return DateFormat('dd.MM.yyyy').format(date);
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  String _formatPhoneNumber(String phone) {
+    if (phone.isEmpty) return phone;
+    final clean = phone.replaceAll(RegExp(r'\D'), '');
+
+    if (clean.length == 9) {
+      return '+998 (${clean.substring(0, 2)}) ${clean.substring(2, 5)} ${clean.substring(5, 7)} ${clean.substring(7, 9)}';
+    } else if (clean.length == 12 && clean.startsWith('998')) {
+      return '+998 (${clean.substring(3, 5)}) ${clean.substring(5, 8)} ${clean.substring(8, 10)} ${clean.substring(10, 12)}';
+    }
+    return phone;
+  }
+
+  Color _getStatusColor(String? status) {
+    if (status == null) return const Color(0xFF64748B);
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return const Color(0xFFF59E0B); // Amber
+      case 'completed':
+        return const Color(0xFF10B981); // Green
+      case 'cancelled':
+        return const Color(0xFFEF4444); // Red
+      default:
+        return const Color(0xFF64748B); // Gray
+    }
+  }
+
+  IconData _getStatusIcon(String? status) {
+    if (status == null) return Icons.help_outline_rounded;
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Icons.schedule_rounded;
+      case 'completed':
+        return Icons.check_circle_outline_rounded;
+      case 'cancelled':
+        return Icons.cancel_outlined;
+      default:
+        return Icons.help_outline_rounded;
+    }
+  }
+}

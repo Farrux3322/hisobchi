@@ -1,48 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hisobchi/application/partner_report/partner_report_bloc.dart';
+import 'package:hisobchi/application/partner_report/partner_report_event.dart';
+import 'package:hisobchi/application/partner_report/partner_report_state.dart';
+import 'package:hisobchi/domain/common/constants.dart';
+import 'package:hisobchi/infrastructure/models/partner_report_model.dart';
+import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/pages/client/report/partner_operations_detail_page.dart';
+import 'package:hisobchi/presentation/pages/client/report/partner_summary_list_page.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../components/basic_widgets.dart';
 
-class ReportClientMainPage extends StatefulWidget {
+class ReportClientMainPage extends StatelessWidget {
   const ReportClientMainPage({super.key});
 
   @override
-  State<ReportClientMainPage> createState() => _ReportClientMainPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => PartnerReportBloc(
+        repository: PartnerReportRepository(),
+      )..add(const LoadPartnerReportEvent()),
+      child: const _ReportClientMainPageContent(),
+    );
+  }
 }
 
-class _ReportClientMainPageState extends State<ReportClientMainPage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _ReportClientMainPageContent extends StatefulWidget {
+  const _ReportClientMainPageContent();
 
-  // Mock data - API dan kelgan ma'lumotlar
-  final Map<String, dynamic> mockData = {
-    "status": true,
-    "result": {
-      "UZS": {
-        "debt": 45000000,
-        "credit": 12500000,
-        "balance": 32500000,
-        "partners_count": 24,
-        "operations": {"count": 156, "type": "oparation"},
-        "xaqdorlar": {"count": 8, "type": "xaqdor"},
-        "qarzdorlar": {"count": 16, "type": "qarzdor"},
-        "qarz_expired": {"count": 3, "type": "qarz_expired"},
-        "qarz_3_days": {"count": 5, "type": "qarz_3_days"},
-        "qarz_7_days": {"count": 8, "type": "qarz_7_days"},
-      },
-      "USD": {
-        "debt": 3500,
-        "credit": 1200,
-        "balance": 2300,
-        "partners_count": 18,
-        "operations": {"count": 89, "type": "oparation"},
-        "xaqdorlar": {"count": 5, "type": "xaqdor"},
-        "qarzdorlar": {"count": 13, "type": "qarzdor"},
-        "qarz_expired": {"count": 2, "type": "qarz_expired"},
-        "qarz_3_days": {"count": 4, "type": "qarz_3_days"},
-        "qarz_7_days": {"count": 7, "type": "qarz_7_days"},
-      },
-    },
-  };
+  @override
+  State<_ReportClientMainPageContent> createState() => _ReportClientMainPageContentState();
+}
+
+class _ReportClientMainPageContentState extends State<_ReportClientMainPageContent> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
   @override
   void initState() {
@@ -93,15 +86,60 @@ class _ReportClientMainPageState extends State<ReportClientMainPage> with Single
           ),
         ),
       ),
-      body: TabBarView(controller: _tabController, children: [_buildReportContent('UZS'), _buildReportContent('USD')]),
+      body: BlocBuilder<PartnerReportBloc, PartnerReportState>(
+        builder: (context, state) {
+          if (state.status == Status.loading) {
+            return _buildShimmerLoading();
+          }
+
+          if (state.status == Status.error) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 60, color: Colors.red[300]),
+                  const SizedBox(height: 16),
+                  Text(
+                    state.errorMessage ?? 'Xatolik yuz berdi',
+                    style: const TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      context.read<PartnerReportBloc>().add(const LoadPartnerReportEvent());
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Qayta urinish'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (!state.hasData) {
+            return const Center(child: Text('Ma\'lumot topilmadi'));
+          }
+
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _buildReportContent(state.uzsReport!, true),
+              _buildReportContent(state.usdReport!, false),
+            ],
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildReportContent(String currency) {
-    final data = mockData['result'][currency] as Map<String, dynamic>;
-    final bool isUZS = currency == 'UZS';
-
-    return ListView(
+  Widget _buildReportContent(CurrencyReport data, bool isUZS) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<PartnerReportBloc>().add(const RefreshPartnerReportEvent());
+        await Future.delayed(const Duration(milliseconds: 500));
+      },
+      child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
         // Jami kirim va chiqim - Row
@@ -110,7 +148,7 @@ class _ReportClientMainPageState extends State<ReportClientMainPage> with Single
             Expanded(
               child: _buildMainStatCard(
                 title: 'Jami kirim',
-                value: _formatCurrency(data['credit'], isUZS),
+                value: _formatCurrency(data.debt, isUZS),
                 icon: AppIcons.income,
                 iconColor: Colors.white,
                 backgroundColor: const Color(0xFF4CAF50),
@@ -121,7 +159,7 @@ class _ReportClientMainPageState extends State<ReportClientMainPage> with Single
             Expanded(
               child: _buildMainStatCard(
                 title: 'Jami chiqim',
-                value: _formatCurrency(data['debt'], isUZS),
+                value: _formatCurrency(data.credit, isUZS),
                 icon: AppIcons.chiqim,
                 iconColor: Colors.white,
                 backgroundColor: const Color(0xFFEF5350),
@@ -138,7 +176,7 @@ class _ReportClientMainPageState extends State<ReportClientMainPage> with Single
             Expanded(
               child: _buildMainStatCard(
                 title: 'Qoldiq',
-                value: _formatCurrency(data['balance'], isUZS),
+                value: _formatCurrency(data.balance, isUZS),
                 icon: AppIcons.balance,
                 iconColor: Colors.white,
                 backgroundColor: const Color(0xFF2196F3),
@@ -149,7 +187,7 @@ class _ReportClientMainPageState extends State<ReportClientMainPage> with Single
             Expanded(
               child: _buildMainStatCard(
                 title: 'Hamkorlar',
-                value: '${data['partners_count']}',
+                value: '${data.partnersCount}',
                 icon: AppIcons.clients,
                 iconColor: Colors.white,
                 backgroundColor: const Color(0xFF9C27B0),
@@ -165,15 +203,66 @@ class _ReportClientMainPageState extends State<ReportClientMainPage> with Single
         Row(
           children: [
             Expanded(
-              child: _buildSmallStatCard(title: 'Operatsiyalar', count: data['operations']['count'], icon: Icons.sync_alt, color: const Color(0xFFFF9800)),
+              child: _buildSmallStatCard(
+                title: 'Operatsiyalar',
+                count: data.operations.count,
+                icon: Icons.sync_alt,
+                color: const Color(0xFFFF9800),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PartnerOperationsDetailPage(
+                        type: 'oparation',
+                        currencyTypeId: isUZS ? 1 : 2,
+                        title: 'Operatsiyalar',
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: _buildSmallStatCard(title: 'Qarzdorlar', count: data['qarzdorlar']['count'], icon: Icons.arrow_upward, color: const Color(0xFFFF5722)),
+              child: _buildSmallStatCard(
+                title: 'Qarzdorlar',
+                count: data.qarzdorlar.count,
+                icon: Icons.arrow_upward,
+                color: const Color(0xFFFF5722),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PartnerSummaryListPage(
+                        type: 'qarzdor',
+                        currencyTypeId: isUZS ? 1 : 2,
+                        title: 'Qarzdorlar',
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: _buildSmallStatCard(title: 'Haqdorlar', count: data['xaqdorlar']['count'], icon: Icons.arrow_downward, color: const Color(0xFF009688)),
+              child: _buildSmallStatCard(
+                title: 'Haqdorlar',
+                count: data.xaqdorlar.count,
+                icon: Icons.arrow_downward,
+                color: const Color(0xFF009688),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PartnerSummaryListPage(
+                        type: 'xaqdor',
+                        currencyTypeId: isUZS ? 1 : 2,
+                        title: 'Haqdorlar',
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -202,21 +291,75 @@ class _ReportClientMainPageState extends State<ReportClientMainPage> with Single
         Row(
           children: [
             Expanded(
-              child: _buildDeadlineCard(subtitle: '', title: "Muddati o'tgan", count: data['qarz_expired']['count'], icon: Icons.error_outline, color: const Color(0xFFD32F2F)),
+              child: _buildDeadlineCard(
+                subtitle: '',
+                title: "Muddati o'tgan",
+                count: data.qarzExpired.count,
+                icon: Icons.error_outline,
+                color: const Color(0xFFD32F2F),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PartnerOperationsDetailPage(
+                        type: 'qarz_expired',
+                        currencyTypeId: isUZS ? 1 : 2,
+                        title: "Muddati o'tgan qarzlar",
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: _buildDeadlineCard(title: 'Juda yaqin', subtitle: '(3 kun)', count: data['qarz_3_days']['count'], icon: Icons.warning_amber_sharp, color: const Color(0xFFFF9800)),
+              child: _buildDeadlineCard(
+                title: 'Bugun',
+                subtitle: '',
+                count: data.qarz3Days.count,
+                icon: Icons.warning_amber_sharp,
+                color: const Color(0xFFFF9800),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PartnerOperationsDetailPage(
+                        type: data.qarz3Days.type,
+                        currencyTypeId: isUZS ? 1 : 2,
+                        title: 'Bugun qarzlar',
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: _buildDeadlineCard(title: 'Yaqinlashmoqda', subtitle: '(7 kun)', count: data['qarz_7_days']['count'], icon: Icons.schedule, color: const Color(0xFFFFA726)),
+              child: _buildDeadlineCard(
+                title: 'Yaqinlashmoqda',
+                subtitle: '(3 kun)',
+                count: data.qarz7Days.count,
+                icon: Icons.schedule,
+                color: const Color(0xFFFFA726),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PartnerOperationsDetailPage(
+                        type: data.qarz7Days.type,
+                        currencyTypeId: isUZS ? 1 : 2,
+                        title: '3 kun ichida qarzlar',
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
         const SizedBox(height: 16),
       ],
-    );
+    ));
   }
 
   // Asosiy katta statistika kartlari
@@ -279,113 +422,229 @@ class _ReportClientMainPageState extends State<ReportClientMainPage> with Single
   }
 
   // Kichik statistika kartlari (operatsiyalar, qarzdorlar, haqdorlar uchun)
-  Widget _buildSmallStatCard({required String title, required int count, required IconData icon, required Color color}) {
+  Widget _buildSmallStatCard({
+    required String title,
+    required int count,
+    required IconData icon,
+    required Color color,
+    VoidCallback? onTap,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 8, offset: const Offset(0, 2))],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Icon
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
 
-          const SizedBox(height: 6),
-          // Count
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(6),
-                decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: .1)),
-                child: Icon(icon, color: color, size: 16),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '$count',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color, height: 1),
-              ),
-            ],
+                const SizedBox(height: 6),
+                // Count
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: .1)),
+                      child: Icon(icon, color: color, size: 16),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '$count',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color, height: 1),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
 
   // Qarz muddatlari kartlari - Minimalist Design
-  Widget _buildDeadlineCard({required String title, String? subtitle, required int count, required IconData icon, required Color color}) {
+  Widget _buildDeadlineCard({
+    required String title,
+    String? subtitle,
+    required int count,
+    required IconData icon,
+    required Color color,
+    VoidCallback? onTap,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6, offset: const Offset(0, 2))],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title and subtitle
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.w500, color: Colors.grey[500]),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title and subtitle
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.w500, color: Colors.grey[500]),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 10),
+                // Icon and Count Row
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
+                      child: Icon(icon, color: color, size: 16),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '$count',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color, height: 1),
+                    ),
+                  ],
                 ),
               ],
-            ],
+            ),
           ),
-          const SizedBox(height: 10),
-          // Icon and Count Row
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
-                child: Icon(icon, color: color, size: 16),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '$count',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color, height: 1),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  String _formatCurrency(dynamic value, bool isUZS) {
-    if (value == null) return '0';
+  String _formatCurrency(String value, bool isUZS) {
+    if (value.isEmpty) return '0';
 
-    final number = value is int ? value : int.tryParse(value.toString()) ?? 0;
+    // Parse the string to double
+    final number = double.tryParse(value) ?? 0.0;
+
+    // Remove decimal part if it's .00
+    final intValue = number.toInt();
+    final displayValue = (number == intValue) ? intValue : number;
 
     // Faqat raqamni formatlash
-    final formatted = number.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]} ');
+    final formatted = displayValue.toString().split('.')[0].replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]} ',
+    );
     return formatted;
   }
 
   String _getCurrency(bool isUZS) {
     return isUZS ? 'UZS' : 'USD';
+  }
+
+  // Shimmer loading skeleton
+  Widget _buildShimmerLoading() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // Main stat cards shimmer
+        Row(
+          children: [
+            Expanded(child: _buildShimmerCard(height: 110.h)),
+            const SizedBox(width: 12),
+            Expanded(child: _buildShimmerCard(height: 110.h)),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(child: _buildShimmerCard(height: 110.h)),
+            const SizedBox(width: 12),
+            Expanded(child: _buildShimmerCard(height: 110.h)),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Small stat cards shimmer
+        Row(
+          children: [
+            Expanded(child: _buildShimmerCard(height: 90)),
+            const SizedBox(width: 10),
+            Expanded(child: _buildShimmerCard(height: 90)),
+            const SizedBox(width: 10),
+            Expanded(child: _buildShimmerCard(height: 90)),
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        // Title shimmer
+        Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Deadline cards shimmer
+        Row(
+          children: [
+            Expanded(child: _buildShimmerCard(height: 100)),
+            const SizedBox(width: 10),
+            Expanded(child: _buildShimmerCard(height: 100)),
+            const SizedBox(width: 10),
+            Expanded(child: _buildShimmerCard(height: 100)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildShimmerCard({required double height}) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+    );
   }
 }
