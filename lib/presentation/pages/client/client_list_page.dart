@@ -13,8 +13,9 @@ import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/client/client_account_page.dart';
 import 'package:hisobchi/presentation/pages/client/components/client_filter_field.dart';
 import 'package:hisobchi/presentation/pages/client/report/report_client_main_page.dart';
-import 'package:hisobchi/presentation/pages/client/widgets/client_add_bottom_sheet.dart';
+import 'package:hisobchi/presentation/pages/client/client_add_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_card_item.dart';
+import 'package:hisobchi/presentation/pages/client/widgets/partner_report_widget.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_filter_bottom_sheet.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -35,9 +36,7 @@ class _ClientPageState extends State<ClientPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch partners when page loads
     _fetchPartners();
-    // Fetch exchange rates
     context.read<CurrencyBloc>().add(const GetExchangeRates());
   }
 
@@ -47,15 +46,16 @@ class _ClientPageState extends State<ClientPage> {
     super.dispose();
   }
 
-
   void _fetchPartners() {
-    context.read<PartnerBloc>().add(GetAllEvent(
-      startDate: filterStartDate,
-      endDate: filterEndDate,
-      search: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
-      sort: filterSort,
-      statusFilter: filterStatusFilter,
-    ));
+    context.read<PartnerBloc>().add(
+      GetAllEvent(
+        startDate: filterStartDate,
+        endDate: filterEndDate,
+        search: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
+        sort: filterSort,
+        statusFilter: filterStatusFilter,
+      ),
+    );
   }
 
   void _handleFilterApply(DateTime? startDate, DateTime? endDate, String? sort, String? statusFilter) {
@@ -68,8 +68,7 @@ class _ClientPageState extends State<ClientPage> {
     _fetchPartners();
   }
 
-  bool get hasActiveFilters =>
-      filterStartDate != null || filterEndDate != null || filterSort != null || filterStatusFilter != null;
+  bool get hasActiveFilters => filterStartDate != null || filterEndDate != null || filterSort != null || filterStatusFilter != null;
 
   List<PartnerModel> _filterPartners(List<PartnerModel> partners) {
     if (_searchController.text.isEmpty) return partners;
@@ -83,68 +82,68 @@ class _ClientPageState extends State<ClientPage> {
     }).toList();
   }
 
-
   @override
   Widget build(BuildContext context) {
     AppManagerCubit.context = context;
     return DeFocus(
       child: Padding(
-        padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
         child: BlocConsumer<PartnerBloc, PartnerState>(
           listener: (context, state) {
-            // Handle create success
             if (state.statusAdd == Status.success) {
               Toast.showSuccessToast(message: 'Muvaffaqiyatli saqlandi');
-              // Refresh the list
               context.read<PartnerBloc>().add(const GetAllEvent());
             }
 
-            // Handle create error
             if (state.statusAdd == Status.error) {
               Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
             }
 
-            // Handle fetch error
             if (state.status == Status.error) {
               Toast.showErrorToast(message: state.errorMessage ?? 'Ma\'lumotlarni yuklashda xatolik');
             }
           },
           builder: (context, state) {
-            // ignore: deprecated_member_use
-            return    Scaffold(
-              appBar: AppBar(
-                actions: [
-                  IconButton(onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (_)=>ReportClientMainPage()));
-                  }, icon: Icon(Icons.add))
-                ],
-              ),
-              // backgroundColor: AppTheme.colors.background,
-              body: SafeArea(
-                bottom: false,
-                child: Column(
-                  children: [
-                    _buildHeader(),
-                    Expanded(child: _buildBody(state)),
-                  ],
-                ),
+            return Scaffold(
+              backgroundColor: const Color(0xFFF8FAFC),
+              body: NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                    SliverAppBar(
+                      title: const Text('Mijozlar'),
+                      backgroundColor: Colors.white,
+                      elevation: 0,
+                      centerTitle: false,
+                      pinned: true,
+                      titleTextStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+                    ),
+                    SliverToBoxAdapter(
+                      child: PartnerReportWidget(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportClientMainPage()));
+                        },
+                      ),
+                    ),
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _DynamicSliverHeaderDelegate(child: _buildHeader(), hasActiveFilters: hasActiveFilters),
+                    ),
+                  ];
+                },
+                body: _buildBody(state),
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) =>
-                        BlocProvider(
-                          create: (context) =>
-                              FileUploadBloc(
-                                repository: FileUploadRepository(),
-                              ),
-                          child: AddClientBottomSheet(),
-                        ),
-                  ).then((v){
-                    if(v==true && context.mounted){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider(
+                        create: (context) => FileUploadBloc(repository: FileUploadRepository()),
+                        child: const ClientAddPage(),
+                      ),
+                    ),
+                  ).then((v) {
+                    if (v == true && context.mounted) {
                       context.read<PartnerBloc>().add(const GetAllEvent());
                     }
                   });
@@ -160,20 +159,16 @@ class _ClientPageState extends State<ClientPage> {
   }
 
   Widget _buildBody(PartnerState state) {
-    // Loading state
     if (state.status == Status.loading) {
       return _buildShimmerLoading();
     }
 
-    // Empty state
     if (state.models.isEmpty) {
       return _buildEmptyState();
     }
 
-    // Filter partners based on search
     final filteredPartners = _filterPartners(state.models);
 
-    // No results for search
     if (filteredPartners.isEmpty) {
       return Center(
         child: Column(
@@ -192,14 +187,13 @@ class _ClientPageState extends State<ClientPage> {
       );
     }
 
-    // Success state with data
     return RefreshIndicator(
       color: AppTheme.colors.primary,
       onRefresh: () async {
         context.read<PartnerBloc>().add(const GetAllEvent());
       },
       child: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         itemCount: filteredPartners.length,
         itemBuilder: (context, index) {
           final partner = filteredPartners[index];
@@ -215,7 +209,7 @@ class _ClientPageState extends State<ClientPage> {
                 },
                 partnerModel: partner,
               ),
-              if(index==filteredPartners.length-1)Gap(MediaQuery.of(context).padding.bottom)
+              if (index == filteredPartners.length - 1) Gap(MediaQuery.of(context).padding.bottom),
             ],
           );
         },
@@ -224,8 +218,9 @@ class _ClientPageState extends State<ClientPage> {
   }
 
   Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
+    return Container(
+      color: const Color(0xFFF8FAFC),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: ClientFilterField(
         searchController: _searchController,
         hasActiveFilters: hasActiveFilters,
@@ -279,7 +274,7 @@ class _ClientPageState extends State<ClientPage> {
 
   Widget _buildEmptyState() {
     return Padding(
-      padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -307,7 +302,6 @@ class _ClientPageState extends State<ClientPage> {
     );
   }
 
-  /// Shimmer loading widget for client list
   Widget _buildShimmerLoading() {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -321,42 +315,33 @@ class _ClientPageState extends State<ClientPage> {
             border: Border.all(color: AppTheme.colors.divider),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    // Avatar shimmer
                     Shimmer.fromColors(
                       baseColor: Colors.grey[300]!,
                       highlightColor: Colors.grey[100]!,
                       child: Container(
                         width: 40,
                         height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
                       ),
                     ),
                     SizedBox(width: 14.w),
-                    // Name shimmer
                     Expanded(
                       child: Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,
                         child: Container(
                           height: 16,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                         ),
                       ),
                     ),
                     SizedBox(width: 12.w),
-                    // Balance shimmer
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -366,10 +351,7 @@ class _ClientPageState extends State<ClientPage> {
                           child: Container(
                             width: 80,
                             height: 14,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                           ),
                         ),
                         SizedBox(height: 4.h),
@@ -379,10 +361,7 @@ class _ClientPageState extends State<ClientPage> {
                           child: Container(
                             width: 80,
                             height: 14,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                           ),
                         ),
                       ],
@@ -390,16 +369,12 @@ class _ClientPageState extends State<ClientPage> {
                   ],
                 ),
                 SizedBox(height: 10.h),
-                // Phone and Date shimmer
                 Shimmer.fromColors(
                   baseColor: Colors.grey[300]!,
                   highlightColor: Colors.grey[100]!,
                   child: Container(
                     height: 32,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
                   ),
                 ),
               ],
@@ -408,5 +383,34 @@ class _ClientPageState extends State<ClientPage> {
         );
       },
     );
+  }
+}
+
+class _DynamicSliverHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final bool hasActiveFilters;
+
+  _DynamicSliverHeaderDelegate({required this.child, required this.hasActiveFilters});
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return child;
+  }
+
+  @override
+  double get maxExtent => _intrinsicHeight;
+
+  @override
+  double get minExtent => _intrinsicHeight;
+
+  double get _intrinsicHeight {
+    // Search bar (54.h) + Vert padding (12.h * 2) = 78.h
+    // If filters: adds gap (12.h) + chips (32.h) = 122.h
+    return hasActiveFilters ? 130.h : 80.h;
+  }
+
+  @override
+  bool shouldRebuild(_DynamicSliverHeaderDelegate oldDelegate) {
+    return oldDelegate.hasActiveFilters != hasActiveFilters || oldDelegate.child != child;
   }
 }

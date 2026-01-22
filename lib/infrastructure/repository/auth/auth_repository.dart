@@ -22,7 +22,7 @@ class AuthRepository {
         'phone': phone,
         'password': password,
         // 'device_name': a['device_name'],
-        'device_token': 'qweqeewqewqeqweqwewq3424242424242eqweqweqqweqwewqwe',
+        'device_token': 'qweqeewqewqeqweqwewq3424242424242eqweqweqqweqwewqwe12313123',
         // 'device_token': a['device_token'],
         'device_model': a['device_model'],
         'device_type': a['device_type'],
@@ -52,8 +52,8 @@ class AuthRepository {
         'name': name,
         'phone': phone,
         // 'device_name': a['device_name'],
-        'device_token': '24qwewe2wqeqaqwe3wq213414242weqwewqeqwewqewqesadasdada',
-        // 'device_token': a['device_token'],
+        // 'device_token': '24qwewe2wqeqaqwe3wq213414242weqwewqeqwewqewqesadasdada',
+        'device_token': a['device_token'],
         'device_model': a['device_model'],
         'device_type': a['device_type'],
         'platform': a['platform'],
@@ -76,22 +76,33 @@ class AuthRepository {
     final deviceInfoPlugin = DeviceInfoPlugin();
     final FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-    // 🔐 Push ruxsat so‘rash
-    NotificationSettings settings = await messaging.requestPermission();
-
     String? deviceToken;
 
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      // 🔑 Firebase token
-      deviceToken = Platform.isIOS ? await messaging.getAPNSToken() : await messaging.getToken();
+    // 🔐 Push ruxsat so‘rash
+    try {
+      NotificationSettings settings = await messaging.requestPermission();
 
-      if (kDebugMode) {
-        print('Device Token: $deviceToken');
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        // 🔑 Firebase token olish (xatoliklarni oldini olish uchun try-catch va timeout bilan)
+        deviceToken = await messaging.getToken().timeout(
+              const Duration(seconds: 10),
+              onTimeout: () {
+                debugPrint('Firebase token olish vaqti tugadi (AuthRepository)');
+                return null;
+              },
+            );
+
+        if (kDebugMode) {
+          print('Device Token: $deviceToken');
+        }
+      } else {
+        if (kDebugMode) {
+          print('Push notificationga ruxsat berilmadi');
+        }
       }
-    } else {
-      if (kDebugMode) {
-        print('Push notificationga ruxsat berilmadi');
-      }
+    } catch (e) {
+      debugPrint('AuthRepository: Firebase token olishda xatolik: $e');
+      // Xatolik bo'lsa ham login davom etishi kerak
     }
 
     try {

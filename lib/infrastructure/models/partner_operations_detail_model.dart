@@ -95,7 +95,7 @@ class PartnerOperation {
   final String partnerName;
   final String? partnerPhone;
   final String? description;
-  final List<String> files;
+  final List<PartnerOperationFile> files;
   final String type;
   final String? scheduledAmount;
   final String remainingAmount;
@@ -136,7 +136,7 @@ class PartnerOperation {
       partnerPhone: json['partner_phone'],
       description: json['description'],
       files: json['files'] != null
-          ? List<String>.from(json['files'])
+          ? (json['files'] as List).map((item) => PartnerOperationFile.fromJson(item)).toList()
           : [],
       type: json['type'] ?? '',
       scheduledAmount: json['scheduled_amount']?.toString(),
@@ -159,7 +159,7 @@ class PartnerOperation {
       'partner_name': partnerName,
       'partner_phone': partnerPhone,
       'description': description,
-      'files': files,
+      'files': files.map((item) => item.toJson()).toList(),
       'type': type,
       'scheduled_amount': scheduledAmount,
       'remaining_amount': remainingAmount,
@@ -210,5 +210,29 @@ class PartnerOperation {
       default:
         return status ?? '';
     }
+  }
+}
+
+class PartnerOperationFile {
+  final int id;
+  final String url;
+
+  PartnerOperationFile({
+    required this.id,
+    required this.url,
+  });
+
+  factory PartnerOperationFile.fromJson(Map<String, dynamic> json) {
+    return PartnerOperationFile(
+      id: json['id'] ?? 0,
+      url: json['url'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'url': url,
+    };
   }
 }

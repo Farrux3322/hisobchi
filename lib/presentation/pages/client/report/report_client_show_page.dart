@@ -15,6 +15,7 @@ import 'package:hisobchi/presentation/pages/client/report/widgets/balance_line_c
 import 'package:hisobchi/presentation/pages/client/report/widgets/debt_aging_grid.dart';
 import 'package:hisobchi/presentation/pages/client/report/widgets/monthly_bar_chart.dart';
 import 'package:hisobchi/presentation/pages/client/report/widgets/summary_grid.dart';
+import 'package:hisobchi/presentation/pages/client/report/partner_debt_detail_page.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ReportClientShowPage extends StatefulWidget {
@@ -30,7 +31,7 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
 
   // Design Constants
   final Color primaryGradientStart = AppTheme.colors.primary;
-  final Color primaryGradientEnd = AppTheme.colors.primary.withValues(alpha: 0.8);
+  final Color primaryGradientEnd = AppTheme.colors.primary.withOpacity(0.8);
   final Color backgroundColor = const Color(0xFFF8FAFC);
   final Color textPrimary = const Color(0xFF0F172A);
   final Color textSecondary = const Color(0xFF64748B);
@@ -157,9 +158,9 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
                   overdueCount: report.qarzExpired.count,
                   todayCount: report.qarzToday.count,
                   upcomingCount: report.qarz3Days.count,
-                  onOverdueTap: () => _handleDebtAgingTap("Muddati o'tgan"),
-                  onTodayTap: () => _handleDebtAgingTap("Bugun"),
-                  onUpcomingTap: () => _handleDebtAgingTap("Yaqinlashmoqda"),
+                  onOverdueTap: () => _handleDebtAgingTap("Muddati o'tgan", currency),
+                  onTodayTap: () => _handleDebtAgingTap("Bugun", currency),
+                  onUpcomingTap: () => _handleDebtAgingTap("Yaqinlashmoqda", currency),
                 ),
               ),
               _buildAnimatedItem(
@@ -198,7 +199,7 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
         indicator: BoxDecoration(
           color: AppTheme.colors.primary,
           borderRadius: BorderRadius.circular(10.r),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
         ),
         labelColor: Colors.white,
         unselectedLabelColor: textSecondary,
@@ -312,9 +313,32 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
     );
   }
 
-  void _handleDebtAgingTap(String type) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$type qarzlar bo\'yicha batafsil ma\'lumot')),
+  void _handleDebtAgingTap(String title, String currency) {
+    String type = '';
+    switch (title) {
+      case "Muddati o'tgan":
+        type = 'qarz_expired';
+        break;
+      case "Bugun":
+        type = 'qarz_today';
+        break;
+      case "Yaqinlashmoqda":
+        type = 'qarz_3_days';
+        break;
+    }
+
+    final currencyId = (currency == 'UZS') ? 1 : 2;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PartnerDebtDetailPage(
+          type: type,
+          currencyTypeId: currencyId,
+          title: title,
+          partnerId: widget.partnerModel.id!,
+        ),
+      ),
     );
   }
   Widget _buildShimmerLoading() {

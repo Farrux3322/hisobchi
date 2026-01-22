@@ -373,7 +373,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
     bool showCurrency = true,
   }) {
     return Container(
-      height: 110.h,
+      height: 0.15.sh,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: backgroundColor,

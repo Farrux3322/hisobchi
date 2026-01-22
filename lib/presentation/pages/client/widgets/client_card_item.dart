@@ -43,128 +43,203 @@ class ClientCardItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isUZSPositive = (partnerModel?.balance?.uzs ?? 0) >= 0;
+    final bool isUSDPositive = (partnerModel?.balance?.usd ?? 0) >= 0;
+
     return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
+      margin: EdgeInsets.only(bottom: 7.h),
       decoration: BoxDecoration(
-        color: AppTheme.colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: partnerModel?.deletedAt == null ? AppTheme.colors.divider : Colors.red.shade200),
-        boxShadow: [BoxShadow(color: AppTheme.colors.divider, blurRadius: 10, offset: const Offset(0, 2))],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+        border: Border.all(
+          color: partnerModel?.deletedAt == null 
+              ? const Color(0xFFF1F5F9) 
+              : Colors.red.shade100,
+          width: 1,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(20.r),
           child: Padding(
-            padding: EdgeInsets.all(12),
+            padding: EdgeInsets.all(16.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Avatar
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8.r),
-                      child: CachedNetworkImage(
-                        
-                        imageUrl: (partnerModel?.files ?? []).isNotEmpty
-                            ? partnerModel?.files?.first.url ?? ''
-                            : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEM7h-3_xucDg6PXVOyOxh9QOnMkS0dvydRA&s',
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => CupertinoActivityIndicator(),
-                        errorWidget: (context, url, error) => Icon(Icons.error),
+                    // Avatar with subtle shadow
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12.r),
+                        child: CachedNetworkImage(
+                          imageUrl: (partnerModel?.files ?? []).isNotEmpty
+                              ? partnerModel?.files?.first.url ?? ''
+                              : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEM7h-3_xucDg6PXVOyOxh9QOnMkS0dvydRA&s',
+                          width: 48.w,
+                          height: 48.w,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const CupertinoActivityIndicator(),
+                          errorWidget: (context, url, error) => const Icon(Icons.person, color: Colors.grey),
+                        ),
                       ),
                     ),
-                    SizedBox(width: 14.w),
+                    SizedBox(width: 16.w),
 
-                    // Name and Balance
+                    // Name, Phone and Date
                     Expanded(
-                      child: Text(
-                        partnerModel?.name ?? '',
-                        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            partnerModel?.name ?? 'Noma\'lum',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF1E293B),
+                              height: 1.2,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            PhoneFormatter.formatPhoneNumber(partnerModel?.phone ?? ''),
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              color: const Color(0xFF64748B),
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+
+                        ],
                       ),
                     ),
+                    
+                    // Balance section
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              _formatBalance(partnerModel?.balance?.uzs ?? 0),
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
-                                color: (partnerModel?.balance?.uzs ?? 0) >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                              ),
-                            ),
-                            Text(
-                              ' UZS',
-                              style: TextStyle(
-                                fontSize: 9.sp,
-                                fontWeight: FontWeight.w600,
-                                color: (partnerModel?.balance?.uzs ?? 0) >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                              ),
-                            ),
-                          ],
+                        _buildBalanceRow(
+                          amount: partnerModel?.balance?.uzs ?? 0,
+                          currency: 'UZS',
                         ),
-                        SizedBox(width: 8.w),
-                        Row(
-                          children: [
-                            Text(
-                              _formatBalance(partnerModel?.balance?.usd ?? 0),
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
-                                color: (partnerModel?.balance?.usd ?? 0) >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                              ),
-                            ),
-                            Text(
-                              ' USD',
-                              style: TextStyle(
-                                fontSize: 9.sp,
-                                fontWeight: FontWeight.w600,
-                                color: (partnerModel?.balance?.uzs ?? 0) >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                              ),
-                            ),
-                          ],
+                        SizedBox(height: 4.h),
+                        _buildBalanceRow(
+                          amount: partnerModel?.balance?.usd ?? 0,
+                          currency: 'USD',
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
 
-                SizedBox(height: 10.h),
+                SizedBox(height: 12.h),
 
-                // Phone and Date
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal:  12,vertical: 6.w),
-                  decoration: BoxDecoration(color: AppTheme.colors.colorF9F9FD, borderRadius: BorderRadius.circular(8.r)),
-                  child: Row(
-                    children: [
-                      SvgPicture.asset(AppIcons.phone),
-                      SizedBox(width: 6.w),
-                      Text(
-                        PhoneFormatter.formatPhoneNumber(partnerModel?.phone ?? ''),
-                        style: TextStyle(fontSize: 12.sp, color: AppTheme.colors.gray),
-                      ),
-                      Spacer(),
-                      SvgPicture.asset(AppIcons.date),
-                      SizedBox(width: 6.w),
-                      Text(
-                        partnerModel?.createdAt?.split(" ").first ?? '',
-                        style: TextStyle(fontSize: 12.sp, color: AppTheme.colors.gray),
-                      ),
-                    ],
-                  ),
+                // Footer
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(Icons.calendar_today_rounded, size: 12.sp, color: const Color(0xFF94A3B8)),
+                        SizedBox(width: 4.w),
+                        Text(
+                          partnerModel?.createdAt?.split(" ").first ?? '',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: const Color(0xFF94A3B8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                   Row(
+                     children: [
+                       Text(
+                         'Batafsil',
+                         style: TextStyle(
+                           fontSize: 12.sp,
+                           color: AppTheme.colors.primary,
+                           fontWeight: FontWeight.bold,
+                         ),
+                       ),
+                       Icon(
+                         Icons.chevron_right_rounded,
+                         size: 16.sp,
+                         color: AppTheme.colors.primary,
+                       ),
+                     ],
+                   )
+                  ],
                 ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildBalanceRow({
+    required num amount,
+    required String currency,
+  }) {
+    final Color color;
+    if (amount == 0) {
+      color = const Color(0xFF1E293B);
+    } else if (amount > 0) {
+      color = const Color(0xFF10B981);
+    } else {
+      color = const Color(0xFFEF4444);
+    }
+    
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(
+          _formatBalance(amount),
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w800,
+            color: color,
+            letterSpacing: -0.5,
+          ),
+        ),
+        SizedBox(width: 2.w),
+        Text(
+          currency,
+          style: TextStyle(
+            fontSize: 9.sp,
+            fontWeight: FontWeight.w700,
+            color: Colors.black54,
+          ),
+        ),
+      ],
     );
   }
 }

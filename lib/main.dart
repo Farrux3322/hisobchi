@@ -46,15 +46,30 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Future<void> getDeviceToken() async {
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  try {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-  NotificationSettings settings = await messaging.requestPermission();
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
 
-  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-    String? token = await messaging.getToken();
-    debugPrint('Device Token: $token');
-  } else {
-    debugPrint('Push notificationga ruxsat berilmadi');
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      // Ba'zida servis tayyor bo'lishi uchun ozgina kutish kerak bo'lishi mumkin
+      String? token = await messaging.getToken().timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => throw TimeoutException('Firebase token olish vaqti tugadi'),
+          );
+      debugPrint('Device Token: $token');
+    } else {
+      debugPrint('Push notificationga ruxsat berilmadi');
+    }
+  } catch (e) {
+    debugPrint('Firebase Token olishda xatolik: $e');
+    if (e.toString().contains('SERVICE_NOT_AVAILABLE')) {
+      debugPrint('TEKSHIRING: Google Play Services ishlayaptimi? Yoqi Firebase Installations API yoqilganmi?');
+    }
   }
 }
 Future<void> main() async {

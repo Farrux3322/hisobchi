@@ -32,7 +32,7 @@ class BalanceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: (isPositive ? positiveGradient[0] : negativeGradient[0]).withOpacity(0.2),
+            color: (isPositive ? positiveGradient[0] : negativeGradient[0]).withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -46,7 +46,7 @@ class BalanceCard extends StatelessWidget {
             child: Icon(
               isPositive ? Icons.north_east_rounded : Icons.south_west_rounded,
               size: 30.sp,
-              color: Colors.white.withOpacity(0.4),
+              color: Colors.white.withValues(alpha: 0.4),
             ),
           ),
           Positioned(
@@ -55,7 +55,7 @@ class BalanceCard extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Row(
@@ -81,9 +81,9 @@ class BalanceCard extends StatelessWidget {
               Text(
                 'Joriy balans',
                 style: TextStyle(
-                  fontSize: 12.sp,
-                  color: Colors.white.withOpacity(0.8),
-                  fontWeight: FontWeight.w500,
+                  fontSize: 14.sp,
+                  color: Colors.white.withValues(alpha: 0.8),
+                  fontWeight: FontWeight.w800,
                 ),
               ),
               SizedBox(height: 4.h),
@@ -113,7 +113,7 @@ class BalanceCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                           ),
                         ),
                       ),

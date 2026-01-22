@@ -6,10 +6,12 @@ abstract class PartnerOperationsEvent {
 class LoadOperationsEvent extends PartnerOperationsEvent {
   final String type;
   final int currencyTypeId;
+  final int? partnerId;
 
   const LoadOperationsEvent({
     required this.type,
     required this.currencyTypeId,
+    this.partnerId,
   });
 }
 
@@ -17,10 +19,12 @@ class LoadOperationsEvent extends PartnerOperationsEvent {
 class RefreshOperationsEvent extends PartnerOperationsEvent {
   final String type;
   final int currencyTypeId;
+  final int? partnerId;
 
   const RefreshOperationsEvent({
     required this.type,
     required this.currencyTypeId,
+    this.partnerId,
   });
 }
 
@@ -29,10 +33,12 @@ class LoadMoreOperationsEvent extends PartnerOperationsEvent {
   final String type;
   final int currencyTypeId;
   final int page;
+  final int? partnerId;
 
   const LoadMoreOperationsEvent({
     required this.type,
     required this.currencyTypeId,
     required this.page,
+    this.partnerId,
   });
 }

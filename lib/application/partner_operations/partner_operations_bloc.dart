@@ -23,11 +23,18 @@ class PartnerOperationsBloc
     emit(state.copyWith(status: Status.loading));
 
     try {
-      final response = await _repository.getOperationsDetail(
-        type: event.type,
-        currencyTypeId: event.currencyTypeId,
-        page: 1,
-      );
+      final response = event.partnerId != null
+          ? await _repository.getPartnerDetailsSectionOne(
+              partnerId: event.partnerId!,
+              type: event.type,
+              currencyTypeId: event.currencyTypeId,
+              page: 1,
+            )
+          : await _repository.getOperationsDetail(
+              type: event.type,
+              currencyTypeId: event.currencyTypeId,
+              page: 1,
+            );
 
       emit(state.copyWith(
         status: Status.success,
@@ -52,10 +59,17 @@ class PartnerOperationsBloc
     Emitter<PartnerOperationsState> emit,
   ) async {
     try {
-      final response = await _repository.refreshOperationsDetail(
-        type: event.type,
-        currencyTypeId: event.currencyTypeId,
-      );
+      final response = event.partnerId != null
+          ? await _repository.getPartnerDetailsSectionOne(
+              partnerId: event.partnerId!,
+              type: event.type,
+              currencyTypeId: event.currencyTypeId,
+              page: 1,
+            )
+          : await _repository.refreshOperationsDetail(
+              type: event.type,
+              currencyTypeId: event.currencyTypeId,
+            );
 
       emit(state.copyWith(
         status: Status.success,
@@ -88,6 +102,7 @@ class PartnerOperationsBloc
         type: event.type,
         currencyTypeId: event.currencyTypeId,
         page: event.page,
+        partnerId: event.partnerId,
       );
 
       // Append new data to existing operations

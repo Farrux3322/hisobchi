@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 
-import '../../../assets/asset_index.dart' show DateFormat;
+import '../../../assets/asset_index.dart' show DateFormat, SizeExtension;
 
 class ClientFilterField extends StatelessWidget {
   final TextEditingController searchController;
@@ -71,27 +71,23 @@ class ClientFilterField extends StatelessWidget {
       children: [
         // Search Field & Filter Button
         Container(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
+          height: 54.h,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: searchController.text.isNotEmpty ? AppTheme.colors.primary : const Color(0xFFE0E0E0),
-              width: searchController.text.isNotEmpty ? 2 : 1,
-            ),
+            borderRadius: BorderRadius.circular(18.r),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: const Color(0xFF0F172A).withValues(alpha: 0.1),
+                blurRadius: 15,
+                offset: const Offset(0, 4),
               )
             ],
           ),
           child: Row(
             children: [
-              const Icon(Icons.search_rounded, size: 22, color: Color(0xFF64748B)),
-              const SizedBox(width: 10),
+              const Icon(Icons.search_rounded, size: 22, color: Color(0xFF94A3B8)),
+              const SizedBox(width: 12),
               Expanded(
                 child: TextField(
                   controller: searchController,
@@ -109,49 +105,57 @@ class ClientFilterField extends StatelessWidget {
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
-                  style: const TextStyle(fontSize: 15, color: Colors.black87, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 15, 
+                    color: Color(0xFF1E293B), 
+                    fontWeight: FontWeight.w600
+                  ),
                 ),
               ),
               if (searchController.text.isNotEmpty)
                 IconButton(
                   onPressed: onClearSearch,
-                  icon: const Icon(Icons.close_rounded, size: 20),
-                  color: const Color(0xFF64748B),
+                  icon: const Icon(Icons.cancel_rounded, size: 20),
+                  color: const Color(0xFFCBD5E1),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
-              const SizedBox(width: 8),
-              Container(width: 1, height: 24, color: const Color(0xFFE2E8F0)),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
+              Container(width: 1.5, height: 24, color: const Color(0xFFF1F5F9)),
+              const SizedBox(width: 10),
               InkWell(
                 onTap: onFilterTap,
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: hasActiveFilters ? AppTheme.colors.primary.withValues(alpha: 0.1) : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Icon(
+                borderRadius: BorderRadius.circular(12.r),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: hasActiveFilters ? AppTheme.colors.primary.withValues(alpha: 0.1) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Icon(
                         Icons.filter_list_rounded,
-                        size: 20,
+                        size: 22.sp,
                         color: hasActiveFilters ? AppTheme.colors.primary : const Color(0xFF64748B),
                       ),
-                      if (hasActiveFilters)
-                        Positioned(
-                          top: -4,
-                          right: -4,
-                          child: Container(
-                            width: 8,
-                            height: 8,
-                            decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
+                    ),
+                    if (hasActiveFilters)
+                      Positioned(
+                        top: 2,
+                        right: 2,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: AppTheme.colors.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
                           ),
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
               ),
             ],
@@ -160,11 +164,12 @@ class ClientFilterField extends StatelessWidget {
 
         // Active Filters Chips
         if (hasActiveFilters) ...[
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           SizedBox(
-            height: 36,
+            height: 32,
             child: ListView(
               scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
               children: [
                 if (startDate != null && endDate != null)
                   _buildFilterChip(
@@ -197,26 +202,38 @@ class ClientFilterField extends StatelessWidget {
 
   Widget _buildFilterChip({required String label, IconData? icon, required Color color, required VoidCallback onRemove}) {
     return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.only(right: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) Icon(icon, size: 14, color: color),
-          if (icon != null) const SizedBox(width: 6),
+          if (icon != null) Icon(icon, size: 14.sp, color: color),
+          if (icon != null) const SizedBox(width: 8),
           Text(
             label,
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: color),
+            style: TextStyle(
+              fontSize: 12.sp, 
+              fontWeight: FontWeight.w700, 
+              color: color,
+              letterSpacing: 0.2,
+            ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           InkWell(
             onTap: onRemove,
-            child: Icon(Icons.close_rounded, size: 16, color: color),
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.close_rounded, size: 12.sp, color: color),
+            ),
           ),
         ],
       ),

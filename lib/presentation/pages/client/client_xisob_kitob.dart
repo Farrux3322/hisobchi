@@ -205,19 +205,16 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.9,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        builder: (context, scrollController) => BlocProvider(
-          create: (context) => FileUploadBloc(repository: FileUploadRepository()),
-          child: EditKirimBottomSheetContent(transaction: item, scrollController: scrollController),
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => TransactionDetailBottomSheet(
+          transaction: item,
+          scrollController: scrollController,
         ),
       ),
-    ).then((v) {
-      if (v == true && mounted) {
-        _loadData();
-      }
-    });
+    );
   }
 
   Future<void> _showCancelDialog(Result item) async {

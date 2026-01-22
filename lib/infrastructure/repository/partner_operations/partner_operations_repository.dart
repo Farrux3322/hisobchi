@@ -80,11 +80,56 @@ class PartnerOperationsRepository {
     required String type,
     required int currencyTypeId,
     required int page,
+    int? partnerId,
   }) async {
+    if (partnerId != null) {
+      return getPartnerDetailsSectionOne(
+        partnerId: partnerId,
+        type: type,
+        currencyTypeId: currencyTypeId,
+        page: page,
+      );
+    }
     return getOperationsDetail(
       type: type,
       currencyTypeId: currencyTypeId,
       page: page,
     );
+  }
+
+  /// Get partner-specific operations detail section one
+  /// Endpoint: GET /reports/partners-v2/partner-details-section-one
+  /// Parameters:
+  ///   - partner_id: the specific partner's ID
+  ///   - type: 'qarz_expired', 'qarz_today', 'qarz_3_days'
+  ///   - currency_type_id: 1 (UZS) or 2 (USD)
+  ///   - page: pagination page number
+  Future<PartnerOperationsDetailResponse> getPartnerDetailsSectionOne({
+    required int partnerId,
+    required String type,
+    required int currencyTypeId,
+    int page = 1,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/reports/partners-v2/partner-details-section-one',
+        queryParameters: {
+          'partner_id': partnerId,
+          'type': type,
+          'currency_type_id': currencyTypeId,
+          'page': page,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return PartnerOperationsDetailResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load partner operations detail');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
+import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import '../../../../assets/asset_index.dart';
 
 class PartnerOperationDetailSheet extends StatelessWidget {
@@ -214,9 +216,9 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                   Expanded(
                     child: _buildMinimalInfo(
                       label: 'Holati',
-                      value: operation.statusDisplay,
-                      color: _getStatusColor(operation.status),
-                      icon: _getStatusIcon(operation.status),
+                      value: operation.status??'',
+                      color: const Color(0xFF10B981),
+                      icon: Icons.schedule_rounded,
                       isUrgent: operation.status?.toLowerCase() == 'cancelled',
                     ),
                   ),
@@ -409,7 +411,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
             ),
           ],
 
-          // Files (if available in API, currently files is List<String>)
+          // Files
           if (operation.hasFiles) ...[
             SizedBox(height: 14.h),
             Container(
@@ -443,27 +445,49 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                     spacing: 8.w,
                     runSpacing: 8.h,
                     children: operation.files.map((file) {
-                      return Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8.r),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.insert_drive_file_rounded, size: 14.sp, color: const Color(0xFF6366F1)),
-                            SizedBox(width: 4.w),
-                            Text(
-                              file.split('/').last,
-                              style: TextStyle(
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF334155),
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ImageViewerPage(
+                                images: operation.files.map((f) => ImageItem(path: f.url, isNetwork: true)).toList(),
+                                initialIndex: operation.files.indexOf(file),
                               ),
                             ),
-                          ],
+                          );
+                        },
+                        child: Hero(
+                          tag: file.url,
+                          child: Container(
+                            width: 80.w,
+                            height: 80.w,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12.r),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                              image: DecorationImage(
+                                image: NetworkImage(file.url),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            child: Stack(
+                              children: [
+                                Positioned(
+                                  right: 4.w,
+                                  bottom: 4.w,
+                                  child: Container(
+                                    padding: EdgeInsets.all(4.w),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.5),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(Icons.fullscreen_rounded, size: 12.sp, color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       );
                     }).toList(),
@@ -645,31 +669,31 @@ class PartnerOperationDetailSheet extends StatelessWidget {
     return phone;
   }
 
-  Color _getStatusColor(String? status) {
-    if (status == null) return const Color(0xFF64748B);
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return const Color(0xFFF59E0B); // Amber
-      case 'completed':
-        return const Color(0xFF10B981); // Green
-      case 'cancelled':
-        return const Color(0xFFEF4444); // Red
-      default:
-        return const Color(0xFF64748B); // Gray
-    }
-  }
-
-  IconData _getStatusIcon(String? status) {
-    if (status == null) return Icons.help_outline_rounded;
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return Icons.schedule_rounded;
-      case 'completed':
-        return Icons.check_circle_outline_rounded;
-      case 'cancelled':
-        return Icons.cancel_outlined;
-      default:
-        return Icons.help_outline_rounded;
-    }
-  }
+  // Color _getStatusColor(String? status) {
+  //   if (status == null) return const Color(0xFF64748B);
+  //   switch (status.toLowerCase()) {
+  //     case 'pending':
+  //       return const Color(0xFFF59E0B); // Amber
+  //     case 'completed':
+  //       return const Color(0xFF10B981); // Green
+  //     case 'cancelled':
+  //       return const Color(0xFFEF4444); // Red
+  //     default:
+  //       return const Color(0xFF64748B); // Gray
+  //   }
+  // }
+  //
+  // IconData _getStatusIcon(String? status) {
+  //   if (status == null) return Icons.help_outline_rounded;
+  //   switch (status.toLowerCase()) {
+  //     case 'pending':
+  //       return Icons.schedule_rounded;
+  //     case 'completed':
+  //       return Icons.check_circle_outline_rounded;
+  //     case 'cancelled':
+  //       return Icons.cancel_outlined;
+  //     default:
+  //       return Icons.help_outline_rounded;
+  //   }
+  // }
 }

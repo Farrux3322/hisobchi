@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:intl/intl.dart';
@@ -12,7 +11,14 @@ class ClientFilterBottomSheet extends StatefulWidget {
   final String? initialStatusFilter;
   final Function(DateTime?, DateTime?, String?, String?) onApply;
 
-  const ClientFilterBottomSheet({super.key, this.initialStartDate, this.initialEndDate, this.initialSort, this.initialStatusFilter, required this.onApply});
+  const ClientFilterBottomSheet({
+    super.key, 
+    this.initialStartDate, 
+    this.initialEndDate, 
+    this.initialSort, 
+    this.initialStatusFilter, 
+    required this.onApply
+  });
 
   @override
   State<ClientFilterBottomSheet> createState() => _ClientFilterBottomSheetState();
@@ -24,17 +30,17 @@ class _ClientFilterBottomSheetState extends State<ClientFilterBottomSheet> {
   String? selectedSort;
   String? selectedStatusFilter;
 
-  final List<Map<String, String>> sortOptions = [
-    {'value': 'xaqdor_usd', 'label': 'Haqdor (USD)'},
-    {'value': 'xaqdor_uzs', 'label': 'Haqdor (UZS)'},
-    {'value': 'qarzdor_usd', 'label': 'Qarzdor (USD)'},
-    {'value': 'qarzdor_uzs', 'label': 'Qarzdor (UZS)'},
+  final List<Map<String, dynamic>> sortOptions = [
+    {'value': 'xaqdor_usd', 'label': 'Haqdor (USD)', 'icon': Icons.trending_up_rounded},
+    {'value': 'xaqdor_uzs', 'label': 'Haqdor (UZS)', 'icon': Icons.trending_up_rounded},
+    {'value': 'qarzdor_usd', 'label': 'Qarzdor (USD)', 'icon': Icons.trending_down_rounded},
+    {'value': 'qarzdor_uzs', 'label': 'Qarzdor (UZS)', 'icon': Icons.trending_down_rounded},
   ];
 
-  final List<Map<String, String>> statusFilterOptions = [
-    {'value': 'xaqdor', 'label': 'Haqdor'},
-    {'value': 'qarzdor', 'label': 'Qarzdor'},
-    {'value': 'muddati_otgan_qarzdor', 'label': 'Muddati o\'tgan qarzdor'},
+  final List<Map<String, dynamic>> statusFilterOptions = [
+    {'value': 'xaqdor', 'label': 'Haqdor', 'icon': Icons.account_balance_wallet_outlined},
+    {'value': 'qarzdor', 'label': 'Qarzdor', 'icon': Icons.money_off_csred_rounded},
+    {'value': 'muddati_otgan_qarzdor', 'label': 'Muddati o\'tgan', 'icon': Icons.event_busy_rounded},
   ];
 
   @override
@@ -55,7 +61,12 @@ class _ClientFilterBottomSheetState extends State<ClientFilterBottomSheet> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(primary: AppTheme.colors.primary, onPrimary: Colors.white, surface: Colors.white, onSurface: const Color(0xFF1E293B)),
+            colorScheme: ColorScheme.light(
+              primary: AppTheme.colors.primary, 
+              onPrimary: Colors.white, 
+              surface: Colors.white, 
+              onSurface: const Color(0xFF1E293B)
+            ),
             dialogBackgroundColor: Colors.white,
           ),
           child: child!,
@@ -69,25 +80,6 @@ class _ClientFilterBottomSheetState extends State<ClientFilterBottomSheet> {
         endDate = picked.end;
       });
     }
-  }
-
-  void _clearDateRange() {
-    setState(() {
-      startDate = null;
-      endDate = null;
-    });
-  }
-
-  void _clearSort() {
-    setState(() {
-      selectedSort = null;
-    });
-  }
-
-  void _clearStatusFilter() {
-    setState(() {
-      selectedStatusFilter = null;
-    });
   }
 
   void _clearAll() {
@@ -106,193 +98,94 @@ class _ClientFilterBottomSheetState extends State<ClientFilterBottomSheet> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(24.r), topRight: Radius.circular(24.r)),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(32.r), topRight: Radius.circular(32.r)),
       ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: AppTheme.colors.colorE1EOEE, width: 1)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Filter',
-                    style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
-                  ),
-                  if (hasActiveFilters)
-                    TextButton(
-                      onPressed: _clearAll,
-                      child: Text(
-                        'Tozalash',
-                        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: AppTheme.colors.primary),
-                      ),
-                    )
-                  else
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(Icons.close, color: AppTheme.colors.color3CC293),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle Bar
+          const Gap(12),
+          Container(
+            width: 40,
+            height: 5,
+            decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(2.5)),
+          ),
+          
+          // Header
+          Padding(
+            padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 10.h),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Filtrlar',
+                  style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A)),
+                ),
+                if (hasActiveFilters)
+                  TextButton(
+                    onPressed: _clearAll,
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.redAccent,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                ],
-              ),
+                    child: Text(
+                      'Tozalash',
+                      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
+                    ),
+                  )
+                else
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+              ],
             ),
+          ),
 
-            // Content
-            Padding(
-              padding: EdgeInsets.all(16.w),
+          // Content
+          Flexible(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(24.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Date Range Section
-                  Text(
-                    'Sana oralig\'i',
-                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
-                  ),
-                  SizedBox(height: 15.h),
-                  GestureDetector(
-                    onTap: _selectDateRange,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(12.r),
-                        border: Border.all(color: startDate != null ? AppTheme.colors.primary : AppTheme.colors.colorE1EOEE),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.calendar_today, size: 20.sp, color: startDate != null ? AppTheme.colors.primary : AppTheme.colors.color3CC293),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: Text(
-                              startDate != null && endDate != null ? '${DateFormat('dd.MM.yyyy').format(startDate!)} - ${DateFormat('dd.MM.yyyy').format(endDate!)}' : 'Sana tanlang',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                color: startDate != null ? AppTheme.colors.black : AppTheme.colors.color3CC293,
-                                fontWeight: startDate != null ? FontWeight.w500 : FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                          if (startDate != null)
-                            GestureDetector(
-                              onTap: _clearDateRange,
-                              child: Icon(Icons.close, size: 20.sp, color: AppTheme.colors.color3CC293),
-                            ),
-                        ],
-                      ),
-                    ),
+                  // Date Range Selector
+                  _buildSectionTitle('Sana oralig\'i'),
+                  const Gap(12),
+                  _buildDateSelector(),
+                  
+                  const Gap(28),
+                  
+                  // Status Selector
+                  _buildSectionTitle('Holat bo\'yicha'),
+                  const Gap(12),
+                  _buildOptionGrid(
+                    options: statusFilterOptions, 
+                    selectedValue: selectedStatusFilter,
+                    onSelected: (val) => setState(() => selectedStatusFilter = (selectedStatusFilter == val ? null : val)),
                   ),
 
-                  SizedBox(height: 15.h),
-                  // Status Filter Section
-                  Text(
-                    'Hamkor holati bo\'yicha',
-                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
-                  ),
-                  SizedBox(height: 15.h),
+                  const Gap(28),
 
-                  // Status Filter Dropdown
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(color: selectedStatusFilter != null ? AppTheme.colors.primary : AppTheme.colors.colorE1EOEE),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        borderRadius: BorderRadius.circular(12.r),
-                        isExpanded: true,
-                        value: selectedStatusFilter,
-                        hint: Text(
-                          'Tanlang',
-                          style: TextStyle(fontSize: 14.sp, color: const Color(0xFF94A3B8)),
-                        ),
-                        icon: Icon(Icons.keyboard_arrow_down, color: selectedStatusFilter != null ? AppTheme.colors.primary : const Color(0xFF94A3B8)),
-                        style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.black, fontWeight: FontWeight.w500),
-                        dropdownColor: Colors.white,
-                        items: [
-                          DropdownMenuItem<String>(
-                            value: null,
-                            child: Text(
-                              'Tanlanmagan',
-                              style: TextStyle(fontSize: 14.sp, color: const Color(0xFF94A3B8)),
-                            ),
-                          ),
-                          ...statusFilterOptions.map((option) {
-                            return DropdownMenuItem<String>(value: option['value'], child: Text(option['label']!));
-                          }),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            selectedStatusFilter = value;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 15.h),
-                  // Sort Section
-                  Text(
-                    'Tartiblash',
-                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
-                  ),
-                  SizedBox(height: 15.h),
-
-                  // Sort Dropdown
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(color: selectedSort != null ? AppTheme.colors.primary : AppTheme.colors.colorE1EOEE),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: selectedSort,
-                        hint: Text(
-                          'Tanlang',
-                          style: TextStyle(fontSize: 14.sp, color: const Color(0xFF94A3B8)),
-                        ),
-                        icon: Icon(Icons.keyboard_arrow_down, color: selectedSort != null ? AppTheme.colors.primary : const Color(0xFF94A3B8)),
-                        style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.black, fontWeight: FontWeight.w500),
-
-                        borderRadius: BorderRadius.circular(12.r),
-                        dropdownColor: Colors.white,
-                        items: [
-                          DropdownMenuItem<String>(
-                            value: null,
-                            child: Text(
-                              'Tanlanmagan',
-                              style: TextStyle(fontSize: 14.sp, color: const Color(0xFF94A3B8)),
-                            ),
-                          ),
-                          ...sortOptions.map((option) {
-                            return DropdownMenuItem<String>(value: option['value'], child: Text(option['label']!));
-                          }),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            selectedSort = value;
-                          });
-                        },
-                      ),
-                    ),
+                  // Sort Selector
+                  _buildSectionTitle('Tartiblash'),
+                  const Gap(12),
+                  _buildOptionGrid(
+                    options: sortOptions, 
+                    selectedValue: selectedSort,
+                    onSelected: (val) => setState(() => selectedSort = (selectedSort == val ? null : val)),
                   ),
 
+                  const Gap(32),
 
-
-
-                  SizedBox(height: MediaQuery.of(context).padding.bottom+60),
                   // Apply Button
                   SizedBox(
                     width: double.infinity,
-                    height: 48.h,
+                    height: 56.h,
                     child: ElevatedButton(
                       onPressed: () {
                         widget.onApply(startDate, endDate, selectedSort, selectedStatusFilter);
@@ -300,21 +193,138 @@ class _ClientFilterBottomSheetState extends State<ClientFilterBottomSheet> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.colors.primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
                         elevation: 0,
                       ),
                       child: Text(
-                        'Qo\'llash',
-                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.white),
+                        'Filtrlarni qo\'llash',
+                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                       ),
                     ),
                   ),
+                  Gap(MediaQuery.of(context).padding.bottom),
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w700,
+        color: const Color(0xFF64748B),
+        letterSpacing: 0.5,
+      ),
+    );
+  }
+
+  Widget _buildDateSelector() {
+    final hasDate = startDate != null && endDate != null;
+    return GestureDetector(
+      onTap: _selectDateRange,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: hasDate ? AppTheme.colors.primary.withOpacity(0.05) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(
+            color: hasDate ? AppTheme.colors.primary.withOpacity(0.3) : const Color(0xFFE2E8F0),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: hasDate ? AppTheme.colors.primary.withOpacity(0.1) : Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                Icons.calendar_month_rounded, 
+                size: 20, 
+                color: hasDate ? AppTheme.colors.primary : const Color(0xFF94A3B8)
+              ),
+            ),
+            const Gap(16),
+            Expanded(
+              child: Text(
+                hasDate 
+                    ? '${DateFormat('dd.MM.yyyy').format(startDate!)} - ${DateFormat('dd.MM.yyyy').format(endDate!)}' 
+                    : 'Barcha vaqt',
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  color: hasDate ? const Color(0xFF1E293B) : const Color(0xFF94A3B8),
+                  fontWeight: hasDate ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: hasDate ? AppTheme.colors.primary : const Color(0xFF94A3B8)),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildOptionGrid({
+    required List<Map<String, dynamic>> options,
+    required String? selectedValue,
+    required Function(String) onSelected,
+  }) {
+    return Wrap(
+      spacing: 8.w,
+      runSpacing: 8.h,
+      children: options.map((option) {
+        final isSelected = selectedValue == option['value'];
+        return GestureDetector(
+          onTap: () => onSelected(option['value']),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: isSelected ? AppTheme.colors.primary : Colors.white,
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(
+                color: isSelected ? AppTheme.colors.primary : const Color(0xFFE2E8F0),
+                width: 1.5,
+              ),
+              boxShadow: isSelected ? [
+                BoxShadow(
+                  color: AppTheme.colors.primary.withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                )
+              ] : null,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  option['icon'], 
+                  size: 18, 
+                  color: isSelected ? Colors.white : const Color(0xFF64748B)
+                ),
+                const Gap(8),
+                Text(
+                  option['label'],
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                    color: isSelected ? Colors.white : const Color(0xFF475569),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }
