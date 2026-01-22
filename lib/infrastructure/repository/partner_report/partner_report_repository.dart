@@ -1,9 +1,28 @@
 import 'package:dio/dio.dart';
 import 'package:hisobchi/infrastructure/common/network_provider.dart';
+import 'package:hisobchi/infrastructure/models/partner_details_report_model.dart';
 import 'package:hisobchi/infrastructure/models/partner_report_model.dart';
 import 'package:hisobchi/infrastructure/models/partner_summary_model.dart';
 
 class PartnerReportRepository {
+  /// Get partner details report (UZS and USD statistics)
+  /// Endpoint: GET /reports/partners-v2/partner-details/{partnerId}
+  Future<PartnerDetailsReportResponse> getPartnerDetailsReport(int partnerId) async {
+    try {
+      final response = await dio.get('/reports/partners-v2/partner-details/$partnerId');
+
+      if (response.statusCode == 200) {
+        return PartnerDetailsReportResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load partner details report');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
   /// Get partner summary list (Debtors or Creditors)
   /// Endpoint: GET /reports/partners-v2/summary-details-section-two
   Future<PartnerSummaryResponse> getPartnerSummaryList({

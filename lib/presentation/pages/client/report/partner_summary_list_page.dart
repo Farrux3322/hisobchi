@@ -8,6 +8,7 @@ import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/infrastructure/models/partner_summary_model.dart';
 import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/pages/client/client_account_page.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -101,16 +102,17 @@ class _PartnerSummaryListPageContentState extends State<_PartnerSummaryListPageC
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      body: CustomScrollView(
-        controller: _scrollController,
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          _buildAppBar(),
-          _buildSearchField(),
-          _buildList(),
-        ],
+    return DeFocus(
+      child: Scaffold(
+        body: CustomScrollView(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            _buildAppBar(),
+            _buildSearchField(),
+            _buildList(),
+          ],
+        ),
       ),
     );
   }
@@ -152,7 +154,7 @@ class _PartnerSummaryListPageContentState extends State<_PartnerSummaryListPageC
             borderRadius: BorderRadius.circular(16.r),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
+                color: Colors.black.withOpacity(0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -268,7 +270,7 @@ class _PartnerSummaryListPageContentState extends State<_PartnerSummaryListPageC
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withOpacity(0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -299,7 +301,7 @@ class _PartnerSummaryListPageContentState extends State<_PartnerSummaryListPageC
                   width: 32.w,
                   height: 32.w,
                   decoration: BoxDecoration(
-                    color: AppTheme.colors.primary.withValues(alpha: 0.1),
+                    color: AppTheme.colors.primary.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -340,28 +342,27 @@ class _PartnerSummaryListPageContentState extends State<_PartnerSummaryListPageC
                     ],
                   ),
                 ),
-                RichText(
-                  textAlign: TextAlign.end,
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: _formatMoney(partner.balance),
-                        style: TextStyle(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w800,
-                          color: isNegative ? const Color(0xFFEF4444) : const Color(0xFF10B981),
-                        ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _formatMoney(partner.balance),
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w800,
+                        color: isNegative ? const Color(0xFFEF4444) : const Color(0xFF10B981),
                       ),
-                      TextSpan(
-                        text: ' ${partner.mainCurrencyTypeName}',
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF94A3B8), // Slate-400
-                        ),
+                    ),
+                    Text(
+                      partner.mainCurrencyTypeName,
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF94A3B8), // Slate-400
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),

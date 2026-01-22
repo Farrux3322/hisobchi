@@ -15,7 +15,7 @@ class DeadlineWarningCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isCritical = daysLeft <= 3;
     final Color mainColor = isCritical ? const Color(0xFFEF4444) : const Color(0xFFF59E0B);
-    final Color bgColor = mainColor.withValues(alpha: 0.08);
+    final Color bgColor = mainColor.withOpacity(0.08);
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -23,14 +23,14 @@ class DeadlineWarningCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: mainColor.withValues(alpha: 0.2), width: 1.5),
+        border: Border.all(color: mainColor.withOpacity(0.2), width: 1.5),
       ),
       child: Row(
         children: [
           Container(
             padding: EdgeInsets.all(10.w),
             decoration: BoxDecoration(
-              color: mainColor.withValues(alpha: 0.1),
+              color: mainColor.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -57,7 +57,7 @@ class DeadlineWarningCard extends StatelessWidget {
                   'Muddat: ${_formatDate(deadline)}',
                   style: TextStyle(
                     fontSize: 13.sp,
-                    color: mainColor.withValues(alpha: 0.8),
+                    color: mainColor.withOpacity(0.8),
                   ),
                 ),
               ],

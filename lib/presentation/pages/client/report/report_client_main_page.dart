@@ -54,7 +54,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Hamkorlar xisoboti', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20)),
+        title: const Text('Hamkorlar xisoboti', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 22)),
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -64,7 +64,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))],
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -75,7 +75,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                   indicator: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(12)),
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.grey[700],
-                  labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   tabs: const [
                     Tab(text: 'UZS Hisob'),
                     Tab(text: 'USD Hisob'),
@@ -101,7 +101,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                   const SizedBox(height: 16),
                   Text(
                     state.errorMessage ?? 'Xatolik yuz berdi',
-                    style: const TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 18),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -147,7 +147,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           children: [
             Expanded(
               child: _buildMainStatCard(
-                title: 'Jami kirim',
+                title: 'Kirim',
                 value: _formatCurrency(data.debt, isUZS),
                 icon: AppIcons.income,
                 iconColor: Colors.white,
@@ -158,7 +158,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
             const SizedBox(width: 12),
             Expanded(
               child: _buildMainStatCard(
-                title: 'Jami chiqim',
+                title: 'Chiqim',
                 value: _formatCurrency(data.credit, isUZS),
                 icon: AppIcons.chiqim,
                 iconColor: Colors.white,
@@ -281,7 +281,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
               const SizedBox(width: 10),
               const Text(
                 'Qarz muddatlari xisoboti',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.black87),
+                style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: Colors.black87),
               ),
             ],
           ),
@@ -378,7 +378,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: backgroundColor.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: backgroundColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -388,13 +388,13 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
                 child: SvgPicture.asset(icon, colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn), width: 24, height: 24),
               ),
               Gap(10.w),
               Text(
                 title,
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: iconColor.withValues(alpha: 0.9)),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: iconColor.withOpacity(0.9)),
               ),
             ],
           ),
@@ -403,7 +403,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
             children: [
               Text(
                 value,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: iconColor, letterSpacing: 0.5),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: iconColor, letterSpacing: 0.5),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -411,7 +411,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                 const SizedBox(height: 2),
                 Text(
                   _getCurrency(isUZS),
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: iconColor.withValues(alpha: 0.8)),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: iconColor.withOpacity(0.8)),
                 ),
               ],
             ],
@@ -433,8 +433,8 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 8, offset: const Offset(0, 2))],
+        border: Border.all(color: color.withOpacity(0.2), width: 1.5),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Material(
         color: Colors.transparent,
@@ -450,7 +450,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -461,13 +461,13 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: .1)),
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: color.withOpacity(.1)),
                       child: Icon(icon, color: color, size: 16),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       '$count',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color, height: 1),
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color, height: 1),
                     ),
                   ],
                 ),
@@ -492,8 +492,8 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6, offset: const Offset(0, 2))],
+        border: Border.all(color: color.withOpacity(0.2), width: 1.5),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 2))],
       ),
       child: Material(
         color: Colors.transparent,
@@ -520,7 +520,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.w500, color: Colors.grey[500]),
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.grey[500]),
                       ),
                     ],
                   ],
@@ -531,13 +531,13 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
+                      decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
                       child: Icon(icon, color: color, size: 16),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       '$count',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color, height: 1),
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: color, height: 1),
                     ),
                   ],
                 ),

@@ -4,11 +4,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class BalanceCard extends StatelessWidget {
   final double balance;
   final String currency;
+  final int operationsCount;
 
   const BalanceCard({
     super.key,
     required this.balance,
     required this.currency,
+    required this.operationsCount,
   });
 
   @override
@@ -19,88 +21,107 @@ class BalanceCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.all(16.w),
-      padding: EdgeInsets.all(24.w),
+      margin: EdgeInsets.symmetric(horizontal:  16.w).copyWith(bottom: 10.h),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isPositive ? positiveGradient : negativeGradient,
         ),
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: (isPositive ? positiveGradient[0] : negativeGradient[0]).withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            color: (isPositive ? positiveGradient[0] : negativeGradient[0]).withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Stack(
         children: [
           Positioned(
-            right: -10,
-            top: -10,
+            left: -5,
+            top: -5,
             child: Icon(
-              isPositive ? Icons.trending_up : Icons.trending_down,
-              size: 100,
-              color: Colors.white.withValues(alpha: 0.1),
+              isPositive ? Icons.north_east_rounded : Icons.south_west_rounded,
+              size: 30.sp,
+              color: Colors.white.withOpacity(0.4),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            bottom: 0,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.sync_alt, color: Colors.white, size: 12.sp),
+                  SizedBox(width: 4.w),
+                  Text(
+                    '$operationsCount ta operatsiya',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 'Joriy balans',
                 style: TextStyle(
-                  fontSize: 14.sp,
-                  color: Colors.white.withValues(alpha: 0.8),
+                  fontSize: 12.sp,
+                  color: Colors.white.withOpacity(0.8),
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: 4.h),
               TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: balance),
                 duration: const Duration(seconds: 1),
                 curve: Curves.easeOutExpo,
                 builder: (context, value, child) {
-                  return Text(
-                    '${value >= 0 ? '+' : ''}${_formatPrice(value)} $currency',
-                    style: TextStyle(
-                      fontSize: 32.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Spacer(),
+                      Text(
+                        '${value >= 0 ? '+' : ''}${_formatPrice(value)}',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontSize: 24.sp,
+
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 4.w, bottom: 4.h),
+                        child: Text(
+                          currency,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withOpacity(0.8),
+                          ),
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
-              SizedBox(height: 12.h),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(30.r),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isPositive ? Icons.arrow_downward : Icons.arrow_upward,
-                      size: 14.sp,
-                      color: Colors.white,
-                    ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      isPositive ? 'Bizdan olishi kerak' : 'Biz olishimiz kerak',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+
             ],
           ),
         ],

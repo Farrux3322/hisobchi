@@ -8,7 +8,6 @@ import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/utils/phone_formatter.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:hisobchi/presentation/pages/client/client_xisob_kitob.dart';
@@ -213,7 +212,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                             Expanded(
                               child: GestureDetector(
                                 onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (_) => ReportClientShowPage()));
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => ReportClientShowPage(partnerModel: widget.partnerModel)));
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),

@@ -15,31 +15,20 @@ class PartnerOperationsDetailPage extends StatefulWidget {
   final int currencyTypeId;
   final String title;
 
-  const PartnerOperationsDetailPage({
-    super.key,
-    required this.type,
-    required this.currencyTypeId,
-    required this.title,
-  });
+  const PartnerOperationsDetailPage({super.key, required this.type, required this.currencyTypeId, required this.title});
 
   @override
-  State<PartnerOperationsDetailPage> createState() =>
-      _PartnerOperationsDetailPageState();
+  State<PartnerOperationsDetailPage> createState() => _PartnerOperationsDetailPageState();
 }
 
-class _PartnerOperationsDetailPageState
-    extends State<PartnerOperationsDetailPage> {
+class _PartnerOperationsDetailPageState extends State<PartnerOperationsDetailPage> {
   final ScrollController _scrollController = ScrollController();
   late final PartnerOperationsBloc _bloc;
 
   @override
   void initState() {
     super.initState();
-    _bloc = PartnerOperationsBloc(PartnerOperationsRepository())
-      ..add(LoadOperationsEvent(
-        type: widget.type,
-        currencyTypeId: widget.currencyTypeId,
-      ));
+    _bloc = PartnerOperationsBloc(PartnerOperationsRepository())..add(LoadOperationsEvent(type: widget.type, currencyTypeId: widget.currencyTypeId));
     _scrollController.addListener(_onScroll);
   }
 
@@ -55,11 +44,7 @@ class _PartnerOperationsDetailPageState
     if (_isBottom) {
       final state = _bloc.state;
       if (state.canLoadMore) {
-        _bloc.add(LoadMoreOperationsEvent(
-          type: widget.type,
-          currencyTypeId: widget.currencyTypeId,
-          page: state.currentPage + 1,
-        ));
+        _bloc.add(LoadMoreOperationsEvent(type: widget.type, currencyTypeId: widget.currencyTypeId, page: state.currentPage + 1));
       }
     }
   }
@@ -80,11 +65,7 @@ class _PartnerOperationsDetailPageState
         appBar: AppBar(
           title: Text(
             widget.title,
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.colors.black,
-            ),
+            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
           ),
           backgroundColor: AppTheme.colors.background,
           elevation: 0,
@@ -110,12 +91,7 @@ class _PartnerOperationsDetailPageState
 
             return RefreshIndicator(
               onRefresh: () async {
-                _bloc.add(
-                  RefreshOperationsEvent(
-                    type: widget.type,
-                    currencyTypeId: widget.currencyTypeId,
-                  ),
-                );
+                _bloc.add(RefreshOperationsEvent(type: widget.type, currencyTypeId: widget.currencyTypeId));
               },
               child: ListView.builder(
                 controller: _scrollController,
@@ -140,24 +116,18 @@ class _PartnerOperationsDetailPageState
     final currencyText = isUZS ? 'UZS' : 'USD';
     // User requested to swap Kirim/Chiqim logic
     // Currently isCredit (Kirim) is green, isDebt (Chiqim) is red
-    // We swap them so Kirim (incoming) is red and Chiqim (outgoing) is green? 
+    // We swap them so Kirim (incoming) is red and Chiqim (outgoing) is green?
     // Wait, usually Kirim = Income = Green. If they are swapped, it means what is currently Kirim should be Chiqim.
     // However, the model has typeDisplay. Let's just swap the icon and color logic for isCredit.
-    final bool isIncoming = !operation.isCredit; 
+    final bool isIncoming = !operation.isCredit;
 
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(color: AppTheme.colors.gray.withValues(alpha: 0.05)),
+        boxShadow: [BoxShadow(color: AppTheme.colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2))],
+        border: Border.all(color: AppTheme.colors.gray.withOpacity(0.05)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -176,24 +146,11 @@ class _PartnerOperationsDetailPageState
                     Container(
                       width: 36.w,
                       height: 36.w,
-                      decoration: BoxDecoration(
-                        color: isIncoming
-                            ? const Color(0xFF22C55E).withValues(alpha: 0.1)
-                            : const Color(0xFFEF4444).withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        isIncoming
-                            ? Icons.south_west_rounded
-                            : Icons.north_east_rounded,
-                        color: isIncoming
-                            ? const Color(0xFF16A34A)
-                            : const Color(0xFFDC2626),
-                        size: 18.sp,
-                      ),
+                      decoration: BoxDecoration(color: isIncoming ? const Color(0xFF22C55E).withOpacity(0.1) : const Color(0xFFEF4444).withOpacity(0.1), shape: BoxShape.circle),
+                      child: Icon(isIncoming ? Icons.south_west_rounded : Icons.north_east_rounded, color: isIncoming ? const Color(0xFF16A34A) : const Color(0xFFDC2626), size: 20.sp),
                     ),
                     SizedBox(width: 10.w),
-                    
+
                     // Partner and Phone
                     Expanded(
                       child: Column(
@@ -201,81 +158,55 @@ class _PartnerOperationsDetailPageState
                         children: [
                           Text(
                             operation.partnerName,
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.colors.black,
-                            ),
+                            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           if (operation.partnerPhone != null)
                             Text(
                               _formatPhoneNumber(operation.partnerPhone!),
-                              style: TextStyle(
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w500,
-                                color: AppTheme.colors.gray.withValues(alpha: 0.8),
-                              ),
+                              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500, color: AppTheme.colors.black.withOpacity(.5)),
                             ),
                         ],
                       ),
                     ),
-                    
+
                     // Amount
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           '${isIncoming ? '+' : '-'}${_formatCurrency(operation.remainingAmount)}',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w800,
-                            color: isIncoming
-                                ? const Color(0xFF16A34A)
-                                : const Color(0xFFDC2626),
-                          ),
+                          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800, color: isIncoming ? const Color(0xFF16A34A) : const Color(0xFFDC2626)),
                         ),
                         Text(
                           currencyText,
-                          style: TextStyle(
-                            fontSize: 9.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black54,
-                          ),
+                          style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: Colors.black54),
                         ),
                       ],
                     ),
                   ],
                 ),
-                
 
-                
                 SizedBox(height: 6.h),
                 Row(
-                  mainAxisAlignment:(operation.hasReturnDate || operation.isOverdue )? MainAxisAlignment.spaceBetween : MainAxisAlignment.end,
+                  mainAxisAlignment: (operation.hasReturnDate || operation.isOverdue) ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end,
                   children: [
                     if (operation.hasReturnDate || operation.isOverdue) ...[
                       // SizedBox(height: 8.h),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                         decoration: BoxDecoration(
-                          color: operation.isOverdue
-                              ? const Color(0xFFEF4444).withValues(alpha: 0.05)
-                              : const Color(0xFFF59E0B).withValues(alpha: 0.05),
+                          color: operation.isOverdue ? const Color(0xFFEF4444).withOpacity(0.05) : const Color(0xFFF59E0B).withOpacity(0.05),
                           borderRadius: BorderRadius.circular(6.r),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              operation.isOverdue
-                                  ? Icons.notification_important_rounded
-                                  : Icons.schedule_rounded,
+                              operation.isOverdue ? Icons.notification_important_rounded : Icons.schedule_rounded,
                               size: 12.sp,
-                              color: operation.isOverdue
-                                  ? const Color(0xFFEF4444)
-                                  : const Color(0xFFD97706),
+                              color: operation.isOverdue ? const Color(0xFFEF4444) : const Color(0xFFD97706),
                             ),
                             SizedBox(width: 4.w),
                             Text(
@@ -283,14 +214,8 @@ class _PartnerOperationsDetailPageState
                                   ? 'Muddati o\'tgan: ${operation.daysOverdue} kun'
                                   : operation.daysLeft != null
                                   ? (operation.daysLeft == 0 ? 'Bugun qaytarishi kerak' : '${operation.daysLeft} kun qoldi')
-                                  : operation.returnDate ?? '',
-                              style: TextStyle(
-                                fontSize: 10.sp,
-                                color: operation.isOverdue
-                                    ? const Color(0xFFB91C1C)
-                                    : const Color(0xFFB45309),
-                                fontWeight: FontWeight.w700,
-                              ),
+                                  : 'Qaytarish sanasi: ${operation.returnDate ?? ''}',
+                              style: TextStyle(fontSize: 10.sp, color: operation.isOverdue ? const Color(0xFFB91C1C) : const Color(0xFFB45309), fontWeight: FontWeight.w700),
                             ),
                           ],
                         ),
@@ -298,11 +223,7 @@ class _PartnerOperationsDetailPageState
                     ],
                     Text(
                       _formatDate(operation.createdAt),
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        color: Colors.black54,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: TextStyle(fontSize: 12.sp, color: Colors.black87, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -348,10 +269,7 @@ class _PartnerOperationsDetailPageState
             highlightColor: Colors.white,
             child: Container(
               height: 80.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12.r)),
             ),
           ),
         );
@@ -360,42 +278,30 @@ class _PartnerOperationsDetailPageState
   }
 
   Widget _buildEmptyWidget() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.all(24.w),
-            decoration: BoxDecoration(
-              color: AppTheme.colors.gray.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(24.w),
+              decoration: BoxDecoration(color: AppTheme.colors.gray.withOpacity(0.05), shape: BoxShape.circle),
+              child: Icon(Icons.receipt_long_rounded, size: 48.sp, color: AppTheme.colors.gray.withOpacity(0.3)),
             ),
-            child: Icon(
-              Icons.receipt_long_rounded,
-              size: 48.sp,
-              color: AppTheme.colors.gray.withValues(alpha: 0.3),
+            SizedBox(height: 20.h),
+            Text(
+              'Operatsiyalar topilmadi',
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black.withOpacity(0.7)),
             ),
-          ),
-          SizedBox(height: 20.h),
-          Text(
-            'Operatsiyalar topilmadi',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.colors.black.withValues(alpha: 0.7),
+            SizedBox(height: 8.h),
+            Text(
+              'Ushbu ruknda hozircha hech qanday\nma\'lumot mavjud emas',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray.withOpacity(0.6), height: 1.5),
             ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Ushbu ruknda hozircha hech qanday\nma\'lumot mavjud emas',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: AppTheme.colors.gray.withValues(alpha: 0.6),
-              height: 1.5,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -409,62 +315,37 @@ class _PartnerOperationsDetailPageState
           children: [
             Container(
               padding: EdgeInsets.all(20.w),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEF2F2),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.error_outline_rounded,
-                size: 40.sp,
-                color: const Color(0xFFEF4444),
-              ),
+              decoration: BoxDecoration(color: const Color(0xFFFEF2F2), shape: BoxShape.circle),
+              child: Icon(Icons.error_outline_rounded, size: 40.sp, color: const Color(0xFFEF4444)),
             ),
             SizedBox(height: 24.h),
             Text(
               'Xatolik yuz berdi',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.colors.black,
-              ),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
             ),
             SizedBox(height: 8.h),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: AppTheme.colors.gray.withValues(alpha: 0.6),
-                height: 1.5,
-              ),
+              style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray.withOpacity(0.6), height: 1.5),
             ),
             SizedBox(height: 32.h),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  _bloc.add(
-                    LoadOperationsEvent(
-                      type: widget.type,
-                      currencyTypeId: widget.currencyTypeId,
-                    ),
-                  );
+                  _bloc.add(LoadOperationsEvent(type: widget.type, currencyTypeId: widget.currencyTypeId));
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6366F1),
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 16.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                   elevation: 0,
                 ),
                 child: Text(
                   'Qayta urinish',
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -477,10 +358,7 @@ class _PartnerOperationsDetailPageState
   String _formatCurrency(String amount) {
     final value = double.tryParse(amount) ?? 0.0;
     final intValue = value.toInt();
-    final formatted = intValue.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]} ',
-        );
+    final formatted = intValue.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]} ');
     return formatted;
   }
 
@@ -488,7 +366,7 @@ class _PartnerOperationsDetailPageState
     if (phone.isEmpty) return phone;
     // Remove all non-numeric characters
     final clean = phone.replaceAll(RegExp(r'\D'), '');
-    
+
     // Assume 9 digits if it doesn't start with country code, or 12 digits if it does
     if (clean.length == 9) {
       return '+998 (${clean.substring(0, 2)}) ${clean.substring(2, 5)} ${clean.substring(5, 7)} ${clean.substring(7, 9)}';

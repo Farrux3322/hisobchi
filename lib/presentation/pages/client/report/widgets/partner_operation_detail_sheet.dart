@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
-import 'package:intl/intl.dart';
+import '../../../../assets/asset_index.dart';
 
 class PartnerOperationDetailSheet extends StatelessWidget {
   final PartnerOperation operation;
@@ -20,7 +18,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
+            color: Colors.black.withOpacity(0.12),
             blurRadius: 40,
             offset: const Offset(0, -12),
           ),
@@ -37,7 +35,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
               width: 36.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: AppTheme.colors.gray.withValues(alpha: 0.1),
+                color: AppTheme.colors.gray.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10.r),
               ),
             ),
@@ -81,7 +79,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: brandColor.withValues(alpha: 0.2),
+                        color: brandColor.withOpacity(0.2),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -99,11 +97,12 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        operation.typeDisplay.toUpperCase(),
+                        operation.type=='credit' ? 'Qarz':'Kirim',
+                        // operation.typeDisplay.toUpperCase(),
                         style: TextStyle(
-                          fontSize: 10.sp,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w800,
-                          color: brandColor.withValues(alpha: 0.6),
+                          color: brandColor.withOpacity(0.6),
                           letterSpacing: 1,
                         ),
                       ),
@@ -138,7 +137,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                   child: Container(
                     padding: EdgeInsets.all(6.w),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: Colors.white.withOpacity(0.8),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(Icons.close_rounded, size: 18.sp, color: AppTheme.colors.gray),
@@ -164,7 +163,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
               SizedBox(width: 12.w),
               Expanded(
                 child: _buildMinimalInfo(
-                  label: 'Sana',
+                  label: 'Yaratilgan sana',
                   value: _formatDate(operation.createdAt),
                   color: const Color(0xFFF59E0B), // Amber
                   icon: Icons.calendar_today_rounded,
@@ -196,7 +195,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                           ? "Muddati o'tgan"
                           : operation.daysLeft != null && operation.daysLeft! <= 3
                               ? 'Yaqinlashmoqda'
-                              : 'Qaytarish muddati',
+                              : 'Qaytarish sanasi',
                       value: _formatDueDate(operation.dueDate!),
                       color: operation.isOverdue
                           ? const Color(0xFFEF4444)
@@ -241,7 +240,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(6.w),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                      color: const Color(0xFFEF4444).withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -279,7 +278,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(6.w),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                      color: const Color(0xFFF59E0B).withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -387,9 +386,9 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                       Text(
                         'Izoh',
                         style: TextStyle(
-                          fontSize: 9.sp,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF94A3B8),
+                          color: Colors.black54,
                           letterSpacing: 0.8,
                         ),
                       ),
@@ -429,11 +428,11 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                       Icon(Icons.attach_file_rounded, size: 12.sp, color: const Color(0xFF94A3B8)),
                       SizedBox(width: 6.w),
                       Text(
-                        'Biriktirilgan fayllar',
+                        'Rasmlar',
                         style: TextStyle(
-                          fontSize: 9.sp,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF94A3B8),
+                          color: Colors.black54,
                           letterSpacing: 0.8,
                         ),
                       ),
@@ -493,7 +492,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
         border: Border.all(color: const Color(0xFFF1F5F9)), // Slate-100
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withOpacity(0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -504,15 +503,15 @@ class PartnerOperationDetailSheet extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 10.sp, color: color.withValues(alpha: 0.5)),
+              Icon(icon, size: 12.sp, color: color.withOpacity(0.5)),
               SizedBox(width: 6.w),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: 8.sp,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF94A3B8), // Slate-400
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black54, // Slate-400
                     letterSpacing: 0.5,
                   ),
                   maxLines: 1,
@@ -525,7 +524,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: 14.sp,
               fontWeight: isUrgent ? FontWeight.w800 : FontWeight.w700,
               color: isUrgent ? color : const Color(0xFF1E293B), // Slate-800
             ),
@@ -544,7 +543,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontSize: 11.sp,
+            fontSize: 13.sp,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF64748B),
           ),
@@ -555,7 +554,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
               TextSpan(
                 text: amount,
                 style: TextStyle(
-                  fontSize: isBold ? 13.sp : 12.sp,
+                  fontSize: isBold ? 15.sp : 14.sp,
                   fontWeight: isBold ? FontWeight.w800 : FontWeight.w700,
                   color: color ?? const Color(0xFF334155),
                 ),
@@ -563,7 +562,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
               TextSpan(
                 text: ' $currency',
                 style: TextStyle(
-                  fontSize: 10.sp,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF94A3B8),
                 ),

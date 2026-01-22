@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:hisobchi/application/partner/partner_bloc.dart';
+import 'package:hisobchi/application/partner_details_report/partner_details_report_cubit.dart';
+import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
+import 'package:hisobchi/infrastructure/models/partner_details_report_model.dart';
+import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/pages/client/client_xisob_kitob.dart';
 import 'package:hisobchi/presentation/pages/client/report/models/dashboard_models.dart';
 import 'package:hisobchi/presentation/pages/client/report/widgets/balance_card.dart';
 import 'package:hisobchi/presentation/pages/client/report/widgets/balance_line_chart.dart';
-import 'package:hisobchi/presentation/pages/client/report/widgets/critical_alert_banner.dart';
-import 'package:hisobchi/presentation/pages/client/report/widgets/deadline_warning_card.dart';
-import 'package:hisobchi/presentation/pages/client/report/widgets/debt_card.dart';
+import 'package:hisobchi/presentation/pages/client/report/widgets/debt_aging_grid.dart';
 import 'package:hisobchi/presentation/pages/client/report/widgets/monthly_bar_chart.dart';
 import 'package:hisobchi/presentation/pages/client/report/widgets/summary_grid.dart';
-import 'package:hisobchi/presentation/pages/client/report/widgets/transaction_item.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ReportClientShowPage extends StatefulWidget {
-  const ReportClientShowPage({super.key});
+  final PartnerModel partnerModel;
+  const ReportClientShowPage({super.key, required this.partnerModel});
 
   @override
   State<ReportClientShowPage> createState() => _ReportClientShowPageState();
@@ -23,29 +27,21 @@ class ReportClientShowPage extends StatefulWidget {
 
 class _ReportClientShowPageState extends State<ReportClientShowPage> with SingleTickerProviderStateMixin {
   late TabController _currencyTabController;
-  String _transactionFilter = 'Barchasi';
 
   // Design Constants
   final Color primaryGradientStart = AppTheme.colors.primary;
-  final Color primaryGradientEnd = AppTheme.colors.primary.withValues(alpha: .8);
+  final Color primaryGradientEnd = AppTheme.colors.primary.withValues(alpha: 0.8);
   final Color backgroundColor = const Color(0xFFF8FAFC);
   final Color textPrimary = const Color(0xFF0F172A);
   final Color textSecondary = const Color(0xFF64748B);
 
-  final List<DebtModel> _debts = [
-    DebtModel(id: '1', title: 'Tovar uchun qarz olgan', date: DateTime.now().subtract(const Duration(days: 3)), amount: 388889, currency: 'UZS', delayDays: 3),
-    DebtModel(id: '2', title: 'Xizmat haqi', date: DateTime.now().subtract(const Duration(days: 5)), amount: 150000, currency: 'UZS', delayDays: 5),
-  ];
-
-  final List<TransactionModel> _transactions = [
-    TransactionModel(id: 't1', title: 'Kirim: Tovar sotuvi', date: DateTime.now(), amount: 500000, balanceAfter: 111111, isIncome: true, currency: 'UZS'),
-    TransactionModel(id: 't2', title: 'Chiqim: Xom-ashyo', date: DateTime.now().subtract(const Duration(days: 1)), amount: 300000, balanceAfter: -388889, isIncome: false, currency: 'UZS'),
-  ];
 
   @override
   void initState() {
     super.initState();
-    _currencyTabController = TabController(length: 2, vsync: this);
+    // main_currency_type_id: 1 = UZS (index 0), 2 = USD (index 1)
+    final int initialIndex = (widget.partnerModel.mainCurrencyTypeId == 1) ? 0 : 1;
+    _currencyTabController = TabController(length: 2, vsync: this, initialIndex: initialIndex);
     _currencyTabController.addListener(() {
       if (_currencyTabController.indexIsChanging) return;
       setState(() {
@@ -62,115 +58,131 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          return [
-            _buildAppBar(),
-            SliverToBoxAdapter(
-              child: _buildCurrencyTabBar(),
+    return BlocProvider(
+      create: (context) => PartnerDetailsReportCubit(PartnerReportRepository())
+        ..getPartnerDetailsReport(widget.partnerModel.id ?? 0),
+      child: Scaffold(
+        backgroundColor: backgroundColor,
+        appBar: AppBar(
+          title: Text(widget.partnerModel.name ?? 'Hisob-kitob'),
+          leading: InkWell(
+            onTap: () => Navigator.of(context).maybePop(),
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
+                  BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
+                  BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
+                ],
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.arrow_back, color: Colors.black),
             ),
-          ];
-        },
-        body: TabBarView(
-          controller: _currencyTabController,
-          children: [
-            _buildDashboardContent('UZS'),
-            _buildDashboardContent('USD'),
-          ],
+          ),
+        ),
+        body: BlocBuilder<PartnerDetailsReportCubit, PartnerDetailsReportState>(
+          builder: (context, state) {
+            if (state is PartnerDetailsReportLoading) {
+              return _buildShimmerLoading();
+            }
+            if (state is PartnerDetailsReportError) {
+              return Center(child: Text(state.message));
+            }
+            if (state is PartnerDetailsReportLoaded) {
+              final result = state.result;
+              return NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _SliverTabBarDelegate(
+                        child: Container(
+                          color: backgroundColor,
+                          child: _buildCurrencyTabBar(),
+                        ),
+                        height: 70.h,
+                      ),
+                    ),
+                  ];
+                },
+                body: TabBarView(
+                  controller: _currencyTabController,
+                  children: [
+                    _buildDashboardContent('UZS', result.uzs),
+                    _buildDashboardContent('USD', result.usd),
+                  ],
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
         ),
       ),
     );
   }
 
-  Widget _buildDashboardContent(String currency) {
+  Widget _buildDashboardContent(String currency, PartnerDetailsCurrencyReport report) {
     return CustomScrollView(
       key: PageStorageKey<String>(currency),
       slivers: [
         SliverToBoxAdapter(
           child: Column(
             children: [
-              _buildAnimatedItem(index: 0, child: BalanceCard(balance: 111111, currency: currency)),
-              _buildAnimatedItem(index: 1, child: DeadlineWarningCard(deadline: DateTime.now().add(const Duration(days: 7)), daysLeft: 7)),
-              _buildAnimatedItem(index: 2, child: SummaryGrid(totalIncome: 1227777, totalExpense: 750000, operationsCount: 5, currency: currency)),
               _buildAnimatedItem(
-                index: 3,
-                child: const CriticalAlertBanner(message: '1 ta qarz muddati o\'tib ketgan', color: Color(0xFFEF4444), icon: Icons.error_outline_rounded),
+                index: 0,
+                child: BalanceCard(
+                  balance: report.balanceAmount,
+                  currency: currency,
+                  operationsCount: report.operationsCount,
+                ),
               ),
               _buildAnimatedItem(
-                index: 4,
-                child: const CriticalAlertBanner(message: '1 ta qarz 3 kun ichida to\'lanishi kerak', color: Color(0xFFF59E0B), icon: Icons.warning_amber_rounded),
+                index: 2,
+                child: SummaryGrid(
+                  totalIncome: report.incomeAmount,
+                  totalExpense: report.expenseAmount,
+                  operationsCount: report.operationsCount,
+                  currency: currency,
+                  onIncomeTap: () => _navigateToHistory(type: 'debt', currency: currency),
+                  onExpenseTap: () => _navigateToHistory(type: 'credit', currency: currency),
+                ),
+              ),
+              _buildAnimatedItem(
+                index: 3,
+                child: DebtAgingGrid(
+                  overdueCount: report.qarzExpired.count,
+                  todayCount: report.qarzToday.count,
+                  upcomingCount: report.qarz3Days.count,
+                  onOverdueTap: () => _handleDebtAgingTap("Muddati o'tgan"),
+                  onTodayTap: () => _handleDebtAgingTap("Bugun"),
+                  onUpcomingTap: () => _handleDebtAgingTap("Yaqinlashmoqda"),
+                ),
               ),
               _buildAnimatedItem(
                 index: 5,
                 child: MonthlyBarChart(
-                  stats: const [
-                    MonthlyStat(month: 'Avg', income: 1000000, expense: 800000),
-                    MonthlyStat(month: 'Sen', income: 1200000, expense: 900000),
-                    MonthlyStat(month: 'Okt', income: 900000, expense: 1100000),
-                    MonthlyStat(month: 'Noy', income: 1500000, expense: 700000),
-                    MonthlyStat(month: 'Dek', income: 1300000, expense: 1000000),
-                    MonthlyStat(month: 'Yan', income: 1227777, expense: 750000),
-                  ],
+                  stats: report.monthlyStatistics
+                      .map((e) => MonthlyStat(month: e.month, income: e.income, expense: e.expense))
+                      .toList(),
                   currency: currency,
                 ),
               ),
               _buildAnimatedItem(
                 index: 6,
                 child: BalanceLineChart(
-                  spots: const [FlSpot(0, 500000), FlSpot(1, 800000), FlSpot(2, 600000), FlSpot(3, 1200000), FlSpot(4, 1100000), FlSpot(5, 1227777)],
+                  spots: report.balanceDynamics.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.balance)).toList(),
+                  labels: report.balanceDynamics.map((e) => e.date).toList(),
                   currency: currency,
                 ),
               ),
-
-              // Debt List Section
-              _buildSectionHeader('Qarzlar ro\'yxati', '${_debts.length} ta qarz ($currency)'),
-              ..._debts.asMap().entries.map((entry) {
-                final index = entry.key;
-                final debt = entry.value;
-                return _buildAnimatedItem(
-                  index: 7 + index,
-                  child: Slidable(
-                    key: ValueKey(debt.id),
-                    endActionPane: ActionPane(
-                      motion: const ScrollMotion(),
-                      children: [
-                        SlidableAction(
-                          onPressed: (_) => _handlePayDebt(debt),
-                          backgroundColor: const Color(0xFF22C55E),
-                          foregroundColor: Colors.white,
-                          icon: Icons.payments_rounded,
-                          label: 'To\'lash',
-                          borderRadius: BorderRadius.circular(16.r),
-                        ),
-                      ],
-                    ),
-                    child: DebtCard(debt: debt, onTap: () {}),
-                  ),
-                );
-              }),
-
-              SizedBox(height: 24.h),
-
-              // Transaction History Section
-              _buildSectionHeader('Tranzaksiyalar tarixi', ''),
-              _buildTransactionFilters(),
-              SizedBox(height: 8.h),
-              ..._transactions.asMap().entries.map((entry) {
-                final index = entry.key;
-                final t = entry.value;
-                return _buildAnimatedItem(
-                  index: 10 + index,
-                  child: TransactionItem(transaction: t.copyWith(currency: currency)),
-                );
-              }),
-
-              SizedBox(height: 48.h),
             ],
           ),
         ),
-        SliverToBoxAdapter(child: Gap(MediaQuery.of(context).padding.bottom)),
+        SliverToBoxAdapter(child: SizedBox(height: MediaQuery.of(context).padding.bottom)),
       ],
     );
   }
@@ -218,128 +230,154 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
     );
   }
 
-  Widget _buildSectionHeader(String title, String subtitle) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 12.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: textPrimary),
-              ),
-              if (subtitle.isNotEmpty)
-                Text(
-                  subtitle,
-                  style: TextStyle(fontSize: 12.sp, color: textSecondary),
-                ),
-            ],
-          ),
-          Text(
-            'Barchasi',
-            style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: primaryGradientStart),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildSectionHeader(String title, String subtitle) {
+  //   return Padding(
+  //     padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 12.h),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Text(
+  //               title,
+  //               style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: textPrimary),
+  //             ),
+  //             if (subtitle.isNotEmpty)
+  //               Text(
+  //                 subtitle,
+  //                 style: TextStyle(fontSize: 12.sp, color: textSecondary),
+  //               ),
+  //           ],
+  //         ),
+  //         Text(
+  //           'Barchasi',
+  //           style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: primaryGradientStart),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+  //
+  // Widget _buildTransactionFilters() {
+  //   return Container(
+  //     margin: EdgeInsets.symmetric(horizontal: 16.w),
+  //     height: 36.h,
+  //     child: ListView(
+  //       scrollDirection: Axis.horizontal,
+  //       children: ['Barchasi', 'Bu oy', 'Bu hafta'].map((filter) {
+  //         final isSelected = _transactionFilter == filter;
+  //         return GestureDetector(
+  //           onTap: () {
+  //             setState(() {
+  //               _transactionFilter = filter;
+  //             });
+  //             HapticFeedback.lightImpact();
+  //           },
+  //           child: Container(
+  //             margin: EdgeInsets.only(right: 8.w),
+  //             padding: EdgeInsets.symmetric(horizontal: 16.w),
+  //             decoration: BoxDecoration(
+  //               color: isSelected ? primaryGradientStart : Colors.white,
+  //               borderRadius: BorderRadius.circular(20.r),
+  //               border: Border.all(color: isSelected ? primaryGradientStart : const Color(0xFFE2E8F0)),
+  //             ),
+  //             child: Center(
+  //               child: Text(
+  //                 filter,
+  //                 style: TextStyle(fontSize: 13.sp, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, color: isSelected ? Colors.white : textSecondary),
+  //               ),
+  //             ),
+  //           ),
+  //         );
+  //       }).toList(),
+  //     ),
+  //   );
+  // }
 
-  Widget _buildTransactionFilters() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      height: 36.h,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: ['Barchasi', 'Bu oy', 'Bu hafta'].map((filter) {
-          final isSelected = _transactionFilter == filter;
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _transactionFilter = filter;
-              });
-              HapticFeedback.lightImpact();
-            },
-            child: Container(
-              margin: EdgeInsets.only(right: 8.w),
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              decoration: BoxDecoration(
-                color: isSelected ? primaryGradientStart : Colors.white,
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: isSelected ? primaryGradientStart : const Color(0xFFE2E8F0)),
-              ),
-              child: Center(
-                child: Text(
-                  filter,
-                  style: TextStyle(fontSize: 13.sp, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, color: isSelected ? Colors.white : textSecondary),
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  void _handlePayDebt(DebtModel debt) {
-    // Show payment dialog logic
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${debt.title} uchun to\'lov qabul qilindi')));
-  }
-
-  Widget _buildAppBar() {
-    return SliverAppBar(
-      expandedHeight: 120.h,
-      pinned: true,
-      elevation: 0,
-      backgroundColor: primaryGradientStart,
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [primaryGradientStart, primaryGradientEnd]),
-          ),
-          child: Stack(
-            children: [
-              // Decorative circles for premium feel
-              Positioned(
-                top: -20.h,
-                right: -20.w,
-                child: CircleAvatar(radius: 60.r, backgroundColor: Colors.white.withValues(alpha: 0.1)),
-              ),
-              Positioned(
-                bottom: 20.h,
-                left: -10.w,
-                child: CircleAvatar(radius: 30.r, backgroundColor: Colors.white.withValues(alpha: 0.05)),
-              ),
-            ],
+  void _navigateToHistory({required String type, required String currency}) {
+    final currencyId = currency == 'UZS' ? 1 : 2;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: context.read<PartnerBloc>(),
+          child: HisobKitobTarixPage(
+            id: widget.partnerModel.id ?? 0,
+            initialType: type,
+            initialCurrencyId: currencyId,
           ),
         ),
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+    );
+  }
+
+  void _handleDebtAgingTap(String type) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$type qarzlar bo\'yicha batafsil ma\'lumot')),
+    );
+  }
+  Widget _buildShimmerLoading() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(vertical: 20.h),
+        child: Column(
           children: [
-            Text(
-              'Test Hamkor',
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Colors.white),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.w),
+              height: 46.h,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12.r)),
             ),
-            Text(
-              '+998 90 123 45 67',
-              style: TextStyle(fontSize: 11.sp, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.normal),
+            SizedBox(height: 16.h),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.w),
+              height: 120.h,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)),
+            ),
+            SizedBox(height: 16.h),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.w),
+              height: 140.h,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)),
+            ),
+            SizedBox(height: 16.h),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.w),
+              height: 260.h,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)),
             ),
           ],
         ),
       ),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
-        onPressed: () => Navigator.pop(context),
-      ),
-      systemOverlayStyle: SystemUiOverlayStyle.light,
     );
   }
 
   void _handleCurrencyChange() {
     // Logic to recalculate or reload data based on currency
     HapticFeedback.selectionClick();
+  }
+}
+
+class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final double height;
+
+  _SliverTabBarDelegate({required this.child, required this.height});
+
+  @override
+  double get minExtent => height;
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return child;
+  }
+
+  @override
+  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
+    return oldDelegate.child != child || oldDelegate.height != height;
   }
 }

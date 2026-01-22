@@ -7,59 +7,56 @@ class SummaryGrid extends StatelessWidget {
   final int operationsCount;
   final String currency;
 
+  final VoidCallback? onIncomeTap;
+  final VoidCallback? onExpenseTap;
+
   const SummaryGrid({
     super.key,
     required this.totalIncome,
     required this.totalExpense,
     required this.operationsCount,
     required this.currency,
+    this.onIncomeTap,
+    this.onExpenseTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(bottom: 8.h),
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
-                child: _buildSummaryCard(
-                  title: 'Jami kirim',
-                  value: _formatMoney(totalIncome),
-                  icon: Icons.trending_up_rounded,
-                  color: const Color(0xFF22C55E),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: onIncomeTap,
+                    borderRadius: BorderRadius.circular(16.r),
+                    child: _buildSummaryCard(
+                      title: 'Jami kirim',
+                      value: _formatMoney(totalIncome),
+                      icon: Icons.trending_down_rounded,
+                      color: const Color(0xFF22C55E),
+                    ),
+                  ),
                 ),
               ),
               SizedBox(width: 12.w),
               Expanded(
-                child: _buildSummaryCard(
-                  title: 'Jami chiqim',
-                  value: _formatMoney(totalExpense),
-                  icon: Icons.trending_down_rounded,
-                  color: const Color(0xFFEF4444),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryCard(
-                  title: 'Operatsiyalar',
-                  value: operationsCount.toString(),
-                  icon: Icons.description_outlined,
-                  color: const Color(0xFF64748B),
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: _buildSummaryCard(
-                  title: 'Qarzlar',
-                  value: '2', // Mock or calculated
-                  icon: Icons.receipt_long_outlined,
-                  color: const Color(0xFFF59E0B),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: onExpenseTap,
+                    borderRadius: BorderRadius.circular(16.r),
+                    child: _buildSummaryCard(
+                      title: 'Jami chiqim',
+                      value: _formatMoney(totalExpense),
+                      icon: Icons.trending_up_rounded,
+                      color: const Color(0xFFEF4444),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -76,46 +73,62 @@ class SummaryGrid extends StatelessWidget {
     required Color color,
   }) {
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.symmetric(horizontal:  16.w,vertical: 8.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Container(
-            padding: EdgeInsets.all(8.w),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            child: Icon(icon, color: color, size: 20.sp),
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8.w),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Icon(icon, color: color, size: 20.sp),
+              ),
+              SizedBox(width: 12.h),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: const Color(0xFF64748B),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 12.h),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: const Color(0xFF64748B),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16.sp,
-              color: const Color(0xFF0F172A),
-              fontWeight: FontWeight.bold,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: const Color(0xFF0F172A),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                currency,
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  color: const Color(0xFF64748B),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ],
       ),

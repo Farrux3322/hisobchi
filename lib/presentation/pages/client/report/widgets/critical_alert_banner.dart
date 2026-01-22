@@ -19,9 +19,9 @@ class CriticalAlertBanner extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
+        border: Border.all(color: color.withOpacity(0.1), width: 1),
       ),
       child: Row(
         children: [

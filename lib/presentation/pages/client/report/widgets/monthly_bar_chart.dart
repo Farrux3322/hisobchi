@@ -23,7 +23,7 @@ class MonthlyBarChart extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -42,7 +42,7 @@ class MonthlyBarChart extends StatelessWidget {
           ),
           SizedBox(height: 4.h),
           Text(
-            'So\'nggi 6 oy ($currency)',
+            'So\'nggi ${stats.length} oy ($currency)',
             style: TextStyle(
               fontSize: 12.sp,
               color: const Color(0xFF64748B),
@@ -50,7 +50,7 @@ class MonthlyBarChart extends StatelessWidget {
           ),
           SizedBox(height: 24.h),
           SizedBox(
-            height: 200.h,
+            height: 260.h,
             child: BarChart(
               BarChartData(
                 alignment: BarChartAlignment.spaceAround,
@@ -58,11 +58,12 @@ class MonthlyBarChart extends StatelessWidget {
                 barTouchData: BarTouchData(
                   touchTooltipData: BarTouchTooltipData(
                     tooltipRoundedRadius: 8,
+                    tooltipMargin: 5,
                     getTooltipColor: (_) => const Color(0xFF1E293B),
                     getTooltipItem: (group, groupIndex, rod, rodIndex) {
                       return BarTooltipItem(
-                        rod.toY.toStringAsFixed(0),
-                        const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        _formatNumber(rod.toY),
+                        const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
                       );
                     },
                   ),
@@ -76,29 +77,49 @@ class MonthlyBarChart extends StatelessWidget {
                       reservedSize: 32,
                     ),
                   ),
-                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: _getLeftTitles,
+                      reservedSize: 42,
+                    ),
+                  ),
                   topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 ),
-                gridData: const FlGridData(show: false),
-                borderData: FlBorderData(show: false),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: const Color(0xFFF1F5F9),
+                    strokeWidth: 1,
+                  ),
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: const Border(
+                    bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1),
+                    left: BorderSide(color: Color(0xFFF1F5F9), width: 1),
+                  ),
+                ),
                 barGroups: stats.asMap().entries.map((entry) {
                   final index = entry.key;
                   final stat = entry.value;
                   return BarChartGroupData(
                     x: index,
+                    showingTooltipIndicators: [0, 1],
                     barRods: [
                       BarChartRodData(
                         toY: stat.income,
                         color: const Color(0xFF22C55E),
-                        width: 12.w,
-                        borderRadius: BorderRadius.circular(4.r),
+                        width: 32.w,
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(8.r), topRight: Radius.circular(8.r)),
                       ),
                       BarChartRodData(
                         toY: stat.expense,
                         color: const Color(0xFFEF4444),
-                        width: 12.w,
-                        borderRadius: BorderRadius.circular(4.r),
+                        width: 32.w,
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(8.r), topRight: Radius.circular(8.r)),
                       ),
                     ],
                   );
@@ -120,6 +141,17 @@ class MonthlyBarChart extends StatelessWidget {
     );
   }
 
+  String _formatNumber(double value) {
+    final absValue = value.abs();
+    if (absValue >= 1000000) {
+      return '${(value / 1000000).toStringAsFixed(1)}M';
+    } else if (absValue >= 1000) {
+      return '${(value / 1000).toStringAsFixed(0)}K';
+    } else {
+      return value.toStringAsFixed(0);
+    }
+  }
+
   Widget _buildLegend(String label, Color color) {
     return Row(
       children: [
@@ -138,7 +170,7 @@ class MonthlyBarChart extends StatelessWidget {
   }
 
   Widget _getBottomTitles(double value, TitleMeta meta) {
-    const style = TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.bold, fontSize: 11);
+    const style = TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w600, fontSize: 10);
     final index = value.toInt();
     if (index >= 0 && index < stats.length) {
       return SideTitleWidget(
@@ -148,6 +180,27 @@ class MonthlyBarChart extends StatelessWidget {
       );
     }
     return const SizedBox.shrink();
+  }
+  
+  Widget _getLeftTitles(double value, TitleMeta meta) {
+    if (value == meta.max) return const SizedBox.shrink();
+    
+    const style = TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w600, fontSize: 10);
+    
+    String text;
+    if (value >= 1000000) {
+      text = '${(value / 1000000).toStringAsFixed(1)}M';
+    } else if (value >= 1000) {
+      text = '${(value / 1000).toStringAsFixed(0)}K';
+    } else {
+      text = value.toStringAsFixed(0);
+    }
+    
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      space: 8,
+      child: Text(text, style: style),
+    );
   }
 
   double _getMaxY() {

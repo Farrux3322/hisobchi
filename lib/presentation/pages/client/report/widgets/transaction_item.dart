@@ -21,7 +21,7 @@ class TransactionItem extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(10.w),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: color.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
