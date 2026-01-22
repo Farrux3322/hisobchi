@@ -253,16 +253,18 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Loyiha nomi',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF94A3B8), letterSpacing: 0.2),
-                    ),
-                    const Gap(2),
-                    Text(
-                      project.projectName ?? '-',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            project.projectName ?? '-',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (project.status != null) _buildStatusChip(project.status!),
+                      ],
                     ),
                   ],
                 ),
@@ -723,6 +725,45 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
         height: height,
         width: double.infinity,
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(borderRadius)),
+      ),
+    );
+  }
+
+  Widget _buildStatusChip(String status) {
+    Color bgColor;
+    Color textColor;
+
+    switch (status) {
+      case 'Jarayonda':
+        bgColor = const Color(0xFFFFF3E0);
+        textColor = Colors.orange;
+        break;
+      case 'Muzlatilgan':
+        bgColor = const Color(0xFFEEF3FF);
+        textColor = Colors.blue;
+        break;
+      case 'Yakunlangan':
+        bgColor = const Color(0xFFE8F5E9);
+        textColor = Colors.green;
+        break;
+      default:
+        bgColor = const Color(0xFFF1F5F9);
+        textColor = const Color(0xFF64748B);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: textColor,
+        ),
       ),
     );
   }

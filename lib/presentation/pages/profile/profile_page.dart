@@ -84,33 +84,37 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 12),
               _buildMenuItem(icon: AppIcons.telegram, title: 'Telegram bot', onTap: () {}),
               const SizedBox(height: 8),
-              _buildMenuItem(icon: AppIcons.telegram, title: 'Telegram guruh', onTap: ()async {
-                final Uri telegramApp = Uri.parse("tg://resolve?domain=eHisob_uz");
-                final Uri telegramWeb = Uri.parse("https://t.me/eHisob_uz");
+              _buildMenuItem(
+                icon: AppIcons.telegram,
+                title: 'Telegram guruh',
+                onTap: () async {
+                  final Uri telegramApp = Uri.parse("tg://resolve?domain=eHisob_uz");
+                  final Uri telegramWeb = Uri.parse("https://t.me/eHisob_uz");
 
-                if (await canLaunchUrl(telegramApp)) {
-                await launchUrl(telegramApp, mode: LaunchMode.externalApplication);
-                } else {
-                await launchUrl(telegramWeb, mode: LaunchMode.externalApplication);
-                }
-              }),
+                  if (await canLaunchUrl(telegramApp)) {
+                    await launchUrl(telegramApp, mode: LaunchMode.externalApplication);
+                  } else {
+                    await launchUrl(telegramWeb, mode: LaunchMode.externalApplication);
+                  }
+                },
+              ),
               const SizedBox(height: 24),
               _buildSectionTitle('Tashqi ko\'rinishi'),
               const SizedBox(height: 12),
               _buildMenuItem(icon: AppIcons.language, title: 'Tillar', subtitle: 'Uzbek tili', onTap: () {}),
-              const SizedBox(height: 8),
-              BlocBuilder<ThemeBloc, ThemeState>(
-                builder: (context, themeState) {
-                  return _buildMenuItem(
-                    icon: AppIcons.theme,
-                    title: 'Mavzular',
-                    subtitle: themeState.themeModeName,
-                    onTap: () {
-                      showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true, builder: (context) => const ThemeSelectorBottomSheet());
-                    },
-                  );
-                },
-              ),
+              // const SizedBox(height: 8),
+              // BlocBuilder<ThemeBloc, ThemeState>(
+              //   builder: (context, themeState) {
+              //     return _buildMenuItem(
+              //       icon: AppIcons.theme,
+              //       title: 'Mavzular',
+              //       subtitle: themeState.themeModeName,
+              //       onTap: () {
+              //         showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true, builder: (context) => const ThemeSelectorBottomSheet());
+              //       },
+              //     );
+              //   },
+              // ),
               const SizedBox(height: 24),
               _buildSectionTitle('Xavfsizlik'),
               const SizedBox(height: 12),
@@ -139,9 +143,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           backgroundColor: Colors.orange,
                           behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       );
                     }
@@ -150,11 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                   // 1. Avval eski PIN kodni tekshirish
                   if (context.mounted) {
-                    final isVerified = await Navigator.of(context, rootNavigator: true).push<bool>(
-                      MaterialPageRoute(
-                        builder: (_) => const VerifyOldPasscodePage(),
-                      ),
-                    );
+                    final isVerified = await Navigator.of(context, rootNavigator: true).push<bool>(MaterialPageRoute(builder: (_) => const VerifyOldPasscodePage()));
 
                     // Agar eski PIN kod to'g'ri kiritilmasa, to'xtatish
                     if (isVerified != true) {
@@ -163,11 +161,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     // 2. Eski PIN kod to'g'ri - yangi PIN kod yaratish sahifasiga o'tish
                     if (context.mounted) {
-                      final result = await Navigator.of(context, rootNavigator: true).push<bool>(
-                        MaterialPageRoute(
-                          builder: (_) => const SetPasscodePage(),
-                        ),
-                      );
+                      final result = await Navigator.of(context, rootNavigator: true).push<bool>(MaterialPageRoute(builder: (_) => const SetPasscodePage()));
 
                       // 3. Muvaffaqiyatli o'zgartirildi
                       if (result == true && context.mounted) {
@@ -183,9 +177,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             backgroundColor: AppTheme.colors.primary,
                             behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                         );
                       }
@@ -205,14 +197,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   _showLogoutDialog();
                 },
               ),
-               SizedBox(height: MediaQuery.of(context).padding.bottom+10),
+              SizedBox(height: MediaQuery.of(context).padding.bottom + 10),
             ],
           ),
         ),
       ),
     );
   }
-
 
   Widget _buildUserCard() {
     final userName = UserData.name.isEmpty ? 'Samandarbek' : UserData.name;
@@ -598,10 +589,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildPinCodeSwitch() {
     return FutureBuilder<Map<String, dynamic>>(
-      future: SharedPrefService.initialize().then((pref) => {
-        'isEnabled': pref.isPasscodeEnabled,
-        'hasPasscode': pref.passcode.isNotEmpty,
-      }),
+      future: SharedPrefService.initialize().then((pref) => {'isEnabled': pref.isPasscodeEnabled, 'hasPasscode': pref.passcode.isNotEmpty}),
       builder: (context, snapshot) {
         final data = snapshot.data ?? {'isEnabled': false, 'hasPasscode': false};
         final isEnabled = data['isEnabled'] as bool;
@@ -621,10 +609,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Container(
                   width: 24,
                   height: 24,
-                  decoration: BoxDecoration(
-                    color: AppTheme.colors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                   child: Icon(Icons.pin, color: AppTheme.colors.primary, size: 16),
                 ),
                 const SizedBox(width: 12),
@@ -646,11 +631,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       if (!hasPasscode) {
                         // PIN kod yaratilmagan - yaratish sahifasiga o'tish
                         if (context.mounted) {
-                          final result = await Navigator.of(context, rootNavigator: true).push<bool>(
-                            MaterialPageRoute(
-                              builder: (_) => const SetPasscodePage(),
-                            ),
-                          );
+                          final result = await Navigator.of(context, rootNavigator: true).push<bool>(MaterialPageRoute(builder: (_) => const SetPasscodePage()));
 
                           if (result == true && context.mounted) {
                             setState(() {});
@@ -684,12 +665,8 @@ class _ProfilePageState extends State<ProfilePage> {
         final canCheck = await localAuth.canCheckBiometrics;
         final available = await localAuth.getAvailableBiometrics();
         final isPinEnabled = pref.isPasscodeEnabled;
-        
-        return {
-          'canCheck': canCheck && available.isNotEmpty,
-          'isEnabled': pref.isBiometricEnabled,
-          'isPinEnabled': isPinEnabled,
-        };
+
+        return {'canCheck': canCheck && available.isNotEmpty, 'isEnabled': pref.isBiometricEnabled, 'isPinEnabled': isPinEnabled};
       }(),
       builder: (context, snapshot) {
         final data = snapshot.data;
@@ -713,10 +690,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Container(
                   width: 24,
                   height: 24,
-                  decoration: BoxDecoration(
-                    color: AppTheme.colors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                   child: Icon(Icons.fingerprint, color: AppTheme.colors.primary, size: 16),
                 ),
                 const SizedBox(width: 12),
@@ -766,8 +740,12 @@ class _ProfilePageState extends State<ProfilePage> {
           ElevatedButton(
             onPressed: () async {
               final pref = await SharedPrefService.initialize();
-              pref.clear();
               UserData.token = '';
+              UserData.name = '';
+              UserData.phone = '';
+              pref.setName('');
+              pref.setToken('');
+              pref.setPhone('');
               // Reset passcode verification flag when logging out
               setPasscodeVerified(false);
               if (context.mounted) {

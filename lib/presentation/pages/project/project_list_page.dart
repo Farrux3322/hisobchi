@@ -253,15 +253,32 @@ class _ProjectListPageState extends State<ProjectListPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(
-                              height: 16,
-                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(
+                                    height: 16,
+                                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 12.w),
+                              Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(
+                                  width: 60.w,
+                                  height: 20.h,
+                                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 4.h),
+                          SizedBox(height: 6.h),
                           Shimmer.fromColors(
                             baseColor: Colors.grey[300]!,
                             highlightColor: Colors.grey[100]!,

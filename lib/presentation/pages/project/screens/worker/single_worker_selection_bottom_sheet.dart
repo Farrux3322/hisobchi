@@ -9,6 +9,7 @@ import 'package:hisobchi/infrastructure/models/worker_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:hisobchi/presentation/components/utils/phone_formatter.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_selection_bottom_sheet.dart';
 
 class SingleWorkerSelectionBottomSheet extends StatefulWidget {
@@ -234,33 +235,35 @@ class _SingleWorkerSelectionBottomSheetState extends State<SingleWorkerSelection
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      worker.name ?? '',
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-                    ),
-                    const SizedBox(height: 4),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        if (worker.workerPositionName != null) ...[
-                          Flexible(
+                        Expanded(
+                          child: Text(
+                            worker.name ?? '',
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                          ),
+                        ),
+                        if (worker.workerPositionName != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
                             child: Text(
                               worker.workerPositionName!,
-                              style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (worker.phone != null) ...[const Text(' • ', style: TextStyle(fontSize: 13, color: Color(0xFF64748B)))],
-                        ],
-                        if (worker.phone != null)
-                          Flexible(
-                            child: Text(
-                              worker.phone!,
-                              style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
                             ),
                           ),
                       ],
                     ),
+                    const SizedBox(height: 4),
+                    if (worker.phone != null)
+                      Text(
+                        PhoneFormatter.formatPhoneNumber(worker.phone!),
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                      ),
                   ],
                 ),
               ),

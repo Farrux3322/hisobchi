@@ -6,6 +6,7 @@ class ProjectModel {
   String? address;
   String? location;
   List<ProjectFile>? files;
+  String? status;
   String? createdAt;
   String? deletedAt;
   ProjectAccounts? accounts;
@@ -18,6 +19,7 @@ class ProjectModel {
     this.address,
     this.location,
     this.files,
+    this.status,
     this.createdAt,
     this.deletedAt,
     this.accounts,
@@ -38,6 +40,7 @@ class ProjectModel {
     } else {
       files = [];
     }
+    status = json['status'];
     createdAt = json['created_at'];
     deletedAt = json['deleted_at'];
     accounts = json['accounts'] != null ? ProjectAccounts.fromJson(json['accounts']) : null;
@@ -54,6 +57,7 @@ class ProjectModel {
     if (files != null) {
       data['files'] = files!.map((v) => v.toJson()).toList();
     }
+    data['status'] = status;
     data['created_at'] = createdAt;
     data['deleted_at'] = deletedAt;
     if (accounts != null) {

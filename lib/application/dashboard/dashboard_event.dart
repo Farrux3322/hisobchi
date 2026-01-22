@@ -10,3 +10,7 @@ sealed class DashboardEvent extends Equatable {
 class GetDashboardEvent extends DashboardEvent {
   const GetDashboardEvent();
 }
+
+class LoadDashboard extends DashboardEvent {
+  const LoadDashboard();
+}

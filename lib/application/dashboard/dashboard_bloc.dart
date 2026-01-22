@@ -13,9 +13,37 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
 
   DashboardBloc() : super(const DashboardState()) {
     on<GetDashboardEvent>(getDashboard);
+    on<LoadDashboard>(loadDashboard);
   }
 
   Future<void> getDashboard(GetDashboardEvent event, Emitter<DashboardState> emit) async {
+    emit(state.copyWith(status: Status.loading));
+    try {
+      final data = await _repo.getDashboard();
+
+      if (data["status"] == true) {
+        final model = DashboardModel.fromJson(data);
+        emit(state.copyWith(status: Status.success, dashboardModel: model));
+      } else {
+        emit(state.copyWith(
+          status: Status.error,
+          errorMessage: data["message"]?.toString() ?? 'Xatolik yuz berdi',
+        ));
+      }
+    } on DioException catch (e) {
+      emit(state.copyWith(
+        status: Status.error,
+        errorMessage: e.response?.data?['message']?.toString() ?? e.message ?? 'Xatolik yuz berdi',
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: Status.error,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  Future<void> loadDashboard(LoadDashboard event, Emitter<DashboardState> emit) async {
     emit(state.copyWith(status: Status.loading));
     try {
       final data = await _repo.getDashboard();

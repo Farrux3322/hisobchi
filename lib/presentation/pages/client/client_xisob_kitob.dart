@@ -205,9 +205,9 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
+        initialChildSize: 0.8,
         minChildSize: 0.4,
-        maxChildSize: 0.9,
+        maxChildSize: 0.99,
         expand: false,
         builder: (context, scrollController) => TransactionDetailBottomSheet(
           transaction: item,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hisobchi/domain/common/logic/data_formatter.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/income_history_model.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/full_screen_photo.dart';
@@ -49,16 +50,16 @@ class TransactionDetailBottomSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeader(context),
-                  SizedBox(height: 24.h),
-                  _buildMainInfo(),
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 12.h),
                   _buildSecondaryInfo(),
+                  SizedBox(height: 10.h),
+                  _buildMainInfo(),
                   if (transaction.description != null && transaction.description!.isNotEmpty) ...[
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 10.h),
                     _buildDescription(),
                   ],
                   if (transaction.files != null && transaction.files!.isNotEmpty) ...[
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 10.h),
                     _buildImageGallery(context),
                   ],
                   SizedBox(height: 16.h),
@@ -174,7 +175,8 @@ class TransactionDetailBottomSheet extends StatelessWidget {
         Expanded(
           child: _buildInfoCard(
             label: 'Sana',
-            value: _formatDate(transaction.createdAt),
+            value:
+              transaction.createdAt?.length==19 ? transaction.createdAt?.split(' ').first??'':transaction.createdAt??'',
             icon: Icons.calendar_today_rounded,
             color: const Color(0xFFF59E0B),
           ),

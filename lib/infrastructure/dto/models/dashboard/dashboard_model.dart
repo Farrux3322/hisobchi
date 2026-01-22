@@ -20,54 +20,117 @@ class DashboardModel {
 }
 
 class DashboardResult {
-  int? totalPartnersCount;
-  int? totalProjectsCount;
-  DebtCreditBalance? totalDebtCreditPartners;
-  int? partnersWithLatePaymentsCount;
+  PartnersData? partners;
+  ProjectsData? projects;
 
-  DashboardResult({
-    this.totalPartnersCount,
-    this.totalProjectsCount,
-    this.totalDebtCreditPartners,
-    this.partnersWithLatePaymentsCount,
-  });
+  DashboardResult({this.partners, this.projects});
 
   DashboardResult.fromJson(Map<String, dynamic> json) {
-    totalPartnersCount = json['total_partners_count'];
-    totalProjectsCount = json['total_projects_count'];
-    totalDebtCreditPartners = json['total_debt_credit_partners'] != null
-        ? DebtCreditBalance.fromJson(json['total_debt_credit_partners'])
-        : null;
-    partnersWithLatePaymentsCount = json['partners_with_late_payments_count'];
+    partners = json['partners'] != null ? PartnersData.fromJson(json['partners']) : null;
+    projects = json['projects'] != null ? ProjectsData.fromJson(json['projects']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['total_partners_count'] = totalPartnersCount;
-    data['total_projects_count'] = totalProjectsCount;
-    if (totalDebtCreditPartners != null) {
-      data['total_debt_credit_partners'] = totalDebtCreditPartners!.toJson();
+    if (partners != null) {
+      data['partners'] = partners!.toJson();
     }
-    data['partners_with_late_payments_count'] = partnersWithLatePaymentsCount;
+    if (projects != null) {
+      data['projects'] = projects!.toJson();
+    }
     return data;
   }
 }
 
-class DebtCreditBalance {
-  num? uzs;
-  num? usd;
+class PartnersData {
+  int? partnersCount;
+  PartnersDetails? details;
 
-  DebtCreditBalance({this.uzs, this.usd});
+  PartnersData({this.partnersCount, this.details});
 
-  DebtCreditBalance.fromJson(Map<String, dynamic> json) {
-    uzs = json['uzs'];
-    usd = json['usd'];
+  PartnersData.fromJson(Map<String, dynamic> json) {
+    partnersCount = json['partners_count'];
+    details = json['details'] != null ? PartnersDetails.fromJson(json['details']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['uzs'] = uzs;
-    data['usd'] = usd;
+    data['partners_count'] = partnersCount;
+    if (details != null) {
+      data['details'] = details!.toJson();
+    }
+    return data;
+  }
+}
+
+class PartnersDetails {
+  QarzDetail? qarzExpired;
+  QarzDetail? qarzToday;
+  QarzDetail? qarz3Days;
+
+  PartnersDetails({this.qarzExpired, this.qarzToday, this.qarz3Days});
+
+  PartnersDetails.fromJson(Map<String, dynamic> json) {
+    qarzExpired = json['qarz_expired'] != null ? QarzDetail.fromJson(json['qarz_expired']) : null;
+    qarzToday = json['qarz_today'] != null ? QarzDetail.fromJson(json['qarz_today']) : null;
+    qarz3Days = json['qarz_3_days'] != null ? QarzDetail.fromJson(json['qarz_3_days']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (qarzExpired != null) {
+      data['qarz_expired'] = qarzExpired!.toJson();
+    }
+    if (qarzToday != null) {
+      data['qarz_today'] = qarzToday!.toJson();
+    }
+    if (qarz3Days != null) {
+      data['qarz_3_days'] = qarz3Days!.toJson();
+    }
+    return data;
+  }
+}
+
+class QarzDetail {
+  int? count;
+  String? type;
+
+  QarzDetail({this.count, this.type});
+
+  QarzDetail.fromJson(Map<String, dynamic> json) {
+    count = json['count'];
+    type = json['type'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['count'] = count;
+    data['type'] = type;
+    return data;
+  }
+}
+
+class ProjectsData {
+  int? projectsCount;
+  int? inProgress;
+  int? frozen;
+  int? completed;
+
+  ProjectsData({this.projectsCount, this.inProgress, this.frozen, this.completed});
+
+  ProjectsData.fromJson(Map<String, dynamic> json) {
+    projectsCount = json['projects_count'];
+    inProgress = json['in_progress'];
+    frozen = json['frozen'];
+    completed = json['completed'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['projects_count'] = projectsCount;
+    data['in_progress'] = inProgress;
+    data['frozen'] = frozen;
+    data['completed'] = completed;
     return data;
   }
 }

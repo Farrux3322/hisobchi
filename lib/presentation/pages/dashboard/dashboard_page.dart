@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
-import 'package:hisobchi/application/client_report/client_report_bloc.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/dashboard/dashboard_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/repository/client_report/client_report_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:hisobchi/presentation/pages/currency/currency_page.dart';
-import 'package:hisobchi/presentation/pages/dashboard/client_report/client_report_main_page.dart';
 import 'package:shimmer/shimmer.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -21,55 +17,76 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
-  // Showcase keys
-
+class _DashboardPageState extends State<DashboardPage> with SingleTickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
-    context.read<DashboardBloc>().add(const GetDashboardEvent());
+    context.read<DashboardBloc>().add(const LoadDashboard());
     context.read<CurrencyBloc>().add(const GetExchangeRates());
+    
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeIn,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.05),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _fadeController.forward();
   }
 
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    AppManagerCubit.context = context;
-    // ignore: deprecated_member_use
     return Scaffold(
-      // backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
-        child: BlocConsumer<DashboardBloc, DashboardState>(
-          listener: (context, state) {
-            if (state.status == Status.error) {
-              Toast.showErrorToast(
-                message: state.errorMessage ?? 'Ma\'lumotlarni yuklashda xatolik',
-              );
-            }
-          },
+        child: BlocBuilder<DashboardBloc, DashboardState>(
           builder: (context, state) {
             return RefreshIndicator(
-              color: AppTheme.colors.primary,
               onRefresh: () async {
-                context.read<DashboardBloc>().add(const GetDashboardEvent());
+                context.read<DashboardBloc>().add(const LoadDashboard());
+                context.read<CurrencyBloc>().add(const GetExchangeRates());
               },
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                  // Header
                   SliverToBoxAdapter(child: _buildHeader()),
-
-                  // Stats Cards
                   if (state.status == Status.loading)
-                    SliverToBoxAdapter(child: _buildLoadingState())
-                  else if (state.status == Status.success && state.dashboardModel?.result != null)
-                    SliverToBoxAdapter(
-                      child: _buildDashboardContent(state.dashboardModel!.result!),
-                    )
+                    SliverToBoxAdapter(child: _buildShimmerLoading())
+                  else if (state.status == Status.error)
+                    SliverFillRemaining(child: Center(child: Text(state.errorMessage ?? 'Xatolik yuz berdi')))
                   else
-                    SliverFillRemaining(
-                      child: _buildEmptyState(),
+                    SliverToBoxAdapter(
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: SlideTransition(
+                          position: _slideAnimation,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                            child: _buildBody(state),
+                          ),
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -80,44 +97,69 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.transparent,
-      padding: EdgeInsets.all(16.w),
+  Widget _buildShimmerLoading() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
       child: Column(
         children: [
+          _buildCardShimmer(),
+          SizedBox(height: 28.h),
+          _buildCardShimmer(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCardShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        width: double.infinity,
+        height: 220.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(20.w, 12.h, 10.w, 20.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
+              Image.asset(AppIcons.appLogo, width: 44.w, height: 44.h),
+              SizedBox(width: 14.w),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Image.asset(AppIcons.appLogo, width: 40.w, height: 40.h),
-                  SizedBox(width: 12.w),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'E-Hisob',
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.colors.black,
-                        ),
-                      ),
-                      Text(
-                        'Bosh sahifa',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: const Color(0xFF94A3B8),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    'E-Hisob',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF0F172A),
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  Text(
+                    'Bosh sahifa',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF94A3B8),
+                    ),
                   ),
                 ],
               ),
-              _buildCurrencyWidget(),
             ],
           ),
+          _buildCurrencyWidget(),
         ],
       ),
     );
@@ -126,20 +168,17 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildCurrencyWidget() {
     return BlocBuilder<CurrencyBloc, CurrencyState>(
       builder: (context, state) {
-        String usdRate = '...';
-        bool isLoading = false;
+        String usdRate = '1';
+        bool isLoading = state.exchangeRatesStatus == Status.loading;
 
-        if (state.exchangeRatesStatus == Status.loading) {
-          isLoading = true;
-        } else if (state.exchangeRatesStatus == Status.success &&
-            state.exchangeRateModel != null) {
+        if (state.exchangeRatesStatus == Status.success && state.exchangeRateModel != null) {
           try {
             final usdCurrency = state.exchangeRateModel!.rates.firstWhere(
               (rate) => rate.code == 'USD',
               orElse: () => state.exchangeRateModel!.rates.first,
             );
             usdRate = usdCurrency.rate;
-          } catch (e) {
+          } catch (_) {
             usdRate = '...';
           }
         }
@@ -152,16 +191,16 @@ class _DashboardPageState extends State<DashboardPage> {
             );
           },
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
             decoration: BoxDecoration(
               color: Colors.white,
+              borderRadius: BorderRadius.circular(12.r),
               border: Border.all(color: const Color(0xFFE2E8F0)),
-              borderRadius: BorderRadius.circular(8.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 4,
-                  offset: const Offset(0, 1),
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -170,50 +209,28 @@ class _DashboardPageState extends State<DashboardPage> {
                 Text(
                   'USD 1',
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 13.sp,
                     color: const Color(0xFF1E293B),
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(width: 6.w),
-                Icon(Icons.swap_horiz, size: 14.sp, color: const Color(0xFF94A3B8)),
-                SizedBox(width: 6.w),
+                SizedBox(width: 8.w),
+                Icon(Icons.swap_horiz_rounded, size: 16.sp, color: const Color(0xFF94A3B8)),
+                SizedBox(width: 8.w),
                 if (isLoading)
                   Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      width: 70.w,
-                      height: 12.h,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                    ),
+                    child: Container(width: 60.w, height: 14.h, color: Colors.white),
                   )
                 else
-                  Builder(
-                    builder: (context) {
-                      try {
-                        return Text(
-                          'UZS ${PriceFormatter.priceFormat(usdRate)}',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1E293B),
-                          ),
-                        );
-                      } catch (e) {
-                        return Text(
-                          'UZS $usdRate',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1E293B),
-                          ),
-                        );
-                      }
-                    },
+                  Text(
+                    'UZS ${PriceFormatter.priceFormat(usdRate)}',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.colors.primary,
+                    ),
                   ),
               ],
             ),
@@ -223,467 +240,314 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildDashboardContent(result) {
-    return Padding(
-      padding: EdgeInsets.all(16.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Welcome Card
-          _buildWelcomeCard(),
-          SizedBox(height: 16.h),
+  Widget _buildBody(DashboardState state) {
+    final result = state.dashboardModel?.result;
+    final partners = result?.partners;
+    final projects = result?.projects;
+    final details = partners?.details;
 
-          // Stats Grid
-          _buildStatsGrid(result),
-          SizedBox(height: 16.h),
-
-          // Balance Card
-          _buildBalanceCard(result),SizedBox(height: 16.h),
-
-          // Late Payments Warning
-          if ((result.partnersWithLatePaymentsCount ?? 0) > 0)
-            _buildLatePaymentsCard(result.partnersWithLatePaymentsCount ?? 0),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWelcomeCard() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.colors.primary,
-            AppTheme.colors.primary.withValues(alpha: 0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.colors.primary.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Xush kelibsiz! 👋',
-            style: TextStyle(
-              fontSize: 24.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Umumiy natijalaringiz bilan tanishing',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: Colors.white.withValues(alpha: 0.9),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatsGrid(result) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child:  GestureDetector(
-            onTap: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BlocProvider(
-                    create: (context) => ClientReportBloc(
-                      repository: ClientReportRepository(),
-                    ),
-                    child: const ClientReportMainPage(),
-                  ),
-                ),
-              );
-            },
-            child: _buildStatCard(
-              icon: AppIcons.clients,
-              title: 'Hamkorlar',
-              value: '${result.totalPartnersCount ?? 0}',
-              color: const Color(0xFF10B981),
-              iconBgColor: const Color(0xFFD1FAE5),
+        DashboardHeaderCard(
+          title: 'Hamkorlar',
+          subtitle: 'Qarz muddatlari',
+          icon: AppIcons.clients,
+          totalCount: partners?.partnersCount ?? 0,
+          totalLabel: 'Hamkor',
+          gradient: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: .9)],
+          statusCards: [
+            StatusMiniCard(
+              label: 'Muddati o‘tgan',
+              count: details?.qarzExpired?.count ?? 0,
+              icon: Icons.error_outline_rounded,
+              backgroundColor: const Color(0xFFFFF1F0),
+              iconColor: const Color(0xFFE53935),
+              onTap: () {},
             ),
-          ),
+            StatusMiniCard(
+              label: 'Bugun',
+              count: details?.qarzToday?.count ?? 0,
+              icon: Icons.warning_amber_rounded,
+              backgroundColor: const Color(0xFFFFF8E1),
+              iconColor: const Color(0xFFF9A825),
+              onTap: () {},
+            ),
+            StatusMiniCard(
+              label: 'Yaqinlashmoqda',
+              count: details?.qarz3Days?.count ?? 0,
+              icon: Icons.schedule_rounded,
+              backgroundColor: const Color(0xFFEEF4FF),
+              iconColor: const Color(0xFF2962FF),
+              onTap: () {},
+            ),
+          ],
         ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: _buildStatCard(
-            icon: AppIcons.project,
-            title: 'Loyihalar',
-            value: '${result.totalProjectsCount ?? 0}',
-            color: const Color(0xFF3B82F6),
-            iconBgColor: const Color(0xFFDBEAFE),
-          )
+        SizedBox(height: 28.h),
+        DashboardHeaderCard(
+          title: 'Loyihalar',
+          subtitle: 'Statuslar bo‘yicha',
+          icon: AppIcons.project,
+          totalCount: projects?.projectsCount ?? 0,
+          totalLabel: 'Loyiha',
+          gradient: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: .9)],
+          statusCards: [
+            StatusMiniCard(
+              label: 'Jarayonda',
+              count: projects?.inProgress ?? 0,
+              icon: Icons.play_arrow_rounded,
+              backgroundColor: const Color(0xFFFFF3E0),
+              iconColor: Colors.orange,
+              onTap: () {},
+            ),
+            StatusMiniCard(
+              label: 'Muzlatilgan',
+              count: projects?.frozen ?? 0,
+              icon: Icons.pause_rounded,
+              backgroundColor: const Color(0xFFEEF3FF),
+              iconColor: Colors.blue,
+              onTap: () {},
+            ),
+            StatusMiniCard(
+              label: 'Yakunlangan',
+              count: projects?.completed ?? 0,
+              icon: Icons.check_circle_outline_rounded,
+              backgroundColor: const Color(0xFFE8F5E9),
+              iconColor: Colors.green,
+              onTap: () {},
+            ),
+          ],
         ),
+        SizedBox(height: 32.h),
       ],
     );
   }
+}
 
-  Widget _buildStatCard({
-    required String icon,
-    required String title,
-    required String value,
-    required Color color,
-    required Color iconBgColor,
-  }) {
+class DashboardHeaderCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String icon;
+  final int totalCount;
+  final String totalLabel;
+  final List<Color> gradient;
+  final List<StatusMiniCard> statusCards;
+
+  const DashboardHeaderCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.totalCount,
+    required this.totalLabel,
+    required this.gradient,
+    required this.statusCards,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.w),
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: EdgeInsets.all(10.w),
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: SvgPicture.asset(
-                  icon,
-                  width: 24.w,
-                  height: 24.h,
-                  colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-                ),
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: const Color(0xFF94A3B8),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-
-            ],
-          ),
-          SizedBox(width: 4.h),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24.sp,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.colors.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBalanceCard(result) {
-    final uzs = result.totalDebtCreditPartners?.uzs ?? 0;
-    final usd = result.totalDebtCreditPartners?.usd ?? 0;
-    final isPositiveUzs = uzs >= 0;
-    final isPositiveUsd = usd >= 0;
-
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: gradient.first.withValues(alpha: 0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(10.w),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: SvgPicture.asset(
-                  AppIcons.balance,
-                  width: 24.w,
-                  height: 24.h,
-                  colorFilter: const ColorFilter.mode(
-                    Color(0xFFF59E0B),
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Text(
-                'Umumiy balans',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.colors.black,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20.h),
-
-          // UZS Balance
-          _buildBalanceRow(
-            currency: 'UZS',
-            amount: uzs,
-            isPositive: isPositiveUzs,
-          ),
-
-          SizedBox(height: 12.h),
-          Divider(color: AppTheme.colors.colorE1EOEE),
-          SizedBox(height: 12.h),
-
-          // USD Balance
-          _buildBalanceRow(
-            currency: 'USD',
-            amount: usd,
-            isPositive: isPositiveUsd,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBalanceRow({
-    required String currency,
-    required num amount,
-    required bool isPositive,
-  }) {
-    final color = isPositive ? const Color(0xFF10B981) : const Color(0xFFEF4444);
-    final icon = isPositive ? Icons.arrow_upward : Icons.arrow_downward;
-    final prefix = isPositive ? '+' : '';
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(6.w),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Icon(icon, size: 16.sp, color: color),
-            ),
-            SizedBox(width: 12.w),
-            Text(
-              currency,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFF94A3B8),
-              ),
-            ),
-          ],
-        ),
-        Text(
-          '$prefix${PriceFormatter.priceFormat(amount.toString())}',
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLatePaymentsCard(int count) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.2)),
-      ),
-      child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(10.w),
+            padding: EdgeInsets.symmetric(horizontal:  16.w,vertical: 7.h),
             decoration: BoxDecoration(
-              color: const Color(0xFFEF4444).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(16.r), topRight: Radius.circular(16.r)),
+
+              gradient: LinearGradient(
+                colors: gradient,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
-            child: Icon(
-              Icons.warning_rounded,
-              color: const Color(0xFFEF4444),
-              size: 24.sp,
-            ),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Kech to\'lovlar',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFFEF4444),
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(10.w),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: SvgPicture.asset(icon,height: 24,width: 24,colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),),
+                    ),
+                    SizedBox(width: 12.w),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.white.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                SizedBox(height: 4.h),
-                Text(
-                  '$count ta hamkor to\'lovni kechiktirmoqda',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: const Color(0xFF991B1B),
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    AnimatedCounter(
+                      value: totalCount,
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      totalLabel,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+          SizedBox(height: 20.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal:  8.w).copyWith(bottom: 16.w),
+            child: Row(
+              children: statusCards.map((card) => Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4.w),
+                  child: card,
+                ),
+              )).toList(),
+            ),
+          ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildLoadingState() {
-    return Padding(
-      padding: EdgeInsets.all(16.w),
-      child: Column(
-        children: [
-          // Welcome Card Shimmer
-          Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(
-              width: double.infinity,
-              height: 120.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-            ),
+class StatusMiniCard extends StatefulWidget {
+  final String label;
+  final int count;
+  final IconData icon;
+  final Color backgroundColor;
+  final Color iconColor;
+  final VoidCallback onTap;
+
+  const StatusMiniCard({
+    super.key,
+    required this.label,
+    required this.count,
+    required this.icon,
+    required this.backgroundColor,
+    required this.iconColor,
+    required this.onTap,
+  });
+
+  @override
+  State<StatusMiniCard> createState() => _StatusMiniCardState();
+}
+
+class _StatusMiniCardState extends State<StatusMiniCard> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        widget.onTap();
+      },
+      child: AnimatedScale(
+        scale: _isPressed ? 0.95 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
+          decoration: BoxDecoration(
+            color: widget.backgroundColor,
+            borderRadius: BorderRadius.circular(12.r),
           ),
-          SizedBox(height: 16.h),
-
-          // Stats Grid Shimmer
-          Row(
+          child: Column(
             children: [
-              Expanded(
-                child: Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    height: 140.h,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                  ),
+              Icon(widget.icon, color: widget.iconColor, size: 36.sp),
+              SizedBox(height: 8.h),
+              AnimatedCounter(
+                value: widget.count,
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1E293B),
                 ),
               ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    height: 140.h,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                  ),
+              SizedBox(height: 2.h),
+              Text(
+                widget.label,
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF64748B),
                 ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
-          SizedBox(height: 16.h),
-
-          // Balance Card Shimmer
-          Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(
-              width: double.infinity,
-              height: 180.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
+}
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120.w,
-            height: 120.h,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(60.r),
-            ),
-            child: Icon(
-              Icons.dashboard_outlined,
-              size: 60.sp,
-              color: Colors.grey[400],
-            ),
-          ),
-          SizedBox(height: 24.h),
-          Text(
-            'Ma\'lumot topilmadi',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF1E293B),
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Dashboard ma\'lumotlarini\nyuklashda xatolik yuz berdi',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: Colors.grey[600],
-              height: 1.5,
-            ),
-          ),
-        ],
-      ),
+class AnimatedCounter extends StatelessWidget {
+  final int value;
+  final TextStyle style;
+
+  const AnimatedCounter({
+    super.key,
+    required this.value,
+    this.style = const TextStyle(),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<int>(
+      tween: IntTween(begin: 0, end: value),
+      duration: const Duration(milliseconds: 1500),
+      curve: Curves.easeOutExpo,
+      builder: (context, value, child) {
+        return Text(
+          value.toString(),
+          style: style,
+        );
+      },
     );
   }
 }

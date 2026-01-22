@@ -16,7 +16,6 @@ class ProjectCardItem extends StatelessWidget {
     this.onTap,
   });
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -25,13 +24,11 @@ class ProjectCardItem extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: projectModel?.deletedAt == null
-              ? Color(0xFFE2E8F0)
-              : Colors.red.shade200,
+          color: projectModel?.deletedAt == null ? const Color(0xFFE2E8F0) : Colors.red.shade200,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
           )
@@ -43,7 +40,7 @@ class ProjectCardItem extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(16.r),
           child: Padding(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -58,7 +55,7 @@ class ProjectCardItem extends StatelessWidget {
                             ? LinearGradient(
                                 colors: [
                                   AppTheme.colors.primary,
-                                  AppTheme.colors.primary.withOpacity(0.8),
+                                  AppTheme.colors.primary.withValues(alpha: 0.8),
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
@@ -67,7 +64,7 @@ class ProjectCardItem extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14.r),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.colors.primary.withOpacity(0.3),
+                            color: AppTheme.colors.primary.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -86,13 +83,13 @@ class ProjectCardItem extends StatelessWidget {
                                     gradient: LinearGradient(
                                       colors: [
                                         AppTheme.colors.primary,
-                                        AppTheme.colors.primary.withOpacity(0.8),
+                                        AppTheme.colors.primary.withValues(alpha: 0.8),
                                       ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
                                   ),
-                                  child: Center(
+                                  child: const Center(
                                     child: CupertinoActivityIndicator(
                                       color: Colors.white,
                                       radius: 10,
@@ -104,13 +101,13 @@ class ProjectCardItem extends StatelessWidget {
                                     gradient: LinearGradient(
                                       colors: [
                                         AppTheme.colors.primary,
-                                        AppTheme.colors.primary.withOpacity(0.8),
+                                        AppTheme.colors.primary.withValues(alpha: 0.8),
                                       ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.business_rounded,
                                     color: Colors.white,
                                     size: 28,
@@ -118,7 +115,7 @@ class ProjectCardItem extends StatelessWidget {
                                 ),
                               ),
                             )
-                          : Icon(
+                          : const Icon(
                               Icons.business_rounded,
                               color: Colors.white,
                               size: 28,
@@ -131,15 +128,23 @@ class ProjectCardItem extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            projectModel?.projectName ?? '',
-                            style: TextStyle(
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF1E293B),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  projectModel?.projectName ?? '',
+                                  style: TextStyle(
+                                    fontSize: 15.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF1E293B),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (projectModel?.status != null) _buildStatusChip(projectModel!.status!),
+                            ],
                           ),
                           SizedBox(height: 4.h),
                           Text(
@@ -160,7 +165,7 @@ class ProjectCardItem extends StatelessWidget {
                 // Address
                 if (projectModel?.address != null) ...[
                   Container(
-                    padding: EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: AppTheme.colors.colorF9F9FD,
                       borderRadius: BorderRadius.circular(12.r),
@@ -188,7 +193,7 @@ class ProjectCardItem extends StatelessWidget {
 
                 // Phone and Date
                 Container(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: AppTheme.colors.colorF9F9FD,
                     borderRadius: BorderRadius.circular(12.r),
@@ -204,7 +209,7 @@ class ProjectCardItem extends StatelessWidget {
                           color: const Color(0xFF64748B),
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       SvgPicture.asset(AppIcons.date),
                       SizedBox(width: 6.w),
                       Text(
@@ -220,6 +225,45 @@ class ProjectCardItem extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusChip(String status) {
+    Color bgColor;
+    Color textColor;
+
+    switch (status) {
+      case 'Jarayonda':
+        bgColor = const Color(0xFFFFF3E0);
+        textColor = Colors.orange;
+        break;
+      case 'Muzlatilgan':
+        bgColor = const Color(0xFFEEF3FF);
+        textColor = Colors.blue;
+        break;
+      case 'Yakunlangan':
+        bgColor = const Color(0xFFE8F5E9);
+        textColor = Colors.green;
+        break;
+      default:
+        bgColor = const Color(0xFFF1F5F9);
+        textColor = const Color(0xFF64748B);
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          fontSize: 10.sp,
+          fontWeight: FontWeight.w700,
+          color: textColor,
         ),
       ),
     );
