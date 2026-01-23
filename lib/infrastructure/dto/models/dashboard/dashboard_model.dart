@@ -44,20 +44,25 @@ class DashboardResult {
 
 class PartnersData {
   int? partnersCount;
-  PartnersDetails? details;
+  Map<String, PartnersDetails>? details;
 
   PartnersData({this.partnersCount, this.details});
 
   PartnersData.fromJson(Map<String, dynamic> json) {
     partnersCount = json['partners_count'];
-    details = json['details'] != null ? PartnersDetails.fromJson(json['details']) : null;
+    if (json['details'] != null) {
+      details = {};
+      json['details'].forEach((key, value) {
+        details![key] = PartnersDetails.fromJson(value);
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['partners_count'] = partnersCount;
     if (details != null) {
-      data['details'] = details!.toJson();
+      data['details'] = details!.map((key, value) => MapEntry(key, value.toJson()));
     }
     return data;
   }
