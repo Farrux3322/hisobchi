@@ -204,7 +204,17 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32).copyWith(bottom: MediaQuery.of(context).padding.bottom + 10),
         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        child: Column(children: [_buildProjectInfoExpansion(project), const Gap(16), _buildFinancialOverview(project), const Gap(16), _buildManagementMenu(project)]),
+        child: Column(
+          children: [
+            _buildProjectInfoExpansion(project),
+            const Gap(12),
+            _buildFinancialOverview(project),
+            const Gap(12),
+            _buildManagementMenu(project),
+            const Gap(12),
+            _buildStatusDisplayCard(state, project),
+          ],
+        ),
       ),
     );
   }
@@ -263,7 +273,6 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (project.status != null) _buildStatusChip(project.status!),
                       ],
                     ),
                   ],
@@ -354,7 +363,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   amountUzs: project.accounts?.debt?.uzs,
                   amountUsd: project.accounts?.debt?.usd,
                   icon: AppIcons.income,
-                  color: const Color(0xFF10B981),
+                  color: const Color(0xFF3CC293),
                   // Emerald
                   onTap: () async {
                     // Navigate to income list page and check if changes were made
@@ -446,7 +455,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
-          border: Border.all(color: color),
+          border: Border.all(color: color,width: .5),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
         ),
@@ -485,7 +494,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                     const Gap(4),
                     Text(
                       'UZS',
-                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)),
+                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.black54),
                     ),
                   ],
                 ),
@@ -509,7 +518,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                     const Gap(4),
                     Text(
                       'USD',
-                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)),
+                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.black54),
                     ),
                   ],
                 ),
@@ -528,7 +537,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [color.withValues(alpha: .6), color.withValues(alpha: 0.6), color.withValues(alpha: .75)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.9)], begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 8))],
       ),
@@ -729,40 +738,273 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
     );
   }
 
-  Widget _buildStatusChip(String status) {
-    Color bgColor;
-    Color textColor;
+  Widget _buildStatusDisplayCard(ProjectState state, ProjectModel project) {
+    String label;
+    Color color;
+    IconData icon;
 
-    switch (status) {
+    switch (project.status ?? '') {
+      case 'in_progress':
       case 'Jarayonda':
-        bgColor = const Color(0xFFFFF3E0);
-        textColor = Colors.orange;
+        label = 'Jarayonda';
+        color = Colors.orange;
+        icon = Icons.play_circle_outline_rounded;
         break;
+      case 'frozen':
       case 'Muzlatilgan':
-        bgColor = const Color(0xFFEEF3FF);
-        textColor = Colors.blue;
+        label = 'Muzlatilgan';
+        color = Colors.blue;
+        icon = Icons.pause_circle_outline_rounded;
         break;
+      case 'completed':
       case 'Yakunlangan':
-        bgColor = const Color(0xFFE8F5E9);
-        textColor = Colors.green;
+        label = 'Yakunlangan';
+        color = Colors.green;
+        icon = Icons.check_circle_outline_rounded;
         break;
       default:
-        bgColor = const Color(0xFFF1F5F9);
-        textColor = const Color(0xFF64748B);
+        label = project.status ?? 'Noma\'lum';
+        color = const Color(0xFF64748B);
+        icon = Icons.help_outline_rounded;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.12),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-      child: Text(
-        status,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: textColor,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
+          children: [
+            // Decorative Background Icon
+            Positioned(
+              right: -20,
+              top: -10,
+              child: Icon(
+                icon,
+                size: 100,
+                color: color.withValues(alpha: 0.05),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
+                    ),
+                    child: Icon(icon, color: color, size: 28),
+                  ),
+                  const Gap(16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Loyiha holati',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF94A3B8),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const Gap(4),
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: color,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Material(
+                    color: color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      onTap: () => _showStatusSelectionBottomSheet(project),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          children: [
+                            Text(
+                              'O\'zgartirish',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: color,
+                              ),
+                            ),
+                            const Gap(4),
+                            Icon(Icons.keyboard_arrow_right_rounded, color: color, size: 18),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showStatusSelectionBottomSheet(ProjectModel project) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return BlocConsumer<ProjectBloc, ProjectState>(
+          listener: (context, state) {
+            if (state.statusAction == Status.success) {
+              Navigator.pop(context);
+            }
+          },
+          builder: (context, state) {
+            final isLoading = state.statusAction == Status.loading;
+            final currentStatus = project.status ?? '';
+
+            return Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Handle
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(10)),
+                  ),
+                  const Gap(32),
+                  const Text(
+                    'Loyiha holatini tanlang',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                  ),
+                  const Gap(12),
+                  const Text(
+                    'Loyiha holatini o\'zgartirish orqali uni boshqarishingiz mumkin',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 15, color: Color(0xFF64748B)),
+                  ),
+                  const Gap(32),
+                  _buildStatusSheetOption(
+                    context,
+                    label: 'Jarayonda',
+                    slug: 'in_progress',
+                    currentStatus: currentStatus,
+                    color: Colors.orange,
+                    icon: Icons.play_circle_outline_rounded,
+                    isLoading: isLoading,
+                    projectId: project.id ?? 0,
+                  ),
+                  const Gap(12),
+                  _buildStatusSheetOption(
+                    context,
+                    label: 'Muzlatilgan',
+                    slug: 'frozen',
+                    currentStatus: currentStatus,
+                    color: Colors.blue,
+                    icon: Icons.pause_circle_outline_rounded,
+                    isLoading: isLoading,
+                    projectId: project.id ?? 0,
+                  ),
+                  const Gap(12),
+                  _buildStatusSheetOption(
+                    context,
+                    label: 'Yakunlangan',
+                    slug: 'completed',
+                    currentStatus: currentStatus,
+                    color: Colors.green,
+                    icon: Icons.check_circle_outline_rounded,
+                    isLoading: isLoading,
+                    projectId: project.id ?? 0,
+                  ),
+                  const Gap(32),
+                  if (isLoading) const CupertinoActivityIndicator(radius: 12),
+                  SizedBox(height: MediaQuery.of(context).padding.bottom),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildStatusSheetOption(
+    BuildContext context, {
+    required String label,
+    required String slug,
+    required String currentStatus,
+    required Color color,
+    required IconData icon,
+    required bool isLoading,
+    required int projectId,
+  }) {
+    final bool isSelected = currentStatus == slug || currentStatus == label;
+
+    return InkWell(
+      onTap: isLoading || isSelected
+          ? null
+          : () {
+              context.read<ProjectBloc>().add(UpdateProjectStatusEvent(id: projectId, status: slug));
+            },
+      borderRadius: BorderRadius.circular(20),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: 0.05) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? color : const Color(0xFFE2E8F0),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const Gap(16),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  color: isSelected ? color : const Color(0xFF1E293B),
+                ),
+              ),
+            ),
+            if (isSelected) Icon(Icons.check_rounded, color: color, size: 24),
+          ],
         ),
       ),
     );

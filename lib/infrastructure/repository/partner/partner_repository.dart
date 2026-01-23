@@ -126,4 +126,14 @@ class PartnerRepository {
     final response = await dio.post('/partners/wallet/$walletId/restore');
     return response.data;
   }
+
+  Future<Map<String, dynamic>> getSmsSettings({required int id}) async {
+    final response = await dio.get('/partners/partner/settings/$id');
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> updateSmsSettings({required int id, required Object data}) async {
+    final response = await dio.put('/partners/partner/settings/$id', data: data);
+    return response.data;
+  }
 }

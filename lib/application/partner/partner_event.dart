@@ -127,3 +127,31 @@ class RestoreIncomeEvent extends PartnerEvent {
 
   const RestoreIncomeEvent({required this.walletId});
 }
+
+class GetSmsSettingsEvent extends PartnerEvent {
+  final int id;
+
+  const GetSmsSettingsEvent({required this.id});
+
+  @override
+  List<Object?> get props => [id];
+}
+
+class UpdateSmsSettingsEvent extends PartnerEvent {
+  final int id;
+  final Object data;
+
+  const UpdateSmsSettingsEvent({required this.id, required this.data});
+
+  @override
+  List<Object?> get props => [id, data];
+}
+
+class UpdateSmsSettingsLocalEvent extends PartnerEvent {
+  final Map<String, dynamic> data;
+
+  const UpdateSmsSettingsLocalEvent({required this.data});
+
+  @override
+  List<Object?> get props => [data];
+}

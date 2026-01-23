@@ -128,4 +128,15 @@ class ProjectRepository {
     final response = await dio.delete('project/project/$id/force-delete');
     return response.data;
   }
+
+  Future<Map<String, dynamic>> updateStatus({required int id, required String status}) async {
+    try {
+      final response = await dio.put('/project/project/$id/update-status', data: {'status': status});
+      return response.data;
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
 }

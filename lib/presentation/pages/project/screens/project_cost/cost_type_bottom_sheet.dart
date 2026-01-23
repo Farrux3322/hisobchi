@@ -263,10 +263,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                         IconButton(
                           icon: Container(
                             padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(colors: [Color(0xFF5B4FFF), Color(0xFF7C3AED)]),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(8)),
                             child: const Icon(Icons.add, color: Colors.white, size: 20),
                           ),
                           onPressed: () => _showAddCostTypeDialog(),
@@ -345,49 +342,47 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
     return Slidable(
       key: ValueKey(costType.id),
       // enabled: canUpdateDelete, // Disable sliding if cannot update/delete
-      endActionPane:
-          ActionPane(
-              motion: const DrawerMotion(),
-              extentRatio: isDeleted ? 0.6 : 0.5,
-              children: isDeleted
-                  ? [
-                      SlidableAction(
-                        onPressed: (context) => _showDeleteDialog(costType),
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        icon: Icons.restore,
-                        label: "Tiklash",
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      SlidableAction(
-                        onPressed: (context) => _showDeleteDialog(costType),
-                        backgroundColor: Colors.red.shade700,
-                        foregroundColor: Colors.white,
-                        icon: Icons.delete_forever,
-                        label: "Butunlay",
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ]
-                  : [
-                      SlidableAction(
-                        onPressed: (context) => _showAddCostTypeDialog(costType: costType),
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                        icon: Icons.edit,
-                        label: "Tahrirlash",
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      SlidableAction(
-                        onPressed: (context) => _showDeleteDialog(costType),
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                        icon: Icons.delete_outline,
-                        label: "O'chirish",
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ],
-            )
-         ,
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        extentRatio: isDeleted ? 0.6 : 0.5,
+        children: isDeleted
+            ? [
+                SlidableAction(
+                  onPressed: (context) => _showDeleteDialog(costType),
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  icon: Icons.restore,
+                  label: "Tiklash",
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                SlidableAction(
+                  onPressed: (context) => _showDeleteDialog(costType),
+                  backgroundColor: Colors.red.shade700,
+                  foregroundColor: Colors.white,
+                  icon: Icons.delete_forever,
+                  label: "Butunlay",
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ]
+            : [
+                SlidableAction(
+                  onPressed: (context) => _showAddCostTypeDialog(costType: costType),
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  icon: Icons.edit,
+                  label: "Tahrirlash",
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                SlidableAction(
+                  onPressed: (context) => _showDeleteDialog(costType),
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  icon: Icons.delete_outline,
+                  label: "O'chirish",
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ],
+      ),
       child: GestureDetector(
         onTap: isDeleted ? null : () => Navigator.pop(context, costType),
         child: Container(

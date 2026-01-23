@@ -7,9 +7,12 @@ class PartnerState extends Equatable {
   final Status statusAdd;
   final Status statusIncomeStatement;
   final Status statusIncomeHistory;
+  final Status statusGetSmsSettings;
+  final Status statusUpdateSmsSettings;
   final String? errorMessage;
   final IncomeStatementModel? incomeStatementModel;
   final IncomeHistoryModel? incomeHistoryModel;
+  final Map<String, dynamic>? smsSettingsMap;
   final List<PartnerModel> models;
 
 
@@ -18,11 +21,14 @@ class PartnerState extends Equatable {
     this.statusAdd = Status.pure,
     this.statusIncomeStatement = Status.pure,
     this.statusIncomeHistory = Status.pure,
+    this.statusGetSmsSettings = Status.pure,
+    this.statusUpdateSmsSettings = Status.pure,
     this.statusKirim = Status.pure,
     this.statusKirimAdd = Status.pure,
     this.errorMessage,
     this.incomeStatementModel,
     this.incomeHistoryModel,
+    this.smsSettingsMap,
     this.models = const [],
   });
 
@@ -33,9 +39,12 @@ class PartnerState extends Equatable {
     Status? statusAdd,
     Status? statusIncomeStatement,
     Status? statusIncomeHistory,
+    Status? statusGetSmsSettings,
+    Status? statusUpdateSmsSettings,
     String? errorMessage,
     IncomeStatementModel? incomeStatementModel,
     IncomeHistoryModel? incomeHistoryModel,
+    Map<String, dynamic>? smsSettingsMap,
     List<PartnerModel>? models,
   }) {
     return PartnerState(
@@ -45,9 +54,12 @@ class PartnerState extends Equatable {
         statusAdd: statusAdd ?? this.statusAdd,
         statusIncomeHistory: statusIncomeHistory ?? this.statusIncomeHistory,
         statusIncomeStatement: statusIncomeStatement ?? this.statusIncomeStatement,
+        statusGetSmsSettings: statusGetSmsSettings ?? this.statusGetSmsSettings,
+        statusUpdateSmsSettings: statusUpdateSmsSettings ?? this.statusUpdateSmsSettings,
         errorMessage: errorMessage ?? this.errorMessage,
         incomeStatementModel: incomeStatementModel ?? this.incomeStatementModel,
         incomeHistoryModel: incomeHistoryModel ?? this.incomeHistoryModel,
+        smsSettingsMap: smsSettingsMap ?? this.smsSettingsMap,
         models: models ?? this.models
     );
   }
@@ -60,9 +72,12 @@ class PartnerState extends Equatable {
     statusAdd,
     statusIncomeHistory,
     statusIncomeStatement,
+    statusGetSmsSettings,
+    statusUpdateSmsSettings,
     errorMessage,
     incomeStatementModel,
     incomeHistoryModel,
+    smsSettingsMap,
     models,
   ];
 }

@@ -110,7 +110,7 @@ class _ClientPageState extends State<ClientPage> {
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
                     SliverAppBar(
-                      title: const Text('Mijozlar'),
+                      title: const Text('Hamkorlar'),
                       backgroundColor: Colors.white,
                       elevation: 0,
                       centerTitle: false,
@@ -315,7 +315,7 @@ class _ClientPageState extends State<ClientPage> {
             border: Border.all(color: AppTheme.colors.divider),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

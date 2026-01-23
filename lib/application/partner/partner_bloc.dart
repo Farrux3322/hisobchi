@@ -30,6 +30,9 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
     on<DeleteIncome>(deleteIncome);
     on<ForceDeleteIncomeEvent>(forceDeleteIncome);
     on<RestoreIncomeEvent>(restoreIncome);
+    on<GetSmsSettingsEvent>(getSmsSettings);
+    on<UpdateSmsSettingsEvent>(updateSmsSettings);
+    on<UpdateSmsSettingsLocalEvent>(updateSmsSettingsLocal);
   }
 
   Future<void> getAll(GetAllEvent event, Emitter<PartnerState> emit) async {
@@ -242,6 +245,42 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
     } catch (e) {
       emit(state.copyWith(statusKirimAdd: Status.error, errorMessage: _getErrorMessage(e)));
     }
+  }
+
+  Future<void> getSmsSettings(GetSmsSettingsEvent event, Emitter<PartnerState> emit) async {
+    emit(state.copyWith(statusGetSmsSettings: Status.loading, statusUpdateSmsSettings: Status.pure, smsSettingsMap: {})); // Use empty map as sentinel or I should fix copyWith
+    try {
+      final data = await _repo.getSmsSettings(id: event.id);
+      if (data["status"] == true) {
+        emit(state.copyWith(statusGetSmsSettings: Status.success, smsSettingsMap: data["result"]));
+      } else {
+        emit(state.copyWith(statusGetSmsSettings: Status.error, errorMessage: _extractMessageFromData(data)));
+      }
+    } catch (e) {
+      emit(state.copyWith(statusGetSmsSettings: Status.error, errorMessage: _getErrorMessage(e)));
+    }
+  }
+
+  Future<void> updateSmsSettings(UpdateSmsSettingsEvent event, Emitter<PartnerState> emit) async {
+    emit(state.copyWith(statusUpdateSmsSettings: Status.loading));
+    try {
+      final data = await _repo.updateSmsSettings(id: event.id, data: event.data);
+      if (data["status"] == true) {
+        emit(state.copyWith(statusUpdateSmsSettings: Status.success, smsSettingsMap: null)); // Explicitly set map to null to trigger navigation
+      } else {
+        emit(state.copyWith(statusUpdateSmsSettings: Status.error, errorMessage: _extractMessageFromData(data)));
+      }
+    } catch (e) {
+      emit(state.copyWith(statusUpdateSmsSettings: Status.error, errorMessage: _getErrorMessage(e)));
+    }
+  }
+
+  Future<void> updateSmsSettingsLocal(UpdateSmsSettingsLocalEvent event, Emitter<PartnerState> emit) async {
+    final currentMap = Map<String, dynamic>.from(state.smsSettingsMap ?? {});
+    final currentBody = Map<String, dynamic>.from(currentMap['body'] ?? {});
+    currentBody.addAll(event.data);
+    currentMap['body'] = currentBody;
+    emit(state.copyWith(smsSettingsMap: currentMap));
   }
 
   /// Extracts error message from DioException and stringifies validation errors

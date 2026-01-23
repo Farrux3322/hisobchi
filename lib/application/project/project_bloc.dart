@@ -19,6 +19,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
     on<DeleteProjectEvent>(delete);
     on<RestoreProjectEvent>(restore);
     on<ForceDeleteProjectEvent>(forceDelete);
+    on<UpdateProjectStatusEvent>(updateStatus);
   }
 
   Future<void> getAll(GetAllProjectEvent event, Emitter<ProjectState> emit) async {
@@ -130,6 +131,23 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       final data = await _repo.restore(id: event.id);
       if (data["status"] == true) {
         emit(state.copyWith(statusAction: Status.success));
+      } else {
+        emit(state.copyWith(statusAction: Status.error, errorMessage: data["error"].toString()));
+      }
+    } on DioException catch (e) {
+      emit(state.copyWith(statusAction: Status.error, errorMessage: e.toString()));
+    } catch (e) {
+      emit(state.copyWith(statusAction: Status.error, errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> updateStatus(UpdateProjectStatusEvent event, Emitter<ProjectState> emit) async {
+    emit(state.copyWith(statusAction: Status.loading));
+    try {
+      final data = await _repo.updateStatus(id: event.id, status: event.status);
+      if (data["status"] == true) {
+        emit(state.copyWith(statusAction: Status.success));
+        add(GetProjectByIdEvent(id: event.id));
       } else {
         emit(state.copyWith(statusAction: Status.error, errorMessage: data["error"].toString()));
       }

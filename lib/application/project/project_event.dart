@@ -50,3 +50,13 @@ class ForceDeleteProjectEvent extends ProjectEvent {
 
   const ForceDeleteProjectEvent({required this.id});
 }
+
+class UpdateProjectStatusEvent extends ProjectEvent {
+  final int id;
+  final String status;
+
+  const UpdateProjectStatusEvent({required this.id, required this.status});
+
+  @override
+  List<Object?> get props => [id, status];
+}

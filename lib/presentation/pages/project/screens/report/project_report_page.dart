@@ -134,31 +134,17 @@ class _ProjectReportView extends StatelessWidget {
         children: [
           // Left side - Title and Icon
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
-                      child: Icon(isPositive ? Icons.trending_up_rounded : Icons.trending_down_rounded, color: Colors.white, size: 20),
-                    ),
-                    const Gap(10),
-                    Text(
-                      'Qoldiq',
-                      style: TextStyle(fontSize: 16.sp, color: Colors.white.withValues(alpha: 0.95), fontWeight: FontWeight.w700, letterSpacing: 0.5),
-                    ),
-                  ],
-                ),
-                const Gap(12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
-                  child: Text(
-                    isPositive ? 'Foyda' : 'Zarar',
-                    style: TextStyle(fontSize: 12.sp, color: Colors.white, fontWeight: FontWeight.w600),
-                  ),
+                  child: Icon(isPositive ? Icons.trending_up_rounded : Icons.trending_down_rounded, color: Colors.white, size: 20),
+                ),
+                const Gap(10),
+                Text(
+                  'Qoldiq',
+                  style: TextStyle(fontSize: 16.sp, color: Colors.white.withValues(alpha: 0.95), fontWeight: FontWeight.w700, letterSpacing: 0.5),
                 ),
               ],
             ),

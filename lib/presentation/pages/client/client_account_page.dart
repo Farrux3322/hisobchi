@@ -17,6 +17,7 @@ import 'package:hisobchi/presentation/pages/client/client_xisob_kitob.dart';
 import 'package:hisobchi/presentation/pages/client/report/report_client_show_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_delete_dialog.dart';
 import 'package:hisobchi/presentation/pages/client/client_edit_page.dart';
+import 'package:hisobchi/presentation/pages/client/sms_setting_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/kirim_bottom_sheet.dart';
 import 'package:hisobchi/utils/url_louncher_util.dart';
 import 'package:shimmer/shimmer.dart';
@@ -100,6 +101,20 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 child: const Icon(Icons.arrow_back, color: Colors.black),
               ),
             ),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.settings, color: AppTheme.colors.primary),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SmsSettingPage(partnerId: widget.partnerModel.id ?? 0),
+                    ),
+                  );
+                },
+              ),
+              Gap(10.w),
+            ],
             title: Text('Hisob-kitob', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
           ),
           body: RefreshIndicator(
@@ -130,17 +145,13 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => ImageViewerPage(
-                                        images: widget.partnerModel.files!.map((e) => ImageItem(path: e.url??'', isNetwork: true)).toList(), initialIndex: 0,
-                                      ),
+                                      builder: (context) => ImageViewerPage(images: widget.partnerModel.files!.map((e) => ImageItem(path: e.url ?? '', isNetwork: true)).toList(), initialIndex: 0),
                                     ),
                                   );
                                 }
                               },
                               child: Hero(
-                                tag: (widget.partnerModel.files ?? []).isNotEmpty
-                                    ? widget.partnerModel.files!.first.url??''
-                                    : 'profile_image',
+                                tag: (widget.partnerModel.files ?? []).isNotEmpty ? widget.partnerModel.files!.first.url ?? '' : 'profile_image',
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8.r),
                                   child: CachedNetworkImage(
@@ -177,11 +188,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                       MaterialPageRoute(
                                         builder: (context) => MultiBlocProvider(
                                           providers: [
-                                            BlocProvider(
-                                              create: (context) => FileUploadBloc(
-                                                repository: FileUploadRepository(),
-                                              ),
-                                            ),
+                                            BlocProvider(create: (context) => FileUploadBloc(repository: FileUploadRepository())),
                                             // We don't need to provide PartnerBloc here as it's already in the context
                                           ],
                                           child: ClientEditPage(partnerModel: widget.partnerModel),
@@ -624,7 +631,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
 
               return Row(
                 children: [
-                   Expanded(
+                  Expanded(
                     child: GestureDetector(
                       onTap: () async {
                         showKirimBottomSheet(context, widget.partnerModel.id ?? 0, true, currencySymbol);
@@ -856,11 +863,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       MaterialPageRoute(
         builder: (_) => BlocProvider.value(
           value: context.read<PartnerBloc>(),
-          child: HisobKitobTarixPage(
-            id: widget.partnerModel.id ?? 0,
-            initialType: type,
-            initialCurrencyId: currencyId,
-          ),
+          child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0, initialType: type, initialCurrencyId: currencyId),
         ),
       ),
     );

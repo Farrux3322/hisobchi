@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 
@@ -77,14 +76,7 @@ class LiquidBottomBar extends StatelessWidget {
                         height: 54.h,
                         margin: EdgeInsets.symmetric(horizontal: 10.w),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              AppTheme.colors.primary,
-                              AppTheme.colors.primary.withValues(alpha: 0.85),
-                            ],
-                          ),
+                          color: AppTheme.colors.primary,
                           borderRadius: BorderRadius.circular(28.r),
                           boxShadow: [
                             BoxShadow(
