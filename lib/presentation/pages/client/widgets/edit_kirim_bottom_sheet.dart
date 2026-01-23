@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hisobchi/domain/common/logic/data_formatter.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/income_history_model.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/full_screen_photo.dart';
-import 'package:intl/intl.dart';
+
+import '../../../assets/asset_index.dart';
 
 class TransactionDetailBottomSheet extends StatelessWidget {
   final Result transaction;
@@ -57,6 +57,10 @@ class TransactionDetailBottomSheet extends StatelessWidget {
                   if (transaction.description != null && transaction.description!.isNotEmpty) ...[
                     SizedBox(height: 10.h),
                     _buildDescription(),
+                  ],
+                  if (isCancelled && transaction.canselReason != null && transaction.canselReason!.isNotEmpty) ...[
+                    SizedBox(height: 10.h),
+                    _buildCancelReason(),
                   ],
                   if (transaction.files != null && transaction.files!.isNotEmpty) ...[
                     SizedBox(height: 10.h),
@@ -242,6 +246,48 @@ class TransactionDetailBottomSheet extends StatelessWidget {
               color: const Color(0xFF334155),
               height: 1.5,
               fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCancelReason() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF1F2),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: const Color(0xFFFECDD3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.cancel, size: 14.sp, color: const Color(0xFFE11D48)),
+              SizedBox(width: 8.w),
+              Text(
+                'BEKOR QILISH SABABI',
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFFE11D48),
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            transaction.canselReason ?? 'Sabab ko\'rsatilmagan',
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: const Color(0xFF9F1239),
+              height: 1.5,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

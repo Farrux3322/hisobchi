@@ -131,8 +131,10 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
         child: BlocConsumer<PartnerBloc, PartnerState>(
           listener: (context, state) {
             // // Success - listni yangilash
+
             if (state.statusKirimAdd == Status.success) {
-              context.read<PartnerBloc>().add(IncomeHistoryEvent(id: widget.id ?? 0));
+              _loadData();
+              // context.read<PartnerBloc>().add(IncomeHistoryEvent(id: widget.id ?? 0));
               context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.id ?? 0));
             }
           },
@@ -162,6 +164,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                       startDate: _startDate,
                       endDate: _endDate,
                       currencyId: _currencyId,
+                      isCancelled: _isCancelled,
                       onRemoveType: () {
                         setState(() => _selectedType = null);
                         _updateActiveFilters();
@@ -180,13 +183,14 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
                         _updateActiveFilters();
                         _loadData();
                       },
+                      onRemoveCancelled: () {
+                        setState(() => _isCancelled = null);
+                        _updateActiveFilters();
+                        _loadData();
+                      },
                     ),
                     const SizedBox(height: 10),
-                    Expanded(
-                      child: isHistoryLoading
-                          ? _buildShimmerLoading()
-                          : _buildHistoryContent(state),
-                    ),
+                    Expanded(child: isHistoryLoading ? _buildShimmerLoading() : _buildHistoryContent(state)),
                   ],
                 ),
                 if (state.statusKirimAdd == Status.loading) Loading(),
@@ -209,10 +213,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
         minChildSize: 0.4,
         maxChildSize: 0.99,
         expand: false,
-        builder: (context, scrollController) => TransactionDetailBottomSheet(
-          transaction: item,
-          scrollController: scrollController,
-        ),
+        builder: (context, scrollController) => TransactionDetailBottomSheet(transaction: item, scrollController: scrollController),
       ),
     );
   }
@@ -417,4 +418,3 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
     );
   }
 }
-

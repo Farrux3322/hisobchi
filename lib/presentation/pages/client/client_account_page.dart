@@ -304,7 +304,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                     child: TabBar(
                       controller: _tabController,
                       indicator: BoxDecoration(
-                        color: AppTheme.colors.primary.withValues(alpha: 0.8),
+                        color: AppTheme.colors.primary,
                         borderRadius: BorderRadius.circular(12.r),
                         boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
                       ),
@@ -481,11 +481,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                               textAlign: TextAlign.end,
                               text: TextSpan(
                                 text: PriceFormatter.priceFormat('$debt'),
-                                style: TextStyle(color: Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                                style: TextStyle(color: debt == 0 ? Colors.black : Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
                                 children: [
                                   TextSpan(
-                                    text: ' $currencySymbol',
-                                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                                    text: '\n$currencySymbol',
+                                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black),
                                   ),
                                 ],
                               ),
@@ -541,11 +541,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                               textAlign: TextAlign.end,
                               text: TextSpan(
                                 text: PriceFormatter.priceFormat('$credit'),
-                                style: TextStyle(color: Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                                style: TextStyle(color: credit == 0 ? Colors.black : Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
                                 children: [
                                   TextSpan(
-                                    text: ' $currencySymbol',
-                                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                                    text: '\n$currencySymbol',
+                                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black),
                                   ),
                                 ],
                               ),
@@ -565,21 +565,21 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           // Qoldiq Card - Elegant Minimalist
           // Senior approach: Conditional colors based on balance
           (() {
-            final Color balanceColor = balance < 0 ? AppTheme.colors.colorDE5050 : AppTheme.colors.color3CC293;
+            final Color balanceColor = balance < 0 ? AppTheme.colors.colorDE5050 : (balance == 0 ? Colors.black : AppTheme.colors.color3CC293);
             return Container(
               padding: EdgeInsets.all(cardPadding.clamp(12, 18)),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: balanceColor.withValues(alpha: 0.25), width: 1.5),
+                border: Border.all(color: balance == 0 ? Colors.black.withValues(alpha: 0.25) : balanceColor.withValues(alpha: 0.25), width: 1.5),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: EdgeInsets.all(iconPadding.clamp(8, 12)),
                     decoration: BoxDecoration(
-                      color: balanceColor.withValues(alpha: 0.8),
+                      color: balance == 0 ? Colors.black.withValues(alpha: 0.8) : balanceColor.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(11),
-                      boxShadow: [BoxShadow(color: balanceColor.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
+                      boxShadow: [BoxShadow(color: balance == 0 ? Colors.black.withValues(alpha: 0.1) : balanceColor.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
                     ),
                     child: SvgPicture.asset(AppIcons.balance, width: iconSize.clamp(20, 26), height: iconSize.clamp(20, 26), colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
                   ),
@@ -596,8 +596,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                         style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
                         children: [
                           TextSpan(
-                            text: ' $currencySymbol',
-                            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: balanceColor.withValues(alpha: 0.7)),
+                            text: '\n$currencySymbol',
+                            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: Colors.black),
                           ),
                         ],
                       ),
@@ -851,6 +851,18 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   }
 
   void _navigateToHistory({required String type, required int currencyId}) {
-     // ... logic was not fully visible but common pattern
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: context.read<PartnerBloc>(),
+          child: HisobKitobTarixPage(
+            id: widget.partnerModel.id ?? 0,
+            initialType: type,
+            initialCurrencyId: currencyId,
+          ),
+        ),
+      ),
+    );
   }
 }

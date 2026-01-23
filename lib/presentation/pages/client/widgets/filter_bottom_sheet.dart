@@ -171,14 +171,32 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Currency and Date Row
-                  _buildSectionTitle('Valyuta va sana', Icons.monetization_on_outlined),
-                  const SizedBox(height: 8),
+                  // Row with Date and Currency
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(flex: 2, child: _buildCompactDateRange()),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildCompactCurrencyFilter()),
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionTitle('Sana oralig\'i', Icons.date_range_rounded),
+                            const SizedBox(height: 8),
+                            _buildCompactDateRange(),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionTitle('Valyuta', Icons.monetization_on_outlined),
+                            const SizedBox(height: 8),
+                            _buildCompactCurrencyFilter(),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -267,6 +285,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
       onTap: _showCurrencyPicker,
       borderRadius: BorderRadius.circular(12),
       child: Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: hasCurrency ? const Color(0xFFFBBF24).withValues(alpha: 0.1) : const Color(0xFFF8FAFC),

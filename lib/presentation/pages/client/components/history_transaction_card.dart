@@ -98,6 +98,7 @@ class HistoryTransactionCard extends StatelessWidget {
             ],
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
                 height: 40,
@@ -134,13 +135,12 @@ class HistoryTransactionCard extends StatelessWidget {
                         decorationColor: Colors.red,
                       ),
                     ),
-                    const TextSpan(text: ' '),
                     TextSpan(
-                      text: item.currencyTypeName ?? '',
+                      text: '\n${item.currencyTypeName ?? ''}',
                       style: TextStyle(
-                        fontSize: 12, // Reduced font size for currency
+                        fontSize: 11, // Slightly smaller for new line
                         fontWeight: FontWeight.w600,
-                        color: amountColor.withValues(alpha: 0.8),
+                        color: Colors.black, // Always black as per user request
                         decoration: isCanceled ? TextDecoration.lineThrough : null,
                         decorationColor: Colors.red,
                       ),

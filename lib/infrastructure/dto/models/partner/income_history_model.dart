@@ -32,6 +32,7 @@ class Result {
   String? currencyTypeName;
   String? summa;
   String? description;
+  String? canselReason;
   List<IncomeFile>? files;
   String? returnDate;
   String? type;
@@ -39,20 +40,22 @@ class Result {
   String? createdAt;
   String? deletedAt;
 
-  Result(
-      {this.id,
-        this.partnerId,
-        this.partnerName,
-        this.currencyTypeId,
-        this.currencyTypeName,
-        this.summa,
-        this.description,
-        this.files,
-        this.returnDate,
-        this.type,
-        this.isCancelled,
-        this.createdAt,
-        this.deletedAt});
+  Result({
+    this.id,
+    this.partnerId,
+    this.partnerName,
+    this.currencyTypeId,
+    this.currencyTypeName,
+    this.summa,
+    this.description,
+    this.files,
+    this.returnDate,
+    this.type,
+    this.isCancelled,
+    this.createdAt,
+    this.canselReason,
+    this.deletedAt,
+  });
 
   Result.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -62,6 +65,7 @@ class Result {
     currencyTypeName = json['currency_type_name'];
     summa = json['summa'];
     description = json['description'];
+    canselReason = json['cancel_reason'];
     if (json['files'] != null) {
       files = <IncomeFile>[];
       json['files'].forEach((v) {
@@ -84,6 +88,7 @@ class Result {
     data['currency_type_name'] = currencyTypeName;
     data['summa'] = summa;
     data['description'] = description;
+    data['cancel_reason'] = canselReason;
     if (files != null) {
       data['files'] = files!.map((v) => v.toJson()).toList();
     }

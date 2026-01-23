@@ -16,11 +16,13 @@ class HistoryFilterField extends StatelessWidget {
   final DateTime? startDate;
   final DateTime? endDate;
   final int? currencyId;
+  final bool? isCancelled;
   
   // Callbacks for removing filters
   final VoidCallback onRemoveType;
   final VoidCallback onRemoveDate;
   final VoidCallback onRemoveCurrency;
+  final VoidCallback onRemoveCancelled;
 
   const HistoryFilterField({
     super.key,
@@ -33,9 +35,11 @@ class HistoryFilterField extends StatelessWidget {
     this.startDate,
     this.endDate,
     this.currencyId,
+    this.isCancelled,
     required this.onRemoveType,
     required this.onRemoveDate,
     required this.onRemoveCurrency,
+    required this.onRemoveCancelled,
   });
 
   @override
@@ -167,6 +171,13 @@ class HistoryFilterField extends StatelessWidget {
                         onRemove: onRemoveCurrency,
                       );
                     },
+                  ),
+                if (isCancelled == true)
+                  _buildFilterChip(
+                    label: 'Bekor qilingan',
+                    icon: Icons.cancel_outlined,
+                    color: const Color(0xFFE11D48),
+                    onRemove: onRemoveCancelled,
                   ),
               ],
             ),
