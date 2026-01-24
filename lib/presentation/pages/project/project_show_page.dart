@@ -212,7 +212,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
             const Gap(12),
             _buildManagementMenu(project),
             const Gap(12),
-            _buildStatusDisplayCard(state, project),
+            // Status removed from here and moved to header
           ],
         ),
       ),
@@ -226,85 +226,229 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 10))],
       ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: false,
-          tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-          childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-          collapsedShape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          iconColor: const Color(0xFF94A3B8),
-          collapsedIconColor: const Color(0xFF94A3B8),
-          title: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
-                ),
-                child: project.files != null && project.files!.isNotEmpty
-                    ? ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl: project.files!.first.url ?? '',
-                          width: 48,
-                          height: 48,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => const Center(child: CupertinoActivityIndicator(radius: 8)),
-                          errorWidget: (context, url, error) => const Icon(Icons.business_center_rounded, color: Color(0xFF6366F1), size: 24),
-                        ),
-                      )
-                    : const Icon(Icons.business_center_rounded, color: Color(0xFF6366F1), size: 24),
+      child: Column(
+        children: [
+          Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              shape: const RoundedRectangleBorder(side: BorderSide.none),
+              collapsedShape: const RoundedRectangleBorder(side: BorderSide.none),
+              tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              iconColor: const Color(0xFF94A3B8),
+              collapsedIconColor: const Color(0xFF94A3B8),
+              title: Row(
+                children: [
+                  Container(
+                    width: 54,
+                    height: 54,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                    ),
+                    child: project.files != null && project.files!.isNotEmpty
+                        ? ClipOval(
+                            child: CachedNetworkImage(
+                              imageUrl: project.files!.first.url ?? '',
+                              width: 54,
+                              height: 54,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => const Center(child: CupertinoActivityIndicator(radius: 8)),
+                              errorWidget: (context, url, error) => const Icon(Icons.business_center_rounded, color: Color(0xFF6366F1), size: 24),
+                            ),
+                          )
+                        : const Icon(Icons.business_center_rounded, color: Color(0xFF6366F1), size: 24),
+                  ),
+                  const Gap(16),
+                  Expanded(
+                    child: Text(
+                      project.projectName ?? '-',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
-              const Gap(16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4),
+                  child: Divider(color: Color(0xFFF1F5F9), thickness: 1),
+                ),
+                const Gap(12),
+                _buildInfoRow(icon: Icons.person_outline_rounded, iconColor: const Color(0xFFF59E0B), label: 'Loyiha egasi', value: project.projectOwner ?? '-'),
+                const Gap(12),
+                _buildInfoRow(icon: Icons.phone_android_rounded, iconColor: const Color(0xFF10B981), label: 'Tel raqami', value: PhoneFormatter.formatPhoneNumber(project.phone ?? '')),
+                const Gap(12),
+                _buildInfoRow(icon: Icons.location_on_outlined, iconColor: const Color(0xFFEF4444), label: 'Manzil', value: project.address ?? '-'),
+                if (project.location != null && project.location!.isNotEmpty) ...[
+                  const Gap(12),
+                  _buildInfoRow(
+                    icon: Icons.map_outlined,
+                    iconColor: const Color(0xFF3B82F6),
+                    label: 'Lokatsiya',
+                    value: 'Havolani ko\'rish',
+                    isLink: true,
+                    onTap: () {
+                      // Handle location link
+                    },
+                  ),
+                ],
+              ],
+            ),
+          ),
+          // Subtle Divider
+          const Divider(height: 1, color: Color(0xFFF1F5F9), indent: 16, endIndent: 16),
+          // Footer with Status
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 10),
+            child: _buildHeaderStatusRow(project),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderStatusRow(ProjectModel project) {
+    String label;
+    Color color;
+    IconData icon;
+
+    switch (project.status ?? '') {
+      case 'in_progress':
+      case 'Jarayonda':
+        label = 'Jarayonda';
+        color = Colors.orange;
+        icon = Icons.play_circle_outline_rounded;
+        break;
+      case 'frozen':
+      case 'Muzlatilgan':
+        label = 'Muzlatilgan';
+        color = Colors.blue;
+        icon = Icons.pause_circle_outline_rounded;
+        break;
+      case 'completed':
+      case 'Yakunlangan':
+        label = 'Yakunlangan';
+        color = Colors.green;
+        icon = Icons.check_circle_outline_rounded;
+        break;
+      default:
+        label = project.status ?? 'Noma\'lum';
+        color = const Color(0xFF64748B);
+        icon = Icons.help_outline_rounded;
+    }
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Status Info (Clickable Card)
+          Material(
+            color: color.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              onTap: () => _showStatusSelectionBottomSheet(project),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: color.withValues(alpha: 0.12), width: 1),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                      child: Icon(icon, color: color, size: 14),
+                    ),
+                    const Gap(10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: Text(
-                            project.projectName ?? '-',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                        const Text(
+                          'Loyiha holati',
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B), letterSpacing: 0.3),
+                        ),
+                        Text(
+                          label,
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: color, letterSpacing: -0.2),
                         ),
                       ],
                     ),
+                    const Gap(8),
+                    Icon(Icons.keyboard_arrow_down_rounded, color: color, size: 16),
                   ],
                 ),
               ),
+            ),
+          ),
+          const Gap(12),
+          // Action: View Report (Expanded to fill width)
+          Expanded(
+            child: _buildCompactActionButton(
+              icon: Icons.bar_chart_rounded,
+              label: 'Hisobot',
+              color: AppTheme.colors.primary,
+              isLarge: true,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ProjectReportPage(projectId: project.id ?? 0)),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompactActionButton({
+    required IconData icon,
+    String? label,
+    required Color color,
+    required VoidCallback onTap,
+    bool isLarge = false,
+  }) {
+    return Material(
+      color: color.withValues(alpha: isLarge ? 0.12 : 0.08),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: label != null ? 14 : 10,
+            vertical: isLarge ? 10 : 8,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: AppTheme.colors.primary
+          ),
+          child: Row(
+            mainAxisSize: label != null ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: isLarge ? 20 : 18),
+              if (label != null) ...[
+                const Gap(8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: isLarge ? 12 : 11,
+                    fontWeight: isLarge ? FontWeight.w800 : FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
             ],
           ),
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 4),
-              child: Divider(color: Color(0xFFF1F5F9), thickness: 1),
-            ),
-            const Gap(12),
-            _buildInfoRow(icon: Icons.person_outline_rounded, iconColor: const Color(0xFFF59E0B), label: 'Loyiha egasi', value: project.projectOwner ?? '-'),
-            const Gap(12),
-            _buildInfoRow(icon: Icons.phone_android_rounded, iconColor: const Color(0xFF10B981), label: 'Tel raqami', value: PhoneFormatter.formatPhoneNumber(project.phone ?? '')),
-            const Gap(12),
-            _buildInfoRow(icon: Icons.location_on_outlined, iconColor: const Color(0xFFEF4444), label: 'Manzil', value: project.address ?? '-'),
-            if (project.location != null && project.location!.isNotEmpty) ...[
-              const Gap(12),
-              _buildInfoRow(
-                icon: Icons.map_outlined,
-                iconColor: const Color(0xFF3B82F6),
-                label: 'Lokatsiya',
-                value: 'Havolani ko\'rish',
-                isLink: true,
-                onTap: () {
-                  // Handle location link
-                },
-              ),
-            ],
-          ],
         ),
       ),
     );
@@ -471,7 +615,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 const Gap(8),
                 Text(
                   label,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.black),
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: color, letterSpacing: 0.3),
                 ),
               ],
             ),
@@ -488,12 +632,12 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   children: [
                     Text(
                       _formatCurrency(amountUzs),
-                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black),
+                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: amountUzs == 0 ? Colors.black : const Color(0xFF1E293B), letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
                     ),
                     const Gap(4),
                     Text(
                       'UZS',
-                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.black54),
+                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black),
                     ),
                   ],
                 ),
@@ -512,12 +656,12 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   children: [
                     Text(
                       _formatCurrency(amountUsd),
-                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black),
+                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: amountUsd == 0 ? Colors.black : const Color(0xFF1E293B), letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
                     ),
                     const Gap(4),
                     Text(
                       'USD',
-                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.black54),
+                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black),
                     ),
                   ],
                 ),
@@ -534,83 +678,71 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
     final uzs = balance?.uzs ?? 0;
     final usd = balance?.usd ?? 0;
 
-    // Senior approach: Conditional colors based on balance state
-    final isNegative = uzs < 0 || usd < 0;
-    final isZero = uzs == 0 && usd == 0;
-
-    final Color balanceColor = isNegative
-        ? const Color(0xFFDE5050)
-        : (isZero ? AppTheme.colors.primary : const Color(0xFF3CC293));
-
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: balanceColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: balanceColor.withValues(alpha: 0.25), width: 1.5),
+        color: AppTheme.colors.primary.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.1), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: balanceColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
+              color: AppTheme.colors.primary.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
             ),
             child: SvgPicture.asset(
               AppIcons.balance,
-              width: 24,
-              height: 24,
-              colorFilter: ColorFilter.mode(balanceColor, BlendMode.srcIn),
+              width: 22,
+              height: 22,
+              colorFilter: const ColorFilter.mode(Color(0xFF1E293B), BlendMode.srcIn),
             ),
           ),
-          const Gap(16),
-          Text(
+          const Gap(12),
+          const Text(
             'Qoldiq',
-            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: balanceColor),
+            style: TextStyle(color: Color(0xFF1E293B), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.4),
           ),
           const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    _formatCurrency(uzs),
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                      color: balanceColor,
+              RichText(
+                textAlign: TextAlign.end,
+                text: TextSpan(
+                  text: _formatCurrency(uzs),
+                  style: const TextStyle(color: Color(0xFF1E293B), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                  children: const [
+                    TextSpan(
+                      text: ' UZS',
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.black),
                     ),
-                  ),
-                  const Gap(6),
-                  Text(
-                    'UZS',
-                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: balanceColor.withValues(alpha: 0.6)),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const Gap(2),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    _formatCurrency(usd),
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                      color: balanceColor,
+              RichText(
+                textAlign: TextAlign.end,
+                text: TextSpan(
+                  text: _formatCurrency(usd),
+                  style: const TextStyle(color: Color(0xFF1E293B), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                  children: const [
+                    TextSpan(
+                      text: ' USD',
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.black),
                     ),
-                  ),
-                  const Gap(6),
-                  Text(
-                    'USD',
-                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: balanceColor.withValues(alpha: 0.6)),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -620,29 +752,30 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
   }
 
   Widget _buildActionButton({required String label, required String icon, required Color color, required List<Color> gradient, required VoidCallback onTap}) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(icon, width: 20, height: 20, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-              const Gap(8),
-              Text(
-                label,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.white),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(icon, width: 20, height: 20, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+            const Gap(8),
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -753,135 +886,6 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
     );
   }
 
-  Widget _buildStatusDisplayCard(ProjectState state, ProjectModel project) {
-    String label;
-    Color color;
-    IconData icon;
-
-    switch (project.status ?? '') {
-      case 'in_progress':
-      case 'Jarayonda':
-        label = 'Jarayonda';
-        color = Colors.orange;
-        icon = Icons.play_circle_outline_rounded;
-        break;
-      case 'frozen':
-      case 'Muzlatilgan':
-        label = 'Muzlatilgan';
-        color = Colors.blue;
-        icon = Icons.pause_circle_outline_rounded;
-        break;
-      case 'completed':
-      case 'Yakunlangan':
-        label = 'Yakunlangan';
-        color = Colors.green;
-        icon = Icons.check_circle_outline_rounded;
-        break;
-      default:
-        label = project.status ?? 'Noma\'lum';
-        color = const Color(0xFF64748B);
-        icon = Icons.help_outline_rounded;
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.12),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Stack(
-          children: [
-            // Decorative Background Icon
-            Positioned(
-              right: -10,
-              top: 0,
-              child: Icon(
-                icon,
-                size: 60,
-                color: color.withValues(alpha: 0.1),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 12),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
-                    ),
-                    child: Icon(icon, color: color, size: 24),
-                  ),
-                  const Gap(16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Loyiha holati',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF94A3B8),
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const Gap(4),
-                        Text(
-                          label,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: color,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Material(
-                    color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    child: InkWell(
-                      onTap: () => _showStatusSelectionBottomSheet(project),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        child: Row(
-                          children: [
-                            Text(
-                              'O\'zgartirish',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: color,
-                              ),
-                            ),
-                            const Gap(4),
-                            Icon(Icons.keyboard_arrow_right_rounded, color: color, size: 18),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _showStatusSelectionBottomSheet(ProjectModel project) {
     showModalBottomSheet(
@@ -899,68 +903,124 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
             final isLoading = state.statusAction == Status.loading;
             final currentStatus = project.status ?? '';
 
-            return Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+            return ClipRRect(
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
+              child: Stack(
                 children: [
-                  // Handle
-                  Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(10)),
+                  AbsorbPointer(
+                    absorbing: isLoading,
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Handle
+                          Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(10)),
+                          ),
+                          const Gap(32),
+                          const Text(
+                            'Loyiha holatini tanlang',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                          ),
+                          const Gap(12),
+                          const Text(
+                            'Loyiha holatini o\'zgartirish orqali uni boshqarishingiz mumkin',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 15, color: Color(0xFF64748B)),
+                          ),
+                          const Gap(32),
+                          _buildStatusSheetOption(
+                            context,
+                            label: 'Jarayonda',
+                            slug: 'in_progress',
+                            currentStatus: currentStatus,
+                            color: Colors.orange,
+                            icon: Icons.play_circle_outline_rounded,
+                            isLoading: isLoading,
+                            projectId: project.id ?? 0,
+                          ),
+                          const Gap(12),
+                          _buildStatusSheetOption(
+                            context,
+                            label: 'Muzlatilgan',
+                            slug: 'frozen',
+                            currentStatus: currentStatus,
+                            color: Colors.blue,
+                            icon: Icons.pause_circle_outline_rounded,
+                            isLoading: isLoading,
+                            projectId: project.id ?? 0,
+                          ),
+                          const Gap(12),
+                          _buildStatusSheetOption(
+                            context,
+                            label: 'Yakunlangan',
+                            slug: 'completed',
+                            currentStatus: currentStatus,
+                            color: Colors.green,
+                            icon: Icons.check_circle_outline_rounded,
+                            isLoading: isLoading,
+                            projectId: project.id ?? 0,
+                          ),
+                          const Gap(32),
+                          SizedBox(height: MediaQuery.of(context).padding.bottom),
+                        ],
+                      ),
+                    ),
                   ),
-                  const Gap(32),
-                  const Text(
-                    'Loyiha holatini tanlang',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
-                  ),
-                  const Gap(12),
-                  const Text(
-                    'Loyiha holatini o\'zgartirish orqali uni boshqarishingiz mumkin',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 15, color: Color(0xFF64748B)),
-                  ),
-                  const Gap(32),
-                  _buildStatusSheetOption(
-                    context,
-                    label: 'Jarayonda',
-                    slug: 'in_progress',
-                    currentStatus: currentStatus,
-                    color: Colors.orange,
-                    icon: Icons.play_circle_outline_rounded,
-                    isLoading: isLoading,
-                    projectId: project.id ?? 0,
-                  ),
-                  const Gap(12),
-                  _buildStatusSheetOption(
-                    context,
-                    label: 'Muzlatilgan',
-                    slug: 'frozen',
-                    currentStatus: currentStatus,
-                    color: Colors.blue,
-                    icon: Icons.pause_circle_outline_rounded,
-                    isLoading: isLoading,
-                    projectId: project.id ?? 0,
-                  ),
-                  const Gap(12),
-                  _buildStatusSheetOption(
-                    context,
-                    label: 'Yakunlangan',
-                    slug: 'completed',
-                    currentStatus: currentStatus,
-                    color: Colors.green,
-                    icon: Icons.check_circle_outline_rounded,
-                    isLoading: isLoading,
-                    projectId: project.id ?? 0,
-                  ),
-                  const Gap(32),
-                  if (isLoading) const CupertinoActivityIndicator(radius: 12),
-                  SizedBox(height: MediaQuery.of(context).padding.bottom),
+                  if (isLoading)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.6),
+                        ),
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.08),
+                                  blurRadius: 30,
+                                  offset: const Offset(0, 12),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 40,
+                                  height: 40,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                    valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary),
+                                  ),
+                                ),
+                                const Gap(16),
+                                Text(
+                                  'Saqlanmoqda...',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.colors.primary,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             );
