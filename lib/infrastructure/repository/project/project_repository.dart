@@ -80,10 +80,8 @@ class ProjectRepository {
   }
 
 
-  Future<Map<String, dynamic>> get() async {
-    final response = await dio.get('/project/projects',data: {
-      'search':null
-    });
+  Future<Map<String, dynamic>> get({Map<String, dynamic>? params}) async {
+    final response = await dio.get('/project/projects', queryParameters: params);
     return response.data;
   }
 

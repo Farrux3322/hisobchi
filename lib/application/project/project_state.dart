@@ -8,6 +8,11 @@ class ProjectState extends Equatable {
   final String? errorMessage;
   final List<ProjectModel> models;
   final ProjectModel? selectedProject;
+  
+  // Filter states
+  final String? search;
+  final String? statusFilter;
+  final List<String>? date;
 
   const ProjectState({
     this.status = Status.pure,
@@ -17,6 +22,9 @@ class ProjectState extends Equatable {
     this.errorMessage,
     this.models = const [],
     this.selectedProject,
+    this.search,
+    this.statusFilter,
+    this.date,
   });
 
   ProjectState copyWith({
@@ -27,6 +35,9 @@ class ProjectState extends Equatable {
     String? errorMessage,
     List<ProjectModel>? models,
     ProjectModel? selectedProject,
+    String? search,
+    String? Function()? statusFilter,
+    List<String>? Function()? date,
   }) {
     return ProjectState(
       status: status ?? this.status,
@@ -36,6 +47,9 @@ class ProjectState extends Equatable {
       errorMessage: errorMessage ?? this.errorMessage,
       models: models ?? this.models,
       selectedProject: selectedProject ?? this.selectedProject,
+      search: search ?? this.search,
+      statusFilter: statusFilter != null ? statusFilter() : this.statusFilter,
+      date: date != null ? date() : this.date,
     );
   }
 
@@ -48,5 +62,8 @@ class ProjectState extends Equatable {
         errorMessage,
         models,
         selectedProject,
+        search,
+        statusFilter,
+        date,
       ];
 }

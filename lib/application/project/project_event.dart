@@ -8,7 +8,23 @@ sealed class ProjectEvent extends Equatable {
 }
 
 class GetAllProjectEvent extends ProjectEvent {
-  const GetAllProjectEvent();
+  final String? search;
+  final String? status;
+  final List<String>? date;
+  
+  final bool updateSearch;
+  final bool updateFilters;
+
+  const GetAllProjectEvent({
+    this.search,
+    this.status,
+    this.date,
+    this.updateSearch = false,
+    this.updateFilters = false,
+  });
+
+  @override
+  List<Object?> get props => [search, status, date, updateSearch, updateFilters];
 }
 
 class GetProjectByIdEvent extends ProjectEvent {

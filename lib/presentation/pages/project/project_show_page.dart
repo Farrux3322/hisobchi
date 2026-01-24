@@ -771,7 +771,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: color.withValues(alpha: 0.12),
@@ -781,31 +781,31 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(12),
         child: Stack(
           children: [
             // Decorative Background Icon
             Positioned(
-              right: -20,
-              top: -10,
+              right: -10,
+              top: 0,
               child: Icon(
                 icon,
-                size: 100,
-                color: color.withValues(alpha: 0.05),
+                size: 60,
+                color: color.withValues(alpha: 0.1),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 12),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
                     ),
-                    child: Icon(icon, color: color, size: 28),
+                    child: Icon(icon, color: color, size: 24),
                   ),
                   const Gap(16),
                   Expanded(
@@ -825,7 +825,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                         Text(
                           label,
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w800,
                             color: color,
                             letterSpacing: -0.5,

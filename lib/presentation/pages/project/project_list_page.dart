@@ -9,6 +9,8 @@ import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/project_show_page.dart';
 import 'package:hisobchi/presentation/pages/project/widgets/project_card_item.dart';
+import 'package:hisobchi/presentation/pages/project/widgets/project_filter_bottom_sheet.dart';
+import 'package:hisobchi/presentation/pages/project/components/project_filter_field.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -20,7 +22,7 @@ class ProjectListPage extends StatefulWidget {
 }
 
 class _ProjectListPageState extends State<ProjectListPage> {
-  String searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -28,18 +30,12 @@ class _ProjectListPageState extends State<ProjectListPage> {
     context.read<ProjectBloc>().add(const GetAllProjectEvent());
   }
 
-  List<ProjectModel> _filterProjects(List<ProjectModel> projects) {
-    if (searchQuery.isEmpty) return projects;
-
-    return projects.where((project) {
-      final name = project.projectName?.toLowerCase() ?? '';
-      final owner = project.projectOwner?.toLowerCase() ?? '';
-      final phone = project.phone ?? '';
-      final query = searchQuery.toLowerCase();
-
-      return name.contains(query) || owner.contains(query) || phone.contains(query);
-    }).toList();
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -64,14 +60,19 @@ class _ProjectListPageState extends State<ProjectListPage> {
           },
           builder: (context, state) {
             return Scaffold(
-              body: SafeArea(
-                bottom: false,
-                child: Column(
-                  children: [
-                    _buildHeader(),
-                    Expanded(child: _buildBody(state)),
-                  ],
-                ),
+              backgroundColor: const Color(0xFFF8FAFC),
+              appBar: AppBar(
+                title: const Text('Loyihalar'),
+                backgroundColor: Colors.white,
+                elevation: 0,
+                centerTitle: false,
+                titleTextStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+              ),
+              body: Column(
+                children: [
+                  _buildHeader(),
+                  Expanded(child: _buildBody(state)),
+                ],
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: () {
@@ -93,28 +94,13 @@ class _ProjectListPageState extends State<ProjectListPage> {
     }
 
     if (state.models.isEmpty) {
+      if (state.search != null || state.statusFilter != null || state.date != null) {
+        return _buildNoResultsState();
+      }
       return _buildEmptyState();
     }
 
-    final filteredProjects = _filterProjects(state.models);
-
-    if (filteredProjects.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            const Text(
-              'Hech narsa topilmadi',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-            ),
-            const SizedBox(height: 8),
-            Text('Boshqa kalit so\'z bilan qidiring', style: TextStyle(fontSize: 14, color: Colors.grey[600])),
-          ],
-        ),
-      );
-    }
+    final projects = state.models;
 
     return RefreshIndicator(
       color: AppTheme.colors.primary,
@@ -122,21 +108,18 @@ class _ProjectListPageState extends State<ProjectListPage> {
         context.read<ProjectBloc>().add(const GetAllProjectEvent());
       },
       child: ListView.builder(
-        padding:  EdgeInsets.symmetric(horizontal:  16),
-        itemCount: filteredProjects.length,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: projects.length,
         itemBuilder: (context, index) {
-          final project = filteredProjects[index];
+          final project = projects[index];
           return ProjectCardItem(
             projectModel: project,
             onTap: () async {
               final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectShowPage(projectId: project.id ?? 0)));
-              // Handle results: ProjectShowResult (from normal navigation) or true (from delete/force_delete)
               if (context.mounted) {
                 if (result is ProjectShowResult && result.hasChanges) {
-                  // Changes made in ProjectShowPage (edit, income/expense modifications)
                   context.read<ProjectBloc>().add(const GetAllProjectEvent());
                 } else if (result == true) {
-                  // Project was deleted or force deleted - refresh list
                   context.read<ProjectBloc>().add(const GetAllProjectEvent());
                 }
               }
@@ -148,39 +131,58 @@ class _ProjectListPageState extends State<ProjectListPage> {
   }
 
   Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // Logo va valyuta
-          const Text(
-            'Loyihalar',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
-          ),
-          const SizedBox(height: 16),
+    final state = context.watch<ProjectBloc>().state;
+    final hasActiveFilter = state.statusFilter != null || state.date != null;
 
-          // Qidiruv
-          Container(
-            height: 48, // Fixed height qo'shamiz
-            decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
-            child: TextField(
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value;
-                });
-              },
-              style: const TextStyle(fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'Qidiruv...',
-                hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                prefixIcon: Padding(
-                  padding: EdgeInsets.only(left: 10.w),
-                  child: const Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              ),
-            ),
+    return Container(
+      color: const Color(0xFFF8FAFC),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: ProjectFilterField(
+        searchController: _searchController,
+        hasActiveFilters: hasActiveFilter,
+        date: state.date,
+        statusFilter: state.statusFilter,
+        onFilterTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const ProjectFilterBottomSheet(),
+          );
+        },
+        onSearchChanged: (value) {
+          context.read<ProjectBloc>().add(GetAllProjectEvent(search: value, updateSearch: true));
+        },
+        onClearSearch: () {
+          _searchController.clear();
+          context.read<ProjectBloc>().add(const GetAllProjectEvent(search: '', updateSearch: true));
+        },
+        onRemoveDate: () {
+          context.read<ProjectBloc>().add(const GetAllProjectEvent(date: null, updateFilters: true));
+        },
+        onRemoveStatusFilter: () {
+          context.read<ProjectBloc>().add(const GetAllProjectEvent(status: null, updateFilters: true));
+        },
+      ),
+    );
+  }
+
+  Widget _buildNoResultsState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off_rounded, size: 80, color: Colors.grey[300]),
+          const Gap(16),
+          const Text(
+            'Hech narsa topilmadi',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+          ),
+          const Gap(8),
+          Text(
+            'Tanlangan filtrlar bo\'yicha ma\'lumot yo\'q.\nBoshqa parametrlar bilan qidiring.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, color: Colors.grey[500], height: 1.5),
           ),
         ],
       ),
@@ -198,7 +200,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
               width: 120,
               height: 120,
               decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(60)),
-              child: Icon(Icons.business_outlined, size: 60, color: Colors.grey[400]),
+              child: SvgPicture.asset(AppIcons.project,width: 60,height: 60,),
             ),
             const SizedBox(height: 24),
             const Text(

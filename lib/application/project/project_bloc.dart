@@ -23,9 +23,25 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   }
 
   Future<void> getAll(GetAllProjectEvent event, Emitter<ProjectState> emit) async {
-    emit(state.copyWith(status: Status.loading, statusAdd: Status.pure));
+    final search = event.updateSearch ? event.search : state.search;
+    final statusFilter = event.updateFilters ? event.status : state.statusFilter;
+    final date = event.updateFilters ? event.date : state.date;
+
+    emit(state.copyWith(
+      status: Status.loading,
+      statusAdd: Status.pure,
+      search: search,
+      statusFilter: event.updateFilters ? () => event.status : null,
+      date: event.updateFilters ? () => event.date : null,
+    ));
+
     try {
-      final data = await _repo.get();
+      final Map<String, dynamic> params = {};
+      if (search != null && search.isNotEmpty) params['search'] = search;
+      if (statusFilter != null && statusFilter.isNotEmpty) params['status'] = statusFilter;
+      if (date != null && date.isNotEmpty) params['date[]'] = date;
+
+      final data = await _repo.get(params: params);
 
       if (data["status"] == true) {
         List<ProjectModel> model = [];
