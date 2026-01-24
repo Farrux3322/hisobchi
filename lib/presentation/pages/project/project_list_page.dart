@@ -44,7 +44,13 @@ class _ProjectListPageState extends State<ProjectListPage> {
       child: Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
         child: BlocConsumer<ProjectBloc, ProjectState>(
+          listenWhen: (previous, current) => previous.search != current.search || previous.statusAdd != current.statusAdd || previous.status != current.status,
           listener: (context, state) {
+            // Synchronize search controller with state
+            if (_searchController.text != (state.search ?? '')) {
+              _searchController.text = state.search ?? '';
+            }
+
             if (state.statusAdd == Status.success) {
               Toast.showSuccessToast(message: 'Muvaffaqiyatli saqlandi');
               context.read<ProjectBloc>().add(const GetAllProjectEvent());

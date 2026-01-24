@@ -364,7 +364,6 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   amountUsd: project.accounts?.debt?.usd,
                   icon: AppIcons.income,
                   color: const Color(0xFF3CC293),
-                  // Emerald
                   onTap: () async {
                     // Navigate to income list page and check if changes were made
                     final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeListPage(projectId: project.id ?? 0)));
@@ -383,8 +382,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   amountUzs: project.accounts?.credit?.uzs,
                   amountUsd: project.accounts?.credit?.usd,
                   icon: AppIcons.chiqim,
-                  color: const Color(0xFFEF4444),
-                  // Rose
+                  color: const Color(0xFFDE5050),
                   onTap: () async {
                     // Navigate to expense list page and check if changes were made
                     final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostListPage(projectId: project.id ?? 0)));
@@ -409,7 +407,8 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 child: _buildActionButton(
                   label: 'Kirim',
                   icon: AppIcons.income,
-                  color: const Color(0xFF10B981),
+                  color: const Color(0xFF3CC293),
+                  gradient: const [Color(0xFF3CC293), Color(0xFF34B082)],
                   onTap: () {
                     // Adding new income transaction
                     Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeAddEditPage(projectId: project.id ?? 0))).then((v) {
@@ -427,7 +426,8 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 child: _buildActionButton(
                   label: 'Chiqim',
                   icon: AppIcons.chiqim,
-                  color: const Color(0xFFEF4444),
+                  color: const Color(0xFFDE5050),
+                  gradient: const [Color(0xFFDE5050), Color(0xFFC54444)],
                   onTap: () {
                     // Adding new expense transaction
                     Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostAddEditPage(projectId: project.id ?? 0))).then((v) {
@@ -450,14 +450,13 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
   Widget _buildMetricCard({required String label, num? amountUzs, num? amountUsd, required String icon, required Color color, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
-          border: Border.all(color: color,width: .5),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+          border: Border.all(color: color.withValues(alpha: 0.25), width: 1),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -531,29 +530,45 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
   }
 
   Widget _buildMainBalanceCard(ProjectModel project) {
-    var color = AppTheme.colors.primary; // Indigo
     final balance = project.accounts?.balance;
+    final uzs = balance?.uzs ?? 0;
+    final usd = balance?.usd ?? 0;
+
+    // Senior approach: Conditional colors based on balance state
+    final isNegative = uzs < 0 || usd < 0;
+    final isZero = uzs == 0 && usd == 0;
+
+    final Color balanceColor = isNegative
+        ? const Color(0xFFDE5050)
+        : (isZero ? AppTheme.colors.primary : const Color(0xFF3CC293));
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.9)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        color: balanceColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 8))],
+        border: Border.all(color: balanceColor.withValues(alpha: 0.25), width: 1.5),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
-            child: SvgPicture.asset(AppIcons.balance, width: 24, height: 24, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+            decoration: BoxDecoration(
+              color: balanceColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: SvgPicture.asset(
+              AppIcons.balance,
+              width: 24,
+              height: 24,
+              colorFilter: ColorFilter.mode(balanceColor, BlendMode.srcIn),
+            ),
           ),
           const Gap(16),
           Text(
             'Qoldiq',
-            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.white),
+            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: balanceColor),
           ),
-
           const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -563,17 +578,17 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
-                    _formatCurrency(balance?.uzs),
+                    _formatCurrency(uzs),
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
-                      color: (balance?.uzs ?? 0) < 0 ? const Color(0xFFFF5252) : const Color(0xFF69F0AE),
+                      color: balanceColor,
                     ),
                   ),
                   const Gap(6),
                   Text(
                     'UZS',
-                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.white70),
+                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: balanceColor.withValues(alpha: 0.6)),
                   ),
                 ],
               ),
@@ -583,17 +598,17 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
-                    _formatCurrency(balance?.usd),
+                    _formatCurrency(usd),
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
-                      color: (balance?.usd ?? 0) < 0 ? const Color(0xFFFF5252) : const Color(0xFF69F0AE),
+                      color: balanceColor,
                     ),
                   ),
                   const Gap(6),
                   Text(
                     'USD',
-                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.white70),
+                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: balanceColor.withValues(alpha: 0.6)),
                   ),
                 ],
               ),
@@ -604,23 +619,23 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
     );
   }
 
-  Widget _buildActionButton({required String label, required String icon, required Color color, required VoidCallback onTap}) {
+  Widget _buildActionButton({required String label, required String icon, required Color color, required List<Color> gradient, required VoidCallback onTap}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.80),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: color.withValues(alpha: 0.15), width: 1.5),
+            gradient: LinearGradient(colors: gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SvgPicture.asset(icon, colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+              SvgPicture.asset(icon, width: 20, height: 20, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
               const Gap(8),
               Text(
                 label,

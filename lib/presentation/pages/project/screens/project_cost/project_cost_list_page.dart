@@ -919,6 +919,15 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                         ),
                         if(cost.workerName != null) const SizedBox(height: 4),
                         if(cost.workerName != null)Text(cost.workerName ?? '', style: TextStyle(color: Colors.black54, fontSize: 13)),
+                        if (cost.description != null && cost.description!.trim().isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            cost.description!.trim(),
+                            style: TextStyle(color: Colors.grey[500], fontSize: 11, fontWeight: FontWeight.w400),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ],
                     ),
                   ),

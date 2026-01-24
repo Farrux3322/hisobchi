@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/dashboard/dashboard_bloc.dart';
+import 'package:hisobchi/application/project/project_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
@@ -45,6 +47,15 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
   void dispose() {
     _fadeController.dispose();
     super.dispose();
+  }
+
+  void _navigateToProjects({required String status}) {
+    // 1. Switch tab to Projects (index 2)
+    StatefulNavigationShell.of(context).goBranch(2);
+
+    // 2. Clear search and set status filter
+    // context.read<ProjectBloc>().add(const GetAllProjectEvent(search: '', updateSearch: true));
+    context.read<ProjectBloc>().add(GetAllProjectEvent(status: status, updateFilters: true));
   }
 
   @override
@@ -290,15 +301,29 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           gradient: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: .9)],
           statusPages: [
             [
-              StatusMiniCard(label: 'Jarayonda', count: projects?.inProgress ?? 0, icon: Icons.play_arrow_rounded, backgroundColor: const Color(0xFFEEF3FF), iconColor:Colors.blue, onTap: () {}),
-              StatusMiniCard(label: 'Muzlatilgan', count: projects?.frozen ?? 0, icon: Icons.pause_rounded, backgroundColor: const Color(0xFFFFF3E0), iconColor: Colors.orange  , onTap: () {}),
+              StatusMiniCard(
+                label: 'Jarayonda',
+                count: projects?.inProgress ?? 0,
+                icon: Icons.play_arrow_rounded,
+                backgroundColor: const Color(0xFFEEF3FF),
+                iconColor: Colors.blue,
+                onTap: () => _navigateToProjects(status: 'in_progress'),
+              ),
+              StatusMiniCard(
+                label: 'Muzlatilgan',
+                count: projects?.frozen ?? 0,
+                icon: Icons.pause_rounded,
+                backgroundColor: const Color(0xFFFFF3E0),
+                iconColor: Colors.orange,
+                onTap: () => _navigateToProjects(status: 'frozen'),
+              ),
               StatusMiniCard(
                 label: 'Yakunlangan',
                 count: projects?.completed ?? 0,
                 icon: Icons.check_circle_outline_rounded,
                 backgroundColor: const Color(0xFFE8F5E9),
                 iconColor: Colors.green,
-                onTap: () {},
+                onTap: () => _navigateToProjects(status: 'completed'),
               ),
             ],
           ],
