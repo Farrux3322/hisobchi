@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/project_report/project_report_bloc.dart';
 import 'package:hisobchi/infrastructure/dto/models/project_report/project_report_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_cost/project_cost_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/report/project_cost_details_page.dart';
@@ -39,7 +40,8 @@ class _ProjectReportView extends StatelessWidget {
           'Moliya Hisoboti',
           style: TextStyle(color: theme.black, fontWeight: FontWeight.w700, fontSize: 20),
         ),
-        backgroundColor: theme.background,
+        leading: BackArrowButton(),
+        backgroundColor: theme.white,
         elevation: 0,
         iconTheme: IconThemeData(color: theme.black),
         centerTitle: true,
@@ -151,35 +153,41 @@ class _ProjectReportView extends StatelessWidget {
           ),
 
           // Right side - Vertical Balance
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              RichText(
-                text: TextSpan(
-                  text: formatter.format(balanceUzs).replaceAll(',', ' '),
-                  style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w900, color: Colors.white, height: 1.2),
-                  children: [
-                    TextSpan(
-                      text: ' UZS',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white.withValues(alpha: 0.85), fontWeight: FontWeight.w600),
-                    ),
-                  ],
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                RichText(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    text: formatter.format(balanceUzs).replaceAll(',', ' '),
+                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: Colors.white, height: 1.2),
+                    children: [
+                      TextSpan(
+                        text: ' UZS',
+                        style: TextStyle(fontSize: 12.sp, color: Colors.white.withValues(alpha: 0.85), fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const Gap(8),
-              RichText(
-                text: TextSpan(
-                  text: formatter.format(balanceUsd).replaceAll(',', ' '),
-                  style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w900, color: Colors.white.withValues(alpha: 0.9), height: 1.2),
-                  children: [
-                    TextSpan(
-                      text: ' USD',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w600),
-                    ),
-                  ],
+                const Gap(8),
+                RichText(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    text: formatter.format(balanceUsd).replaceAll(',', ' '),
+                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: Colors.white.withValues(alpha: 0.9), height: 1.2),
+                    children: [
+                      TextSpan(
+                        text: ' USD',
+                        style: TextStyle(fontSize: 12.sp, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -234,37 +242,43 @@ class _ProjectReportView extends StatelessWidget {
             ),
 
             // Right side - Vertical Income
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: formatter.format(incomeUzs).replaceAll(',', ' '),
-                    style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: const Color(0xFF10B981), height: 1.2),
-                    children: [
-                      TextSpan(
-                        text: ' UZS',
-                        style: TextStyle(fontSize: 12.sp, color: const Color(0xFF10B981).withValues(alpha: 0.8), fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
-                ),
-                if (incomeUsd > 0) ...[
-                  const Gap(6),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
                   RichText(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     text: TextSpan(
-                      text: formatter.format(incomeUsd).replaceAll(',', ' '),
-                      style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: const Color(0xFF059669), height: 1.2),
+                      text: formatter.format(incomeUzs).replaceAll(',', ' '),
+                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: const Color(0xFF10B981), height: 1.2),
                       children: [
                         TextSpan(
-                          text: ' USD',
-                          style: TextStyle(fontSize: 12.sp, color: const Color(0xFF059669).withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+                          text: ' UZS',
+                          style: TextStyle(fontSize: 12.sp, color: const Color(0xFF10B981).withValues(alpha: 0.8), fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
                   ),
+                  if (incomeUsd > 0) ...[
+                    const Gap(6),
+                    RichText(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                        text: formatter.format(incomeUsd).replaceAll(',', ' '),
+                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: const Color(0xFF059669), height: 1.2),
+                        children: [
+                          TextSpan(
+                            text: ' USD',
+                            style: TextStyle(fontSize: 12.sp, color: const Color(0xFF059669).withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ],
         ),
@@ -317,37 +331,43 @@ class _ProjectReportView extends StatelessWidget {
               ),
 
               // Right side - Vertical Expense
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      text: formatter.format(costUzs).replaceAll(',', ' '),
-                      style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: const Color(0xFFEF4444), height: 1.2),
-                      children: [
-                        TextSpan(
-                          text: ' UZS',
-                          style: TextStyle(fontSize: 12.sp, color: const Color(0xFFEF4444).withValues(alpha: 0.8), fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (costUsd > 0) ...[
-                    const Gap(6),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
                     RichText(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       text: TextSpan(
-                        text: formatter.format(costUsd).replaceAll(',', ' '),
-                        style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: const Color(0xFFDC2626), height: 1.2),
+                        text: formatter.format(costUzs).replaceAll(',', ' '),
+                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: const Color(0xFFEF4444), height: 1.2),
                         children: [
                           TextSpan(
-                            text: ' USD',
-                            style: TextStyle(fontSize: 12.sp, color: const Color(0xFFDC2626).withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+                            text: ' UZS',
+                            style: TextStyle(fontSize: 12.sp, color: const Color(0xFFEF4444).withValues(alpha: 0.8), fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),
                     ),
+                    if (costUsd > 0) ...[
+                      const Gap(6),
+                      RichText(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        text: TextSpan(
+                          text: formatter.format(costUsd).replaceAll(',', ' '),
+                          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: const Color(0xFFDC2626), height: 1.2),
+                          children: [
+                            TextSpan(
+                              text: ' USD',
+                              style: TextStyle(fontSize: 12.sp, color: const Color(0xFFDC2626).withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ],
           ),
@@ -457,38 +477,44 @@ class _ProjectReportView extends StatelessWidget {
                     const Gap(12),
 
                     // Amounts
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        if ((detail.summaUzs ?? 0) > 0)
-                          RichText(
-                            text: TextSpan(
-                              text: formatter.format(detail.summaUzs ?? 0).replaceAll(',', ' '),
-                              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: color),
-                              children: [
-                                TextSpan(
-                                  text: ' UZS',
-                                  style: TextStyle(fontSize: 10.sp, color: color.withValues(alpha: 0.7), fontWeight: FontWeight.w600),
-                                ),
-                              ],
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          if ((detail.summaUzs ?? 0) > 0)
+                            RichText(
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              text: TextSpan(
+                                text: formatter.format(detail.summaUzs ?? 0).replaceAll(',', ' '),
+                                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w800, color: color),
+                                children: [
+                                  TextSpan(
+                                    text: ' UZS',
+                                    style: TextStyle(fontSize: 10.sp, color: color.withValues(alpha: 0.7), fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        if ((detail.summaUsd ?? 0) > 0) ...[
-                          const Gap(4),
-                          RichText(
-                            text: TextSpan(
-                              text: formatter.format(detail.summaUsd ?? 0).replaceAll(',', ' '),
-                              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: color.withValues(alpha: 0.8)),
-                              children: [
-                                TextSpan(
-                                  text: ' USD',
-                                  style: TextStyle(fontSize: 10.sp, color: color.withValues(alpha: 0.6), fontWeight: FontWeight.w600),
-                                ),
-                              ],
+                          if ((detail.summaUsd ?? 0) > 0) ...[
+                            const Gap(4),
+                            RichText(
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              text: TextSpan(
+                                text: formatter.format(detail.summaUsd ?? 0).replaceAll(',', ' '),
+                                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: color.withValues(alpha: 0.8)),
+                                children: [
+                                  TextSpan(
+                                    text: ' USD',
+                                    style: TextStyle(fontSize: 10.sp, color: color.withValues(alpha: 0.6), fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
 
                     const Gap(8),

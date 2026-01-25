@@ -561,6 +561,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
           child: Scaffold(
             appBar: AppBar(
               elevation: 0,
+              backgroundColor: Colors.white,
               surfaceTintColor: Colors.white,
               leading: Center(
                 child: InkWell(
