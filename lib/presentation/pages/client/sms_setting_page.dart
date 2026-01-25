@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import '../../assets/asset_index.dart';
 
 class SmsSettingPage extends StatefulWidget {
@@ -131,22 +132,7 @@ class _SmsSettingPageState extends State<SmsSettingPage> {
       backgroundColor: Colors.white,
       elevation: 0,
       surfaceTintColor: Colors.transparent,
-      leading: Center(
-        child: InkWell(
-          onTap: () => Navigator.pop(context),
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 18),
-          ),
-        ),
-      ),
+      leading: BackArrowButton(),
       centerTitle: true,
       title: const Text(
         'SMS Sozlamalari',
@@ -157,7 +143,7 @@ class _SmsSettingPageState extends State<SmsSettingPage> {
 
   Widget _buildStatusCard() {
     return Container(
-      padding:  EdgeInsets.symmetric(horizontal: 16.w,vertical: 12.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: 1)], begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(16.r),

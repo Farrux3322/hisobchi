@@ -279,12 +279,7 @@ class _ClientPageState extends State<ClientPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(60)),
-              child: Icon(Icons.people_outline, size: 60, color: Colors.grey[400]),
-            ),
+            SvgPicture.asset(AppIcons.clients, width: 60, height: 60),
             const SizedBox(height: 24),
             const Text(
               'Hamkorlar topilmadi',
@@ -315,7 +310,7 @@ class _ClientPageState extends State<ClientPage> {
             border: Border.all(color: AppTheme.colors.divider),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

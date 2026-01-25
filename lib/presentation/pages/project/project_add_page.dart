@@ -10,6 +10,7 @@ import 'package:hisobchi/application/file_upload/file_upload_state.dart';
 import 'package:hisobchi/application/project/project_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/add_client_components/add_client_dialogs.dart';
 import 'package:image_picker/image_picker.dart';
@@ -184,25 +185,8 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
       ],
       child: Scaffold(
         appBar: AppBar(
-          leading: InkWell(
-            onTap: () => Navigator.of(context).maybePop(),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.all(8),
-
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                  BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                  BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-                ],
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.arrow_back, color: Colors.black),
-            ),
-          ),
+          backgroundColor: Colors.white,
+          leading:  BackArrowButton(),
           centerTitle: true,
           title: const Text(
             'Loyiha',
@@ -346,9 +330,11 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
       keyboardType: keyboardType,
       inputFormatters: formatters,
       validator: validator,
+      maxLength: 30,
       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
       decoration: InputDecoration(
         hintText: hint,
+        counter: SizedBox(),
         hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w400, fontSize: 16),
         prefixIcon: Padding(
           padding: const EdgeInsets.only(left: 20, right: 16),

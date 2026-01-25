@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/currency/exchange_rate_model.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -96,10 +97,7 @@ class _CurrencyPageState extends State<CurrencyPage> with SingleTickerProviderSt
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
-        onPressed: () => Navigator.pop(context),
-      ),
+      leading: BackArrowButton(),
       title: const Text(
         'Valyuta kurslari',
         style: TextStyle(
@@ -332,7 +330,7 @@ class _CurrencyPageState extends State<CurrencyPage> with SingleTickerProviderSt
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         elevation: 0,
-        shadowColor: Colors.black.withOpacity(0.05),
+        shadowColor: Colors.black.withValues(alpha: 0.05),
         child: InkWell(
           onTap: () => _selectDate(context),
           borderRadius: BorderRadius.circular(16),
@@ -346,8 +344,8 @@ class _CurrencyPageState extends State<CurrencyPage> with SingleTickerProviderSt
               ),
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF6366F1).withOpacity(0.03),
-                  const Color(0xFF8B5CF6).withOpacity(0.03),
+                  const Color(0xFF6366F1).withValues(alpha: 0.03),
+                  const Color(0xFF8B5CF6).withValues(alpha: 0.03),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -359,7 +357,7 @@ class _CurrencyPageState extends State<CurrencyPage> with SingleTickerProviderSt
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6366F1).withOpacity(0.1),
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(

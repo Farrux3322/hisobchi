@@ -100,6 +100,7 @@ class ProjectCostInputs extends StatelessWidget {
         TextFormField(
           controller: controller,
           focusNode: focusNode,
+          maxLength: 14,
           keyboardType: TextInputType.number,
           inputFormatters: [
             _NumberInputFormatter(),
@@ -117,6 +118,7 @@ class ProjectCostInputs extends StatelessWidget {
           style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,
+            counter: SizedBox(),
             hintStyle: TextStyle(
               color: const Color(0xFF94A3B8),
               fontSize: 14.sp,
@@ -197,10 +199,12 @@ class ProjectCostInputs extends StatelessWidget {
           focusNode: focusNode,
           keyboardType: keyboardType,
           maxLines: maxLines,
+          maxLength: 30,
           validator: validator,
           style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,
+            counter: SizedBox(),
             hintStyle: TextStyle(
               color: const Color(0xFF94A3B8),
               fontSize: 14.sp,

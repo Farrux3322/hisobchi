@@ -7,6 +7,7 @@ import 'package:hisobchi/application/partner_operations/partner_operations_state
 import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
 import 'package:hisobchi/infrastructure/repository/partner_operations/partner_operations_repository.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/pages/client/report/widgets/partner_operation_detail_sheet.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -65,15 +66,12 @@ class _PartnerOperationsDetailPageState extends State<PartnerOperationsDetailPag
         appBar: AppBar(
           title: Text(
             widget.title,
-            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
+            style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w700),
           ),
-          backgroundColor: AppTheme.colors.background,
+          backgroundColor: AppTheme.colors.white,
           elevation: 0,
           centerTitle: true,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.colors.black, size: 20.sp),
-            onPressed: () => Navigator.pop(context),
-          ),
+          leading: BackArrowButton(),
         ),
         body: BlocBuilder<PartnerOperationsBloc, PartnerOperationsState>(
           builder: (context, state) {

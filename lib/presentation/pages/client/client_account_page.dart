@@ -10,6 +10,7 @@ import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import 'package:hisobchi/presentation/components/utils/phone_formatter.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
@@ -80,27 +81,10 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
           appBar: AppBar(
-            leading: InkWell(
-              onTap: () => Navigator.of(context).maybePop(),
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                margin: const EdgeInsets.all(8),
-
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                    BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                    BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-                  ],
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.arrow_back, color: Colors.black),
-              ),
-            ),
+            backgroundColor: AppTheme.colors.white,
+            elevation: 0,
+            leading: BackArrowButton(),
             actions: [
               IconButton(
                 icon: Icon(Icons.settings, color: AppTheme.colors.primary),
@@ -397,8 +381,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        side: BorderSide(color: AppTheme.colors.primary, width: 1.5),
-                        backgroundColor: AppTheme.colors.primary.withValues(alpha: 0.04),
+                        side: BorderSide(color: AppTheme.colors.primary, width: .5),
+                        backgroundColor: AppTheme.colors.white,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -484,18 +468,24 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                               ],
                             ),
                             SizedBox(height: screenWidth * 0.025),
-                            RichText(
-                              textAlign: TextAlign.end,
-                              text: TextSpan(
-                                text: PriceFormatter.priceFormat('$debt'),
-                                style: TextStyle(color: debt == 0 ? Colors.black : Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
-                                children: [
-                                  TextSpan(
-                                    text: '\n$currencySymbol',
-                                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black),
-                                  ),
-                                ],
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  PriceFormatter.priceFormat('$debt'),
+                                  style: TextStyle(color: debt == 0 ? Colors.black : Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.end,
+                                ),
+                                Text(
+                                  currencySymbol,
+                                  style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.end,
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -544,18 +534,24 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                               ],
                             ),
                             SizedBox(height: screenWidth * 0.025),
-                            RichText(
-                              textAlign: TextAlign.end,
-                              text: TextSpan(
-                                text: PriceFormatter.priceFormat('$credit'),
-                                style: TextStyle(color: credit == 0 ? Colors.black : Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
-                                children: [
-                                  TextSpan(
-                                    text: '\n$currencySymbol',
-                                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black),
-                                  ),
-                                ],
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  PriceFormatter.priceFormat('$credit'),
+                                  style: TextStyle(color: credit == 0 ? Colors.black : Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.end,
+                                ),
+                                Text(
+                                  currencySymbol,
+                                  style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.end,
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -596,18 +592,24 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                     style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.4),
                   ),
                   Expanded(
-                    child: RichText(
-                      textAlign: TextAlign.end,
-                      text: TextSpan(
-                        text: PriceFormatter.priceFormat('$balance'),
-                        style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
-                        children: [
-                          TextSpan(
-                            text: '\n$currencySymbol',
-                            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: Colors.black),
-                          ),
-                        ],
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          PriceFormatter.priceFormat('$balance'),
+                          style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.end,
+                        ),
+                        Text(
+                          currencySymbol,
+                          style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: Colors.black),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.end,
+                        ),
+                      ],
                     ),
                   ),
                 ],

@@ -13,6 +13,7 @@ import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/contract_model.dart';
 import 'package:hisobchi/infrastructure/models/work_type_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
@@ -325,22 +326,11 @@ class _ContractEditPageState extends State<ContractEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.white,
-        leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: BackArrowButton(),
         title: const Text(
           'Shartnomani tahrirlash',
           style: TextStyle(
@@ -552,11 +542,13 @@ class _ContractEditPageState extends State<ContractEditPage> {
       child: TextField(
         controller: _descriptionController,
         maxLines: 5,
+        maxLength: 100,
         style: const TextStyle(
           fontSize: 15,
           color: Color(0xFF1E293B),
         ),
         decoration: const InputDecoration(
+          counter: SizedBox(),
           hintText: 'Shartnoma tafsilotlarini kiriting...',
           hintStyle: TextStyle(
             color: Color(0xFF94A3B8),
@@ -572,7 +564,7 @@ class _ContractEditPageState extends State<ContractEditPage> {
   Widget _buildAmountField() {
     return TextField(
       controller: _amountController,
-      keyboardType: TextInputType.number,
+      keyboardType: TextInputType.number,maxLength: 14,
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
         _ThousandsSeparatorFormatter(),
@@ -583,7 +575,8 @@ class _ContractEditPageState extends State<ContractEditPage> {
         color: Color(0xFF1E293B),
       ),
       decoration: const InputDecoration(
-        hintText: '100',
+        hintText: '',
+        counter: SizedBox(),
         hintStyle: TextStyle(
           color: Color(0xFF94A3B8),
           fontSize: 18,

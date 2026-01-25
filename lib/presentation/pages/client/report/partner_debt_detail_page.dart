@@ -7,6 +7,7 @@ import 'package:hisobchi/application/partner_operations/partner_operations_state
 import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
 import 'package:hisobchi/infrastructure/repository/partner_operations/partner_operations_repository.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/pages/client/report/widgets/partner_operation_detail_sheet.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -78,19 +79,15 @@ class _PartnerDebtDetailPageState extends State<PartnerDebtDetailPage> {
     return BlocProvider.value(
       value: _bloc,
       child: Scaffold(
-        backgroundColor: AppTheme.colors.background,
         appBar: AppBar(
           title: Text(
             widget.title,
             style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
           ),
-          backgroundColor: AppTheme.colors.background,
+          backgroundColor: AppTheme.colors.white,
           elevation: 0,
           centerTitle: true,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.colors.black, size: 20.sp),
-            onPressed: () => Navigator.pop(context),
-          ),
+          leading: BackArrowButton(),
         ),
         body: BlocBuilder<PartnerOperationsBloc, PartnerOperationsState>(
           builder: (context, state) {
@@ -294,27 +291,30 @@ class _PartnerDebtDetailPageState extends State<PartnerDebtDetailPage> {
   }
 
   Widget _buildEmptyWidget() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.all(24.w),
-            decoration: BoxDecoration(color: AppTheme.colors.gray.withOpacity(0.05), shape: BoxShape.circle),
-            child: Icon(Icons.receipt_long_rounded, size: 48.sp, color: AppTheme.colors.gray.withOpacity(0.3)),
-          ),
-          SizedBox(height: 20.h),
-          Text(
-            'Operatsiyalar topilmadi',
-            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black.withOpacity(0.7)),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Ushbu ruknda hozircha hech qanday\nma\'lumot mavjud emas',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray.withOpacity(0.6), height: 1.5),
-          ),
-        ],
+    return Padding(
+      padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(24.w),
+              decoration: BoxDecoration(color: AppTheme.colors.gray.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: Icon(Icons.receipt_long_rounded, size: 48.sp, color: AppTheme.colors.gray.withValues(alpha: 0.8)),
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'Operatsiyalar topilmadi',
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black.withOpacity(0.7)),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'Ushbu ruknda hozircha hech qanday\nma\'lumot mavjud emas',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray.withValues(alpha: 0.9), height: 1.5),
+            ),
+          ],
+        ),
       ),
     );
   }

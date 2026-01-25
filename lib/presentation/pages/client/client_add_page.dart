@@ -458,9 +458,11 @@ class _ClientAddPageState extends State<ClientAddPage> {
       controller: controller,
       keyboardType: keyboardType,
       inputFormatters: formatters,
+      maxLength: 30,
       validator: validator,
       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
       decoration: InputDecoration(
+        counter: SizedBox(),
         hintText: hint,
         hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w400, fontSize: 16),
         prefixIcon: Padding(

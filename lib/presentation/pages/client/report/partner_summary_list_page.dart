@@ -8,6 +8,7 @@ import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/infrastructure/models/partner_summary_model.dart';
 import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/pages/client/client_account_page.dart';
 import 'package:shimmer/shimmer.dart';
@@ -133,10 +134,7 @@ class _PartnerSummaryListPageContentState extends State<_PartnerSummaryListPageC
           letterSpacing: -0.5,
         ),
       ),
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back_ios_new_rounded, color: const Color(0xFF1E293B), size: 20.sp),
-        onPressed: () => Navigator.pop(context),
-      ),
+      leading:  BackArrowButton(),
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(1.h),
         child: Container(color: const Color(0xFFF1F5F9), height: 1.h),

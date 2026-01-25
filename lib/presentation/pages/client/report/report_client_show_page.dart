@@ -8,6 +8,7 @@ import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/infrastructure/models/partner_details_report_model.dart';
 import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/pages/client/client_xisob_kitob.dart';
 import 'package:hisobchi/presentation/pages/client/report/models/dashboard_models.dart';
 import 'package:hisobchi/presentation/pages/client/report/widgets/balance_card.dart';
@@ -32,7 +33,7 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
   // Design Constants
   final Color primaryGradientStart = AppTheme.colors.primary;
   final Color primaryGradientEnd = AppTheme.colors.primary.withOpacity(0.8);
-  final Color backgroundColor = const Color(0xFFF8FAFC);
+  final Color backgroundColor = AppTheme.colors.background;
   final Color textPrimary = const Color(0xFF0F172A);
   final Color textSecondary = const Color(0xFF64748B);
 
@@ -65,25 +66,9 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
       child: Scaffold(
         backgroundColor: backgroundColor,
         appBar: AppBar(
+          backgroundColor: Colors.white,
           title: Text(widget.partnerModel.name ?? 'Hisob-kitob'),
-          leading: InkWell(
-            onTap: () => Navigator.of(context).maybePop(),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                  BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                  BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-                ],
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.arrow_back, color: Colors.black),
-            ),
-          ),
+          leading: BackArrowButton(),
         ),
         body: BlocBuilder<PartnerDetailsReportCubit, PartnerDetailsReportState>(
           builder: (context, state) {

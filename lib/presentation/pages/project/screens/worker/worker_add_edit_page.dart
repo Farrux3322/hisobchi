@@ -11,6 +11,7 @@ import 'package:hisobchi/infrastructure/models/worker_model.dart';
 import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/infrastructure/repository/worker/worker_repository.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/add_client_components/add_client_dialogs.dart';
@@ -247,19 +248,11 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.white,
-        leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
-            child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: BackArrowButton(),
         title: Text(
           _isEditing ? 'Ishchini tahrirlash' : 'Yangi ishchi',
           style: const TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
@@ -385,11 +378,13 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
           controller: controller,
           keyboardType: keyboardType,
           maxLines: maxLines,
+          maxLength: 30,
           validator: validator,
           inputFormatters: inputFormatters,
 
           decoration: InputDecoration(
             hintText: hint,
+            counter: SizedBox(),
             hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
             // prefixIcon: Icon(icon, color: const Color(0xFF64748B), size: 20),
             filled: true,

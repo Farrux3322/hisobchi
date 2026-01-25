@@ -7,6 +7,7 @@ import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/partner_report_model.dart';
 import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/pages/client/report/partner_operations_detail_page.dart';
 import 'package:hisobchi/presentation/pages/client/report/partner_summary_list_page.dart';
 import 'package:shimmer/shimmer.dart';
@@ -19,9 +20,7 @@ class ReportClientMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PartnerReportBloc(
-        repository: PartnerReportRepository(),
-      )..add(const LoadPartnerReportEvent()),
+      create: (context) => PartnerReportBloc(repository: PartnerReportRepository())..add(const LoadPartnerReportEvent()),
       child: const _ReportClientMainPageContent(),
     );
   }
@@ -54,8 +53,12 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Hamkorlar xisoboti', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 22)),
+        title: const Text(
+          'Hamkorlar xisoboti',
+          style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w700),
+        ),
         elevation: 0,
+        leading: BackArrowButton(),
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
@@ -99,11 +102,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                 children: [
                   Icon(Icons.error_outline, size: 60, color: Colors.red[300]),
                   const SizedBox(height: 16),
-                  Text(
-                    state.errorMessage ?? 'Xatolik yuz berdi',
-                    style: const TextStyle(fontSize: 18),
-                    textAlign: TextAlign.center,
-                  ),
+                  Text(state.errorMessage ?? 'Xatolik yuz berdi', style: const TextStyle(fontSize: 18), textAlign: TextAlign.center),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
                     onPressed: () {
@@ -121,13 +120,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
             return const Center(child: Text('Ma\'lumot topilmadi'));
           }
 
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              _buildReportContent(state.uzsReport!, true),
-              _buildReportContent(state.usdReport!, false),
-            ],
-          );
+          return TabBarView(controller: _tabController, children: [_buildReportContent(state.uzsReport!, true), _buildReportContent(state.usdReport!, false)]);
         },
       ),
     );
@@ -140,226 +133,203 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
         await Future.delayed(const Duration(milliseconds: 500));
       },
       child: ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // Jami kirim va chiqim - Row
-        Row(
-          children: [
-            Expanded(
-              child: _buildMainStatCard(
-                title: 'Kirim',
-                value: _formatCurrency(data.debt, isUZS),
-                icon: AppIcons.income,
-                iconColor: Colors.white,
-                backgroundColor: const Color(0xFF4CAF50),
-                isUZS: isUZS,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildMainStatCard(
-                title: 'Chiqim',
-                value: _formatCurrency(data.credit, isUZS),
-                icon: AppIcons.chiqim,
-                iconColor: Colors.white,
-                backgroundColor: const Color(0xFFEF5350),
-                isUZS: isUZS,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-
-        // Qoldiq va Hamkorlar soni - Row
-        Row(
-          children: [
-            Expanded(
-              child: _buildMainStatCard(
-                title: 'Qoldiq',
-                value: _formatCurrency(data.balance, isUZS),
-                icon: AppIcons.balance,
-                iconColor: Colors.white,
-                backgroundColor: const Color(0xFF2196F3),
-                isUZS: isUZS,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildMainStatCard(
-                title: 'Hamkorlar',
-                value: '${data.partnersCount}',
-                icon: AppIcons.clients,
-                iconColor: Colors.white,
-                backgroundColor: const Color(0xFF9C27B0),
-                isUZS: isUZS,
-                showCurrency: false,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-
-        // Jami operatsiyalar, qarzdorlar, haqdorlar - Row (kichikroq)
-        Row(
-          children: [
-            Expanded(
-              child: _buildSmallStatCard(
-                title: 'Operatsiyalar',
-                count: data.operations.count,
-                icon: Icons.sync_alt,
-                color: const Color(0xFFFF9800),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PartnerOperationsDetailPage(
-                        type: 'oparation',
-                        currencyTypeId: isUZS ? 1 : 2,
-                        title: 'Operatsiyalar',
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildSmallStatCard(
-                title: 'Qarzdorlar',
-                count: data.qarzdorlar.count,
-                icon: Icons.arrow_upward,
-                color: const Color(0xFFFF5722),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PartnerSummaryListPage(
-                        type: 'qarzdor',
-                        currencyTypeId: isUZS ? 1 : 2,
-                        title: 'Qarzdorlar',
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildSmallStatCard(
-                title: 'Haqdorlar',
-                count: data.xaqdorlar.count,
-                icon: Icons.arrow_downward,
-                color: const Color(0xFF009688),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PartnerSummaryListPage(
-                        type: 'xaqdor',
-                        currencyTypeId: isUZS ? 1 : 2,
-                        title: 'Haqdorlar',
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-
-        // Qarz muddatlari xisoboti title
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Row(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Jami kirim va chiqim - Row
+          Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(10)),
-                child: Icon(Icons.access_time, color: Colors.amber.shade900, size: 20),
+              Expanded(
+                child: _buildMainStatCard(
+                  title: 'Kirim',
+                  value: _formatCurrency(data.debt, isUZS),
+                  icon: AppIcons.income,
+                  iconColor: Colors.white,
+                  backgroundColor: const Color(0xFF4CAF50),
+                  isUZS: isUZS,
+                ),
               ),
-              const SizedBox(width: 10),
-              const Text(
-                'Qarz muddatlari xisoboti',
-                style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: Colors.black87),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMainStatCard(
+                  title: 'Chiqim',
+                  value: _formatCurrency(data.credit, isUZS),
+                  icon: AppIcons.chiqim,
+                  iconColor: Colors.white,
+                  backgroundColor: const Color(0xFFEF5350),
+                  isUZS: isUZS,
+                ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 12),
 
-        // Qarz muddatlari - Row (uchta ham)
-        Row(
-          children: [
-            Expanded(
-              child: _buildDeadlineCard(
-                subtitle: '',
-                title: "Muddati o'tgan",
-                count: data.qarzExpired.count,
-                icon: Icons.error_outline,
-                color: const Color(0xFFD32F2F),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PartnerOperationsDetailPage(
-                        type: 'qarz_expired',
-                        currencyTypeId: isUZS ? 1 : 2,
-                        title: "Muddati o'tgan qarzlar",
-                      ),
-                    ),
-                  );
-                },
+          // Qoldiq va Hamkorlar soni - Row
+          Row(
+            children: [
+              Expanded(
+                child: _buildMainStatCard(
+                  title: 'Qoldiq',
+                  value: _formatCurrency(data.balance, isUZS),
+                  icon: AppIcons.balance,
+                  iconColor: Colors.white,
+                  backgroundColor: const Color(0xFF2196F3),
+                  isUZS: isUZS,
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildDeadlineCard(
-                title: 'Bugun',
-                subtitle: '',
-                count: data.qarz3Days.count,
-                icon: Icons.warning_amber_sharp,
-                color: const Color(0xFFFF9800),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PartnerOperationsDetailPage(
-                        type: data.qarz3Days.type,
-                        currencyTypeId: isUZS ? 1 : 2,
-                        title: 'Bugun qarzlar',
-                      ),
-                    ),
-                  );
-                },
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMainStatCard(
+                  title: 'Hamkorlar',
+                  value: '${data.partnersCount}',
+                  icon: AppIcons.clients,
+                  iconColor: Colors.white,
+                  backgroundColor: const Color(0xFF9C27B0),
+                  isUZS: isUZS,
+                  showCurrency: false,
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildDeadlineCard(
-                title: 'Yaqinlashmoqda',
-                subtitle: '(3 kun)',
-                count: data.qarz7Days.count,
-                icon: Icons.schedule,
-                color: const Color(0xFFFFA726),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PartnerOperationsDetailPage(
-                        type: data.qarz7Days.type,
-                        currencyTypeId: isUZS ? 1 : 2,
-                        title: '3 kun ichida qarzlar',
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Jami operatsiyalar, qarzdorlar, haqdorlar - Row (kichikroq)
+          Row(
+            children: [
+              Expanded(
+                child: _buildSmallStatCard(
+                  title: 'Operatsiyalar',
+                  count: data.operations.count,
+                  icon: Icons.sync_alt,
+                  color: const Color(0xFFFF9800),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PartnerOperationsDetailPage(type: 'oparation', currencyTypeId: isUZS ? 1 : 2, title: 'Operatsiyalar'),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildSmallStatCard(
+                  title: 'Qarzdorlar',
+                  count: data.qarzdorlar.count,
+                  icon: Icons.arrow_upward,
+                  color: const Color(0xFFFF5722),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PartnerSummaryListPage(type: 'qarzdor', currencyTypeId: isUZS ? 1 : 2, title: 'Qarzdorlar'),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildSmallStatCard(
+                  title: 'Haqdorlar',
+                  count: data.xaqdorlar.count,
+                  icon: Icons.arrow_downward,
+                  color: const Color(0xFF009688),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PartnerSummaryListPage(type: 'xaqdor', currencyTypeId: isUZS ? 1 : 2, title: 'Haqdorlar'),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Qarz muddatlari xisoboti title
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(10)),
+                  child: Icon(Icons.access_time, color: Colors.amber.shade900, size: 20),
+                ),
+                const SizedBox(width: 10),
+                const Text(
+                  'Qarz muddatlari xisoboti',
+                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: Colors.black87),
+                ),
+              ],
             ),
-          ],
-        ),
-        const SizedBox(height: 16),
-      ],
-    ));
+          ),
+
+          // Qarz muddatlari - Row (uchta ham)
+          Row(
+            children: [
+              Expanded(
+                child: _buildDeadlineCard(
+                  subtitle: '',
+                  title: "Muddati o'tgan",
+                  count: data.qarzExpired.count,
+                  icon: Icons.error_outline,
+                  color: const Color(0xFFD32F2F),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PartnerOperationsDetailPage(type: 'qarz_expired', currencyTypeId: isUZS ? 1 : 2, title: "Muddati o'tgan qarzlar"),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildDeadlineCard(
+                  title: 'Bugun',
+                  subtitle: '',
+                  count: data.qarz3Days.count,
+                  icon: Icons.warning_amber_sharp,
+                  color: const Color(0xFFFF9800),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PartnerOperationsDetailPage(type: data.qarz3Days.type, currencyTypeId: isUZS ? 1 : 2, title: 'Bugun qarzlar'),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildDeadlineCard(
+                  title: 'Yaqinlashmoqda',
+                  subtitle: '(3 kun)',
+                  count: data.qarz7Days.count,
+                  icon: Icons.schedule,
+                  color: const Color(0xFFFFA726),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PartnerOperationsDetailPage(type: data.qarz7Days.type, currencyTypeId: isUZS ? 1 : 2, title: '3 kun ichida qarzlar'),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
   }
 
   // Asosiy katta statistika kartlari
@@ -422,13 +392,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
   }
 
   // Kichik statistika kartlari (operatsiyalar, qarzdorlar, haqdorlar uchun)
-  Widget _buildSmallStatCard({
-    required String title,
-    required int count,
-    required IconData icon,
-    required Color color,
-    VoidCallback? onTap,
-  }) {
+  Widget _buildSmallStatCard({required String title, required int count, required IconData icon, required Color color, VoidCallback? onTap}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -480,14 +444,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
   }
 
   // Qarz muddatlari kartlari - Minimalist Design
-  Widget _buildDeadlineCard({
-    required String title,
-    String? subtitle,
-    required int count,
-    required IconData icon,
-    required Color color,
-    VoidCallback? onTap,
-  }) {
+  Widget _buildDeadlineCard({required String title, String? subtitle, required int count, required IconData icon, required Color color, VoidCallback? onTap}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -560,10 +517,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
     final displayValue = (number == intValue) ? intValue : number;
 
     // Faqat raqamni formatlash
-    final formatted = displayValue.toString().split('.')[0].replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]} ',
-    );
+    final formatted = displayValue.toString().split('.')[0].replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]} ');
     return formatted;
   }
 
@@ -612,10 +566,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           highlightColor: Colors.grey[100]!,
           child: Container(
             height: 50,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
           ),
         ),
         const SizedBox(height: 12),
@@ -640,10 +591,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       highlightColor: Colors.grey[100]!,
       child: Container(
         height: height,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
       ),
     );
   }

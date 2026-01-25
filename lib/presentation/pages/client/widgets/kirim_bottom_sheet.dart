@@ -388,12 +388,14 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                       flex: 3,
                                       child: TextFormField(
                                         controller: _amountController,
+                                        maxLength: 14,
                                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                         inputFormatters: [DecimalTextInputFormatter()],
                                         decoration: InputDecoration(
                                           hintText: 'Miqdorni kiriting',
                                           hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
                                           filled: true,
+                                          counter: SizedBox(),
                                           fillColor: const Color(0xFFF8FAFC),
                                           border: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),

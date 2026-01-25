@@ -10,6 +10,7 @@ class PartnerReportWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(vertical: 6.w),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.r),
         gradient: LinearGradient(
@@ -72,7 +73,7 @@ class PartnerReportWidget extends StatelessWidget {
                     SizedBox(width: 16.w),
                     Expanded(
                       child: Text(
-                        'Umumiy hisobot',
+                        'Hamkorlar hisoboti',
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.bold,

@@ -97,6 +97,7 @@ class ProjectIncomeInputs extends StatelessWidget {
           controller: controller,
           focusNode: focusNode,
           keyboardType: TextInputType.number,
+          maxLength: 14,
           inputFormatters: [
             _NumberInputFormatter(),
           ],
@@ -155,6 +156,7 @@ class ProjectIncomeInputs extends StatelessWidget {
         TextFormField(
           controller: controller,
           focusNode: focusNode,
+          maxLength: 30,
           keyboardType: keyboardType,
           maxLines: maxLines,
           style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500),
@@ -167,6 +169,7 @@ class ProjectIncomeInputs extends StatelessWidget {
   InputDecoration _inputDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
+      counter: SizedBox(),
       hintStyle: TextStyle(
         color: const Color(0xFF94A3B8),
         fontSize: 14.sp,

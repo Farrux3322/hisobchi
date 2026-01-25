@@ -81,7 +81,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => BlocProvider.value(value: context.read<CostTypeBloc>(), child: const CostTypeBottomSheet()),
+      builder: (context) => BlocProvider.value(value: context.read<CostTypeBloc>(), child:  CostTypeBottomSheet(isCreate: false,)),
     );
 
     if (result != null && mounted) {
@@ -562,24 +562,24 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
             appBar: AppBar(
               elevation: 0,
               surfaceTintColor: Colors.white,
-              leading: IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                      BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                      BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-                    ],
+              leading: Center(
+                child: InkWell(
+                  onTap: () {
+                    final result = _hasChanges ? ProjectCostListResult.modified() : ProjectCostListResult.noChanges();
+                    Navigator.of(context).pop(result);
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 18),
                   ),
-                  child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
                 ),
-                onPressed: () {
-                  final result = _hasChanges ? ProjectCostListResult.modified() : ProjectCostListResult.noChanges();
-                  Navigator.of(context).pop(result);
-                },
               ),
               title: const Text(
                 'Loyiha chiqimlari',
@@ -715,7 +715,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
 
       return SliverStickyHeader(
         header: Container(
-          height: 40,
+          height: 45.h,
           color: AppTheme.colors.background,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           alignment: Alignment.centerLeft,

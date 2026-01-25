@@ -20,6 +20,7 @@ import 'package:hisobchi/infrastructure/models/worker_model.dart';
 import 'package:hisobchi/infrastructure/repository/cost_type/cost_type_repository.dart';
 import 'package:hisobchi/infrastructure/repository/worker/worker_repository.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_cost/cost_type_bottom_sheet.dart';
@@ -119,7 +120,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
   }
 
   Future<void> _selectCostType() async {
-    final result = await showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent, builder: (context) => const CostTypeBottomSheet());
+    final result = await showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent, builder: (context) =>  CostTypeBottomSheet(isCreate: true,));
 
     if (result != null && result is CostTypeModel && mounted) {
       setState(() {
@@ -208,7 +209,6 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
       appBar: _buildAppBar(),
       body: MultiBlocListener(
         listeners: [
@@ -293,22 +293,7 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       elevation: 0,
       surfaceTintColor: Colors.white,
       systemOverlayStyle: SystemUiOverlayStyle.dark,
-      leading: IconButton(
-        icon: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: const [
-              BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-              BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-              BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-            ],
-          ),
-          child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-        ),
-        onPressed: () => Navigator.pop(context),
-      ),
+      leading: BackArrowButton(),
       title: Text(
         _isEditing ? 'Chiqimni tahrirlash' : 'Yangi chiqim',
         style: TextStyle(color: AppTheme.colors.black, fontSize: 18.sp, fontWeight: FontWeight.w600),

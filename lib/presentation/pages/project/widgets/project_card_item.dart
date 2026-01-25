@@ -51,21 +51,12 @@ class ProjectCardItem extends StatelessWidget {
                       width: 52.w,
                       height: 52.h,
                       decoration: BoxDecoration(
-                        gradient: (projectModel?.files == null || projectModel!.files!.isEmpty)
-                            ? LinearGradient(
-                                colors: [
-                                  AppTheme.colors.primary,
-                                  AppTheme.colors.primary.withValues(alpha: 0.8),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              )
-                            : null,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(14.r),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.colors.primary.withValues(alpha: 0.3),
-                            blurRadius: 8,
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
                         ],
@@ -78,47 +69,23 @@ class ProjectCardItem extends StatelessWidget {
                                 fit: BoxFit.cover,
                                 width: 52.w,
                                 height: 52.h,
-                                placeholder: (context, url) => Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppTheme.colors.primary,
-                                        AppTheme.colors.primary.withValues(alpha: 0.8),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                  ),
-                                  child: const Center(
-                                    child: CupertinoActivityIndicator(
-                                      color: Colors.white,
-                                      radius: 10,
-                                    ),
+                                placeholder: (context, url) => const Center(
+                                  child: CupertinoActivityIndicator(
+                                    color: Color(0xFF6366F1),
+                                    radius: 10,
                                   ),
                                 ),
-                                errorWidget: (context, url, error) => Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppTheme.colors.primary,
-                                        AppTheme.colors.primary.withValues(alpha: 0.8),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                  ),
-                                  child: const Icon(
-                                    Icons.business_rounded,
-                                    color: Colors.white,
-                                    size: 28,
-                                  ),
+                                errorWidget: (context, url, error) => const Icon(
+                                  Icons.business_center_rounded,
+                                  color: Color(0xFF6366F1),
+                                  size: 24,
                                 ),
                               ),
                             )
                           : const Icon(
-                              Icons.business_rounded,
-                              color: Colors.white,
-                              size: 28,
+                              Icons.business_center_rounded,
+                              color: Color(0xFF6366F1),
+                              size: 24,
                             ),
                     ),
                     SizedBox(width: 14.w),

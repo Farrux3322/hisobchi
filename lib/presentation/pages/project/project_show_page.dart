@@ -82,26 +82,24 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
           return Scaffold(
             appBar: AppBar(
               elevation: 0,
-              leading: InkWell(
-                onTap: () {
-                  // Return result when manually popping
-                  final result = _hasChanges ? ProjectShowResult.modified() : ProjectShowResult.noChanges();
-                  Navigator.of(context).pop(result);
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      const BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                      const BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                      const BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-                    ],
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+              backgroundColor: Colors.white,
+              leading: Center(
+                child: InkWell(
+                  onTap: () {
+                    final result = _hasChanges ? ProjectShowResult.modified() : ProjectShowResult.noChanges();
+                    Navigator.of(context).pop(result);
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 18),
                   ),
-                  child: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
                 ),
               ),
               centerTitle: true,
@@ -797,13 +795,13 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
           color: const Color(0xFF8B5CF6),
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => WorkerListPage(projectId: project.id ?? 0))),
         ),
-        const Gap(12),
-        _buildMenuButton(
-          icon: Icons.analytics_outlined,
-          label: 'Loyiha hisoboti',
-          color: const Color(0xFF64748B),
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectReportPage(projectId: project.id ?? 0))),
-        ),
+        // const Gap(12),
+        // _buildMenuButton(
+        //   icon: Icons.analytics_outlined,
+        //   label: 'Loyiha hisoboti',
+        //   color: const Color(0xFF64748B),
+        //   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectReportPage(projectId: project.id ?? 0))),
+        // ),
       ],
     );
   }

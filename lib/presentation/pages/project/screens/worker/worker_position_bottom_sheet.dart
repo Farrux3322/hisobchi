@@ -113,38 +113,14 @@ class _WorkerPositionBottomSheetState extends State<WorkerPositionBottomSheet> {
                   const SizedBox(height: 24),
 
                   // Title with gradient icon
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          gradient:  LinearGradient(
-                            colors: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: .9)],
-                          ),
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppTheme.colors.primary.withValues(alpha: 0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(Icons.add_business_rounded, color: Colors.white, size: 28),
-                      ),
-                      const SizedBox(width: 16),
-                      const Expanded(
-                        child: Text(
-                          'Yangi lavozim qo\'shish',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF1E293B),
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    'Yangi lavozim qo\'shish',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
+                      letterSpacing: 0.3,
+                    ),
                   ),
                   const SizedBox(height: 28),
 
@@ -162,8 +138,10 @@ class _WorkerPositionBottomSheetState extends State<WorkerPositionBottomSheet> {
                   TextFormField(
                     controller: nameController,
                     autofocus: true,
+                    maxLength: 30,
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     decoration: InputDecoration(
+                      counter: SizedBox(),
                       hintText: 'Masalan: Muhandis',
                       hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15),
                       prefixIcon: Container(
@@ -227,8 +205,10 @@ class _WorkerPositionBottomSheetState extends State<WorkerPositionBottomSheet> {
                   TextFormField(
                     controller: descriptionController,
                     maxLines: 3,
+                    maxLength: 100,
                     style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
                     decoration: InputDecoration(
+                      counter: SizedBox(),
                       hintText: 'Qo\'shimcha ma\'lumot...',
                       hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
                       prefixIcon: Container(

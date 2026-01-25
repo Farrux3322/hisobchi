@@ -105,7 +105,6 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
     return DateFormat('HH:mm').format(dt);
   }
 
-
   Future<void> _navigateToAddCost() async {
     final result = await Navigator.push(
       context,
@@ -444,29 +443,26 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
         child: DeFocus(
           child: Scaffold(
-            backgroundColor: const Color(0xFFF7F7FA),
             appBar: AppBar(
               elevation: 0,
               surfaceTintColor: Colors.white,
-              leading: InkWell(
-                onTap: () {
-                  final result = _hasChanges ? ProjectIncomeListResult.modified() : ProjectIncomeListResult.noChanges();
-                  Navigator.of(context).pop(result);
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                      BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                      BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-                    ],
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+              leading: Center(
+                child: InkWell(
+                  onTap: () {
+                    final result = _hasChanges ? ProjectIncomeListResult.modified() : ProjectIncomeListResult.noChanges();
+                    Navigator.of(context).pop(result);
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 18),
                   ),
-                  child: const Icon(Icons.arrow_back, color: Colors.black),
                 ),
               ),
               title: const Text(
@@ -561,8 +557,7 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                                     padding: const EdgeInsets.fromLTRB(16, 0, 6, 0),
                                     child: CustomScrollView(slivers: _buildGroupedCosts()),
                                   ),
-                                  if (state.statusAction == Status.loading)
-                                    const Center(child: Loading()),
+                                  if (state.statusAction == Status.loading) const Center(child: Loading()),
                                 ],
                               ),
                       ),
@@ -676,7 +671,7 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
           padding: const EdgeInsets.all(14),
           margin: const EdgeInsets.only(right: 10),
           decoration: BoxDecoration(
-            color:isDeleted  ? Colors.red.shade50 : Colors.white,
+            color: isDeleted ? Colors.red.shade50 : Colors.white,
             borderRadius: BorderRadius.circular(14),
             boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
           ),
@@ -717,11 +712,11 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                           children: [
                             TextSpan(
                               text: formattedAmount,
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color:  const Color(0xFF10B981)),
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: const Color(0xFF10B981)),
                             ),
                             TextSpan(
                               text: ' ${cost.currencyTypeName ?? ''}',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color:const Color(0xFF10B981).withValues(alpha: 0.8)),
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF10B981).withValues(alpha: 0.8)),
                             ),
                           ],
                         ),

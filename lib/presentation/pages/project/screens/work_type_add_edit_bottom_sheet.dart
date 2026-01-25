@@ -10,10 +10,7 @@ import 'package:hisobchi/presentation/components/toast/toast.dart';
 class WorkTypeAddEditBottomSheet extends StatefulWidget {
   final WorkTypeModel? workType;
 
-  const WorkTypeAddEditBottomSheet({
-    super.key,
-    this.workType,
-  });
+  const WorkTypeAddEditBottomSheet({super.key, this.workType});
 
   @override
   State<WorkTypeAddEditBottomSheet> createState() => _WorkTypeAddEditBottomSheetState();
@@ -45,19 +42,12 @@ class _WorkTypeAddEditBottomSheetState extends State<WorkTypeAddEditBottomSheet>
   void _handleSubmit() {
     if (!_formKey.currentState!.validate()) return;
 
-    final data = {
-      'name': _nameController.text.trim(),
-      'description': _descriptionController.text.trim(),
-    };
+    final data = {'name': _nameController.text.trim(), 'description': _descriptionController.text.trim()};
 
     if (isEditMode) {
-      context.read<WorkTypeBloc>().add(
-            UpdateWorkTypeEvent(data: data, id: widget.workType!.id!),
-          );
+      context.read<WorkTypeBloc>().add(UpdateWorkTypeEvent(data: data, id: widget.workType!.id!));
     } else {
-      context.read<WorkTypeBloc>().add(
-            CreateWorkTypeEvent(data: data),
-          );
+      context.read<WorkTypeBloc>().add(CreateWorkTypeEvent(data: data));
     }
   }
 
@@ -71,17 +61,11 @@ class _WorkTypeAddEditBottomSheetState extends State<WorkTypeAddEditBottomSheet>
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: BlocConsumer<WorkTypeBloc, WorkTypeState>(
           listener: (context, state) {
             if (state.statusAdd == Status.success) {
-              Toast.showSuccessToast(
-                message: isEditMode
-                    ? 'Ish turi muvaffaqiyatli tahrirlandi'
-                    : 'Ish turi muvaffaqiyatli qo\'shildi',
-              );
+              Toast.showSuccessToast(message: isEditMode ? 'Ish turi muvaffaqiyatli tahrirlandi' : 'Ish turi muvaffaqiyatli qo\'shildi');
               Navigator.pop(context, true);
             }
             if (state.statusAdd == Status.error) {
@@ -105,10 +89,7 @@ class _WorkTypeAddEditBottomSheetState extends State<WorkTypeAddEditBottomSheet>
                             child: Container(
                               width: 62,
                               height: 8,
-                              decoration: BoxDecoration(
-                                color: AppTheme.colors.primary,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
+                              decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(10)),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -116,11 +97,7 @@ class _WorkTypeAddEditBottomSheetState extends State<WorkTypeAddEditBottomSheet>
                           // Title
                           Text(
                             isEditMode ? 'Ish turini tahrirlash' : 'Ish turini qo\'shish',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1E293B),
-                            ),
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                           ),
                           const SizedBox(height: 24),
 
@@ -128,11 +105,7 @@ class _WorkTypeAddEditBottomSheetState extends State<WorkTypeAddEditBottomSheet>
                           RichText(
                             text: const TextSpan(
                               text: 'Ish turi nomi ',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF1E293B),
-                              ),
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
                               children: [
                                 TextSpan(
                                   text: '*',
@@ -144,43 +117,30 @@ class _WorkTypeAddEditBottomSheetState extends State<WorkTypeAddEditBottomSheet>
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _nameController,
+                            maxLength: 30,
                             decoration: InputDecoration(
+                              counter: SizedBox(),
                               hintText: 'Masalan: Santexnika ishlari',
-                              hintStyle: const TextStyle(
-                                color: Color(0xFF94A3B8),
-                                fontSize: 14,
-                              ),
+                              hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
                               filled: true,
                               fillColor: const Color(0xFFF8FAFC),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFFE2E8F0),
-                                ),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFFE2E8F0),
-                                ),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppTheme.colors.primary,
-                                  width: 2,
-                                ),
+                                borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Colors.red,
-                                ),
+                                borderSide: const BorderSide(color: Colors.red),
                               ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                             ),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
@@ -197,53 +157,36 @@ class _WorkTypeAddEditBottomSheetState extends State<WorkTypeAddEditBottomSheet>
                           // Description input
                           const Text(
                             'Tavsif',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF1E293B),
-                            ),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
                           ),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _descriptionController,
                             maxLines: 4,
+                            maxLength: 60,
                             decoration: InputDecoration(
                               hintText: 'Ish turi haqida qo\'shimcha ma\'lumot (ixtiyoriy)',
-                              hintStyle: const TextStyle(
-                                color: Color(0xFF94A3B8),
-                                fontSize: 14,
-                              ),
+                              hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                              counter: SizedBox(),
                               filled: true,
                               fillColor: const Color(0xFFF8FAFC),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFFE2E8F0),
-                                ),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFFE2E8F0),
-                                ),
+                                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppTheme.colors.primary,
-                                  width: 2,
-                                ),
+                                borderSide: BorderSide(color: AppTheme.colors.primary, width: 2),
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Colors.red,
-                                ),
+                                borderSide: const BorderSide(color: Colors.red),
                               ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -258,18 +201,10 @@ class _WorkTypeAddEditBottomSheetState extends State<WorkTypeAddEditBottomSheet>
                                 backgroundColor: AppTheme.colors.primary,
                                 foregroundColor: Colors.white,
                                 disabledBackgroundColor: AppTheme.colors.primary.withOpacity(0.6),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 elevation: 0,
                               ),
-                              child: Text(
-                                isEditMode ? 'Saqlash' : 'Qo\'shish',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                              child: Text(isEditMode ? 'Saqlash' : 'Qo\'shish', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                             ),
                           ),
                           const SizedBox(height: 16),

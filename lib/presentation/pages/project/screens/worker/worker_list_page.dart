@@ -9,6 +9,7 @@ import 'package:hisobchi/application/worker/worker_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/worker_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_add_edit_page.dart';
@@ -194,37 +195,7 @@ class _WorkerListPageState extends State<WorkerListPage> {
           backgroundColor: Colors.white,
           elevation: 0,
           surfaceTintColor: Colors.white,
-          leading: IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color.fromRGBO(255, 255, 255, 0.1),
-                    blurRadius: 1,
-                    spreadRadius: 0,
-                    offset: Offset(0, 1),
-                  ),
-                  BoxShadow(
-                    color: Color.fromRGBO(50, 50, 93, 0.25),
-                    blurRadius: 100,
-                    spreadRadius: -20,
-                    offset: Offset(0, 50),
-                  ),
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.3),
-                    blurRadius: 60,
-                    spreadRadius: -30,
-                    offset: Offset(0, 30),
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-            ),
-            onPressed: () => Navigator.pop(context),
-          ),
+          leading: BackArrowButton(),
           title: const Text(
             'Ishchilar',
             style: TextStyle(

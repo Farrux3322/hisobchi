@@ -498,10 +498,12 @@ class _ClientEditPageState extends State<ClientEditPage> {
       controller: controller,
       keyboardType: keyboardType,
       inputFormatters: formatters,
+      maxLength: 30,
       validator: validator,
       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
       decoration: InputDecoration(
         hintText: hint,
+        counter: SizedBox(),
         hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w400, fontSize: 16),
         prefixIcon: Padding(
           padding: const EdgeInsets.only(left: 20, right: 16),

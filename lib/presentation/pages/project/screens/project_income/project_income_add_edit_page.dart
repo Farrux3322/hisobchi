@@ -167,7 +167,6 @@ class _ProjectIncomeAddEditPageState extends State<ProjectIncomeAddEditPage> wit
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
       appBar: ProjectIncomeHeader(
         title: _isEditing ? 'Kirimni tahrirlash' : 'Yangi kirim',
       ),

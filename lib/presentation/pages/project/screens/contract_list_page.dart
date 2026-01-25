@@ -7,6 +7,7 @@ import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/contract_model.dart';
 import 'package:hisobchi/presentation/assets/res/app_icons.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/contract_add_page.dart';
@@ -617,14 +618,7 @@ class _ContractListPageState extends State<ContractListPage> {
           backgroundColor: Colors.white,
           elevation: 0,
           surfaceTintColor: Colors.white,
-          leading: IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-            ),
-            onPressed: () => Navigator.pop(context),
-          ),
+          leading: BackArrowButton(),
           title: const Text(
             'Shartnomalar',
             style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),

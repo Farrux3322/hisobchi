@@ -12,7 +12,9 @@ import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 
 class CostTypeBottomSheet extends StatefulWidget {
-  const CostTypeBottomSheet({super.key});
+  const CostTypeBottomSheet({super.key, required this.isCreate});
+
+  final bool isCreate;
 
   @override
   State<CostTypeBottomSheet> createState() => _CostTypeBottomSheetState();
@@ -260,7 +262,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        IconButton(
+                        if(widget.isCreate)IconButton(
                           icon: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(8)),
@@ -268,6 +270,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                           ),
                           onPressed: () => _showAddCostTypeDialog(),
                         ),
+                        if(!widget.isCreate)Gap(26)
                       ],
                     ),
                   ),
