@@ -55,10 +55,12 @@ class _WorkerListPageState extends State<WorkerListPage> {
         _filteredWorkers = _allWorkers;
       } else {
         _filteredWorkers = _allWorkers
-            .where((worker) =>
-                (worker.name?.toLowerCase().contains(query) ?? false) ||
-                (worker.phone?.toLowerCase().contains(query) ?? false) ||
-                (worker.workerPositionName?.toLowerCase().contains(query) ?? false))
+            .where(
+              (worker) =>
+                  (worker.name?.toLowerCase().contains(query) ?? false) ||
+                  (worker.phone?.toLowerCase().contains(query) ?? false) ||
+                  (worker.workerPositionName?.toLowerCase().contains(query) ?? false),
+            )
             .toList();
       }
     });
@@ -71,13 +73,7 @@ class _WorkerListPageState extends State<WorkerListPage> {
       return DateTime.parse(input);
     } catch (_) {}
 
-    final formats = [
-      DateFormat('dd.MM.yyyy HH:mm:ss'),
-      DateFormat('dd.MM.yyyy HH:mm'),
-      DateFormat('dd.MM.yyyy'),
-      DateFormat('yyyy-MM-dd HH:mm:ss'),
-      DateFormat("yyyy-MM-dd'T'HH:mm:ss")
-    ];
+    final formats = [DateFormat('dd.MM.yyyy HH:mm:ss'), DateFormat('dd.MM.yyyy HH:mm'), DateFormat('dd.MM.yyyy'), DateFormat('yyyy-MM-dd HH:mm:ss'), DateFormat("yyyy-MM-dd'T'HH:mm:ss")];
 
     for (final fmt in formats) {
       try {
@@ -98,20 +94,20 @@ class _WorkerListPageState extends State<WorkerListPage> {
 
   String _formatPhone(String? phone) {
     if (phone == null || phone.isEmpty) return '';
-    
+
     // Remove all non-digit characters
     String digits = phone.replaceAll(RegExp(r'\D'), '');
-    
+
     // If starts with 998, use it; otherwise assume it's local number
     if (digits.startsWith('998')) {
       digits = digits.substring(3); // Remove country code
     }
-    
+
     // Format: +998 (XX) XXX XX XX
     if (digits.length >= 9) {
       return '+998 (${digits.substring(0, 2)}) ${digits.substring(2, 5)} ${digits.substring(5, 7)} ${digits.substring(7, 9)}';
     }
-    
+
     // Return original if can't format
     return phone;
   }
@@ -150,8 +146,8 @@ class _WorkerListPageState extends State<WorkerListPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title:  Text('Loyihadan o\'chirish',textAlign: TextAlign.center,),
-        content: Text('${worker.name} ishchini loyihadan o\'chirmoqchimisiz?',textAlign: TextAlign.center,),
+        title: Text('Loyihadan o\'chirish', textAlign: TextAlign.center),
+        content: Text('${worker.name} ishchini loyihadan o\'chirmoqchimisiz?', textAlign: TextAlign.center),
         actions: [
           Row(
             children: [
@@ -177,120 +173,110 @@ class _WorkerListPageState extends State<WorkerListPage> {
     );
 
     if (result == 'remove' && mounted) {
-      context.read<WorkerBloc>().add(
-            RemoveWorkerFromProjectEvent(
-              workerId: worker.id!,
-              projectId: widget.projectId,
-            ),
-          );
+      context.read<WorkerBloc>().add(RemoveWorkerFromProjectEvent(workerId: worker.id!, projectId: widget.projectId));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          surfaceTintColor: Colors.white,
-          leading: BackArrowButton(),
-          title: const Text(
-            'Ishchilar',
-            style: TextStyle(
-              color: Color(0xFF1E293B),
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          centerTitle: true
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.white,
+        leading: BackArrowButton(),
+        title: const Text(
+          'Ishchilar',
+          style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
         ),
-        floatingActionButton: FloatingActionButton(onPressed: _showAddWorkerSelection, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.clientAdd)),
+        centerTitle: true,
+      ),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
 
-        body: BlocConsumer<WorkerBloc, WorkerState>(
-          listener: (context, state) {
-            // statusAction - delete/restore uchun (bir marta ishlatiladi)
-            if (state.statusAction == Status.success) {
-              Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
-              _loadWorkers();
-            } else if (state.statusAction == Status.error) {
-              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-            }
+        child: FloatingActionButton(onPressed: _showAddWorkerSelection, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.clientAdd)),
+      ),
 
-            // status - get workers uchun
-            if (state.status == Status.success) {
-              setState(() {
-                _allWorkers = state.projectWorkers;
-                _filterWorkers();
-              });
-            } else if (state.status == Status.error) {
-              Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-            }
-          },
-          builder: (context, state) {
-            return SafeArea(
-              child: Column(
-                children: [
-                  // Search Bar
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Qidirish...',
-                        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                        prefixIcon:  Padding(
-                          padding:  EdgeInsets.only(left: 8.0,right: 4),
-                          child: Icon(Icons.search, color: Color(0xFF64748B), size: 20),
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFFF8FAFC),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      body: BlocConsumer<WorkerBloc, WorkerState>(
+        listener: (context, state) {
+          // statusAction - delete/restore uchun (bir marta ishlatiladi)
+          if (state.statusAction == Status.success) {
+            Toast.showSuccessToast(message: 'Muvaffaqiyatli bajarildi');
+            _loadWorkers();
+          } else if (state.statusAction == Status.error) {
+            Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+          }
+
+          // status - get workers uchun
+          if (state.status == Status.success) {
+            setState(() {
+              _allWorkers = state.projectWorkers;
+              _filterWorkers();
+            });
+          } else if (state.status == Status.error) {
+            Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+          }
+        },
+        builder: (context, state) {
+          return SafeArea(
+            child: Column(
+              children: [
+                // Search Bar
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Qidirish...',
+                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                      prefixIcon: Padding(
+                        padding: EdgeInsets.only(left: 8.0, right: 4),
+                        child: Icon(Icons.search, color: Color(0xFF64748B), size: 20),
                       ),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                   ),
+                ),
 
-                  // Workers List
-                  Expanded(
-                    child: state.status == Status.loading && _allWorkers.isEmpty
-                        ? _buildShimmerLoading()
-                        : _filteredWorkers.isEmpty
-                            ? _buildEmptyState()
-                            : Stack(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
-                                    child: CustomScrollView(
-                                      slivers: _buildGroupedWorkers(),
-                                    ),
-                                  ),
-                                  if (state.statusAction == Status.loading)
-                                    Container(
-                                      color: Colors.black.withValues(alpha: 0.3),
-                                      child: const Center(child: Loading()),
-                                    ),
-                                ],
+                // Workers List
+                Expanded(
+                  child: state.status == Status.loading && _allWorkers.isEmpty
+                      ? _buildShimmerLoading()
+                      : _filteredWorkers.isEmpty
+                      ? _buildEmptyState()
+                      : Stack(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
+                              child: CustomScrollView(slivers: _buildGroupedWorkers()),
+                            ),
+                            if (state.statusAction == Status.loading)
+                              Container(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                child: const Center(child: Loading()),
                               ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+                          ],
+                        ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -320,16 +306,10 @@ class _WorkerListPageState extends State<WorkerListPage> {
           ),
         ),
         sliver: SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final worker = items[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _buildWorkerCard(worker),
-              );
-            },
-            childCount: items.length,
-          ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final worker = items[index];
+            return Padding(padding: const EdgeInsets.only(bottom: 10), child: _buildWorkerCard(worker));
+          }, childCount: items.length),
         ),
       );
     }).toList();
@@ -370,23 +350,14 @@ class _WorkerListPageState extends State<WorkerListPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              )
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
           ),
           child: Row(
             children: [
               Container(
                 height: 40,
                 width: 40,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF5B4FFF).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                decoration: BoxDecoration(color: const Color(0xFF5B4FFF).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
                 child: const Icon(Icons.person_outline, color: Color(0xFF5B4FFF), size: 24),
               ),
               const SizedBox(width: 12),
@@ -394,18 +365,9 @@ class _WorkerListPageState extends State<WorkerListPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      worker.name ?? '',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    Text(worker.name ?? '', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 4),
-                    Text(
-                      worker.workerPositionName ?? 'Lavozim ko\'rsatilmagan',
-                      style: const TextStyle(color: Colors.black54, fontSize: 13),
-                    ),
+                    Text(worker.workerPositionName ?? 'Lavozim ko\'rsatilmagan', style: const TextStyle(color: Colors.black54, fontSize: 13)),
                   ],
                 ),
               ),
@@ -415,17 +377,10 @@ class _WorkerListPageState extends State<WorkerListPage> {
                   if (worker.phone != null)
                     Text(
                       _formatPhone(worker.phone),
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF64748B),
-                      ),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
                     ),
                   const SizedBox(height: 4),
-                  Text(
-                    timeText,
-                    style: const TextStyle(color: Colors.black54, fontSize: 12),
-                  ),
+                  Text(timeText, style: const TextStyle(color: Colors.black54, fontSize: 12)),
                 ],
               ),
             ],
@@ -442,10 +397,7 @@ class _WorkerListPageState extends State<WorkerListPage> {
         children: [
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFF5B4FFF).withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: const Color(0xFF5B4FFF).withValues(alpha: 0.1), shape: BoxShape.circle),
             child: const Icon(Icons.person_outline, size: 64, color: Color(0xFF5B4FFF)),
           ),
           const SizedBox(height: 24),
@@ -455,9 +407,7 @@ class _WorkerListPageState extends State<WorkerListPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            _searchController.text.isEmpty
-                ? 'Yangi ishchi qo\'shish uchun + tugmasini bosing'
-                : 'Boshqa kalit so\'z bilan qidirib ko\'ring',
+            _searchController.text.isEmpty ? 'Yangi ishchi qo\'shish uchun + tugmasini bosing' : 'Boshqa kalit so\'z bilan qidirib ko\'ring',
             style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
             textAlign: TextAlign.center,
           ),
@@ -537,5 +487,4 @@ class _WorkerListPageState extends State<WorkerListPage> {
       ),
     );
   }
-
 }

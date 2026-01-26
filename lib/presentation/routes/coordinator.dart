@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
@@ -105,16 +106,24 @@ final router = GoRouter(
         StatefulShellRoute.indexedStack(
           parentNavigatorKey: parentKey,
           builder: (context, state, navigatorShell) {
-            return PopScope(
-              canPop: false,
-              child: LiquidGlassShell(
-                navigationShell: navigatorShell,
-                items: [
-                  LiquidTabItem(icon: AppIcons.home, label: 'Asosiy'),
-                  LiquidTabItem(icon: AppIcons.clients, label: 'Hamkorlar'),
-                  LiquidTabItem(icon: AppIcons.project, label: 'Loyihalar'),
-                  LiquidTabItem(icon: AppIcons.profile, label: 'Profile'),
-                ],
+            return SafeArea(
+              top: false,
+              right: false,
+              left: false,
+              child: PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (context, result) {
+                  SystemNavigator.pop(animated: true);
+                },
+                child: LiquidGlassShell(
+                  navigationShell: navigatorShell,
+                  items: [
+                    LiquidTabItem(icon: AppIcons.home, label: 'Asosiy'),
+                    LiquidTabItem(icon: AppIcons.clients, label: 'Hamkorlar'),
+                    LiquidTabItem(icon: AppIcons.project, label: 'Loyihalar'),
+                    LiquidTabItem(icon: AppIcons.profile, label: 'Profile'),
+                  ],
+                ),
               ),
             );
           },
@@ -157,7 +166,6 @@ final branches = [
     ],
   ),
 
-
   ///Project
   StatefulShellBranch(
     // navigatorKey: _shellKey,
@@ -196,7 +204,3 @@ final branches = [
     ],
   ),
 ];
-
-
-
-

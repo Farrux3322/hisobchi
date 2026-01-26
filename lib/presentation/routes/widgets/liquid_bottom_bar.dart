@@ -30,7 +30,7 @@ class LiquidBottomBar extends StatelessWidget {
       onHorizontalDragUpdate: onHorizontalDragUpdate,
       onHorizontalDragEnd: onHorizontalDragEnd,
       child: Container(
-        margin: EdgeInsets.fromLTRB(20.w, 0, 20.w, 24.h),
+        margin: EdgeInsets.fromLTRB(20.w, 0, 20.w, 5.h),
         height: 72.h,
         child: Stack(
           children: [
