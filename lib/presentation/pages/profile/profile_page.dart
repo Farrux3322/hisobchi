@@ -8,13 +8,11 @@ import 'package:hisobchi/presentation/pages/notification/notification_page.dart'
 import 'package:hisobchi/presentation/routes/coordinator.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:hisobchi/application/subscription/subscription_bloc.dart';
-import 'package:hisobchi/application/theme/theme_bloc.dart';
-import 'package:hisobchi/application/theme/theme_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:hisobchi/infrastructure/services/shared_service.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/pages/profile/widgets/theme_selector_bottom_sheet.dart';
+import 'package:hisobchi/presentation/pages/profile/screens/profile_update_page.dart';
 import 'package:hisobchi/presentation/pages/subscription/subscription_page.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
@@ -34,13 +32,32 @@ class _ProfilePageState extends State<ProfilePage> {
     context.read<SubscriptionBloc>().add(GetSubscriptionInfoEvent());
   }
 
+  String _formatPhoneNumber(String phone) {
+    if (phone.isEmpty) return '+998 (__) ___-__-__';
+    // Remove all non-numeric characters
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+
+    // Handle standard 12-digit Uzbek numbers (998901234567)
+    if (digits.length == 12 && digits.startsWith('998')) {
+      return '+998 (${digits.substring(3, 5)}) ${digits.substring(5, 8)}-${digits.substring(8, 10)}-${digits.substring(10, 12)}';
+    }
+
+    // Handle 9-digit numbers (901234567)
+    if (digits.length == 9) {
+      return '+998 (${digits.substring(0, 2)}) ${digits.substring(2, 5)}-${digits.substring(5, 7)}-${digits.substring(7, 9)}';
+    }
+
+    return phone; // Return as is if format is unknown
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
         title: Text(
           'Profil',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
         ),
         actions: [
           Container(
@@ -206,58 +223,79 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildUserCard() {
-    final userName = UserData.name.isEmpty ? 'Samandarbek' : UserData.name;
-    final userPhone = UserData.phone.isEmpty ? '+998 (93) 123-45-67' : UserData.phone;
+    final userName = UserData.name.isEmpty ? 'Ism kiritilmagan' : UserData.name;
+    final userPhone = _formatPhoneNumber(UserData.phone);
 
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.colors.divider),
-        boxShadow: [BoxShadow(color: AppTheme.colors.divider, blurRadius: 10, offset: const Offset(0, 2))],
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.colors.divider.withValues(alpha: 0.5)),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 10))],
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: 0.8)]),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
-            ),
-            child: const Icon(Icons.person, color: Colors.white, size: 28),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  userName,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
+      child: Material(
+        color: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                child: Icon(Icons.person_rounded, color: AppTheme.colors.primary, size: 32),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      userName,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.colors.black, letterSpacing: -0.5),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(color: AppTheme.colors.background, borderRadius: BorderRadius.circular(8)),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.phone_android_rounded, color: AppTheme.colors.primary, size: 14),
+                          const SizedBox(width: 6),
+                          Text(
+                            userPhone,
+                            style: TextStyle(fontSize: 15, color: AppTheme.colors.primary, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(userPhone, style: TextStyle(fontSize: 14, color: AppTheme.colors.gray)),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 44,
+                height: 44,
+                padding: EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppTheme.colors.background,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppTheme.colors.divider),
+                ),
+                child: IconButton(
+                  icon: SvgPicture.asset(AppIcons.edit, colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn)),
+                  onPressed: () {
+                    pushScreen(context, screen: const ProfileUpdatePage()).then((_) {
+                      setState(() {});
+                    });
+                  },
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+            ],
           ),
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppTheme.colors.background,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.colors.divider),
-            ),
-            child: IconButton(
-              icon: Icon(Icons.edit_outlined, color: AppTheme.colors.gray, size: 18),
-              onPressed: () {},
-              padding: EdgeInsets.zero,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -730,36 +768,20 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEF4444).withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.logout_rounded,
-                color: Color(0xFFEF4444),
-                size: 32,
-              ),
+              decoration: BoxDecoration(color: const Color(0xFFEF4444).withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 32),
             ),
             const SizedBox(height: 24),
             Text(
               'Ilovadan chiqish',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.colors.black,
-                letterSpacing: -0.5,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppTheme.colors.black, letterSpacing: -0.5),
             ),
             const SizedBox(height: 12),
             Text(
               'Haqiqatan ham ilovadan chiqmoqchimisiz? Barcha hisob-kitoblaringiz saqlanib qolinadi.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                color: AppTheme.colors.gray,
-                height: 1.5,
-              ),
+              style: TextStyle(fontSize: 15, color: AppTheme.colors.gray, height: 1.5),
             ),
             const SizedBox(height: 32),
             Row(
@@ -774,11 +796,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     child: Text(
                       'Qaytish',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.colors.gray,
-                      ),
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.colors.gray),
                     ),
                   ),
                 ),
@@ -806,13 +824,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: const Text(
-                      'Chiqish',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                    child: const Text('Chiqish', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                   ),
                 ),
               ],

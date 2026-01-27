@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:hisobchi/application/subscription/subscription_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/pages/subscription/subscription_detail_page.dart';
 import 'package:hisobchi/presentation/pages/subscription/widgets/tarif_card.dart';
@@ -27,22 +28,14 @@ class _TariflarScreenState extends State<TariflarScreen> {
     context.read<SubscriptionBloc>().add(GetPricingPlansEvent());
   }
 
-  Color _getPlanColor(int index) {
-    const colors = [Color(0xFF4A3AFF), Color(0xFF4A3AFF), Color(0xFF4A3AFF)];
-    return colors[index % colors.length];
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F7),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: BackArrowButton(),
         title: const Text(
           'Obuna sotib olish',
           style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
@@ -92,24 +85,21 @@ class _TariflarScreenState extends State<TariflarScreen> {
                   carouselController: _carouselController,
                   itemCount: state.pricingPlans.length,
                   itemBuilder: (context, index, realIndex) {
-                    return TarifCard(tarif: state.pricingPlans[index], color: _getPlanColor(index));
+                    return TarifCard(tarif: state.pricingPlans[index]);
                   },
-                  options: CarouselOptions(
-                    enlargeFactor: 0.05,
-                    height: double.infinity,
-                    viewportFraction: 0.94,
-                    enlargeCenterPage: true,
-                    enlargeStrategy: CenterPageEnlargeStrategy.scale,
-                    autoPlayInterval: const Duration(seconds: 10),
-                    autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                    autoPlayCurve: Curves.fastOutSlowIn,
-                    enableInfiniteScroll: false,
-                    onPageChanged: (index, reason) {
-                      setState(() {
-                        _currentIndex = index;
-                      });
-                    },
-                  ),
+                    options: CarouselOptions(
+                      enlargeFactor: 0.2,
+                      height: double.infinity,
+                      viewportFraction: 0.88,
+                      enlargeCenterPage: true,
+                      enlargeStrategy: CenterPageEnlargeStrategy.scale,
+                      enableInfiniteScroll: false,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
+                    ),
                 ),
               ),
               Padding(

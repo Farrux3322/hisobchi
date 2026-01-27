@@ -8,6 +8,7 @@ import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import 'package:image_picker/image_picker.dart';
@@ -35,13 +36,13 @@ class _ClientEditPageState extends State<ClientEditPage> {
   late final TextEditingController _additionalPhoneController;
   final ImagePicker _picker = ImagePicker();
   
-  late var _maskFormatter1 = MaskTextInputFormatter(
+  late final _maskFormatter1 = MaskTextInputFormatter(
     mask: '+998 (##) ###-##-##', 
     filter: {"#": RegExp(r'[0-9]')}, 
     initialText: widget.partnerModel.phone ?? "+998", 
     type: MaskAutoCompletionType.lazy
   );
-  late var _maskFormatter2 = MaskTextInputFormatter(
+  late final _maskFormatter2 = MaskTextInputFormatter(
     mask: '+998 (##) ###-##-##', 
     filter: {"#": RegExp(r'[0-9]')}, 
     initialText: widget.partnerModel.additionalPhone ?? "+998", 
@@ -317,24 +318,8 @@ class _ClientEditPageState extends State<ClientEditPage> {
       ],
       child: Scaffold(
         appBar: AppBar(
-          leading: InkWell(
-            onTap: () => Navigator.of(context).maybePop(),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                  BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                  BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-                ],
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.arrow_back, color: Colors.black),
-            ),
-          ),
+          backgroundColor: Colors.white,
+          leading: BackArrowButton(),
           centerTitle: true,
           title: const Text(
             'Tahrirlash',

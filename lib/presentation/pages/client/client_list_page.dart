@@ -105,13 +105,11 @@ class _ClientPageState extends State<ClientPage> {
           },
           builder: (context, state) {
             return Scaffold(
-              backgroundColor: const Color(0xFFF8FAFC),
               body: NestedScrollView(
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
                     SliverAppBar(
                       title: const Text('Hamkorlar'),
-                      backgroundColor: Colors.white,
                       elevation: 0,
                       centerTitle: false,
                       pinned: true,

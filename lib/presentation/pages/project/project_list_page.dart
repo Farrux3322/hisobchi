@@ -66,10 +66,8 @@ class _ProjectListPageState extends State<ProjectListPage> {
           },
           builder: (context, state) {
             return Scaffold(
-              backgroundColor: const Color(0xFFF8FAFC),
               appBar: AppBar(
                 title: const Text('Loyihalar'),
-                backgroundColor: Colors.white,
                 elevation: 0,
                 centerTitle: false,
                 titleTextStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),

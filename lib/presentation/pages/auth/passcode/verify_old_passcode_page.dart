@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/auth/passcode/passcode_cubit.dart';
 import 'package:hisobchi/domain/common/enums/passcode_step.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import '../../../assets/asset_index.dart';
 import 'components/passcode_field.dart';
 import 'components/set_passcode_keyboard.dart';
@@ -82,11 +83,7 @@ class _VerifyOldPasscodePageState extends State<VerifyOldPasscodePage>
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded,
-                    color: AppTheme.colors.black, size: 20.sp),
-                onPressed: () => Navigator.pop(context),
-              ),
+              leading: BackArrowButton(),
               title: Text(
                 'Eski PIN kodni kiriting',
                 style: TextStyle(

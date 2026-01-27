@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/auth/passcode/passcode_cubit.dart';
 import 'package:hisobchi/infrastructure/services/shared_service.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import '../../../../domain/common/enums/passcode_step.dart';
 import '../../../assets/asset_index.dart';
 import 'components/passcode_field.dart';
@@ -24,25 +25,13 @@ class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderSt
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
+    _fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
 
-    _shakeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
+    _shakeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
 
-    _shakeAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: Offset.zero,
-    ).animate(_shakeController);
+    _shakeAnimation = Tween<Offset>(begin: Offset.zero, end: Offset.zero).animate(_shakeController);
 
     _fadeController.forward();
   }
@@ -58,10 +47,22 @@ class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderSt
     HapticFeedback.heavyImpact();
 
     final shakeSequence = TweenSequence<Offset>([
-      TweenSequenceItem(tween: Tween(begin: Offset.zero, end: const Offset(-0.02, 0)), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: const Offset(-0.02, 0), end: const Offset(0.02, 0)), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: const Offset(0.02, 0), end: const Offset(-0.02, 0)), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: const Offset(-0.02, 0), end: Offset.zero), weight: 1),
+      TweenSequenceItem(
+        tween: Tween(begin: Offset.zero, end: const Offset(-0.02, 0)),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: const Offset(-0.02, 0), end: const Offset(0.02, 0)),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: const Offset(0.02, 0), end: const Offset(-0.02, 0)),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: const Offset(-0.02, 0), end: Offset.zero),
+        weight: 1,
+      ),
     ]);
 
     setState(() {
@@ -79,14 +80,7 @@ class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderSt
         builder: (context) {
           return Scaffold(
             backgroundColor: AppTheme.colors.background,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.colors.black, size: 20.sp),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
+            appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, leading: BackArrowButton()),
             body: SafeArea(
               child: FadeTransition(
                 opacity: _fadeAnimation,
@@ -95,9 +89,7 @@ class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderSt
                     return SingleChildScrollView(
                       physics: const ClampingScrollPhysics(),
                       child: Container(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
-                        ),
+                        constraints: BoxConstraints(minHeight: constraints.maxHeight),
                         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -114,20 +106,11 @@ class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderSt
                                       height: 140.w,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        gradient: RadialGradient(
-                                          colors: [
-                                            AppTheme.colors.primary.withValues(alpha: 0.15),
-                                            AppTheme.colors.primary.withValues(alpha: 0.0),
-                                          ],
-                                        ),
+                                        gradient: RadialGradient(colors: [AppTheme.colors.primary.withValues(alpha: 0.15), AppTheme.colors.primary.withValues(alpha: 0.0)]),
                                       ),
                                     ),
                                     // Main logo container
-                                    Image.asset(
-                                      AppIcons.appLogo,
-                                      height: 100.h,
-                                      width: 100.w,
-                                    ),
+                                    Image.asset(AppIcons.appLogo, height: 100.h, width: 100.w),
                                   ],
                                 ),
                                 // Title with step indicator and error handling
@@ -170,9 +153,7 @@ class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderSt
                                                 height: 2.h,
                                                 margin: EdgeInsets.symmetric(horizontal: 10.w),
                                                 decoration: BoxDecoration(
-                                                  color: state.passcodeStep == PasscodeStep.confirm
-                                                      ? AppTheme.colors.primary
-                                                      : AppTheme.colors.gray.withValues(alpha: 0.25),
+                                                  color: state.passcodeStep == PasscodeStep.confirm ? AppTheme.colors.primary : AppTheme.colors.gray.withValues(alpha: 0.25),
                                                   borderRadius: BorderRadius.circular(2.r),
                                                 ),
                                               ),
@@ -184,8 +165,8 @@ class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderSt
                                             state.isIncorrectPasscode
                                                 ? 'PIN kodlar mos emas!'
                                                 : state.passcodeStep == PasscodeStep.create
-                                                    ? "passcode.set_passcode".tr()
-                                                    : "passcode.confirm_passcode".tr(),
+                                                ? "passcode.set_passcode".tr()
+                                                : "passcode.confirm_passcode".tr(),
                                             style: TextStyle(
                                               fontSize: 22.sp,
                                               fontWeight: FontWeight.w700,
@@ -198,15 +179,13 @@ class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderSt
                                             state.isIncorrectPasscode
                                                 ? 'Qaytadan urinib ko\'ring'
                                                 : state.passcodeStep == PasscodeStep.create
-                                                    ? '4 raqamli PIN kod yarating'
-                                                    : 'PIN kodni qayta kiriting',
+                                                ? '4 raqamli PIN kod yarating'
+                                                : 'PIN kodni qayta kiriting',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               fontSize: 13.sp,
                                               fontWeight: FontWeight.w400,
-                                              color: state.isIncorrectPasscode
-                                                  ? AppTheme.colors.red.withValues(alpha: 0.7)
-                                                  : AppTheme.colors.gray,
+                                              color: state.isIncorrectPasscode ? AppTheme.colors.red.withValues(alpha: 0.7) : AppTheme.colors.gray,
                                             ),
                                           ),
                                         ],
@@ -220,22 +199,14 @@ class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderSt
                                 // PIN Field
                                 BlocBuilder<PasscodeCubit, PasscodeState>(
                                   builder: (context, state) {
-                                    return SlideTransition(
-                                      position: _shakeAnimation,
-                                      child: const PasscodeField(),
-                                    );
+                                    return SlideTransition(position: _shakeAnimation, child: const PasscodeField());
                                   },
                                 ),
                               ],
                             ),
 
                             // Keyboard at bottom
-                            Column(
-                              children: [
-                                const SetPasscodeKeyboard(),
-                                Gap(16.h),
-                              ],
-                            ),
+                            Column(children: [const SetPasscodeKeyboard(), Gap(16.h)]),
                           ],
                         ),
                       ),
@@ -256,40 +227,16 @@ class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderSt
       width: 36.w,
       height: 36.w,
       decoration: BoxDecoration(
-        gradient: isActive
-            ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppTheme.colors.primary,
-                  AppTheme.colors.primary.withValues(alpha: 0.85),
-                ],
-              )
-            : null,
+        gradient: isActive ? LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: 0.85)]) : null,
         color: isActive ? null : Colors.transparent,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: isActive ? Colors.transparent : AppTheme.colors.gray.withValues(alpha: 0.3),
-          width: 2,
-        ),
-        boxShadow: isActive
-            ? [
-                BoxShadow(
-                  color: AppTheme.colors.primary.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ]
-            : null,
+        border: Border.all(color: isActive ? Colors.transparent : AppTheme.colors.gray.withValues(alpha: 0.3), width: 2),
+        boxShadow: isActive ? [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))] : null,
       ),
       child: Center(
         child: Text(
           '$step',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w700,
-            color: isActive ? Colors.white : AppTheme.colors.gray.withValues(alpha: 0.5),
-          ),
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: isActive ? Colors.white : AppTheme.colors.gray.withValues(alpha: 0.5)),
         ),
       ),
     );
