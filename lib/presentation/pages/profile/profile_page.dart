@@ -19,6 +19,8 @@ import 'package:hisobchi/presentation/routes/entity/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'widgets/usage_section.dart';
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -62,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         actions: [
           Container(
-            margin: EdgeInsets.all(8),
+            margin: const EdgeInsets.all(8),
             width: 40,
             height: 40,
             decoration: BoxDecoration(
@@ -78,11 +80,9 @@ class _ProfilePageState extends State<ProfilePage> {
               padding: EdgeInsets.zero,
             ),
           ),
-
-          Gap(10),
+          const Gap(10),
         ],
       ),
-      // backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
           context.read<SubscriptionBloc>().add(GetSubscriptionInfoEvent());
@@ -94,7 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               _buildUserCard(),
               const SizedBox(height: 16),
-              _buildUsageSection(),
+              const UsageSection(),
               const SizedBox(height: 24),
               _buildSectionTitle('Savollaringiz bormi?'),
               const SizedBox(height: 12),
@@ -118,19 +118,6 @@ class _ProfilePageState extends State<ProfilePage> {
               _buildSectionTitle('Tashqi ko\'rinishi'),
               const SizedBox(height: 12),
               _buildMenuItem(icon: AppIcons.language, title: 'Tillar', subtitle: 'Uzbek tili', onTap: () {}),
-              // const SizedBox(height: 8),
-              // BlocBuilder<ThemeBloc, ThemeState>(
-              //   builder: (context, themeState) {
-              //     return _buildMenuItem(
-              //       icon: AppIcons.theme,
-              //       title: 'Mavzular',
-              //       subtitle: themeState.themeModeName,
-              //       onTap: () {
-              //         showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true, builder: (context) => const ThemeSelectorBottomSheet());
-              //       },
-              //     );
-              //   },
-              // ),
               const SizedBox(height: 24),
               _buildSectionTitle('Xavfsizlik'),
               const SizedBox(height: 12),
@@ -144,13 +131,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTap: () async {
                   final pref = await SharedPrefService.initialize();
 
-                  // PIN kod mavjudligini tekshirish
                   if (pref.passcode.isEmpty) {
-                    // PIN kod mavjud emas
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Row(
+                          content: const Row(
                             children: [
                               Icon(Icons.info_outline, color: Colors.white),
                               SizedBox(width: 8),
@@ -166,28 +151,20 @@ class _ProfilePageState extends State<ProfilePage> {
                     return;
                   }
 
-                  // 1. Avval eski PIN kodni tekshirish
                   if (context.mounted) {
                     final isVerified = await Navigator.of(context, rootNavigator: true).push<bool>(MaterialPageRoute(builder: (_) => const VerifyOldPasscodePage()));
 
-                    // Agar eski PIN kod to'g'ri kiritilmasa, to'xtatish
-                    if (isVerified != true) {
-                      return;
-                    }
-
-                    // 2. Eski PIN kod to'g'ri - yangi PIN kod yaratish sahifasiga o'tish
-                    if (context.mounted) {
+                    if (isVerified == true && context.mounted) {
                       final result = await Navigator.of(context, rootNavigator: true).push<bool>(MaterialPageRoute(builder: (_) => const SetPasscodePage()));
 
-                      // 3. Muvaffaqiyatli o'zgartirildi
                       if (result == true && context.mounted) {
                         setState(() {});
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Row(
                               children: [
-                                Icon(Icons.check_circle, color: Colors.white),
-                                SizedBox(width: 8),
+                                const Icon(Icons.check_circle, color: Colors.white),
+                                const SizedBox(width: 8),
                                 Text('PIN-kod muvaffaqiyatli o\'zgartirildi'),
                               ],
                             ),
@@ -276,7 +253,7 @@ class _ProfilePageState extends State<ProfilePage> {
               Container(
                 width: 44,
                 height: 44,
-                padding: EdgeInsets.all(6),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: AppTheme.colors.background,
                   borderRadius: BorderRadius.circular(14),
@@ -299,253 +276,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildUsageSection() {
-    return BlocBuilder<SubscriptionBloc, SubscriptionState>(
-      builder: (context, state) {
-        if (state.infoStatus == Status.loading) {
-          return _buildUsageSkeleton();
-        }
-
-        final subscription = state.subscriptionInfo?.subscription;
-        final planType = subscription?.plan?.displayName ?? 'Free';
-        final planExpiry = subscription?.currentPeriod?.end ?? '-';
-        final usage = subscription?.usage;
-
-        return Column(
-          children: [
-            // Plan Info Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppTheme.colors.primary.withOpacity(0.1)),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.colors.primary.withOpacity(0.05),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: AppTheme.colors.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    padding: const EdgeInsets.all(12),
-                    child: SvgPicture.asset(
-                      AppIcons.crown,
-                      colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text('Tarif: ', style: TextStyle(fontSize: 13, color: AppTheme.colors.gray)),
-                            Text(
-                              planType,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: AppTheme.colors.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Muddati: $planExpiry',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppTheme.colors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  _buildIconButton(
-                    icon: Icons.add_rounded,
-                    onTap: () => context.pushNamed(Routes.subscription.name),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            // Usage Progress Cards
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppTheme.colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppTheme.colors.divider.withOpacity(0.5)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Limitlar va Foydalanish',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  _buildUsageProgressItem(
-                    title: 'Hamkorlar',
-                    current: usage?.customers?.current ?? 0,
-                    max: usage?.customers?.max,
-                    color: const Color(0xFF6366F1), // Indigo
-                  ),
-                  const Divider(height: 32),
-                  _buildUsageProgressItem(
-                    title: 'Loyihalar',
-                    current: usage?.projects?.current ?? 0,
-                    max: usage?.projects?.max,
-                    color: const Color(0xFF10B981), // Emerald
-                  ),
-                  const Divider(height: 32),
-                  _buildUsageProgressItem(
-                    title: 'SMS Xabarlar',
-                    current: usage?.sms?.current ?? 0,
-                    max: usage?.sms?.max,
-                    color: const Color(0xFFF59E0B), // Amber
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildIconButton({required IconData icon, required VoidCallback onTap}) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: AppTheme.colors.background,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.colors.primary.withOpacity(0.2)),
-      ),
-      child: IconButton(
-        icon: Icon(icon, color: AppTheme.colors.primary, size: 20),
-        onPressed: onTap,
-        padding: EdgeInsets.zero,
-      ),
-    );
-  }
-
-  Widget _buildUsageProgressItem({
-    required String title,
-    required int current,
-    required dynamic max,
-    required Color color,
-  }) {
-    final bool isUnlimited = max is String && max.toLowerCase() == 'unlimited';
-    final int maxValue = isUnlimited ? 0 : (max is int ? max : int.tryParse(max.toString()) ?? 0);
-    final double progress = isUnlimited ? 0.0 : (maxValue > 0 ? (current / maxValue).clamp(0.0, 1.0) : 0.0);
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.colors.gray),
-            ),
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: '$current',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.colors.black,
-                    ),
-                  ),
-                  TextSpan(
-                    text: isUnlimited ? ' / ∞' : ' / $maxValue',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.colors.gray,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Stack(
-          children: [
-            Container(
-              height: 8,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            if (!isUnlimited)
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 600),
-                height: 8,
-                width: MediaQuery.of(context).size.width * progress * 0.8, // Approximation for the inner width
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(4),
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withOpacity(0.3),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildUsageSkeleton() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Column(
-        children: [
-          Container(
-            height: 80,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            height: 240,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4),
@@ -558,7 +288,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildMenuItem({required String icon, required String title, String? subtitle, Color? titleColor, bool showArrow = true, required VoidCallback onTap}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 0),
       decoration: BoxDecoration(
         color: AppTheme.colors.white,
         borderRadius: BorderRadius.circular(14),
@@ -611,7 +340,6 @@ class _ProfilePageState extends State<ProfilePage> {
         final hasPasscode = data['hasPasscode'] as bool;
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 0),
           decoration: BoxDecoration(
             color: AppTheme.colors.white,
             borderRadius: BorderRadius.circular(14),
@@ -642,23 +370,18 @@ class _ProfilePageState extends State<ProfilePage> {
                     final pref = await SharedPrefService.initialize();
 
                     if (value) {
-                      // Yoqmoqchi bo'lsa
                       if (!hasPasscode) {
-                        // PIN kod yaratilmagan - yaratish sahifasiga o'tish
                         if (context.mounted) {
                           final result = await Navigator.of(context, rootNavigator: true).push<bool>(MaterialPageRoute(builder: (_) => const SetPasscodePage()));
-
                           if (result == true && context.mounted) {
                             setState(() {});
                           }
                         }
                       } else {
-                        // PIN kod mavjud - faqat enable qilish
                         pref.setPasscodeEnabled(true);
                         setState(() {});
                       }
                     } else {
-                      // O'chirish
                       pref.setPasscodeEnabled(false);
                       setState(() {});
                     }
@@ -692,7 +415,6 @@ class _ProfilePageState extends State<ProfilePage> {
         final isEnabled = data['isEnabled'] as bool;
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 0),
           decoration: BoxDecoration(
             color: AppTheme.colors.white,
             borderRadius: BorderRadius.circular(14),
@@ -788,7 +510,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       pref.setName('');
                       pref.setToken('');
                       pref.setPhone('');
-                      // Reset passcode verification flag when logging out
                       setPasscodeVerified(false);
                       if (context.mounted) {
                         GoRouter.of(context).go(Routes.signIn.path);
@@ -801,7 +522,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: const Text('Chiqish', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                    child: const Text(
+                      'Chiqish',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
               ],
