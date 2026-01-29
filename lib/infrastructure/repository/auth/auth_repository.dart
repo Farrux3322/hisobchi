@@ -72,6 +72,21 @@ class AuthRepository {
     return response.data['data'];
   }
 
+  Future<Map<String, dynamic>> updateProfilePhoneVerify({required String phone}) async {
+    final response = await dio.post('/auth/update-profile-phone-verify', data: {'phone': phone});
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> updateProfilePhoneCheckOtp({required String phone, required String otp}) async {
+    final response = await dio.post('/auth/update-profile-phone-check-otp', data: {'phone': phone, 'otp_code': otp});
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> updateProfileInfo({required String name}) async {
+    final response = await dio.put('/auth/update-profile-info', data: {'name': name});
+    return response.data;
+  }
+
   Future<Map<String, dynamic>> getDeviceInfo() async {
     final deviceInfoPlugin = DeviceInfoPlugin();
     final FirebaseMessaging messaging = FirebaseMessaging.instance;

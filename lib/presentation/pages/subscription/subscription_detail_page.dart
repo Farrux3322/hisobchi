@@ -743,19 +743,20 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
           ),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SvgPicture.asset(icon, width: 32, height: 32),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ),
+            // const SizedBox(width: 12),
+            // Expanded(
+            //   child: Text(
+            //     label,
+            //     style: const TextStyle(
+            //       fontSize: 16,
+            //       fontWeight: FontWeight.w500,
+            //       color: AppColors.textPrimary,
+            //     ),
+            //   ),
+            // ),
             Container(
               width: 24,
               height: 24,
