@@ -5,6 +5,7 @@ class AppIcons {
   static const home = 'assets/icons/main.svg';
 
   static const click = 'assets/icons/click.svg';
+  static const payme = 'assets/icons/click.svg';
   static const success = 'assets/icons/success.svg';
   static const professional = 'assets/icons/professional.svg';
   static const standart = 'assets/icons/standart.svg';
@@ -27,8 +28,6 @@ class AppIcons {
   static const crown = 'assets/icons/crown.svg';
   static const phoneSms = 'assets/icons/phone_sms.svg';
 
-
-
   static const balance = 'assets/icons/balance.svg';
   static const chiqim = 'assets/icons/chiqim.svg';
   static const income = 'assets/icons/income.svg';
@@ -44,6 +43,7 @@ class AppIcons {
   static const material = 'assets/icons/material.svg';
   static const object = 'assets/icons/object.svg';
   static const room = 'assets/icons/room.svg';
+
   //--------------------------------------------
   static const materialIncome = 'assets/icons/material_income.svg';
   static const materialExpense = 'assets/icons/material_expense.svg';
@@ -59,6 +59,7 @@ class AppIcons {
 
   static const report = 'assets/icons/report.svg';
   static const masterForemanReport = 'assets/icons/master_foreman_report.svg';
+
   //-------------------------------------------
   static const directory = 'assets/icons/directory.svg';
   static const directoryFilled = 'assets/icons/directory_filled.svg';
@@ -67,9 +68,9 @@ class AppIcons {
   static const reportBottom = 'assets/icons/report_bottom.svg';
   static const reportBottomFilled = 'assets/icons/report_bottom_filled.svg';
   static const profile = 'assets/icons/profile.svg';
-  static const profileFilled= 'assets/icons/profile_filled.svg';
-  //-------------------------------------------
+  static const profileFilled = 'assets/icons/profile_filled.svg';
 
+  //-------------------------------------------
 
   static const empty = 'assets/icons/empty.svg';
   static const avatarMale = 'assets/icons/avatar.svg';
@@ -101,6 +102,7 @@ class AppIcons {
   static const emptyLottie = 'assets/icons/empty_lottie.json';
   static const locationLottie = 'assets/icons/location_lottie.json';
   static const defaultBox = 'assets/images/default_box.png';
+
   // static const firstPlace = 'assets/icons/first_place.svg';
   static const first = 'assets/icons/first_place.svg';
   static const secondPlace = 'assets/icons/second_place.svg';

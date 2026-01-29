@@ -5,6 +5,7 @@ class SubscriptionState extends Equatable {
   final Status detailStatus;
   final Status infoStatus;
   final Status purchaseStatus;
+  final Status orderStatus;
   final List<PricingPlanModel> pricingPlans;
   final PricingPlanModel? pricingPlanDetail;
   final SubscriptionInfoModel? subscriptionInfo;
@@ -16,6 +17,7 @@ class SubscriptionState extends Equatable {
     this.detailStatus = Status.pure,
     this.infoStatus = Status.pure,
     this.purchaseStatus = Status.pure,
+    this.orderStatus = Status.pure,
     this.pricingPlans = const [],
     this.pricingPlanDetail,
     this.subscriptionInfo,
@@ -28,6 +30,7 @@ class SubscriptionState extends Equatable {
     Status? detailStatus,
     Status? infoStatus,
     Status? purchaseStatus,
+    Status? orderStatus,
     List<PricingPlanModel>? pricingPlans,
     PricingPlanModel? pricingPlanDetail,
     SubscriptionInfoModel? subscriptionInfo,
@@ -39,6 +42,7 @@ class SubscriptionState extends Equatable {
       detailStatus: detailStatus ?? this.detailStatus,
       infoStatus: infoStatus ?? this.infoStatus,
       purchaseStatus: purchaseStatus ?? this.purchaseStatus,
+      orderStatus: orderStatus ?? this.orderStatus,
       pricingPlans: pricingPlans ?? this.pricingPlans,
       pricingPlanDetail: pricingPlanDetail ?? this.pricingPlanDetail,
       subscriptionInfo: subscriptionInfo ?? this.subscriptionInfo,
@@ -48,5 +52,5 @@ class SubscriptionState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, detailStatus, infoStatus, purchaseStatus, pricingPlans, pricingPlanDetail, subscriptionInfo, purchaseResult, errorMessage];
+  List<Object?> get props => [status, detailStatus, infoStatus, purchaseStatus, orderStatus, pricingPlans, pricingPlanDetail, subscriptionInfo, purchaseResult, errorMessage];
 }

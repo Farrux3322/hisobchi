@@ -2,18 +2,21 @@ class PurchaseSubscriptionRequest {
   int? planId;
   String? billingCycle;
   String? paymentMethod;
+  String? returnUrl;
 
   PurchaseSubscriptionRequest({
     this.planId,
     this.billingCycle,
     this.paymentMethod,
+    this.returnUrl,
   });
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['plan_id'] = planId;
     data['billing_cycle'] = billingCycle;
-    data['payment_method'] = paymentMethod;
+    data['payment_provider'] = paymentMethod;
+    data['return_url'] = returnUrl;
     return data;
   }
 }
@@ -23,12 +26,16 @@ class PurchaseSubscriptionResult {
   String? paymentUrl;
   String? amount;
   String? currency;
+  int? orderId;
+  String? orderNumber;
 
   PurchaseSubscriptionResult({
     this.subscriptionId,
     this.paymentUrl,
     this.amount,
     this.currency,
+    this.orderId,
+    this.orderNumber,
   });
 
   PurchaseSubscriptionResult.fromJson(Map<String, dynamic> json) {
@@ -36,6 +43,8 @@ class PurchaseSubscriptionResult {
     paymentUrl = json['payment_url'];
     amount = json['amount'];
     currency = json['currency'];
+    orderId = json['order_id'];
+    orderNumber = json['order_number'];
   }
 
   Map<String, dynamic> toJson() {
@@ -44,6 +53,8 @@ class PurchaseSubscriptionResult {
     data['payment_url'] = paymentUrl;
     data['amount'] = amount;
     data['currency'] = currency;
+    data['order_id'] = orderId;
+    data['order_number'] = orderNumber;
     return data;
   }
 }

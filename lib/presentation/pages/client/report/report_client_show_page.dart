@@ -373,7 +373,8 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
   final double height;
 
-  _SliverTabBarDelegate({required this.child, required this.height});
+  _SliverTabBarDelegate({required this.child, required double height})
+      : height = height.roundToDouble();
 
   @override
   double get minExtent => height;
@@ -382,7 +383,7 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return child;
+    return SizedBox.expand(child: child);
   }
 
   @override

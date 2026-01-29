@@ -16,6 +16,9 @@ import 'package:hisobchi/presentation/pages/onboarding/onboarding_page.dart';
 import 'package:hisobchi/presentation/pages/profile/profile_page.dart';
 import 'package:hisobchi/presentation/pages/project/project_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/project_add_page.dart';
+import 'package:hisobchi/presentation/pages/subscription/subscription_page.dart';
+import 'package:hisobchi/presentation/pages/subscription/subscription_detail_page.dart';
+import 'package:hisobchi/presentation/pages/subscription/payment_success_page.dart';
 
 import 'entity/pages.dart';
 import 'entity/routes.dart';
@@ -96,6 +99,30 @@ final router = GoRouter(
       path: Routes.onboarding.path,
       pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const OnboardingPage()),
     ),
+    GoRoute(
+      name: Routes.paymentSuccess.name,
+      path: Routes.paymentSuccess.path,
+      pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const PaymentSuccessPage()),
+    ),
+    GoRoute(
+      name: Routes.subscription.name,
+      path: Routes.subscription.path,
+      pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const TariflarScreen()),
+    ),
+    GoRoute(
+      name: Routes.subscriptionDetail.name,
+      path: Routes.subscriptionDetail.path,
+      pageBuilder: (context, state) {
+        final extras = state.extra as Map<String, dynamic>?;
+        return MaterialPage<void>(
+          key: state.pageKey,
+          child: SubscriptionDetailPage(
+            planId: extras?['planId'] ?? 0,
+            planName: extras?['planName'] ?? '',
+          ),
+        );
+      },
+    ),
 
     GoRoute(
       name: Routes.root.name,
@@ -173,7 +200,7 @@ final branches = [
       // Document
       GoRoute(
         name: Routes.projectPage.name,
-        path: Routes.projectPage.name,
+        path: Routes.projectPage.path,
         // parentNavigatorKey: _shellKey,
         redirect: (context, state) => _redirects(),
         pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const ProjectListPage()),
@@ -195,7 +222,7 @@ final branches = [
     routes: [
       GoRoute(
         name: Routes.profilePage.name,
-        path: Routes.profilePage.name,
+        path: Routes.profilePage.path,
         // parentNavigatorKey: _shellKey,
         redirect: (context, state) => _redirects(),
         pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const ProfilePage()),

@@ -9,7 +9,8 @@ import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/pages/subscription/subscription_detail_page.dart';
 import 'package:hisobchi/presentation/pages/subscription/widgets/tarif_card.dart';
-import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hisobchi/presentation/routes/entity/routes.dart';
 
 class TariflarScreen extends StatefulWidget {
   const TariflarScreen({super.key});
@@ -112,14 +113,13 @@ class _TariflarScreenState extends State<TariflarScreen> {
                       if (state.pricingPlans.isNotEmpty && _currentIndex < state.pricingPlans.length) {
                         final selectedPlan = state.pricingPlans[_currentIndex];
                         if (selectedPlan.id != null) {
-                          pushScreenWithNavBar(
-                            context,
-                            SubscriptionDetailPage(planId: selectedPlan.id!),
-                          ).then((v){
-                            if(v==true && context.mounted){
-                              Navigator.pop(context,true);
-                            }
-                          });
+                          context.pushNamed(
+                            Routes.subscriptionDetail.name,
+                            extra: {
+                              'planId': selectedPlan.id,
+                              'planName': selectedPlan.displayName ?? selectedPlan.name ?? '',
+                            },
+                          );
                         }
                       }
                     },

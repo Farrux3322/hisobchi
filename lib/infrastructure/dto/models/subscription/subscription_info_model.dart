@@ -170,7 +170,7 @@ class Usage {
 class UsageDetail {
   int? current;
   dynamic max; // Can be int or "unlimited" string
-  double? percentage;
+  num? percentage;
   bool? canAdd;
 
   UsageDetail({this.current, this.max, this.percentage, this.canAdd});
@@ -178,7 +178,7 @@ class UsageDetail {
   UsageDetail.fromJson(Map<String, dynamic> json) {
     current = json['current'];
     max = json['max']; // Keep as dynamic - can be int or string
-    percentage = json['percentage']?.toDouble();
+    percentage = json['percentage'];
     canAdd = json['can_add'];
   }
 
@@ -215,7 +215,7 @@ class SmsUsage {
   int? current;
   int? max;
   int? remaining;
-  double? percentage;
+  num? percentage;
   bool? canSend;
 
   SmsUsage({this.current, this.max, this.remaining, this.percentage, this.canSend});
@@ -224,7 +224,7 @@ class SmsUsage {
     current = json['current'];
     max = json['max'];
     remaining = json['remaining'];
-    percentage = json['percentage']?.toDouble();
+    percentage = json['percentage'];
     canSend = json['can_send'];
   }
 

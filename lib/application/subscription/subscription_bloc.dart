@@ -20,6 +20,8 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
     on<GetSubscriptionInfoEvent>(getSubscriptionInfo);
     on<PurchaseSubscriptionEvent>(purchaseSubscription);
     on<ResetPurchaseStatusEvent>(resetPurchaseStatus);
+    on<CheckOrderStatusEvent>(checkOrderStatus);
+    on<ResetOrderStatusEvent>(resetOrderStatus);
   }
 
   Future<void> getPricingPlans(GetPricingPlansEvent event, Emitter<SubscriptionState> emit) async {
@@ -80,7 +82,12 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
   Future<void> purchaseSubscription(PurchaseSubscriptionEvent event, Emitter<SubscriptionState> emit) async {
     emit(state.copyWith(purchaseStatus: Status.loading));
     try {
-      final request = PurchaseSubscriptionRequest(planId: event.planId, billingCycle: event.billingCycle, paymentMethod: event.paymentMethod);
+      final request = PurchaseSubscriptionRequest(
+        planId: event.planId,
+        billingCycle: event.billingCycle,
+        paymentMethod: event.paymentMethod,
+        returnUrl: event.returnUrl,
+      );
 
       final data = await _repo.purchaseSubscription(request: request);
 
@@ -98,6 +105,35 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
   }
 
   void resetPurchaseStatus(ResetPurchaseStatusEvent event, Emitter<SubscriptionState> emit) {
-    emit(state.copyWith(purchaseStatus: Status.initial, purchaseResult: null));
+    emit(state.copyWith(purchaseStatus: Status.initial, purchaseResult: null, orderStatus: Status.pure));
+  }
+
+  Future<void> checkOrderStatus(CheckOrderStatusEvent event, Emitter<SubscriptionState> emit) async {
+    emit(state.copyWith(orderStatus: Status.loading));
+    try {
+      final data = await _repo.checkOrderStatus(orderNumber: event.orderNumber);
+
+      if (data["status"] == true) {
+        final status = data["result"]["status"]?.toString().toUpperCase();
+        if (status == 'PAID') {
+          emit(state.copyWith(orderStatus: Status.success));
+        } else if (status == 'FAILED') {
+          emit(state.copyWith(orderStatus: Status.error, errorMessage: 'To\'lov muvaffaqiyatsiz tugadi'));
+        } else {
+          // PENDING - emit initial to trigger listener while in loading state
+          emit(state.copyWith(orderStatus: Status.initial));
+        }
+      } else {
+        emit(state.copyWith(orderStatus: Status.error, errorMessage: data["message"]?.toString() ?? 'Unknown error'));
+      }
+    } on DioException catch (e) {
+      emit(state.copyWith(orderStatus: Status.error, errorMessage: e.message ?? e.toString()));
+    } catch (e) {
+      emit(state.copyWith(orderStatus: Status.error, errorMessage: e.toString()));
+    }
+  }
+
+  void resetOrderStatus(ResetOrderStatusEvent event, Emitter<SubscriptionState> emit) {
+    emit(state.copyWith(orderStatus: Status.pure));
   }
 }

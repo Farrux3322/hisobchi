@@ -6,6 +6,7 @@ import 'package:hisobchi/presentation/pages/auth/passcode/set_passcode_page.dart
 import 'package:hisobchi/presentation/pages/auth/passcode/verify_old_passcode_page.dart';
 import 'package:hisobchi/presentation/pages/notification/notification_page.dart';
 import 'package:hisobchi/presentation/routes/coordinator.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:hisobchi/application/subscription/subscription_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
@@ -14,8 +15,8 @@ import 'package:hisobchi/infrastructure/services/shared_service.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/pages/profile/screens/profile_update_page.dart';
 import 'package:hisobchi/presentation/pages/subscription/subscription_page.dart';
-import 'package:hisobchi/presentation/routes/index_routes.dart';
-import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+import 'package:hisobchi/presentation/routes/entity/routes.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -93,9 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               _buildUserCard(),
               const SizedBox(height: 16),
-              _buildPlanCard(),
-              const SizedBox(height: 16),
-              _buildSmsLimitCard(),
+              _buildUsageSection(),
               const SizedBox(height: 24),
               _buildSectionTitle('Savollaringiz bormi?'),
               const SizedBox(height: 12),
@@ -300,271 +299,249 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildPlanCard() {
+  Widget _buildUsageSection() {
     return BlocBuilder<SubscriptionBloc, SubscriptionState>(
       builder: (context, state) {
         if (state.infoStatus == Status.loading) {
-          return _buildPlanCardSkeleton();
+          return _buildUsageSkeleton();
         }
 
         final subscription = state.subscriptionInfo?.subscription;
         final planType = subscription?.plan?.displayName ?? 'Free';
         final planExpiry = subscription?.currentPeriod?.end ?? '-';
+        final usage = subscription?.usage;
 
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppTheme.colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.3)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(color: AppTheme.colors.background, borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.all(12),
-                child: SvgPicture.asset(AppIcons.crown, colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn)),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text('Joriy tarifingiz: ', style: TextStyle(fontSize: 14, color: AppTheme.colors.gray)),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(6)),
-                          child: Text(
-                            planType,
-                            style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Amal qilish muddati: $planExpiry',
-                      style: TextStyle(fontSize: 13, color: AppTheme.colors.black, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppTheme.colors.background,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.2)),
-                ),
-                child: IconButton(
-                  icon: Icon(Icons.add, color: AppTheme.colors.primary, size: 20),
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => TariflarScreen())).then((v) {
-                      if (v == true && context.mounted) {
-                        context.read<SubscriptionBloc>().add(GetSubscriptionInfoEvent());
-                      }
-                    });
-                  },
-                  padding: EdgeInsets.zero,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  /// Shimmer skeleton for plan card
-  Widget _buildPlanCardSkeleton() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTheme.colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.colors.divider),
-        ),
-        child: Row(
+        return Column(
           children: [
+            // Plan Info Card
             Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 14,
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 50,
-                        height: 20,
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    width: 160,
-                    height: 13,
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppTheme.colors.primary.withOpacity(0.1)),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.colors.primary.withOpacity(0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   ),
                 ],
               ),
-            ),
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSmsLimitCard() {
-    return BlocBuilder<SubscriptionBloc, SubscriptionState>(
-      builder: (context, state) {
-        if (state.infoStatus == Status.loading) {
-          return _buildSmsLimitCardSkeleton();
-        }
-
-        final smsUsage = state.subscriptionInfo?.subscription?.usage?.sms;
-        final smsUsed = smsUsage?.current ?? 0;
-        final smsTotal = smsUsage?.max ?? 0;
-        final smsProgress = smsTotal > 0 ? smsUsed / smsTotal : 0.0;
-
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppTheme.colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
-          ),
-          child: Column(
-            children: [
-              Row(
+              child: Row(
                 children: [
                   Container(
                     width: 48,
                     height: 48,
-                    decoration: BoxDecoration(color: AppTheme.colors.background, borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(
+                      color: AppTheme.colors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                     padding: const EdgeInsets.all(12),
-                    child: SvgPicture.asset(AppIcons.sms, colorFilter: const ColorFilter.mode(Color(0xFF10B981), BlendMode.srcIn)),
+                    child: SvgPicture.asset(
+                      AppIcons.crown,
+                      colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('SMS limiti', style: TextStyle(fontSize: 14, color: AppTheme.colors.gray)),
+                        Row(
+                          children: [
+                            Text('Tarif: ', style: TextStyle(fontSize: 13, color: AppTheme.colors.gray)),
+                            Text(
+                              planType,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppTheme.colors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 4),
                         Text(
-                          '$smsUsed / $smsTotal',
-                          style: TextStyle(fontSize: 16, color: AppTheme.colors.black, fontWeight: FontWeight.w600),
+                          'Muddati: $planExpiry',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppTheme.colors.black,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppTheme.colors.background,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.2)),
-                    ),
-                    child: const IconButton(
-                      icon: Icon(Icons.add, color: Color(0xFF10B981), size: 20),
-                      onPressed: null,
-                      padding: EdgeInsets.zero,
-                    ),
+                  _buildIconButton(
+                    icon: Icons.add_rounded,
+                    onTap: () => context.pushNamed(Routes.subscription.name),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(value: smsProgress, backgroundColor: AppTheme.colors.background, valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)), minHeight: 8),
+            ),
+            const SizedBox(height: 16),
+            
+            // Usage Progress Cards
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppTheme.colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: AppTheme.colors.divider.withOpacity(0.5)),
               ),
-            ],
-          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Limitlar va Foydalanish',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildUsageProgressItem(
+                    title: 'Hamkorlar',
+                    current: usage?.customers?.current ?? 0,
+                    max: usage?.customers?.max,
+                    color: const Color(0xFF6366F1), // Indigo
+                  ),
+                  const Divider(height: 32),
+                  _buildUsageProgressItem(
+                    title: 'Loyihalar',
+                    current: usage?.projects?.current ?? 0,
+                    max: usage?.projects?.max,
+                    color: const Color(0xFF10B981), // Emerald
+                  ),
+                  const Divider(height: 32),
+                  _buildUsageProgressItem(
+                    title: 'SMS Xabarlar',
+                    current: usage?.sms?.current ?? 0,
+                    max: usage?.sms?.max,
+                    color: const Color(0xFFF59E0B), // Amber
+                  ),
+                ],
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
-  /// Shimmer skeleton for SMS limit card
-  Widget _buildSmsLimitCardSkeleton() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTheme.colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.colors.divider),
-        ),
-        child: Column(
+  Widget _buildIconButton({required IconData icon, required VoidCallback onTap}) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: AppTheme.colors.background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.colors.primary.withOpacity(0.2)),
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: AppTheme.colors.primary, size: 20),
+        onPressed: onTap,
+        padding: EdgeInsets.zero,
+      ),
+    );
+  }
+
+  Widget _buildUsageProgressItem({
+    required String title,
+    required int current,
+    required dynamic max,
+    required Color color,
+  }) {
+    final bool isUnlimited = max is String && max.toLowerCase() == 'unlimited';
+    final int maxValue = isUnlimited ? 0 : (max is int ? max : int.tryParse(max.toString()) ?? 0);
+    final double progress = isUnlimited ? 0.0 : (maxValue > 0 ? (current / maxValue).clamp(0.0, 1.0) : 0.0);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 14,
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
-                      ),
-                      const SizedBox(height: 6),
-                      Container(
-                        width: 60,
-                        height: 16,
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                ),
-              ],
+            Text(
+              title,
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.colors.gray),
             ),
-            const SizedBox(height: 12),
-            Container(
-              height: 8,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: '$current',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.colors.black,
+                    ),
+                  ),
+                  TextSpan(
+                    text: isUnlimited ? ' / ∞' : ' / $maxValue',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.colors.gray,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
+        const SizedBox(height: 10),
+        Stack(
+          children: [
+            Container(
+              height: 8,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            if (!isUnlimited)
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 600),
+                height: 8,
+                width: MediaQuery.of(context).size.width * progress * 0.8, // Approximation for the inner width
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUsageSkeleton() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        children: [
+          Container(
+            height: 80,
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            height: 240,
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+          ),
+        ],
       ),
     );
   }

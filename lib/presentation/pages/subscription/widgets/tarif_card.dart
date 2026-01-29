@@ -58,7 +58,7 @@ class TarifCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: gradient.colors.last.withValues(alpha: 0.3),
+            color: gradient.colors.last.withOpacity(0.3),
             blurRadius: 30,
             offset: const Offset(0, 15),
           )
@@ -76,7 +76,7 @@ class TarifCard extends StatelessWidget {
               height: 150,
               decoration: BoxDecoration(
                 gradient: RadialGradient(
-                  colors: [Colors.white.withValues(alpha: 0.15), Colors.white.withValues(alpha: 0.0)],
+                  colors: [Colors.white.withOpacity(0.15), Colors.white.withOpacity(0.0)],
                 ),
                 shape: BoxShape.circle,
               ),
@@ -90,7 +90,7 @@ class TarifCard extends StatelessWidget {
               height: 100,
               decoration: BoxDecoration(
                 gradient: RadialGradient(
-                  colors: [Colors.white.withValues(alpha: 0.1), Colors.white.withValues(alpha: 0.0)],
+                  colors: [Colors.white.withOpacity(0.1), Colors.white.withOpacity(0.0)],
                 ),
                 shape: BoxShape.circle,
               ),
@@ -111,12 +111,12 @@ class TarifCard extends StatelessWidget {
                       height: 52,
                       padding: const EdgeInsets.all(11),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.25),
+                        color: Colors.white.withOpacity(0.25),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 1.5),
+                        border: Border.all(color: Colors.white.withOpacity(0.4), width: 1.5),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           )
@@ -150,7 +150,7 @@ class TarifCard extends StatelessWidget {
                                 tarif.description!,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.white.withValues(alpha: 0.85),
+                                  color: Colors.white.withOpacity(0.85),
                                   fontWeight: FontWeight.w600,
                                   height: 1.2,
                                 ),
@@ -168,7 +168,7 @@ class TarifCard extends StatelessWidget {
                 if (tarif.features?.reports == true) _buildFeatureItem('Hisobotlar:', 'Cheksiz'),
                 if (tarif.features?.fileUpload == true) _buildFeatureItem('Fayl yuklash:', 'Cheksiz'),
                 const SizedBox(height: 12),
-                DottedLine(dashColor: Colors.white.withValues(alpha: 0.2), dashLength: 4, dashGapLength: 4),
+                DottedLine(dashColor: Colors.white.withOpacity(0.2), dashLength: 4, dashGapLength: 4),
                 const SizedBox(height: 16),
                 if (tarif.monthlyPrice != null) _buildPriceSection('Oylik', tarif.monthlyPrice!.formatted, null, null, null),
                 if (tarif.semiAnnualPrice != null) ...[
@@ -207,7 +207,7 @@ class TarifCard extends StatelessWidget {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
+                        color: Colors.black.withOpacity(0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       )
@@ -240,9 +240,9 @@ class TarifCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.white.withOpacity(0.2),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 1),
+              border: Border.all(color: Colors.white.withOpacity(0.4), width: 1),
             ),
             child: const Icon(Icons.check, size: 14, color: Colors.white),
           ),
@@ -250,7 +250,7 @@ class TarifCard extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w500),
             ),
           ),
           Text(
@@ -271,15 +271,15 @@ class TarifCard extends StatelessWidget {
           children: [
             Text(
               muddat.toUpperCase(),
-              style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.7), fontWeight: FontWeight.w800, letterSpacing: 1.2),
+              style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.w800, letterSpacing: 1.2),
             ),
             if (chegirma != null)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                  border: Border.all(color: Colors.white.withOpacity(0.3)),
                 ),
                 child: Text(
                   chegirma,
@@ -306,7 +306,7 @@ class TarifCard extends StatelessWidget {
                 if (tejash != null && tejash.isNotEmpty) const SizedBox(width: 8),
                 Text(
                   bepul,
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13, fontWeight: FontWeight.w500),
+                  style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13, fontWeight: FontWeight.w500),
                 ),
               ],
             ],
@@ -315,4 +315,5 @@ class TarifCard extends StatelessWidget {
       ],
     );
   }
+
 }

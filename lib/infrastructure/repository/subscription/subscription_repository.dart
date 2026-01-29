@@ -26,4 +26,9 @@ class SubscriptionRepository {
     );
     return response.data;
   }
+
+  Future<Map<String, dynamic>> checkOrderStatus({required String orderNumber}) async {
+    final response = await dio.get('/subscription/check-order-status/$orderNumber');
+    return response.data;
+  }
 }

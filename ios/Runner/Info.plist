@@ -60,6 +60,17 @@
 		<string>We need your permission to send you notifications</string>
 		<key>NSFaceIDUsageDescription</key>
 		<string>Ilovaga tezkor kirish uchun Face ID dan foydalaning</string>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>hisobchi</string>
+				</array>
+			</dict>
+		</array>
 		<key>UIStatusBarHidden</key>
 		<false/>
 	</dict>

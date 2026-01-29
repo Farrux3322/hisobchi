@@ -31,9 +31,12 @@ class Routes implements Coordinate {
   static const homePage = Routes._(name: 'home_page', path: '/home_page');
 
   static const profilePage = Routes._(name: 'profile_page', path: '/profile_page');
+  static const subscription = Routes._(name: 'subscription', path: '/subscription');
+  static const subscriptionDetail = Routes._(name: 'subscription_detail', path: '/subscription_detail');
+  static const paymentSuccess = Routes._(name: 'payment_success', path: '/payment-success');
   static const clientPage = Routes._(name: 'client_page', path: '/client_page');
   static const projectPage = Routes._(name: 'project_page', path: '/project_page');
-  static const projectAddPage = Routes._(name: 'project_add_page', path: 'project_add_page');
+  static const projectAddPage = Routes._(name: 'project_add_page', path: '/project_add_page');
   static const projectCostListPage = Routes._(name: 'project_cost_list_page', path: '/project_cost_list_page');
 
   @override
