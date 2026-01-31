@@ -68,7 +68,7 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
                             Expanded(
                               child: Text(
                                 'Limitlar va Foydalanish',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.colors.black, letterSpacing: -0.5),
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.colors.black, letterSpacing: -0.5),
                               ),
                             ),
                             AnimatedRotation(
@@ -91,7 +91,7 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
                               children: [
                                 _UsageProgressItem(
                                   title: 'Hamkorlar',
-                                  icon: Icons.people_alt_rounded,
+                                  icon: AppIcons.clients,
                                   current: usage?.customers?.current ?? 0,
                                   max: usage?.customers?.max,
                                   color: const Color(0xFF6366F1), // Indigo
@@ -99,7 +99,7 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
                                 const Gap(24),
                                 _UsageProgressItem(
                                   title: 'Loyihalar',
-                                  icon: Icons.folder_rounded,
+                                  icon: AppIcons.project,
                                   current: usage?.projects?.current ?? 0,
                                   max: usage?.projects?.max,
                                   color: const Color(0xFF10B981), // Emerald
@@ -107,10 +107,13 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
                                 const Gap(24),
                                 _UsageProgressItem(
                                   title: 'SMS Xabarlar',
-                                  icon: Icons.sms_rounded,
+                                  icon: AppIcons.sms,
                                   current: usage?.sms?.current ?? 0,
                                   max: usage?.sms?.max,
-                                  color: const Color(0xFFF59E0B), // Amber
+                                  remaining: usage?.sms?.remaining ?? 0,
+                                  color: const Color(0xFFF59E0B),
+                                  // Amber
+                                  onAction: () => context.pushNamed(Routes.smsBuyPage.name),
                                 ),
                               ],
                             ),
@@ -155,7 +158,7 @@ class _SubscriptionInfoCard extends StatelessWidget {
                 Container(
                   width: 56,
                   height: 56,
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(16)),
+                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
                   padding: const EdgeInsets.all(14),
                   child: SvgPicture.asset(AppIcons.crown, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
                 ),
@@ -171,7 +174,7 @@ class _SubscriptionInfoCard extends StatelessWidget {
                       const Gap(4),
                       Text(
                         'Amal qilish muddati: $planExpiry',
-                        style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w500),
+                        style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -202,12 +205,14 @@ class _SubscriptionInfoCard extends StatelessWidget {
 
 class _UsageProgressItem extends StatelessWidget {
   final String title;
-  final IconData icon;
+  final String icon;
   final int current;
   final dynamic max;
+  final int? remaining;
   final Color color;
+  final VoidCallback? onAction;
 
-  const _UsageProgressItem({required this.title, required this.icon, required this.current, required this.max, required this.color});
+  const _UsageProgressItem({required this.title, required this.icon, required this.current, required this.max, this.remaining, required this.color, this.onAction});
 
   @override
   Widget build(BuildContext context) {
@@ -220,27 +225,44 @@ class _UsageProgressItem extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, size: 18, color: color.withOpacity(0.7)),
+            SvgPicture.asset(icon, colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn)),
             const Gap(8),
             Text(
               title,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.colors.gray.withOpacity(0.8)),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
             ),
             const Spacer(),
             RichText(
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: '$current',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppTheme.colors.black),
+                    text: '${remaining ?? current}',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppTheme.colors.black, letterSpacing: -0.5),
                   ),
                   TextSpan(
                     text: isUnlimited ? ' / ∞' : ' / $maxValue',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.colors.gray.withOpacity(0.5)),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.colors.black.withValues(alpha: 0.5)),
                   ),
                 ],
               ),
             ),
+            if (onAction != null) ...[
+              const Gap(12),
+              Material(
+                color: AppTheme.colors.primary,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  onTap: onAction,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    alignment: Alignment.center,
+                    child: Icon(Icons.add_rounded, color: AppTheme.colors.white, size: 22),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
         const Gap(12),
@@ -249,7 +271,7 @@ class _UsageProgressItem extends StatelessWidget {
             Container(
               height: 10,
               width: double.infinity,
-              decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(10)),
             ),
             if (!isUnlimited)
               FractionallySizedBox(
@@ -257,9 +279,9 @@ class _UsageProgressItem extends StatelessWidget {
                 child: Container(
                   height: 10,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [color, color.withOpacity(0.7)]),
+                    gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.7)]),
                     borderRadius: BorderRadius.circular(10),
-                    boxShadow: [BoxShadow(color: color.withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2))],
+                    boxShadow: [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
                   ),
                 ),
               ),

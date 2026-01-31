@@ -7,14 +7,11 @@ import 'package:hisobchi/presentation/pages/auth/passcode/verify_old_passcode_pa
 import 'package:hisobchi/presentation/pages/notification/notification_page.dart';
 import 'package:hisobchi/presentation/routes/coordinator.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:hisobchi/application/subscription/subscription_bloc.dart';
-import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:hisobchi/infrastructure/services/shared_service.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/pages/profile/screens/profile_update_page.dart';
-import 'package:hisobchi/presentation/pages/subscription/subscription_page.dart';
 import 'package:hisobchi/presentation/routes/entity/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';

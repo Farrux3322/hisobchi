@@ -66,7 +66,7 @@ class LiquidBottomBar extends StatelessWidget {
                     duration: const Duration(milliseconds: 250),
                     curve: Curves.easeOutCubic,
                     transform: Matrix4.identity()
-                      ..scale(isDragging ? 1.08 : 1.0), // Scale up only when dragging
+                      ..scaleByDouble(isDragging ? 1.08 : 1.0, isDragging ? 1.08 : 1.0, 1.0, 1.0), // Scale up only when dragging
                     transformAlignment: Alignment.center,
                     child: Transform.scale(
                       // Subtle liquid grow effect during move

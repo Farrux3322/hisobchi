@@ -6,7 +6,9 @@ class SubscriptionState extends Equatable {
   final Status infoStatus;
   final Status purchaseStatus;
   final Status orderStatus;
+  final Status smsStatus;
   final List<PricingPlanModel> pricingPlans;
+  final List<SMSPricingModel> smsPricingPlans;
   final PricingPlanModel? pricingPlanDetail;
   final SubscriptionInfoModel? subscriptionInfo;
   final PurchaseSubscriptionResult? purchaseResult;
@@ -18,7 +20,9 @@ class SubscriptionState extends Equatable {
     this.infoStatus = Status.pure,
     this.purchaseStatus = Status.pure,
     this.orderStatus = Status.pure,
+    this.smsStatus = Status.pure,
     this.pricingPlans = const [],
+    this.smsPricingPlans = const [],
     this.pricingPlanDetail,
     this.subscriptionInfo,
     this.purchaseResult,
@@ -31,7 +35,9 @@ class SubscriptionState extends Equatable {
     Status? infoStatus,
     Status? purchaseStatus,
     Status? orderStatus,
+    Status? smsStatus,
     List<PricingPlanModel>? pricingPlans,
+    List<SMSPricingModel>? smsPricingPlans,
     PricingPlanModel? pricingPlanDetail,
     SubscriptionInfoModel? subscriptionInfo,
     PurchaseSubscriptionResult? purchaseResult,
@@ -43,7 +49,9 @@ class SubscriptionState extends Equatable {
       infoStatus: infoStatus ?? this.infoStatus,
       purchaseStatus: purchaseStatus ?? this.purchaseStatus,
       orderStatus: orderStatus ?? this.orderStatus,
+      smsStatus: smsStatus ?? this.smsStatus,
       pricingPlans: pricingPlans ?? this.pricingPlans,
+      smsPricingPlans: smsPricingPlans ?? this.smsPricingPlans,
       pricingPlanDetail: pricingPlanDetail ?? this.pricingPlanDetail,
       subscriptionInfo: subscriptionInfo ?? this.subscriptionInfo,
       purchaseResult: purchaseResult ?? this.purchaseResult,
@@ -52,5 +60,18 @@ class SubscriptionState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, detailStatus, infoStatus, purchaseStatus, orderStatus, pricingPlans, pricingPlanDetail, subscriptionInfo, purchaseResult, errorMessage];
+  List<Object?> get props => [
+        status,
+        detailStatus,
+        infoStatus,
+        purchaseStatus,
+        orderStatus,
+        smsStatus,
+        pricingPlans,
+        smsPricingPlans,
+        pricingPlanDetail,
+        subscriptionInfo,
+        purchaseResult,
+        errorMessage
+      ];
 }

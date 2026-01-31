@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/subscription/pricing_plan_model.dart';
 import 'package:hisobchi/infrastructure/dto/models/subscription/purchase_subscription_model.dart';
+import 'package:hisobchi/infrastructure/dto/models/subscription/sms_pricing_model.dart';
 import 'package:hisobchi/infrastructure/dto/models/subscription/subscription_info_model.dart';
 import 'package:hisobchi/infrastructure/repository/subscription/subscription_repository.dart';
 
@@ -22,6 +23,50 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
     on<ResetPurchaseStatusEvent>(resetPurchaseStatus);
     on<CheckOrderStatusEvent>(checkOrderStatus);
     on<ResetOrderStatusEvent>(resetOrderStatus);
+    on<GetSMSPricingPlansEvent>(getSMSPricingPlans);
+    on<PurchaseSMSPackageEvent>(purchaseSMSPackage);
+  }
+
+  Future<void> purchaseSMSPackage(PurchaseSMSPackageEvent event, Emitter<SubscriptionState> emit) async {
+    emit(state.copyWith(purchaseStatus: Status.loading));
+    try {
+      final data = await _repo.purchaseSMSPackage(
+        smsPackageId: event.smsPackageId,
+        paymentMethod: event.paymentMethod,
+        returnUrl: event.returnUrl,
+      );
+
+      if (data["status"] == true) {
+        final result = PurchaseSubscriptionResult.fromJson(data["result"]);
+        emit(state.copyWith(purchaseStatus: Status.success, purchaseResult: result));
+      } else {
+        emit(state.copyWith(purchaseStatus: Status.error, errorMessage: data["message"]?.toString() ?? 'Unknown error'));
+      }
+    } on DioException catch (e) {
+      emit(state.copyWith(purchaseStatus: Status.error, errorMessage: e.message ?? e.toString()));
+    } catch (e) {
+      emit(state.copyWith(purchaseStatus: Status.error, errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> getSMSPricingPlans(GetSMSPricingPlansEvent event, Emitter<SubscriptionState> emit) async {
+    emit(state.copyWith(smsStatus: Status.loading));
+    try {
+      final data = await _repo.getSMSPricingPlans();
+
+      if (data["status"] == true) {
+        final plans = (data["result"] as List? ?? [])
+            .map((e) => SMSPricingModel.fromJson(e))
+            .toList();
+        emit(state.copyWith(smsStatus: Status.success, smsPricingPlans: plans));
+      } else {
+        emit(state.copyWith(smsStatus: Status.error, errorMessage: data["message"]?.toString() ?? 'Unknown error'));
+      }
+    } on DioException catch (e) {
+      emit(state.copyWith(smsStatus: Status.error, errorMessage: e.message ?? e.toString()));
+    } catch (e) {
+      emit(state.copyWith(smsStatus: Status.error, errorMessage: e.toString()));
+    }
   }
 
   Future<void> getPricingPlans(GetPricingPlansEvent event, Emitter<SubscriptionState> emit) async {

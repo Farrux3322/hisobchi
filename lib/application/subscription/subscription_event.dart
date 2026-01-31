@@ -49,3 +49,20 @@ class CheckOrderStatusEvent extends SubscriptionEvent {
 }
 
 class ResetOrderStatusEvent extends SubscriptionEvent {}
+
+class GetSMSPricingPlansEvent extends SubscriptionEvent {}
+
+class PurchaseSMSPackageEvent extends SubscriptionEvent {
+  final int smsPackageId;
+  final String paymentMethod;
+  final String returnUrl;
+
+  const PurchaseSMSPackageEvent({
+    required this.smsPackageId,
+    required this.paymentMethod,
+    required this.returnUrl,
+  });
+
+  @override
+  List<Object> get props => [smsPackageId, paymentMethod, returnUrl];
+}

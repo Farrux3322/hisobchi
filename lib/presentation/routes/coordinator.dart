@@ -1,7 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:hisobchi/infrastructure/services/shared_service.dart';
@@ -19,6 +17,7 @@ import 'package:hisobchi/presentation/pages/project/project_add_page.dart';
 import 'package:hisobchi/presentation/pages/subscription/subscription_page.dart';
 import 'package:hisobchi/presentation/pages/subscription/subscription_detail_page.dart';
 import 'package:hisobchi/presentation/pages/subscription/payment_success_page.dart';
+import 'package:hisobchi/presentation/pages/profile/screens/sms_buy_page/sms_buy_page.dart';
 
 import 'entity/pages.dart';
 import 'entity/routes.dart';
@@ -108,6 +107,11 @@ final router = GoRouter(
       name: Routes.subscription.name,
       path: Routes.subscription.path,
       pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const TariflarScreen()),
+    ),
+    GoRoute(
+      name: Routes.smsBuyPage.name,
+      path: Routes.smsBuyPage.path,
+      pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const SMSBuyPage()),
     ),
     GoRoute(
       name: Routes.subscriptionDetail.name,
