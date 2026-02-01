@@ -17,6 +17,7 @@ import 'package:hisobchi/presentation/pages/client/client_add_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_card_item.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/partner_report_widget.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_filter_bottom_sheet.dart';
+import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ClientPage extends StatefulWidget {
@@ -113,7 +114,6 @@ class _ClientPageState extends State<ClientPage> {
                       elevation: 0,
                       centerTitle: false,
                       pinned: true,
-                      titleTextStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
                     ),
                     SliverToBoxAdapter(
                       child: PartnerReportWidget(
@@ -130,24 +130,26 @@ class _ClientPageState extends State<ClientPage> {
                 },
                 body: _buildBody(state),
               ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BlocProvider(
-                        create: (context) => FileUploadBloc(repository: FileUploadRepository()),
-                        child: const ClientAddPage(),
+              floatingActionButton: SubscriptionGuard(
+                child: FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BlocProvider(
+                          create: (context) => FileUploadBloc(repository: FileUploadRepository()),
+                          child: const ClientAddPage(),
+                        ),
                       ),
-                    ),
-                  ).then((v) {
-                    if (v == true && context.mounted) {
-                      context.read<PartnerBloc>().add(const GetAllEvent());
-                    }
-                  });
-                },
-                backgroundColor: AppTheme.colors.primary,
-                child: SvgPicture.asset(AppIcons.clientAdd),
+                    ).then((v) {
+                      if (v == true && context.mounted) {
+                        context.read<PartnerBloc>().add(const GetAllEvent());
+                      }
+                    });
+                  },
+                  backgroundColor: AppTheme.colors.primary,
+                  child: SvgPicture.asset(AppIcons.clientAdd),
+                ),
               ),
             );
           },

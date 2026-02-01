@@ -167,7 +167,6 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                 fontWeight: FontWeight.w900,
                 color: AppTheme.colors.primary,
                 letterSpacing: 0.8,
-                fontFamily: 'SF Pro Display',
               ),
             ),
             SizedBox(height: 3.h),

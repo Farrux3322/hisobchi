@@ -176,7 +176,7 @@ class _CheckPasscodePageState extends State<CheckPasscodePage> with TickerProvid
                         },
                       ),
 
-                      Gap(40.h),
+                      Gap(15.h),
 
                       // PIN Field
                       BlocBuilder<PasscodeCubit, PasscodeState>(

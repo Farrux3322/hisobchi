@@ -190,7 +190,6 @@ class _ProjectAddPageState extends State<ProjectAddPage> {
           centerTitle: true,
           title: const Text(
             'Loyiha',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
           ),
         ),
         body: _buildBody(),

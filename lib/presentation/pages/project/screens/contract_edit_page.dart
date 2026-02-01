@@ -333,11 +333,7 @@ class _ContractEditPageState extends State<ContractEditPage> {
         leading: BackArrowButton(),
         title: const Text(
           'Shartnomani tahrirlash',
-          style: TextStyle(
-            color: Color(0xFF1E293B),
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+
         ),
         centerTitle: true,
       ),

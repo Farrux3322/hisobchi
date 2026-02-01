@@ -57,7 +57,6 @@ class _ProfilePageState extends State<ProfilePage> {
         centerTitle: false,
         title: Text(
           'Profil',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
         ),
         actions: [
           Container(
@@ -95,7 +94,12 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 24),
               _buildSectionTitle('Savollaringiz bormi?'),
               const SizedBox(height: 12),
-              _buildMenuItem(icon: AppIcons.telegram, title: 'Telegram bot', onTap: () {}),
+              _buildMenuItem(
+                icon: AppIcons.telegram,
+                title: 'Telegram bot',
+                onTap: () {},
+                isEnabled: false,
+              ),
               const SizedBox(height: 8),
               _buildMenuItem(
                 icon: AppIcons.telegram,
@@ -114,9 +118,17 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 24),
               _buildSectionTitle('Tashqi ko\'rinishi'),
               const SizedBox(height: 12),
-              _buildMenuItem(icon: AppIcons.language, title: 'Tillar', subtitle: 'Uzbek tili', onTap: () {}),
+              _buildMenuItem(
+                icon: AppIcons.language,
+                title: 'Tillar',
+                subtitle: 'Uzbek tili',
+                onTap: () {},
+                isEnabled: false,
+              ),
               const SizedBox(height: 24),
               _buildSectionTitle('Xavfsizlik'),
+              // const SizedBox(height: 12),
+              // _buildMenuItem(icon: AppIcons.lock, title: 'Identifikatsiyadan o\'tish', onTap: () => context.pushNamed(Routes.identification.name)),
               const SizedBox(height: 12),
               _buildPinCodeSwitch(),
               const SizedBox(height: 8),
@@ -283,7 +295,15 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildMenuItem({required String icon, required String title, String? subtitle, Color? titleColor, bool showArrow = true, required VoidCallback onTap}) {
+  Widget _buildMenuItem({
+    required String icon,
+    required String title,
+    String? subtitle,
+    Color? titleColor,
+    bool showArrow = true,
+    required VoidCallback onTap,
+    bool isEnabled = true,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.colors.white,
@@ -293,34 +313,59 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onTap,
+          onTap: isEnabled ? onTap : null,
           borderRadius: BorderRadius.circular(14),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                SvgPicture.asset(icon),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: titleColor ?? AppTheme.colors.black),
-                      ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          style: TextStyle(fontSize: 13, color: AppTheme.colors.primary, fontWeight: FontWeight.w500),
+          child: Opacity(
+            opacity: isEnabled ? 1.0 : 0.5,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  SvgPicture.asset(icon),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              title,
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: titleColor ?? AppTheme.colors.black),
+                            ),
+                            if (!isEnabled) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.colors.primary.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'Yaqinda',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.colors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle,
+                            style: TextStyle(fontSize: 13, color: AppTheme.colors.primary, fontWeight: FontWeight.w500),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-                if (showArrow) Icon(Icons.chevron_right_rounded, color: AppTheme.colors.gray, size: 24),
-              ],
+                  if (showArrow && isEnabled) Icon(Icons.chevron_right_rounded, color: AppTheme.colors.gray, size: 24),
+                ],
+              ),
             ),
           ),
         ),
@@ -519,10 +564,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: const Text(
-                      'Chiqish',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                    ),
+                    child: const Text('Chiqish', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                   ),
                 ),
               ],

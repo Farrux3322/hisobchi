@@ -20,6 +20,7 @@ import 'package:hisobchi/presentation/pages/client/widgets/client_delete_dialog.
 import 'package:hisobchi/presentation/pages/client/client_edit_page.dart';
 import 'package:hisobchi/presentation/pages/client/sms_setting_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/kirim_bottom_sheet.dart';
+import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:hisobchi/utils/url_louncher_util.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -99,7 +100,9 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
               ),
               Gap(10.w),
             ],
-            title: Text('Hisob-kitob', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+            title: Text('Hisob-kitob',
+              style: TextStyle(color: Color(0xFF1E293B),
+                  fontSize: 18, fontWeight: FontWeight.w800),            ),
           ),
           body: RefreshIndicator(
             onRefresh: () async {
@@ -165,58 +168,64 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                             // edit and delete icons
                             Row(
                               children: [
-                                IconButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => MultiBlocProvider(
-                                          providers: [
-                                            BlocProvider(create: (context) => FileUploadBloc(repository: FileUploadRepository())),
-                                            // We don't need to provide PartnerBloc here as it's already in the context
-                                          ],
-                                          child: ClientEditPage(partnerModel: widget.partnerModel),
+                                SubscriptionGuard(
+                                  child: IconButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => MultiBlocProvider(
+                                            providers: [
+                                              BlocProvider(create: (context) => FileUploadBloc(repository: FileUploadRepository())),
+                                              // We don't need to provide PartnerBloc here as it's already in the context
+                                            ],
+                                            child: ClientEditPage(partnerModel: widget.partnerModel),
+                                          ),
                                         ),
-                                      ),
-                                    ).then((v) {
-                                      if (v == true && context.mounted) {
-                                        // Refresh partner data if needed
-                                        // The parent screen (ClientPage) will also refresh when we pop back to it
-                                        // But we can also refresh the current data here
-                                        context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
-                                      }
-                                    });
-                                  },
-                                  icon: SvgPicture.asset(AppIcons.edit),
+                                      ).then((v) {
+                                        if (v == true && context.mounted) {
+                                          // Refresh partner data if needed
+                                          // The parent screen (ClientPage) will also refresh when we pop back to it
+                                          // But we can also refresh the current data here
+                                          context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
+                                        }
+                                      });
+                                    },
+                                    icon: SvgPicture.asset(AppIcons.edit),
+                                  ),
                                 ),
                                 if (widget.partnerModel.deletedAt != null)
-                                  IconButton(
+                                  SubscriptionGuard(
+                                    child: IconButton(
+                                      onPressed: () {
+                                        showDeleteDialog(
+                                          context,
+                                          isDelete: false,
+                                          onConfirm: () {
+                                            context.read<PartnerBloc>().add(RestoreEvent(id: widget.partnerModel.id ?? 0));
+                                          },
+                                        );
+                                      },
+                                      icon: Icon(Icons.restore, color: AppTheme.colors.color9E97FF),
+                                    ),
+                                  ),
+                                SubscriptionGuard(
+                                  child: IconButton(
                                     onPressed: () {
                                       showDeleteDialog(
                                         context,
-                                        isDelete: false,
+                                        isDelete: true,
                                         onConfirm: () {
-                                          context.read<PartnerBloc>().add(RestoreEvent(id: widget.partnerModel.id ?? 0));
+                                          if (widget.partnerModel.deletedAt == null) {
+                                            context.read<PartnerBloc>().add(DeleteEvent(id: widget.partnerModel.id ?? 0));
+                                          } else {
+                                            context.read<PartnerBloc>().add(ForceDeleteEvent(id: widget.partnerModel.id ?? 0));
+                                          }
                                         },
                                       );
                                     },
-                                    icon: Icon(Icons.restore, color: AppTheme.colors.color9E97FF),
+                                    icon: SvgPicture.asset(AppIcons.delete),
                                   ),
-                                IconButton(
-                                  onPressed: () {
-                                    showDeleteDialog(
-                                      context,
-                                      isDelete: true,
-                                      onConfirm: () {
-                                        if (widget.partnerModel.deletedAt == null) {
-                                          context.read<PartnerBloc>().add(DeleteEvent(id: widget.partnerModel.id ?? 0));
-                                        } else {
-                                          context.read<PartnerBloc>().add(ForceDeleteEvent(id: widget.partnerModel.id ?? 0));
-                                        }
-                                      },
-                                    );
-                                  },
-                                  icon: SvgPicture.asset(AppIcons.delete),
                                 ),
                               ],
                             ),
@@ -473,7 +482,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                               children: [
                                 Text(
                                   PriceFormatter.priceFormat('$debt'),
-                                  style: TextStyle(color: debt == 0 ? Colors.black : Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                                  style: TextStyle(color: debt == 0 ? Colors.black : Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.end,
@@ -539,7 +548,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                               children: [
                                 Text(
                                   PriceFormatter.priceFormat('$credit'),
-                                  style: TextStyle(color: credit == 0 ? Colors.black : Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                                  style: TextStyle(color: credit == 0 ? Colors.black : Color(0xFF1E293B), fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.2),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.end,
@@ -597,7 +606,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                       children: [
                         Text(
                           PriceFormatter.priceFormat('$balance'),
-                          style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                          style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.end,
@@ -634,82 +643,86 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
               return Row(
                 children: [
                   Expanded(
-                    child: GestureDetector(
-                      onTap: () async {
-                        showKirimBottomSheet(context, widget.partnerModel.id ?? 0, true, currencySymbol);
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [Color(0xFF3CC293), Color(0xFF34B082)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [BoxShadow(color: const Color(0xFF3CC293).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset(AppIcons.income, width: iconSize.clamp(18, 22), height: iconSize.clamp(18, 22), colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-                            SizedBox(width: constraints.maxWidth * 0.02),
-                            Flexible(
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: RichText(
-                                  text: TextSpan(
-                                    text: 'Kirim',
-                                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
-                                    children: [
-                                      TextSpan(
-                                        text: ' ($currencySymbol)',
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
-                                      ),
-                                    ],
+                    child: SubscriptionGuard(
+                      child: GestureDetector(
+                        onTap: () async {
+                          showKirimBottomSheet(context, widget.partnerModel.id ?? 0, true, currencySymbol);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(colors: [Color(0xFF3CC293), Color(0xFF34B082)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [BoxShadow(color: const Color(0xFF3CC293).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SvgPicture.asset(AppIcons.income, width: iconSize.clamp(18, 22), height: iconSize.clamp(18, 22), colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                              SizedBox(width: constraints.maxWidth * 0.02),
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: RichText(
+                                    text: TextSpan(
+                                      text: 'Kirim',
+                                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                                      children: [
+                                        TextSpan(
+                                          text: ' ($currencySymbol)',
+                                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                   SizedBox(width: constraints.maxWidth * 0.03),
                   Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        showKirimBottomSheet(context, widget.partnerModel.id ?? 0, false, currencySymbol);
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [Color(0xFFDE5050), Color(0xFFC54444)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [BoxShadow(color: const Color(0xFFDE5050).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset(AppIcons.chiqim, width: iconSize.clamp(18, 22), height: iconSize.clamp(18, 22), colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-                            SizedBox(width: constraints.maxWidth * 0.02),
-                            Flexible(
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: RichText(
-                                  text: TextSpan(
-                                    text: 'Chiqim',
-                                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
-                                    children: [
-                                      TextSpan(
-                                        text: ' ($currencySymbol)',
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
-                                      ),
-                                    ],
+                    child: SubscriptionGuard(
+                      child: GestureDetector(
+                        onTap: () {
+                          showKirimBottomSheet(context, widget.partnerModel.id ?? 0, false, currencySymbol);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(colors: [Color(0xFFDE5050), Color(0xFFC54444)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [BoxShadow(color: const Color(0xFFDE5050).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SvgPicture.asset(AppIcons.chiqim, width: iconSize.clamp(18, 22), height: iconSize.clamp(18, 22), colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                              SizedBox(width: constraints.maxWidth * 0.02),
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: RichText(
+                                    text: TextSpan(
+                                      text: 'Chiqim',
+                                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                                      children: [
+                                        TextSpan(
+                                          text: ' ($currencySymbol)',
+                                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),

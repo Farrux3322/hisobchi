@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'liquid_bottom_bar.dart';
+import 'package:hisobchi/application/subscription/subscription_status_cubit.dart';
+import 'package:hisobchi/domain/common/enums/subscription_status.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hisobchi/presentation/components/subscription/subscription_blocked_view.dart';
+import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
+import 'package:hisobchi/presentation/routes/index_routes.dart';
 
 class LiquidGlassShell extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -94,20 +100,62 @@ class _LiquidGlassShellState extends State<LiquidGlassShell> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      body: widget.navigationShell, // Direct use of navigationShell preserves state (IndexedStack)
-      bottomNavigationBar: LiquidBottomBar(
-        pageOffset: _pageValue,
-        isDragging: _isDragging,
-        onItemSelected: (index) {
-          widget.navigationShell.goBranch(index);
-        },
-        onHorizontalDragStart: _handleDragStart,
-        onHorizontalDragUpdate: _handleDragUpdate,
-        onHorizontalDragEnd: _handleDragEnd,
-        items: widget.items,
-      ),
+    return BlocBuilder<SubscriptionStatusCubit, SubscriptionStatus>(
+      builder: (context, status) {
+        if (status.isDeleted) {
+          return SubscriptionBlockedView(
+            title: 'Hisobingiz o‘chirildi',
+            message: 'Afsuski, sizning hisobingiz o‘chirilgan. Iltimos, ma’lumot olish uchun qo‘llab-quvvatlash xizmati bilan bog‘laning.',
+          );
+        }
+
+        return Scaffold(
+          extendBody: true,
+          body: Stack(
+            children: [
+              widget.navigationShell,
+              if (status.isArchived)
+                Container(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  child: Center(
+                    child: SubscriptionBlockedView(
+                      title: 'Hisobingiz arxivlangan',
+                      message: 'Sizning hisobingiz arxivlangan xolatda. Ma’lumotlarni ko‘rish uchun tarifni yangilang.',
+                      actionLabel: 'Tarifni yangilash',
+                      onAction: () {
+                        context.push(Routes.subscription.path);
+                      },
+                    ),
+                  ),
+                ),
+            ],
+          ), // Direct use of navigationShell preserves state (IndexedStack)
+          bottomNavigationBar: LiquidBottomBar(
+            pageOffset: _pageValue,
+            isDragging: _isDragging,
+            onItemSelected: (index) {
+              if (status.isArchived) {
+                // Show archive message or do nothing
+                return;
+              }
+              widget.navigationShell.goBranch(index);
+            },
+            onHorizontalDragStart: (details) {
+              if (status.isArchived) return;
+              _handleDragStart(details);
+            },
+            onHorizontalDragUpdate: (details) {
+              if (status.isArchived) return;
+              _handleDragUpdate(details);
+            },
+            onHorizontalDragEnd: (details) {
+              if (status.isArchived) return;
+              _handleDragEnd(details);
+            },
+            items: widget.items,
+          ),
+        );
+      },
     );
   }
 }

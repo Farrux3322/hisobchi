@@ -11,6 +11,7 @@ import 'package:hisobchi/presentation/pages/project/project_show_page.dart';
 import 'package:hisobchi/presentation/pages/project/widgets/project_card_item.dart';
 import 'package:hisobchi/presentation/pages/project/widgets/project_filter_bottom_sheet.dart';
 import 'package:hisobchi/presentation/pages/project/components/project_filter_field.dart';
+import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -70,7 +71,6 @@ class _ProjectListPageState extends State<ProjectListPage> {
                 title: const Text('Loyihalar'),
                 elevation: 0,
                 centerTitle: false,
-                titleTextStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
               ),
               body: Column(
                 children: [
@@ -78,12 +78,14 @@ class _ProjectListPageState extends State<ProjectListPage> {
                   Expanded(child: _buildBody(state)),
                 ],
               ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () {
-                  context.pushNamed(Routes.projectAddPage.name);
-                },
-                backgroundColor: AppTheme.colors.primary,
-                child: SvgPicture.asset(AppIcons.projectAdd),
+              floatingActionButton: SubscriptionGuard(
+                child: FloatingActionButton(
+                  onPressed: () {
+                    context.pushNamed(Routes.projectAddPage.name);
+                  },
+                  backgroundColor: AppTheme.colors.primary,
+                  child: SvgPicture.asset(AppIcons.projectAdd),
+                ),
               ),
             );
           },

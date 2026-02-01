@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import 'package:image_picker/image_picker.dart';
@@ -290,28 +291,11 @@ class _ClientAddPageState extends State<ClientAddPage> {
       ],
       child: Scaffold(
         appBar: AppBar(
-          leading: InkWell(
-            onTap: () => Navigator.of(context).maybePop(),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(color: Color.fromRGBO(255, 255, 255, 0.1), blurRadius: 1, spreadRadius: 0, offset: Offset(0, 1)),
-                  BoxShadow(color: Color.fromRGBO(50, 50, 93, 0.25), blurRadius: 100, spreadRadius: -20, offset: Offset(0, 50)),
-                  BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.3), blurRadius: 60, spreadRadius: -30, offset: Offset(0, 30)),
-                ],
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.arrow_back, color: Colors.black),
-            ),
-          ),
+          backgroundColor: Colors.white,
+          leading: BackArrowButton(),
           centerTitle: true,
           title: const Text(
             'Yangi hamkor',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
           ),
         ),
         body: _buildBody(),

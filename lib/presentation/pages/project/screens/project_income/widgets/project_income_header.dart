@@ -19,11 +19,7 @@ class ProjectIncomeHeader extends StatelessWidget implements PreferredSizeWidget
       leading:  BackArrowButton(),
       title: Text(
         title,
-        style: TextStyle(
-          color: AppTheme.colors.black,
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w600,
-        ),
+
       ),
       centerTitle: true,
     );

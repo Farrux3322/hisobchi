@@ -10,59 +10,45 @@ class SetPasscodeKeyboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 30.w),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Raqamlar 1-9
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 20.w,
-              mainAxisSpacing: 16.h,
-              childAspectRatio: 1.15,
-            ),
-            itemCount: 9,
-            itemBuilder: (context, index) {
-              return _buildNumberKey(context, '${index + 1}');
-            },
-          ),
-
-          SizedBox(height: 16.h),
-
-          // Oxirgi qator: Bo'sh joy, 0, Delete
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Bo'sh joy (biometric tugma o'rnida)
-              SizedBox(
-                width: 70.w,
-                height: 70.w,
-              ),
-
-              SizedBox(width: 20.w),
-
-              // 0 tugma
-              SizedBox(
-                width: 70.w,
-                height: 70.w,
-                child: _buildNumberKey(context, '0'),
-              ),
-
-              SizedBox(width: 20.w),
-
-              // Delete tugma
-              SizedBox(
-                width: 70.w,
-                height: 70.w,
-                child: _buildDeleteKey(context),
-              ),
-            ],
-          ),
+          _buildRow(context, ['1', '2', '3']),
+          SizedBox(height: 20.h),
+          _buildRow(context, ['4', '5', '6']),
+          SizedBox(height: 20.h),
+          _buildRow(context, ['7', '8', '9']),
+          SizedBox(height: 20.h),
+          _buildBottomRow(context),
         ],
       ),
+    );
+  }
+
+  Widget _buildRow(BuildContext context, List<String> numbers) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: numbers.map((n) => _buildNumberKey(context, n)).toList(),
+    );
+  }
+
+  Widget _buildBottomRow(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        // Biometric tugma o'rnidagi bo'sh joy
+        SizedBox(
+          width: 75.w,
+          height: 75.w,
+        ),
+
+        // 0 tugma
+        _buildNumberKey(context, '0'),
+
+        // Delete tugma
+        _buildDeleteKey(context),
+      ],
     );
   }
 
@@ -74,36 +60,25 @@ class SetPasscodeKeyboard extends StatelessWidget {
           HapticFeedback.lightImpact();
           context.read<PasscodeCubit>().fillInput(number);
         },
-        borderRadius: BorderRadius.circular(20.r),
-        splashColor: AppTheme.colors.primary.withValues(alpha: 0.1),
-        highlightColor: AppTheme.colors.primary.withValues(alpha: 0.05),
+        customBorder: const CircleBorder(),
+        splashColor: AppTheme.colors.primary.withValues(alpha: 0.15),
+        highlightColor: AppTheme.colors.primary.withValues(alpha: 0.1),
         child: Container(
+          width: 75.w,
+          height: 75.w,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                Colors.white.withValues(alpha: 0.95),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(20.r),
+            shape: BoxShape.circle,
+            color: Colors.white,
             border: Border.all(
-              color: AppTheme.colors.gray.withValues(alpha: 0.15),
-              width: 1,
+              color: AppTheme.colors.gray.withValues(alpha: 0.12),
+              width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.colors.primary.withValues(alpha: 0.08),
-                blurRadius: 12,
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
                 offset: const Offset(0, 4),
-                spreadRadius: -2,
-              ),
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -111,9 +86,8 @@ class SetPasscodeKeyboard extends StatelessWidget {
             number,
             style: TextStyle(
               fontSize: 32.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               color: AppTheme.colors.black,
-              letterSpacing: -0.5,
             ),
           ),
         ),
@@ -129,43 +103,25 @@ class SetPasscodeKeyboard extends StatelessWidget {
           HapticFeedback.mediumImpact();
           context.read<PasscodeCubit>().onBackspacePressed();
         },
-        borderRadius: BorderRadius.circular(20.r),
-        splashColor: AppTheme.colors.gray.withValues(alpha: 0.1),
-        highlightColor: AppTheme.colors.gray.withValues(alpha: 0.05),
+        customBorder: const CircleBorder(),
+        splashColor: AppTheme.colors.red.withValues(alpha: 0.1),
+        highlightColor: AppTheme.colors.red.withValues(alpha: 0.05),
         child: Container(
+          width: 75.w,
+          height: 75.w,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                Colors.white.withValues(alpha: 0.95),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(20.r),
+            shape: BoxShape.circle,
+            color: Colors.white,
             border: Border.all(
-              color: AppTheme.colors.gray.withValues(alpha: 0.15),
-              width: 1,
+              color: AppTheme.colors.gray.withValues(alpha: 0.12),
+              width: 1.5,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.colors.gray.withValues(alpha: 0.08),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-                spreadRadius: -2,
-              ),
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: Icon(
             Icons.backspace_outlined,
             color: AppTheme.colors.gray.withValues(alpha: 0.8),
-            size: 28.sp,
+            size: 26.sp,
           ),
         ),
       ),

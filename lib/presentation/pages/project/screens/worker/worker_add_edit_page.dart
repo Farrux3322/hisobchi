@@ -2,13 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/worker/worker_bloc.dart';
 import 'package:hisobchi/application/worker/worker_event.dart';
 import 'package:hisobchi/application/worker/worker_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/worker_model.dart';
-import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/infrastructure/repository/worker/worker_repository.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
@@ -255,7 +253,6 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
         leading: BackArrowButton(),
         title: Text(
           _isEditing ? 'Ishchini tahrirlash' : 'Yangi ishchi',
-          style: const TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
       ),
@@ -266,8 +263,6 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
             Navigator.pop(context, true);
           }
           if (state.statusAction == Status.error) {
-            print('Messi');
-            print(state.errorMessage);
             _handleValidationError(context, state.errorMessage);
           }
         },

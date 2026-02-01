@@ -14,6 +14,7 @@ import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_add_edit_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_selection_bottom_sheet.dart';
+import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:collection/collection.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -187,14 +188,18 @@ class _WorkerListPageState extends State<WorkerListPage> {
         leading: BackArrowButton(),
         title: const Text(
           'Ishchilar',
-          style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
       ),
       floatingActionButton: Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-
-        child: FloatingActionButton(onPressed: _showAddWorkerSelection, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.clientAdd)),
+        child: SubscriptionGuard(
+          child: FloatingActionButton(
+            onPressed: _showAddWorkerSelection,
+            backgroundColor: AppTheme.colors.primary,
+            child: SvgPicture.asset(AppIcons.clientAdd),
+          ),
+        ),
       ),
 
       body: BlocConsumer<WorkerBloc, WorkerState>(
@@ -318,29 +323,46 @@ class _WorkerListPageState extends State<WorkerListPage> {
   Widget _buildWorkerCard(WorkerModel worker) {
     final String timeText = _formatTimeOnly(worker.createdAt);
 
-    return GestureDetector(
-      onTap: () => _navigateToEditWorker(worker),
-      child: Slidable(
+    return SubscriptionGuard(
+      child: GestureDetector(
+        onTap: () => _navigateToEditWorker(worker),
+        child: Slidable(
         key: ValueKey(worker.id),
         endActionPane: ActionPane(
           motion: const DrawerMotion(),
           extentRatio: 0.55,
           children: [
-            SlidableAction(
+            CustomSlidableAction(
               onPressed: (context) => _navigateToEditWorker(worker),
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
-              icon: Icons.edit_outlined,
-              label: "Tahrirlash",
-              borderRadius: BorderRadius.circular(12),
+              child: SubscriptionGuard(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.edit_outlined),
+                      Text("Tahrirlash", style: TextStyle(fontSize: 10)),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            SlidableAction(
+            CustomSlidableAction(
               onPressed: (context) => _showDeleteDialog(worker),
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
-              icon: Icons.delete_outline,
-              label: "O'chirish",
-              borderRadius: BorderRadius.circular(12),
+              child: SubscriptionGuard(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.delete_outline),
+                      Text("O'chirish", style: TextStyle(fontSize: 10)),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -387,7 +409,7 @@ class _WorkerListPageState extends State<WorkerListPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildEmptyState() {

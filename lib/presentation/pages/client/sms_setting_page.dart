@@ -136,7 +136,8 @@ class _SmsSettingPageState extends State<SmsSettingPage> {
       centerTitle: true,
       title: const Text(
         'SMS Sozlamalari',
-        style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w800),
+        style: TextStyle(color: Color(0xFF1E293B),
+            fontSize: 18, fontWeight: FontWeight.w800),
       ),
     );
   }

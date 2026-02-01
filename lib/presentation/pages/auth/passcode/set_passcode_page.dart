@@ -194,7 +194,7 @@ class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderSt
                                   },
                                 ),
 
-                                Gap(24.h),
+                                Gap(13.h),
 
                                 // PIN Field
                                 BlocBuilder<PasscodeCubit, PasscodeState>(
@@ -204,7 +204,7 @@ class _SetPasscodePageState extends State<SetPasscodePage> with TickerProviderSt
                                 ),
                               ],
                             ),
-
+                            Gap(13.h),
                             // Keyboard at bottom
                             Column(children: [const SetPasscodeKeyboard(), Gap(16.h)]),
                           ],

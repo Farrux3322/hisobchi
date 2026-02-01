@@ -296,7 +296,6 @@ class _ProjectCostAddEditPageState extends State<ProjectCostAddEditPage> with Si
       leading: BackArrowButton(),
       title: Text(
         _isEditing ? 'Chiqimni tahrirlash' : 'Yangi chiqim',
-        style: TextStyle(color: AppTheme.colors.black, fontSize: 18.sp, fontWeight: FontWeight.w600),
       ),
       centerTitle: true,
     );

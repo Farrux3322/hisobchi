@@ -111,6 +111,10 @@ PODS:
   - local_auth_darwin (0.0.1):
     - Flutter
     - FlutterMacOS
+  - myid (3.1.3):
+    - Flutter
+    - MyIdSDK (= 3.1.3)
+  - MyIdSDK (3.1.3)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -154,6 +158,7 @@ DEPENDENCIES:
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
+  - myid (from `.symlinks/plugins/myid/ios`)
   - no_screenshot (from `.symlinks/plugins/no_screenshot/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -174,6 +179,7 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - IosAwnCore
+    - MyIdSDK
     - nanopb
     - PromisesObjC
     - ScreenProtectorKit
@@ -204,6 +210,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   local_auth_darwin:
     :path: ".symlinks/plugins/local_auth_darwin/darwin"
+  myid:
+    :path: ".symlinks/plugins/myid/ios"
   no_screenshot:
     :path: ".symlinks/plugins/no_screenshot/ios"
   package_info_plus:
@@ -241,6 +249,8 @@ SPEC CHECKSUMS:
   image_picker_ios: 4f2f91b01abdb52842a8e277617df877e40f905b
   IosAwnCore: 653786a911089012092ce831f2945cd339855a89
   local_auth_darwin: 63c73d6d28cc3e239be2b6aa460ea6e317cd5100
+  myid: f2094311fb6bac4ddd85a2db33b3839dcfdd2548
+  MyIdSDK: 91a3ec894152550990a1ae0f758b3f6cc7aceeae
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   no_screenshot: 67d110f12466f4913b488803d4e498d03ef2889e
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4

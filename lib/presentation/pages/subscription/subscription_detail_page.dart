@@ -9,13 +9,11 @@ import 'package:hisobchi/presentation/assets/res/app_icons.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
-import 'package:hisobchi/presentation/pages/subscription/payment_success_page.dart';
 import 'package:hisobchi/presentation/routes/entity/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:app_links/app_links.dart';
 import 'dart:async';
-import 'dart:io' show Platform;
 
 enum TariffType { monthly, semiAnnual, annual }
 
@@ -176,7 +174,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -188,7 +186,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF59E0B).withOpacity(0.1),
+                  color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -331,11 +329,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
           leading: const BackArrowButton(),
           title: Text(
             widget.planName,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
+
           ),
         ),
         body: BlocBuilder<SubscriptionBloc, SubscriptionState>(
@@ -523,7 +517,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(

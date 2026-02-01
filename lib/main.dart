@@ -20,6 +20,7 @@ import 'package:hisobchi/application/project/project_bloc.dart';
 import 'package:hisobchi/application/project_cost/project_cost_bloc.dart';
 import 'package:hisobchi/application/project_income/project_income_bloc.dart';
 import 'package:hisobchi/application/subscription/subscription_bloc.dart';
+import 'package:hisobchi/application/subscription/subscription_status_cubit.dart';
 import 'package:hisobchi/application/theme/theme_bloc.dart';
 import 'package:hisobchi/application/theme/theme_event.dart';
 import 'package:hisobchi/application/update_checker/update_checker_bloc.dart';
@@ -179,7 +180,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => FileUploadBloc(repository: FileUploadRepository())),
         BlocProvider(create: (context) => SubscriptionBloc()),
         BlocProvider(create: (context) => NotificationBloc()),
-
+        BlocProvider(create: (context) => SubscriptionStatusCubit()),
         BlocProvider(create: (context) => UpdateCheckerBloc()..add(const CheckUpdate())),
       ],
       child: ScreenUtilInit(

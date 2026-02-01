@@ -39,7 +39,6 @@ class _TariflarScreenState extends State<TariflarScreen> {
         leading: BackArrowButton(),
         title: const Text(
           'Obuna sotib olish',
-          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
       ),

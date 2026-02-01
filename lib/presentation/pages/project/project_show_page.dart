@@ -16,6 +16,7 @@ import 'package:hisobchi/presentation/pages/project/screens/project_income/proje
 import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/report/project_report_page.dart';
+import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Result object returned when navigating back from ProjectShowPage
@@ -105,39 +106,40 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
               centerTitle: true,
               title: const Text(
                 'Loyiha tafsilotlari',
-                style: TextStyle(color: Color(0xFF1E293B), fontSize: 17, fontWeight: FontWeight.w600),
               ),
               actions: [
                 if (project != null && state.statusDetail != Status.loading)
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => ProjectEditPage(projectModel: project))).then((v) {
-                          if (!context.mounted) return;
+                    child: SubscriptionGuard(
+                      child: IconButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => ProjectEditPage(projectModel: project))).then((v) {
+                            if (!context.mounted) return;
 
-                          if (v is Map) {
-                            final action = v['action'];
-                            if (action == 'delete' || action == 'force_delete') {
-                              _markAsChanged();
-                              Navigator.of(context).pop(ProjectShowResult.modified());
-                              return;
+                            if (v is Map) {
+                              final action = v['action'];
+                              if (action == 'delete' || action == 'force_delete') {
+                                _markAsChanged();
+                                Navigator.of(context).pop(ProjectShowResult.modified());
+                                return;
+                              }
+                              if (action == 'restore') {
+                                _markAsChanged();
+                                context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                                return;
+                              }
                             }
-                            if (action == 'restore') {
+
+                            if (v == true) {
                               _markAsChanged();
                               context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-                              return;
                             }
-                          }
-
-                          if (v == true) {
-                            _markAsChanged();
-                            context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-                          }
-                        });
-                      },
-                      icon: SvgPicture.asset(AppIcons.edit, width: 22, colorFilter: const ColorFilter.mode(Color(0xFF1E293B), BlendMode.srcIn)),
-                      tooltip: 'Tahrirlash',
+                          });
+                        },
+                        icon: SvgPicture.asset(AppIcons.edit, width: 22, colorFilter: const ColorFilter.mode(Color(0xFF1E293B), BlendMode.srcIn)),
+                        tooltip: 'Tahrirlash',
+                      ),
                     ),
                   ),
               ],
@@ -346,41 +348,43 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
           Material(
             color: color.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
-            child: InkWell(
-              onTap: () => _showStatusSelectionBottomSheet(project),
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: color.withValues(alpha: 0.12), width: 1),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                      child: Icon(icon, color: color, size: 14),
-                    ),
-                    const Gap(10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Loyiha holati',
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B), letterSpacing: 0.3),
-                        ),
-                        Text(
-                          label,
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: color, letterSpacing: -0.2),
-                        ),
-                      ],
-                    ),
-                    const Gap(8),
-                    Icon(Icons.keyboard_arrow_down_rounded, color: color, size: 16),
-                  ],
+            child: SubscriptionGuard(
+              child: InkWell(
+                onTap: () => _showStatusSelectionBottomSheet(project),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: color.withValues(alpha: 0.12), width: 1),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                        child: Icon(icon, color: color, size: 14),
+                      ),
+                      const Gap(10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Loyiha holati',
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B), letterSpacing: 0.3),
+                          ),
+                          Text(
+                            label,
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: color, letterSpacing: -0.2),
+                          ),
+                        ],
+                      ),
+                      const Gap(8),
+                      Icon(Icons.keyboard_arrow_down_rounded, color: color, size: 16),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -546,40 +550,44 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
           Row(
             children: [
               Expanded(
-                child: _buildActionButton(
-                  label: 'Kirim',
-                  icon: AppIcons.income,
-                  color: const Color(0xFF3CC293),
-                  gradient: const [Color(0xFF3CC293), Color(0xFF34B082)],
-                  onTap: () {
-                    // Adding new income transaction
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeAddEditPage(projectId: project.id ?? 0))).then((v) {
-                      // Transaction added, refresh detail page and mark as changed
-                      if (mounted && v == true) {
-                        _markAsChanged();
-                        context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-                      }
-                    });
-                  },
+                child: SubscriptionGuard(
+                  child: _buildActionButton(
+                    label: 'Kirim',
+                    icon: AppIcons.income,
+                    color: const Color(0xFF3CC293),
+                    gradient: const [Color(0xFF3CC293), Color(0xFF34B082)],
+                    onTap: () {
+                      // Adding new income transaction
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeAddEditPage(projectId: project.id ?? 0))).then((v) {
+                        // Transaction added, refresh detail page and mark as changed
+                        if (mounted && v == true) {
+                          _markAsChanged();
+                          context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                        }
+                      });
+                    },
+                  ),
                 ),
               ),
               const Gap(12),
               Expanded(
-                child: _buildActionButton(
-                  label: 'Chiqim',
-                  icon: AppIcons.chiqim,
-                  color: const Color(0xFFDE5050),
-                  gradient: const [Color(0xFFDE5050), Color(0xFFC54444)],
-                  onTap: () {
-                    // Adding new expense transaction
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostAddEditPage(projectId: project.id ?? 0))).then((v) {
-                      // Transaction added, refresh detail page and mark as changed
-                      if (mounted && v == true) {
-                        _markAsChanged();
-                        context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
-                      }
-                    });
-                  },
+                child: SubscriptionGuard(
+                  child: _buildActionButton(
+                    label: 'Chiqim',
+                    icon: AppIcons.chiqim,
+                    color: const Color(0xFFDE5050),
+                    gradient: const [Color(0xFFDE5050), Color(0xFFC54444)],
+                    onTap: () {
+                      // Adding new expense transaction
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostAddEditPage(projectId: project.id ?? 0))).then((v) {
+                        // Transaction added, refresh detail page and mark as changed
+                        if (mounted && v == true) {
+                          _markAsChanged();
+                          context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
+                        }
+                      });
+                    },
+                  ),
                 ),
               ),
             ],
@@ -630,7 +638,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   children: [
                     Text(
                       _formatCurrency(amountUzs),
-                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: amountUzs == 0 ? Colors.black : const Color(0xFF1E293B), letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: amountUzs == 0 ? Colors.black : const Color(0xFF1E293B), letterSpacing: 0.2),
                     ),
                     const Gap(4),
                     Text(
@@ -654,7 +662,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   children: [
                     Text(
                       _formatCurrency(amountUsd),
-                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: amountUsd == 0 ? Colors.black : const Color(0xFF1E293B), letterSpacing: 0.2, fontFamily: 'SF Pro Display'),
+                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: amountUsd == 0 ? Colors.black : const Color(0xFF1E293B), letterSpacing: 0.2),
                     ),
                     const Gap(4),
                     Text(
@@ -719,7 +727,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 textAlign: TextAlign.end,
                 text: TextSpan(
                   text: _formatCurrency(uzs),
-                  style: const TextStyle(color: Color(0xFF1E293B), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                  style: const TextStyle(color: Color(0xFF1E293B), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
                   children: const [
                     TextSpan(
                       text: ' UZS',
@@ -733,7 +741,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 textAlign: TextAlign.end,
                 text: TextSpan(
                   text: _formatCurrency(usd),
-                  style: const TextStyle(color: Color(0xFF1E293B), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                  style: const TextStyle(color: Color(0xFF1E293B), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
                   children: const [
                     TextSpan(
                       text: ' USD',
@@ -769,7 +777,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 fit: BoxFit.scaleDown,
                 child: Text(
                   label,
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3, fontFamily: 'SF Pro Display'),
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
                 ),
               ),
             ),

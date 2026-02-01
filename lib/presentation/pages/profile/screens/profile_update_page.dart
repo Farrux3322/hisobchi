@@ -153,6 +153,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
 
       if (mounted) {
         showToast(
+          textPadding: EdgeInsets.all(16.r),
           'Profil muvaffaqiyatli yangilandi',
           backgroundColor: const Color(0xFF10B981),
           position: ToastPosition.bottom,
@@ -177,7 +178,6 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
         elevation: 0,
         title: const Text(
           'Profilni tahrirlash',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
         ),
       ),
       body: GestureDetector(

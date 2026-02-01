@@ -16,6 +16,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ContractListPage extends StatefulWidget {
@@ -619,14 +620,18 @@ class _ContractListPageState extends State<ContractListPage> {
         leading: BackArrowButton(),
         title: const Text(
           'Shartnomalar',
-          style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
       ),
       floatingActionButton: Padding(
         padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-
-        child: FloatingActionButton(onPressed: _navigateToAddContract, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
+        child: SubscriptionGuard(
+          child: FloatingActionButton(
+            onPressed: _navigateToAddContract,
+            backgroundColor: AppTheme.colors.primary,
+            child: SvgPicture.asset(AppIcons.projectAdd),
+          ),
+        ),
       ),
 
       body: BlocConsumer<ContractBloc, ContractState>(
@@ -753,40 +758,65 @@ class _ContractListPageState extends State<ContractListPage> {
     final bool isDeleted = contract.isDeleted;
     final String timeText = _formatTimeOnly(contract.createdAt);
 
-    return GestureDetector(
-      onTap: isDeleted ? null : () => _navigateToEditContract(contract),
-      child: Slidable(
+    return SubscriptionGuard(
+      child: GestureDetector(
+        onTap: isDeleted ? null : () => _navigateToEditContract(contract),
+        child: Slidable(
         key: ValueKey(contract.id),
         endActionPane: ActionPane(
           motion: const DrawerMotion(),
           extentRatio: isDeleted ? 0.6 : 0.35,
           children: isDeleted
               ? [
-                  SlidableAction(
+                  CustomSlidableAction(
                     onPressed: (context) => _showRestoreDialog(contract),
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
-                    icon: Icons.restore,
-                    label: "Tiklash",
-                    borderRadius: BorderRadius.circular(12),
+                    child: SubscriptionGuard(
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.restore),
+                            Text("Tiklash", style: TextStyle(fontSize: 10)),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                  SlidableAction(
+                  CustomSlidableAction(
                     onPressed: (context) => _showForceDeleteDialog(contract),
                     backgroundColor: Colors.red.shade700,
                     foregroundColor: Colors.white,
-                    icon: Icons.delete_forever,
-                    label: "Butunlay",
-                    borderRadius: BorderRadius.circular(12),
+                    child: SubscriptionGuard(
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.delete_forever),
+                            Text("Butunlay", style: TextStyle(fontSize: 10)),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ]
               : [
-                  SlidableAction(
+                  CustomSlidableAction(
                     onPressed: (context) => _showDeleteDialog(contract),
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
-                    icon: Icons.delete_outline,
-                    label: "O'chirish",
-                    borderRadius: BorderRadius.circular(12),
+                    child: SubscriptionGuard(
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.delete_outline),
+                            Text("O'chirish", style: TextStyle(fontSize: 10)),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
         ),
@@ -903,7 +933,7 @@ class _ContractListPageState extends State<ContractListPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildEmptyState() {

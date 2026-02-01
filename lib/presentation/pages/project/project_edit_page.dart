@@ -218,7 +218,6 @@ class _ProjectEditPageState extends State<ProjectEditPage> {
           centerTitle: true,
           title: const Text(
             'Tahrirlash',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
           ),
           actions: [if (widget.projectModel.deletedAt == null) IconButton(onPressed: _showDeleteDialog, icon: SvgPicture.asset(AppIcons.delete)) else _buildDeletedProjectMenu()],
         ),

@@ -18,6 +18,7 @@ import 'package:hisobchi/presentation/pages/subscription/subscription_page.dart'
 import 'package:hisobchi/presentation/pages/subscription/subscription_detail_page.dart';
 import 'package:hisobchi/presentation/pages/subscription/payment_success_page.dart';
 import 'package:hisobchi/presentation/pages/profile/screens/sms_buy_page/sms_buy_page.dart';
+import 'package:hisobchi/presentation/pages/profile/screens/identification/identification_page.dart';
 
 import 'entity/pages.dart';
 import 'entity/routes.dart';
@@ -112,6 +113,11 @@ final router = GoRouter(
       name: Routes.smsBuyPage.name,
       path: Routes.smsBuyPage.path,
       pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const SMSBuyPage()),
+    ),
+    GoRoute(
+      name: Routes.identification.name,
+      path: Routes.identification.path,
+      pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const IdentificationPage()),
     ),
     GoRoute(
       name: Routes.subscriptionDetail.name,

@@ -230,7 +230,6 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
                 fontWeight: FontWeight.w900,
                 color: AppTheme.colors.primary,
                 letterSpacing: 1,
-                fontFamily: 'SF Pro Display',
               ),
             ),
             SizedBox(height: 4.h),

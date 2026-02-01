@@ -267,11 +267,6 @@ class _ContractAddPageState extends State<ContractAddPage> {
         leading: BackArrowButton(),
         title: const Text(
           'Shartnoma yaratish',
-          style: TextStyle(
-            color: Color(0xFF1E293B),
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
         ),
         centerTitle: true,
       ),

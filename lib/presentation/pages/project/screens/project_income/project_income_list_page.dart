@@ -12,6 +12,7 @@ import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_add_edit_page.dart';
+import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:collection/collection.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -466,13 +467,18 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
             ),
             title: const Text(
               'Loyiha kirimlari',
-              style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
             ),
             centerTitle: true,
           ),
           floatingActionButton: Padding(
             padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-            child: FloatingActionButton(onPressed: _navigateToAddCost, backgroundColor: AppTheme.colors.primary, child: SvgPicture.asset(AppIcons.projectAdd)),
+            child: SubscriptionGuard(
+              child: FloatingActionButton(
+                onPressed: _navigateToAddCost,
+                backgroundColor: AppTheme.colors.primary,
+                child: SvgPicture.asset(AppIcons.projectAdd),
+              ),
+            ),
           ),
 
           body: BlocConsumer<ProjectIncomeBloc, ProjectIncomeState>(
@@ -623,48 +629,81 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
       }
     }
 
-    return GestureDetector(
-      onTap: isDeleted ? null : () => _navigateToEditCost(cost),
-      child: Slidable(
+    return SubscriptionGuard(
+      child: GestureDetector(
+        onTap: isDeleted ? null : () => _navigateToEditCost(cost),
+        child: Slidable(
         key: ValueKey(cost.id),
         endActionPane: ActionPane(
           motion: const DrawerMotion(),
           extentRatio: isDeleted ? 0.6 : 0.55,
           children: isDeleted
               ? [
-                  SlidableAction(
+                  CustomSlidableAction(
                     onPressed: (context) => _showRestoreDialog(cost),
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
-                    icon: Icons.restore,
-                    label: "Tiklash",
-                    borderRadius: BorderRadius.circular(12),
+                    child: SubscriptionGuard(
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.restore),
+                            Text("Tiklash", style: TextStyle(fontSize: 10)),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                  SlidableAction(
+                  CustomSlidableAction(
                     onPressed: (context) => _showForceDeleteDialog(cost),
                     backgroundColor: Colors.red.shade700,
                     foregroundColor: Colors.white,
-                    icon: Icons.delete_forever,
-                    label: "Butunlay",
-                    borderRadius: BorderRadius.circular(12),
+                    child: SubscriptionGuard(
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.delete_forever),
+                            Text("Butunlay", style: TextStyle(fontSize: 10)),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ]
               : [
-                  SlidableAction(
+                  CustomSlidableAction(
                     onPressed: (context) => _navigateToEditCost(cost),
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
-                    icon: Icons.edit_outlined,
-                    label: "Tahrirlash",
-                    borderRadius: BorderRadius.circular(12),
+                    child: SubscriptionGuard(
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.edit_outlined),
+                            Text("Tahrirlash", style: TextStyle(fontSize: 10)),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                  SlidableAction(
+                  CustomSlidableAction(
                     onPressed: (context) => _showDeleteDialog(cost),
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
-                    icon: Icons.delete_outline,
-                    label: "O'chirish",
-                    borderRadius: BorderRadius.circular(12),
+                    child: SubscriptionGuard(
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.delete_outline),
+                            Text("O'chirish", style: TextStyle(fontSize: 10)),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
         ),
@@ -744,7 +783,7 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildEmptyState() {

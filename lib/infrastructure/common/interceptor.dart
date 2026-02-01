@@ -5,10 +5,11 @@ import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/infrastructure/services/shared_service.dart';
 import 'package:hisobchi/presentation/routes/coordinator.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
+import 'package:hisobchi/application/subscription/subscription_status_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/common/data/user_data.dart';
 import 'dio_exception.dart';
-
 
 class DioInterceptor extends Interceptor {
   @override
@@ -38,6 +39,23 @@ class DioInterceptor extends Interceptor {
       ),
     );
   }
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    _updateSubscriptionStatus(response);
+    super.onResponse(response, handler);
+  }
+
+  void _updateSubscriptionStatus(Response response) {
+    final statusHeader = response.headers.value('X-Subscription-Status');
+    if (statusHeader != null && AppManagerCubit.context != null) {
+      // print('-------------------------------');
+      // print('Subscription Status: $statusHeader');
+      // print('-------------------------------');
+      AppManagerCubit.context!.read<SubscriptionStatusCubit>().updateStatusFromServer(statusHeader);
+    }
+  }
+
   @override
   Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     options.headers.addAll({

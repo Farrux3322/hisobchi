@@ -29,6 +29,7 @@ class Toast {
         backgroundColor: CupertinoColors.systemRed,
         icon: CupertinoIcons.clear_circled,
       ),
+
       duration: duration ?? _toastDuration,
       position: ToastPosition.top,
     );

@@ -106,7 +106,6 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
         leading:  BackArrowButton(),
         title: const Text(
           "Hisob-kitob tarixlari",
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.black),
         ),
       ),
       body: Padding(

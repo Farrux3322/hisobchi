@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
@@ -323,7 +322,6 @@ class _ClientEditPageState extends State<ClientEditPage> {
           centerTitle: true,
           title: const Text(
             'Tahrirlash',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
           ),
         ),
         body: _buildBody(),
@@ -421,7 +419,7 @@ class _ClientEditPageState extends State<ClientEditPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 10))],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 10))],
           ),
           child: Stack(
             children: [
@@ -502,7 +500,7 @@ class _ClientEditPageState extends State<ClientEditPage> {
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(color: AppTheme.colors.primary.withOpacity(0.5), width: 1.5),
+          borderSide: BorderSide(color: AppTheme.colors.primary.withValues(alpha: 0.5), width: 1.5),
         ),
         errorStyle: TextStyle(fontSize: 12.sp),
       ),
