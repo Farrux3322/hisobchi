@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/subscription/subscription_status_cubit.dart';
 import 'package:hisobchi/domain/common/enums/subscription_status.dart';
+import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:oktoast/oktoast.dart';
 
 class SubscriptionGuard extends StatelessWidget {
@@ -9,12 +10,7 @@ class SubscriptionGuard extends StatelessWidget {
   final VoidCallback? onRestricted;
   final bool fallbackToDisable;
 
-  const SubscriptionGuard({
-    super.key,
-    required this.child,
-    this.onRestricted,
-    this.fallbackToDisable = false,
-  });
+  const SubscriptionGuard({super.key, required this.child, this.onRestricted, this.fallbackToDisable = false});
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +21,7 @@ class SubscriptionGuard extends StatelessWidget {
         }
 
         if (fallbackToDisable) {
-          return Opacity(
-            opacity: 0.5,
-            child: AbsorbPointer(child: child),
-          );
+          return Opacity(opacity: 0.5, child: AbsorbPointer(child: child));
         }
 
         return GestureDetector(
@@ -40,7 +33,9 @@ class SubscriptionGuard extends StatelessWidget {
               showToast(
                 'Ushbu amalni bajarish uchun tarifingizni yangilang',
                 position: ToastPosition.bottom,
-                backgroundColor: Colors.red,
+                textStyle: TextStyle(color: Colors.white),
+                textPadding: EdgeInsets.all(16.r),
+                backgroundColor: AppTheme.colors.primary,
               );
             }
           },
