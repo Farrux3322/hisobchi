@@ -21,9 +21,7 @@ class AuthRepository {
       data: {
         'phone': phone,
         'password': password,
-        // 'device_name': a['device_name'],
-        'device_token': 'qweqeewqewqeqweqwewq3424242424242eqweqweqqweqwewqwe12313123',
-        // 'device_token': a['device_token'],
+        'device_token': a['device_token'],
         'device_model': a['device_model'],
         'device_type': a['device_type'],
         'platform': a['platform'],
@@ -51,9 +49,7 @@ class AuthRepository {
         'otp_code': otp,
         'name': name,
         'phone': phone,
-        // 'device_name': a['device_name'],
-        'device_token': '24qwewe2wqeqaqwe3wq213414242weqwewqeqwewqewqesadasdada',
-        // 'device_token': a['device_token'],
+        'device_token': a['device_token'],
         'device_model': a['device_model'],
         'device_type': a['device_type'],
         'platform': a['platform'],
@@ -98,7 +94,18 @@ class AuthRepository {
       NotificationSettings settings = await messaging.requestPermission();
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        // 🔑 Firebase token olish (xatoliklarni oldini olish uchun try-catch va timeout bilan)
+        // iOS da APNS token tayyor bo'lishini kutish kerak
+        if (Platform.isIOS) {
+          String? apnsToken = await messaging.getAPNSToken();
+          if (apnsToken == null) {
+            debugPrint('AuthRepository: APNS token hali tayyor emas, 3 soniya kutilyapti...');
+            await Future.delayed(const Duration(seconds: 3));
+            apnsToken = await messaging.getAPNSToken();
+          }
+          debugPrint('AuthRepository: APNS Token: $apnsToken');
+        }
+
+        // 🔑 Firebase token olish
         deviceToken = await messaging.getToken().timeout(
               const Duration(seconds: 10),
               onTimeout: () {
@@ -117,7 +124,6 @@ class AuthRepository {
       }
     } catch (e) {
       debugPrint('AuthRepository: Firebase token olishda xatolik: $e');
-      // Xatolik bo'lsa ham login davom etishi kerak
     }
 
     try {

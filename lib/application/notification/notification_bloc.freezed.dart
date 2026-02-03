@@ -55,15 +55,14 @@ extension NotificationEventPatterns on NotificationEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( GetNotifications value)?  getNotifications,TResult Function( ShowNotification value)?  showNotification,TResult Function( ReadAllNotifications value)?  readAllNotifications,TResult Function( ResetNotificationState value)?  reset,TResult Function( ReadNotification value)?  readNotification,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( GetNotifications value)?  getNotifications,TResult Function( ReadNotification value)?  readNotification,TResult Function( ReadAllNotifications value)?  readAllNotifications,TResult Function( ResetNotificationState value)?  reset,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case GetNotifications() when getNotifications != null:
-return getNotifications(_that);case ShowNotification() when showNotification != null:
-return showNotification(_that);case ReadAllNotifications() when readAllNotifications != null:
+return getNotifications(_that);case ReadNotification() when readNotification != null:
+return readNotification(_that);case ReadAllNotifications() when readAllNotifications != null:
 return readAllNotifications(_that);case ResetNotificationState() when reset != null:
-return reset(_that);case ReadNotification() when readNotification != null:
-return readNotification(_that);case _:
+return reset(_that);case _:
   return orElse();
 
 }
@@ -81,15 +80,14 @@ return readNotification(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( GetNotifications value)  getNotifications,required TResult Function( ShowNotification value)  showNotification,required TResult Function( ReadAllNotifications value)  readAllNotifications,required TResult Function( ResetNotificationState value)  reset,required TResult Function( ReadNotification value)  readNotification,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( GetNotifications value)  getNotifications,required TResult Function( ReadNotification value)  readNotification,required TResult Function( ReadAllNotifications value)  readAllNotifications,required TResult Function( ResetNotificationState value)  reset,}){
 final _that = this;
 switch (_that) {
 case GetNotifications():
-return getNotifications(_that);case ShowNotification():
-return showNotification(_that);case ReadAllNotifications():
+return getNotifications(_that);case ReadNotification():
+return readNotification(_that);case ReadAllNotifications():
 return readAllNotifications(_that);case ResetNotificationState():
-return reset(_that);case ReadNotification():
-return readNotification(_that);case _:
+return reset(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -106,15 +104,14 @@ return readNotification(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( GetNotifications value)?  getNotifications,TResult? Function( ShowNotification value)?  showNotification,TResult? Function( ReadAllNotifications value)?  readAllNotifications,TResult? Function( ResetNotificationState value)?  reset,TResult? Function( ReadNotification value)?  readNotification,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( GetNotifications value)?  getNotifications,TResult? Function( ReadNotification value)?  readNotification,TResult? Function( ReadAllNotifications value)?  readAllNotifications,TResult? Function( ResetNotificationState value)?  reset,}){
 final _that = this;
 switch (_that) {
 case GetNotifications() when getNotifications != null:
-return getNotifications(_that);case ShowNotification() when showNotification != null:
-return showNotification(_that);case ReadAllNotifications() when readAllNotifications != null:
+return getNotifications(_that);case ReadNotification() when readNotification != null:
+return readNotification(_that);case ReadAllNotifications() when readAllNotifications != null:
 return readAllNotifications(_that);case ResetNotificationState() when reset != null:
-return reset(_that);case ReadNotification() when readNotification != null:
-return readNotification(_that);case _:
+return reset(_that);case _:
   return null;
 
 }
@@ -131,14 +128,13 @@ return readNotification(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( int status)?  getNotifications,TResult Function( NotificationModel notification,  int status)?  showNotification,TResult Function( int status)?  readAllNotifications,TResult Function()?  reset,TResult Function( int id)?  readNotification,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( bool isLoadMore)?  getNotifications,TResult Function( int id)?  readNotification,TResult Function()?  readAllNotifications,TResult Function()?  reset,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case GetNotifications() when getNotifications != null:
-return getNotifications(_that.status);case ShowNotification() when showNotification != null:
-return showNotification(_that.notification,_that.status);case ReadAllNotifications() when readAllNotifications != null:
-return readAllNotifications(_that.status);case ResetNotificationState() when reset != null:
-return reset();case ReadNotification() when readNotification != null:
-return readNotification(_that.id);case _:
+return getNotifications(_that.isLoadMore);case ReadNotification() when readNotification != null:
+return readNotification(_that.id);case ReadAllNotifications() when readAllNotifications != null:
+return readAllNotifications();case ResetNotificationState() when reset != null:
+return reset();case _:
   return orElse();
 
 }
@@ -156,14 +152,13 @@ return readNotification(_that.id);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( int status)  getNotifications,required TResult Function( NotificationModel notification,  int status)  showNotification,required TResult Function( int status)  readAllNotifications,required TResult Function()  reset,required TResult Function( int id)  readNotification,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( bool isLoadMore)  getNotifications,required TResult Function( int id)  readNotification,required TResult Function()  readAllNotifications,required TResult Function()  reset,}) {final _that = this;
 switch (_that) {
 case GetNotifications():
-return getNotifications(_that.status);case ShowNotification():
-return showNotification(_that.notification,_that.status);case ReadAllNotifications():
-return readAllNotifications(_that.status);case ResetNotificationState():
-return reset();case ReadNotification():
-return readNotification(_that.id);case _:
+return getNotifications(_that.isLoadMore);case ReadNotification():
+return readNotification(_that.id);case ReadAllNotifications():
+return readAllNotifications();case ResetNotificationState():
+return reset();case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -180,14 +175,13 @@ return readNotification(_that.id);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( int status)?  getNotifications,TResult? Function( NotificationModel notification,  int status)?  showNotification,TResult? Function( int status)?  readAllNotifications,TResult? Function()?  reset,TResult? Function( int id)?  readNotification,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( bool isLoadMore)?  getNotifications,TResult? Function( int id)?  readNotification,TResult? Function()?  readAllNotifications,TResult? Function()?  reset,}) {final _that = this;
 switch (_that) {
 case GetNotifications() when getNotifications != null:
-return getNotifications(_that.status);case ShowNotification() when showNotification != null:
-return showNotification(_that.notification,_that.status);case ReadAllNotifications() when readAllNotifications != null:
-return readAllNotifications(_that.status);case ResetNotificationState() when reset != null:
-return reset();case ReadNotification() when readNotification != null:
-return readNotification(_that.id);case _:
+return getNotifications(_that.isLoadMore);case ReadNotification() when readNotification != null:
+return readNotification(_that.id);case ReadAllNotifications() when readAllNotifications != null:
+return readAllNotifications();case ResetNotificationState() when reset != null:
+return reset();case _:
   return null;
 
 }
@@ -199,10 +193,10 @@ return readNotification(_that.id);case _:
 
 
 class GetNotifications implements NotificationEvent {
-  const GetNotifications({required this.status});
+  const GetNotifications({this.isLoadMore = false});
   
 
- final  int status;
+@JsonKey() final  bool isLoadMore;
 
 /// Create a copy of NotificationEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -214,16 +208,16 @@ $GetNotificationsCopyWith<GetNotifications> get copyWith => _$GetNotificationsCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GetNotifications&&(identical(other.status, status) || other.status == status));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GetNotifications&&(identical(other.isLoadMore, isLoadMore) || other.isLoadMore == isLoadMore));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status);
+int get hashCode => Object.hash(runtimeType,isLoadMore);
 
 @override
 String toString() {
-  return 'NotificationEvent.getNotifications(status: $status)';
+  return 'NotificationEvent.getNotifications(isLoadMore: $isLoadMore)';
 }
 
 
@@ -234,7 +228,7 @@ abstract mixin class $GetNotificationsCopyWith<$Res> implements $NotificationEve
   factory $GetNotificationsCopyWith(GetNotifications value, $Res Function(GetNotifications) _then) = _$GetNotificationsCopyWithImpl;
 @useResult
 $Res call({
- int status
+ bool isLoadMore
 });
 
 
@@ -251,181 +245,15 @@ class _$GetNotificationsCopyWithImpl<$Res>
 
 /// Create a copy of NotificationEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? status = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? isLoadMore = null,}) {
   return _then(GetNotifications(
-status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as int,
+isLoadMore: null == isLoadMore ? _self.isLoadMore : isLoadMore // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
 
 }
-
-/// @nodoc
-
-
-class ShowNotification implements NotificationEvent {
-  const ShowNotification(this.notification, this.status);
-  
-
- final  NotificationModel notification;
- final  int status;
-
-/// Create a copy of NotificationEvent
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$ShowNotificationCopyWith<ShowNotification> get copyWith => _$ShowNotificationCopyWithImpl<ShowNotification>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ShowNotification&&(identical(other.notification, notification) || other.notification == notification)&&(identical(other.status, status) || other.status == status));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,notification,status);
-
-@override
-String toString() {
-  return 'NotificationEvent.showNotification(notification: $notification, status: $status)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $ShowNotificationCopyWith<$Res> implements $NotificationEventCopyWith<$Res> {
-  factory $ShowNotificationCopyWith(ShowNotification value, $Res Function(ShowNotification) _then) = _$ShowNotificationCopyWithImpl;
-@useResult
-$Res call({
- NotificationModel notification, int status
-});
-
-
-
-
-}
-/// @nodoc
-class _$ShowNotificationCopyWithImpl<$Res>
-    implements $ShowNotificationCopyWith<$Res> {
-  _$ShowNotificationCopyWithImpl(this._self, this._then);
-
-  final ShowNotification _self;
-  final $Res Function(ShowNotification) _then;
-
-/// Create a copy of NotificationEvent
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? notification = null,Object? status = null,}) {
-  return _then(ShowNotification(
-null == notification ? _self.notification : notification // ignore: cast_nullable_to_non_nullable
-as NotificationModel,null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as int,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class ReadAllNotifications implements NotificationEvent {
-  const ReadAllNotifications({required this.status});
-  
-
- final  int status;
-
-/// Create a copy of NotificationEvent
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$ReadAllNotificationsCopyWith<ReadAllNotifications> get copyWith => _$ReadAllNotificationsCopyWithImpl<ReadAllNotifications>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReadAllNotifications&&(identical(other.status, status) || other.status == status));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,status);
-
-@override
-String toString() {
-  return 'NotificationEvent.readAllNotifications(status: $status)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $ReadAllNotificationsCopyWith<$Res> implements $NotificationEventCopyWith<$Res> {
-  factory $ReadAllNotificationsCopyWith(ReadAllNotifications value, $Res Function(ReadAllNotifications) _then) = _$ReadAllNotificationsCopyWithImpl;
-@useResult
-$Res call({
- int status
-});
-
-
-
-
-}
-/// @nodoc
-class _$ReadAllNotificationsCopyWithImpl<$Res>
-    implements $ReadAllNotificationsCopyWith<$Res> {
-  _$ReadAllNotificationsCopyWithImpl(this._self, this._then);
-
-  final ReadAllNotifications _self;
-  final $Res Function(ReadAllNotifications) _then;
-
-/// Create a copy of NotificationEvent
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? status = null,}) {
-  return _then(ReadAllNotifications(
-status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as int,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class ResetNotificationState implements NotificationEvent {
-  const ResetNotificationState();
-  
-
-
-
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResetNotificationState);
-}
-
-
-@override
-int get hashCode => runtimeType.hashCode;
-
-@override
-String toString() {
-  return 'NotificationEvent.reset()';
-}
-
-
-}
-
-
-
 
 /// @nodoc
 
@@ -492,5 +320,69 @@ as int,
 
 
 }
+
+/// @nodoc
+
+
+class ReadAllNotifications implements NotificationEvent {
+  const ReadAllNotifications();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReadAllNotifications);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'NotificationEvent.readAllNotifications()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class ResetNotificationState implements NotificationEvent {
+  const ResetNotificationState();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResetNotificationState);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'NotificationEvent.reset()';
+}
+
+
+}
+
+
+
 
 // dart format on

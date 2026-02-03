@@ -193,7 +193,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
       elevation: 0,
       centerTitle: true,
       title: Text(
-        "SMS Market",
+        "SMS To'plami",
         style: TextStyle(
           color: AppTheme.colors.black,
           fontSize: 16.sp,

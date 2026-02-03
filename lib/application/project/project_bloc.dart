@@ -99,6 +99,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
 
       if (data["status"] == true) {
         emit(state.copyWith(statusAdd: Status.success));
+        add(const GetAllProjectEvent());
       } else {
         emit(state.copyWith(statusAdd: Status.error, errorMessage: data["error"].toString()));
       }
@@ -164,6 +165,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       if (data["status"] == true) {
         emit(state.copyWith(statusAction: Status.success));
         add(GetProjectByIdEvent(id: event.id));
+        add(const GetAllProjectEvent());
       } else {
         emit(state.copyWith(statusAction: Status.error, errorMessage: data["error"].toString()));
       }

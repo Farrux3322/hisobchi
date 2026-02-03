@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
 import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import '../../../../assets/asset_index.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class PartnerOperationDetailSheet extends StatelessWidget {
   final PartnerOperation operation;
@@ -20,7 +21,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color: Colors.black.withValues(alpha: 0.12),
             blurRadius: 40,
             offset: const Offset(0, -12),
           ),
@@ -37,7 +38,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
               width: 36.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: AppTheme.colors.gray.withOpacity(0.1),
+                color: AppTheme.colors.gray.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10.r),
               ),
             ),
@@ -81,7 +82,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: brandColor.withOpacity(0.2),
+                        color: brandColor.withValues(alpha: 0.2),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -104,7 +105,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w800,
-                          color: brandColor.withOpacity(0.6),
+                          color: brandColor.withValues(alpha: 0.6),
                           letterSpacing: 1,
                         ),
                       ),
@@ -139,7 +140,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                   child: Container(
                     padding: EdgeInsets.all(6.w),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(Icons.close_rounded, size: 18.sp, color: AppTheme.colors.gray),
@@ -182,6 +183,57 @@ class PartnerOperationDetailSheet extends StatelessWidget {
               value: _formatPhoneNumber(operation.partnerPhone!),
               color: const Color(0xFF8B5CF6), // Purple
               icon: Icons.phone_rounded,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: () => _sendSms(
+                      phoneNumber: operation.partnerPhone!,
+                      partnerName: operation.partnerName,
+                      amount: _formatMoney(operation.remainingAmount),
+                      currency: operation.currencyTypeName,
+                      isIncoming: !operation.isCredit,
+                      dueDate: operation.hasDueDate ? operation.dueDate : null,
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.all(8.w),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: SvgPicture.asset(
+                        AppIcons.sms,
+                        width: 18.w,
+                        height: 18.w,
+                        colorFilter: const ColorFilter.mode(
+                          Color(0xFF6366F1),
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  GestureDetector(
+                    onTap: () => _makePhoneCall(operation.partnerPhone!),
+                    child: Container(
+                      padding: EdgeInsets.all(8.w),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: SvgPicture.asset(
+                        AppIcons.phone,
+                        width: 18.w,
+                        height: 18.w,
+                        colorFilter: const ColorFilter.mode(
+                          Color(0xFF10B981),
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
 
@@ -242,7 +294,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(6.w),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEF4444).withOpacity(0.1),
+                      color: const Color(0xFFEF4444).withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -280,7 +332,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(6.w),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B).withOpacity(0.1),
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -479,7 +531,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                                   child: Container(
                                     padding: EdgeInsets.all(4.w),
                                     decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.5),
+                                      color: Colors.black.withValues(alpha: 0.5),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(Icons.fullscreen_rounded, size: 12.sp, color: Colors.white),
@@ -507,6 +559,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
     required Color color,
     required IconData icon,
     bool isUrgent = false,
+    Widget? trailing,
   }) {
     return Container(
       padding: EdgeInsets.all(12.w),
@@ -516,48 +569,101 @@ class PartnerOperationDetailSheet extends StatelessWidget {
         border: Border.all(color: const Color(0xFFF1F5F9)), // Slate-100
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Icon(icon, size: 12.sp, color: color.withOpacity(0.5)),
-              SizedBox(width: 6.w),
-              Expanded(
-                child: Text(
-                  label,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(icon, size: 12.sp, color: color.withValues(alpha: 0.5)),
+                    SizedBox(width: 6.w),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black54, // Slate-400
+                          letterSpacing: 0.5,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  value,
                   style: TextStyle(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black54, // Slate-400
-                    letterSpacing: 0.5,
+                    fontSize: 14.sp,
+                    fontWeight: isUrgent ? FontWeight.w800 : FontWeight.w700,
+                    color: isUrgent ? color : const Color(0xFF1E293B), // Slate-800
                   ),
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: isUrgent ? FontWeight.w800 : FontWeight.w700,
-              color: isUrgent ? color : const Color(0xFF1E293B), // Slate-800
+              ],
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
+          if (trailing != null) ...[
+            SizedBox(width: 8.w),
+            trailing,
+          ],
         ],
       ),
     );
+  }
+
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      debugPrint("Qo'ng'iroq qilish imkoni yo'q");
+    }
+  }
+
+  Future<void> _sendSms({
+    required String phoneNumber,
+    required String partnerName,
+    required String amount,
+    required String currency,
+    required bool isIncoming,
+    String? dueDate,
+  }) async {
+    String message = "";
+
+    if (isIncoming) {
+      message = "Hurmatli $partnerName, Sizdan $amount $currency miqdoridagi to'lov qabul qilindi. Hamkorlik uchun rahmat!";
+    } else {
+      if (dueDate != null && dueDate.isNotEmpty) {
+        final String formattedDate = _formatDueDate(dueDate);
+        message = "Hurmatli $partnerName, Sizning $amount $currency miqdoridagi qarzdorligingizni $formattedDate sanasigacha qaytarishingizni eslatib o'tamiz. Hamkorlik uchun rahmat!";
+      } else {
+        message = "Hurmatli $partnerName, Sizning $amount $currency miqdoridagi qarzdorligingizni eslatib o'tamiz. Iltimos, to'lovni o'z vaqtida amalga oshirishingizni so'raymiz. E'tiboringiz uchun rahmat!";
+      }
+    }
+
+    final String encodedMessage = Uri.encodeComponent(message);
+    final Uri launchUri = Uri.parse('sms:$phoneNumber?body=$encodedMessage');
+
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      debugPrint("SMS yuborish imkoni yo'q");
+    }
   }
 
   Widget _buildAmountRow(String label, String amount, String currency, {Color? color, bool isBold = false}) {

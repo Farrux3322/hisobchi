@@ -39,6 +39,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<true/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>sms</string>
@@ -48,10 +50,10 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Ushbu ilova shaxsni tasdiqlash (MyID) va hujjatlar uchun rasmga olish maqsadida kameradan foydalanadi.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Ushbu ilova hujjatlar va profillar uchun rasmlarni tanlash maqsadida galereyadan foydalanadi.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Ilovaga tezkor kirish uchun Face ID dan foydalaning</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Ushbu ilova hujjatlar va profillar uchun rasmlarni tanlash maqsadida galereyadan foydalanadi.</string>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>We need your permission to send you notifications</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

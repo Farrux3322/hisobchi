@@ -1,14 +1,13 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/application/notification/notification_bloc.dart';
 import 'package:hisobchi/domain/enums/bloc_status.dart';
-import 'package:hisobchi/infrastructure/models/notification_model.dart';
+import 'package:hisobchi/infrastructure/dto/models/notification/notification_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/empty_page.dart';
-
-import '../../components/basic_widgets.dart';
+import 'package:shimmer/shimmer.dart';
+import 'notification_detail.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -17,264 +16,332 @@ class NotificationPage extends StatefulWidget {
   State<NotificationPage> createState() => _NotificationPageState();
 }
 
-class _NotificationPageState extends State<NotificationPage> with TickerProviderStateMixin {
-  late TabController tabController;
+class _NotificationPageState extends State<NotificationPage> {
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
-    tabController = TabController(
-      length: 2,
-      initialIndex: 0,
-      animationDuration: const Duration(seconds: 0),
-      vsync: this,
-    );
-
-    context.read<NotificationBloc>().add(
-          GetNotifications(status: tabController.index + 1),
-        );
-
-    tabController.addListener(() {
-      if (!tabController.indexIsChanging) {
-        context.read<NotificationBloc>().add(
-              GetNotifications(status: tabController.index + 1),
-            );
-      }
-    });
-
     super.initState();
+    _fetchInitial();
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
-    tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _fetchInitial() {
+    context.read<NotificationBloc>().add(const GetNotifications());
+  }
+
+  void _onScroll() {
+    if (_isBottom) {
+      context.read<NotificationBloc>().add(const GetNotifications(isLoadMore: true));
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   @override
   Widget build(BuildContext context) {
-    context.locale;
     return Scaffold(
-      appBar: AppBar(
-        leading: InkWell(
-          onTap: () => Navigator.of(context).maybePop(),
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            margin: const EdgeInsets.all(8),
-
-            decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Color.fromRGBO(255, 255, 255, 0.1),
-                    blurRadius: 1,
-                    spreadRadius: 0,
-                    offset: Offset(0, 1),
-                  ),
-                  BoxShadow(
-                    color: Color.fromRGBO(50, 50, 93, 0.25),
-                    blurRadius: 100,
-                    spreadRadius: -20,
-                    offset: Offset(0, 50),
-                  ),
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.3),
-                    blurRadius: 60,
-                    spreadRadius: -30,
-                    offset: Offset(0, 30),
-                  )
-                ],
-                color: Colors.white, borderRadius: BorderRadius.circular(12)),
-            child: const Icon(Icons.arrow_back,color: Colors.black,),
-          ),
-        ),
-
-        title: Text('Yangiliklar', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 16.sp, letterSpacing: 0.5)),
-        centerTitle: true,
-        actions: [
-          // IconBgWidget(
-          //     icon: AppIcons.checkReadOutlined,
-          //     borderColor: Colors.white.withValues(alpha: 0.1),
-          //     onTap: () {
-          //       context.read<NotificationBloc>().add(ReadAllNotifications(status: tabController.index + 1));
-          //     },
-          //     iconColor: AppTheme.colors.white),
-          Gap(15.w),
-        ],
-        bottom: PreferredSize(
-            preferredSize: Size.fromHeight(50.h),
-            child: Padding(
-              padding: EdgeInsets.only(left: 15.w, right: 15.w),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppTheme.colors.primary.withValues(alpha: 0.8),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: TabBar(
-                  controller: tabController,
-                  isScrollable: false,
-                  physics: const BouncingScrollPhysics(),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  splashBorderRadius: BorderRadius.circular(10.r),
-                  indicator: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(8.r)),
-                  indicatorPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.white,
-                  labelStyle: AppTheme.data.textTheme.titleSmall?.copyWith(
-                    fontSize: 14.h,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  unselectedLabelStyle: AppTheme.data.textTheme.titleSmall?.copyWith(
-                    fontSize: 14.h,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  tabs: [
-                    Tab(text: "Yangiliklar"),
-                    Tab(text: "Shaxsiy"),
-                  ],
-                ),
-              ),
-            )),
-        elevation: 0,
+      backgroundColor: const Color(0xFFF8FAFC), // Slate-50
+      appBar: _buildAppBar(context),
+      body: BlocBuilder<NotificationBloc, NotificationState>(
+        builder: (context, state) {
+          return RefreshIndicator(
+            onRefresh: () async {
+              _fetchInitial();
+            },
+            color: AppTheme.colors.primary,
+            child: _buildBody(state),
+          );
+        },
       ),
-      body: Padding(
-        padding: EdgeInsets.only(top: 30.5.h, left: 15.w, right: 15.w),
-        child: BlocBuilder<AppManagerCubit, AppManagerState>(
-          builder: (context, appState) {
-            // final isGuest = appState.isGuest;
+    );
+  }
 
-            return TabBarView(
-              controller: tabController,
-              children: [
-                _buildNotificationList(
-                  context,
-                  selector: (state) => state.newsNotifications,
-                  statusSelector: (state) => state.statusGet,
-                ),
-
-                  _buildNotificationList(
-                    context,
-                    selector: (state) => state.personalNotifications,
-                    statusSelector: (state) => state.statusGet,
-                  )
-              ],
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      elevation: 0,
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.white,
+      centerTitle: true,
+      leadingWidth: 72.w,
+      leading: BackArrowButton(),
+      title: Text(
+        'Bildirishnomalar',
+        style: TextStyle(
+          color: const Color(0xFF1E293B),
+          fontWeight: FontWeight.w800,
+          fontSize: 18.sp,
+          letterSpacing: -0.5,
+        ),
+      ),
+      actions: [
+        BlocBuilder<NotificationBloc, NotificationState>(
+          builder: (context, state) {
+            final hasUnread = state.notifications.any((n) => !(n.isRead ?? true));
+            return IconButton(
+              onPressed: hasUnread
+                  ? () {
+                      context.read<NotificationBloc>().add(const ReadAllNotifications());
+                    }
+                  : null,
+              icon: Icon(
+                Icons.done_all_rounded,
+                color: hasUnread ? AppTheme.colors.primary : Colors.grey.shade400,
+                size: 24.sp,
+              ),
+              tooltip: 'Hammasini o\'qilgan deb belgilash',
             );
           },
+        ),
+        SizedBox(width: 12.w),
+      ],
+    );
+  }
+
+  Widget _buildBody(NotificationState state) {
+    if (state.status == BlocStatus.loading && state.notifications.isEmpty) {
+      return _buildShimmerLoading();
+    } else if (state.status == BlocStatus.error && state.notifications.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(24.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error_outline_rounded, size: 48.sp, color: Colors.red.shade300),
+              SizedBox(height: 16.h),
+              Text(
+                state.errorMessage ?? 'Xatolik yuz berdi',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16.sp, color: Colors.blueGrey.shade700),
+              ),
+              SizedBox(height: 24.h),
+              ElevatedButton(
+                onPressed: _fetchInitial,
+                child: const Text('Qayta urinish'),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else if (state.notifications.isEmpty && state.status == BlocStatus.success) {
+      return EmptyPage(
+        text1: 'Bildirishnomalar yo\'q',
+        text2: 'Sizda hozircha yangi bildirishnomalar mavjud emas',
+      );
+    } else {
+      return ListView.builder(
+        controller: _scrollController,
+        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 40.h),
+        itemCount: state.hasReachedMax ? state.notifications.length : state.notifications.length + 1,
+        itemBuilder: (context, index) {
+          if (index >= state.notifications.length) {
+            return _buildLoader();
+          }
+          final item = state.notifications[index];
+          return _buildNotificationCard(item);
+        },
+      );
+    }
+  }
+
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 40.h),
+      itemCount: 8,
+      itemBuilder: (context, index) {
+        return Shimmer.fromColors(
+          baseColor: Colors.grey[200]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            margin: EdgeInsets.only(bottom: 12.h),
+            height: 90.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16.r),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNotificationCard(NotificationItemModel item) {
+    final bool isUnread = !(item.isRead ?? true);
+    final detail = item.notification;
+    final createdAt = item.createdAt != null ? DateTime.parse(item.createdAt!) : DateTime.now();
+    final formattedDate = DateFormat('HH:mm').format(createdAt);
+    final formattedFullDate = DateFormat('dd.MM.yyyy').format(createdAt);
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 10.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: isUnread ? AppTheme.colors.primary.withValues(alpha: 0.1) : const Color(0xFFF1F5F9),
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16.r),
+          onTap: () {
+            if (isUnread) {
+              context.read<NotificationBloc>().add(ReadNotification(id: item.id ?? 0));
+            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NotificationDetail(item: item),
+              ),
+            );
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildIcon(isUnread),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              detail?.title ?? "Xabarnoma",
+                              style: TextStyle(
+                                fontSize: 15.sp,
+                                fontWeight: isUnread ? FontWeight.w800 : FontWeight.w600,
+                                color: const Color(0xFF1E293B),
+                                letterSpacing: -0.2,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            formattedDate,
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              color: const Color(0xFF94A3B8),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        detail?.body ?? "",
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color: const Color(0xFF64748B),
+                          height: 1.3,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 6.h),
+                      Row(
+                        children: [
+                          Text(
+                            formattedFullDate,
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              color: const Color(0xFF94A3B8),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (isUnread) ...[
+                            const Spacer(),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                              decoration: BoxDecoration(
+                                color: AppTheme.colors.primary,
+                                borderRadius: BorderRadius.circular(6.r),
+                              ),
+                              child: Text(
+                                'YANGI',
+                                style: TextStyle(
+                                  fontSize: 8.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildNotificationList(
-    BuildContext context, {
-    required List<NotificationModel> Function(NotificationState) selector,
-    required BlocStatus Function(NotificationState) statusSelector,
-  }) {
-    return BlocBuilder<NotificationBloc, NotificationState>(
-      builder: (context, state) {
-        final notifications = selector(state);
-        final status = statusSelector(state);
-        if (status == BlocStatus.loading) {
-          return Center(child: CircularProgressIndicator(color: AppTheme.colors.primary));
-        }
-        if (status == BlocStatus.error) {
-          return Center(child: Text(state.errorMessage ?? 'errors.error'.tr()));
-        }
-        if (status == BlocStatus.empty) {
-          return EmptyPage(
-              text1: (tabController.index == 0 ? 'notifications.emptyNewsTitle'.tr() : 'notifications.emptyPersonalTitle'.tr()),
-              text2: (tabController.index == 0 ? 'notifications.emptyNewsSubtitle'.tr() : 'notifications.emptyPersonalSubtitle'.tr()));
-        }
-        if (status == BlocStatus.success) {
-          return SafeArea(
-            key: ValueKey(tabController.index),
-            child: ListView.separated(
-              itemCount: notifications.length,
-              separatorBuilder: (context, index) => Gap(8.h),
-              itemBuilder: (context, index) {
-                final notification = notifications[index];
-                return GestureDetector(
-                  onTap: () {
-                    if (!(notification.viewed ?? true)) {
-                      context.read<NotificationBloc>().add(ReadNotification(id: notification.id ?? 0));
-                    }
-                    // context.push("${Routes.root.path}${Routes.home.path}${Routes.notification.path}${Routes.notificationDetails.path}", extra: notification); // Pass the specific notification object
-                  },
-                  child: Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.r)),
-                    color: const Color.fromRGBO(32, 37, 48, 1),
-                    child: Padding(
-                      padding: EdgeInsets.all(12.r),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: AppTheme.colors.primary.withAlpha(25),
-                              borderRadius: BorderRadius.circular(10.r),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(8.r),
-                              child: SvgPicture.asset(
-                                AppIcons.notificationDualtone,
-                                colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),
-                                height: 24.h,
-                                width: 24.w,
-                              ),
-                            ),
-                          ),
-                          Gap(12.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  notification.title ?? "",
-                                  style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.white, fontWeight: FontWeight.w500, letterSpacing: 0.5, fontSize: 15.sp),
-                                ),
-                                Gap(4.h),
-                                Text(
-                                  notification.body ?? "",
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTheme.data.textTheme.labelSmall?.copyWith(color: AppTheme.colors.gray, fontWeight: FontWeight.w400, letterSpacing: 0.5, fontSize: 14.sp),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Gap(10.w),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              // Date Text
-                              Text(
-                                notification.date ?? "",
-                                style: AppTheme.data.textTheme.labelLarge?.copyWith(color: AppTheme.colors.gray, fontWeight: FontWeight.w400, letterSpacing: 0.5, fontSize: 12.sp),
-                              ),
-                              Gap(8.h),
-                              if (!(notification.viewed ?? true))
-                                Container(
-                                  height: 8.r,
-                                  width: 8.r,
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.colors.primary,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-        }
-        return const SizedBox.shrink();
-      },
+  Widget _buildIcon(bool isUnread) {
+    return Container(
+      width: 42.w,
+      height: 42.w,
+      decoration: BoxDecoration(
+        color: isUnread ? AppTheme.colors.primary.withValues(alpha: 0.08) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: isUnread ? AppTheme.colors.primary.withValues(alpha: 0.1) : const Color(0xFFF1F5F9),
+          width: 1,
+        ),
+      ),
+      child: Icon(
+        isUnread ? Icons.notifications_active_rounded : Icons.notifications_none_rounded,
+        color: isUnread ? AppTheme.colors.primary : const Color(0xFF94A3B8),
+        size: 20.sp,
+      ),
+    );
+  }
+
+  Widget _buildLoader() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 20.h),
+      child: Center(
+        child: SizedBox(
+          width: 20.w,
+          height: 20.w,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary.withValues(alpha: 0.5)),
+          ),
+        ),
+      ),
     );
   }
 }

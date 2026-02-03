@@ -1,47 +1,43 @@
 part of 'notification_bloc.dart';
 
 class NotificationState extends Equatable {
-  final BlocStatus statusGet;
-  final BlocStatus statusShow;
-  final BlocStatus statusReadAll;
-  final List<NotificationModel> newsNotifications;
-  final List<NotificationModel> personalNotifications;
+  final BlocStatus status;
+  final List<NotificationItemModel> notifications;
+  final int currentPage;
+  final bool hasReachedMax;
   final String? errorMessage;
 
   const NotificationState({
-    this.statusGet = BlocStatus.initial,
-    this.statusShow = BlocStatus.initial,
-    this.statusReadAll = BlocStatus.initial,
-    this.newsNotifications = const [],
-    this.personalNotifications = const [],
+    this.status = BlocStatus.initial,
+    this.notifications = const [],
+    this.currentPage = 1,
+    this.hasReachedMax = false,
     this.errorMessage,
   });
 
   NotificationState copyWith({
-    BlocStatus? statusGet,
-    BlocStatus? statusShow,
-    BlocStatus? statusReadAll,
-    List<NotificationModel>? newsNotifications,
-    List<NotificationModel>? personalNotifications,
+    BlocStatus? status,
+    List<NotificationItemModel>? notifications,
+    int? currentPage,
+    bool? hasReachedMax,
     String? errorMessage,
   }) {
     return NotificationState(
-      statusGet: statusGet ?? this.statusGet,
-      statusShow: statusShow ?? this.statusShow,
-      statusReadAll: statusReadAll ?? this.statusReadAll,
-      newsNotifications: newsNotifications ?? this.newsNotifications,
-      personalNotifications: personalNotifications ?? this.personalNotifications,
+      status: status ?? this.status,
+      notifications: notifications ?? this.notifications,
+      currentPage: currentPage ?? this.currentPage,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
   @override
   List<Object?> get props => [
-        statusGet,
-        statusShow,
-        statusReadAll,
-        newsNotifications,
-        personalNotifications,
+        status,
+        notifications,
+        currentPage,
+        hasReachedMax,
         errorMessage,
       ];
 }
+  

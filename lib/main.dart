@@ -57,20 +57,32 @@ Future<void> getDeviceToken() async {
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      // Ba'zida servis tayyor bo'lishi uchun ozgina kutish kerak bo'lishi mumkin
+      if (Platform.isIOS) {
+        // APNS token Firebase Messaging ishlashi uchun zarur
+        String? apnsToken = await messaging.getAPNSToken();
+        if (apnsToken == null) {
+          debugPrint('main: APNS token hali kutilmoqda...');
+          // Bir oz kutish apnsToken kelishi uchun
+          await Future.delayed(const Duration(seconds: 3));
+        }
+      }
+
       String? token = await messaging.getToken().timeout(
             const Duration(seconds: 10),
             onTimeout: () => throw TimeoutException('Firebase token olish vaqti tugadi'),
           );
       debugPrint('Device Token: $token');
+
+      // Token yangilanganda kuzatib borish
+      messaging.onTokenRefresh.listen((newToken) {
+        debugPrint('FCM Token yangilandi: $newToken');
+        // Bu yerda yangi tokenni serverga yuborish mantiqini qo'shish mumkin
+      });
     } else {
       debugPrint('Push notificationga ruxsat berilmadi');
     }
   } catch (e) {
     debugPrint('Firebase Token olishda xatolik: $e');
-    if (e.toString().contains('SERVICE_NOT_AVAILABLE')) {
-      debugPrint('TEKSHIRING: Google Play Services ishlayaptimi? Yoqi Firebase Installations API yoqilganmi?');
-    }
   }
 }
 Future<void> main() async {

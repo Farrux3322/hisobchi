@@ -66,14 +66,11 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: true,
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
-          // Return result based on whether changes were made
-          final navResult = _hasChanges ? ProjectShowResult.modified() : ProjectShowResult.noChanges();
-          // Note: In PopScope with canPop: true, we can't modify the result
-          // The calling page should use the newer navigation pattern
-        }
+        if (didPop) return;
+        final navResult = _hasChanges ? ProjectShowResult.modified() : ProjectShowResult.noChanges();
+        Navigator.of(context).pop(navResult);
       },
       child: BlocBuilder<ProjectBloc, ProjectState>(
         buildWhen: (previous, current) => previous.statusDetail != current.statusDetail || previous.selectedProject != current.selectedProject,
@@ -87,8 +84,8 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
               leading: Center(
                 child: InkWell(
                   onTap: () {
-                    final result = _hasChanges ? ProjectShowResult.modified() : ProjectShowResult.noChanges();
-                    Navigator.of(context).pop(result);
+                    final navResult = _hasChanges ? ProjectShowResult.modified() : ProjectShowResult.noChanges();
+                    Navigator.of(context).pop(navResult);
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
@@ -902,6 +899,7 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
         return BlocConsumer<ProjectBloc, ProjectState>(
           listener: (context, state) {
             if (state.statusAction == Status.success) {
+              _markAsChanged();
               Navigator.pop(context);
             }
           },

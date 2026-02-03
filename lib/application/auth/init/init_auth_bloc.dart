@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:hisobchi/infrastructure/repository/auth/auth_repository.dart';
 import 'package:hisobchi/infrastructure/services/shared_service.dart';
@@ -114,10 +113,10 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
       if (data['status']) {
         emit(OtpSuccess());
       } else {
-        emit(OtpFailed());
+        emit(OtpFailed(error: data['error']?['message']));
       }
     } catch (e) {
-      emit(OtpFailed());
+      emit(OtpFailed(error: e.toString()));
     }
   }
 
@@ -160,13 +159,13 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
           prefs.setRole(role);
           emit(RegisterSuccess());
         } else {
-          emit(RegisterFailed());
+          emit(RegisterFailed(error: message0));
         }
       } else {
-        emit(RegisterFailed());
+        emit(RegisterFailed(error: data['error']?['message']));
       }
     } catch (e) {
-      emit(RegisterFailed());
+      emit(RegisterFailed(error: e.toString()));
     }
   }
 
@@ -210,19 +209,16 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
             prefs.setRole(role);
             emit(RegisterSuccess());
           } else {
-            emit(RegisterFailed());
+            emit(RegisterFailed(error: message0));
           }
         } else {
-          emit(RegisterFailed());
+          emit(RegisterFailed(error: "Token topilmadi"));
         }
+      } else {
+        emit(RegisterFailed(error: data['error']?['message']));
       }
-      else{
-        EasyLoading.showError(data['error']?['message'],duration: Duration(seconds: 3));
-      }
-
-
     } catch (e) {
-      emit(RegisterFailed());
+      emit(RegisterFailed(error: e.toString()));
     }
   }
 }

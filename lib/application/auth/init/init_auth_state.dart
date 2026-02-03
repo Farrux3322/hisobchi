@@ -48,7 +48,10 @@ class OtpLoading extends OtpState {}
 
 class OtpSuccess extends OtpState {}
 
-class OtpFailed extends OtpState {}
+class OtpFailed extends OtpState {
+  final String? error;
+  OtpFailed({this.error});
+}
 
 abstract class RegisterState extends InitAuthState {}
 
@@ -56,7 +59,10 @@ class RegisterLoading extends RegisterState {}
 
 class RegisterSuccess extends RegisterState {}
 
-class RegisterFailed extends RegisterState {}
+class RegisterFailed extends RegisterState {
+  final String? error;
+  RegisterFailed({this.error});
+}
 
 abstract class SignInState extends InitAuthState {}
 

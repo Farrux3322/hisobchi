@@ -122,12 +122,8 @@ class _ProjectListPageState extends State<ProjectListPage> {
             projectModel: project,
             onTap: () async {
               final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectShowPage(projectId: project.id ?? 0)));
-              if (context.mounted) {
-                if (result is ProjectShowResult && result.hasChanges) {
-                  context.read<ProjectBloc>().add(const GetAllProjectEvent());
-                } else if (result == true) {
-                  context.read<ProjectBloc>().add(const GetAllProjectEvent());
-                }
+              if (context.mounted && result is ProjectShowResult && result.hasChanges) {
+                context.read<ProjectBloc>().add(const GetAllProjectEvent());
               }
             },
           );

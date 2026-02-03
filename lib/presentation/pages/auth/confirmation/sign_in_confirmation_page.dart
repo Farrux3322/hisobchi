@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hisobchi/application/auth/init/init_auth_bloc.dart';
 import 'package:hisobchi/domain/common/second_to_time.dart';
+import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/defocus.dart';
 import 'package:hisobchi/presentation/components/inputs/pin_put_x.dart';
+import 'package:hisobchi/presentation/components/loading/premium_loading.dart';
+import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
 import 'package:timer_count_down/timer_count_down.dart';
-
-import '../../../assets/asset_index.dart';
 
 class SignInConfirmationPage extends StatefulWidget {
   const SignInConfirmationPage({super.key});
@@ -89,42 +89,47 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
               stops: const [0.0, 0.3, 0.7, 1.0],
             ),
           ),
-          child: SafeArea(
-            child: BlocConsumer<InitAuthBloc, InitAuthState>(
-              listener: (context, state) {
-                if (state is RegisterLoading || state is OtpLoading) {
-                  EasyLoading.show();
-                } else if (state is RegisterSuccess) {
-                  HapticFeedback.mediumImpact();
-                  context.read<InitAuthBloc>().add(ResetAuthEvent());
-                  EasyLoading.dismiss();
-                  context.go(Routes.homePage.path);
-                } else {
-                  EasyLoading.dismiss();
-                }
-              },
-              builder: (context, state) {
-                return SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.w),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 40.h),
-                        _buildLogoSection(),
-                        SizedBox(height: 32.h),
-                        _buildTitleSection(),
-                        SizedBox(height: 32.h),
-                        _buildPinSection(),
-                        SizedBox(height: 32.h),
-                        _buildResendSection(),
-                        SizedBox(height: 24.h),
-                      ],
+          child: BlocConsumer<InitAuthBloc, InitAuthState>(
+            listener: (context, state) {
+              if (state is RegisterSuccess) {
+                HapticFeedback.mediumImpact();
+                context.read<InitAuthBloc>().add(ResetAuthEvent());
+                context.go(Routes.homePage.path);
+              } else if (state is RegisterFailed) {
+                Toast.showErrorToast(message: state.error);
+              } else if (state is OtpFailed) {
+                Toast.showErrorToast(message: state.error);
+              }
+            },
+            builder: (context, state) {
+              return Stack(
+                children: [
+                  SafeArea(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24.w),
+                        child: Column(
+                          children: [
+                            SizedBox(height: 40.h),
+                            _buildLogoSection(),
+                            SizedBox(height: 32.h),
+                            _buildTitleSection(),
+                            SizedBox(height: 32.h),
+                            _buildPinSection(),
+                            SizedBox(height: 32.h),
+                            _buildResendSection(),
+                            SizedBox(height: 24.h),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                );
-              },
-            ),
+                  if (state is RegisterLoading || state is OtpLoading)
+                    const PremiumLoading(),
+                ],
+              );
+            },
           ),
         ),
       ),
