@@ -114,11 +114,11 @@ final router = GoRouter(
       path: Routes.smsBuyPage.path,
       pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const SMSBuyPage()),
     ),
-    GoRoute(
-      name: Routes.identification.name,
-      path: Routes.identification.path,
-      pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const IdentificationPage()),
-    ),
+    // GoRoute(
+    //   name: Routes.identification.name,
+    //   path: Routes.identification.path,
+    //   pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const IdentificationPage()),
+    // ),
     GoRoute(
       name: Routes.subscriptionDetail.name,
       path: Routes.subscriptionDetail.path,

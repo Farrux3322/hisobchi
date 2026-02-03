@@ -47,6 +47,14 @@ post_install do |installer|
         'PERMISSION_NOTIFICATIONS=1',
       ]
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      if target.name == 'MyIdSDK' || target.name == 'myid'
+        config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf'
+      else
+        config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
+      end
+      config.build_settings['STRIP_INSTALLED_PRODUCT'] = 'NO'
+      config.build_settings['STRIP_STYLE'] = 'non-global'
+      config.build_settings['GCC_GENERATE_DEBUGGING_SYMBOLS'] = 'YES'
     end
   end
 end
