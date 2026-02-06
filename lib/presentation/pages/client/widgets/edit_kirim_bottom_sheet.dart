@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/income_history_model.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/full_screen_photo.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../assets/asset_index.dart';
 
 class TransactionDetailBottomSheet extends StatelessWidget {
   final Result transaction;
+  final String? partnerPhone;
   final ScrollController scrollController;
 
-  const TransactionDetailBottomSheet({
-    super.key,
-    required this.transaction,
-    required this.scrollController,
-  });
+  const TransactionDetailBottomSheet({super.key, required this.transaction, required this.scrollController, this.partnerPhone});
 
   bool get isKirim => transaction.type == 'debt';
+
   bool get isCancelled => transaction.isCancelled == 1;
+
   bool get isDeleted => transaction.deletedAt != null;
 
   @override
@@ -36,10 +34,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
             margin: EdgeInsets.only(top: 12.h, bottom: 8.h),
             width: 36.w,
             height: 4.h,
-            decoration: BoxDecoration(
-              color: AppTheme.colors.gray.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10.r),
-            ),
+            decoration: BoxDecoration(color: AppTheme.colors.gray.withOpacity(0.1), borderRadius: BorderRadius.circular(10.r)),
           ),
 
           Expanded(
@@ -54,18 +49,9 @@ class TransactionDetailBottomSheet extends StatelessWidget {
                   _buildSecondaryInfo(),
                   SizedBox(height: 10.h),
                   _buildMainInfo(),
-                  if (transaction.description != null && transaction.description!.isNotEmpty) ...[
-                    SizedBox(height: 10.h),
-                    _buildDescription(),
-                  ],
-                  if (isCancelled && transaction.canselReason != null && transaction.canselReason!.isNotEmpty) ...[
-                    SizedBox(height: 10.h),
-                    _buildCancelReason(),
-                  ],
-                  if (transaction.files != null && transaction.files!.isNotEmpty) ...[
-                    SizedBox(height: 10.h),
-                    _buildImageGallery(context),
-                  ],
+                  if (transaction.description != null && transaction.description!.isNotEmpty) ...[SizedBox(height: 10.h), _buildDescription()],
+                  if (isCancelled && transaction.canselReason != null && transaction.canselReason!.isNotEmpty) ...[SizedBox(height: 10.h), _buildCancelReason()],
+                  if (transaction.files != null && transaction.files!.isNotEmpty) ...[SizedBox(height: 10.h), _buildImageGallery(context)],
                   SizedBox(height: 16.h),
                 ],
               ),
@@ -95,19 +81,9 @@ class TransactionDetailBottomSheet extends StatelessWidget {
             decoration: BoxDecoration(
               color: brandColor,
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: brandColor.withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              boxShadow: [BoxShadow(color: brandColor.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 4))],
             ),
-            child: Icon(
-              isKirim ? Icons.south_west_rounded : Icons.north_east_rounded,
-              color: Colors.white,
-              size: 20.sp,
-            ),
+            child: Icon(isKirim ? Icons.south_west_rounded : Icons.north_east_rounded, color: Colors.white, size: 20.sp),
           ),
           SizedBox(width: 16.w),
           Expanded(
@@ -116,30 +92,16 @@ class TransactionDetailBottomSheet extends StatelessWidget {
               children: [
                 Text(
                   isKirim ? 'KIRIM' : 'CHIQIM',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w800,
-                    color: brandColor.withOpacity(0.7),
-                    letterSpacing: 1.2,
-                  ),
+                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w800, color: brandColor.withOpacity(0.7), letterSpacing: 1.2),
                 ),
                 Text(
                   _formatAmount(transaction.summa ?? '0'),
-                  style: TextStyle(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF0F172A),
-                    letterSpacing: -0.5,
-                  ),
+                  style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w900, color: const Color(0xFF0F172A), letterSpacing: -0.5),
                 ),
               ],
             ),
           ),
-          if (isCancelled || isDeleted)
-            _buildBadge(
-              isDeleted ? 'O\'chirilgan' : 'Bekor qilingan',
-              isDeleted ? Colors.grey : const Color(0xFFE11D48),
-            ),
+          if (isCancelled || isDeleted) _buildBadge(isDeleted ? 'O\'chirilgan' : 'Bekor qilingan', isDeleted ? Colors.grey : const Color(0xFFE11D48)),
         ],
       ),
     );
@@ -155,11 +117,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: TextStyle(
-          fontSize: 10.sp,
-          fontWeight: FontWeight.w700,
-          color: color,
-        ),
+        style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: color),
       ),
     );
   }
@@ -168,19 +126,13 @@ class TransactionDetailBottomSheet extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _buildInfoCard(
-            label: 'Valyuta',
-            value: transaction.currencyTypeName ?? 'UZS',
-            icon: Icons.monetization_on_rounded,
-            color: const Color(0xFF6366F1),
-          ),
+          child: _buildInfoCard(label: 'Valyuta', value: transaction.currencyTypeName ?? 'UZS', icon: Icons.monetization_on_rounded, color: const Color(0xFF6366F1)),
         ),
         SizedBox(width: 12.w),
         Expanded(
           child: _buildInfoCard(
             label: 'Sana',
-            value:
-              transaction.createdAt?.length==19 ? transaction.createdAt?.split(' ').first??'':transaction.createdAt??'',
+            value: transaction.createdAt?.length == 19 ? transaction.createdAt?.split(' ').first ?? '' : transaction.createdAt ?? '',
             icon: Icons.calendar_today_rounded,
             color: const Color(0xFFF59E0B),
           ),
@@ -192,20 +144,48 @@ class TransactionDetailBottomSheet extends StatelessWidget {
   Widget _buildSecondaryInfo() {
     return Column(
       children: [
-        _buildLongInfoRow(
-          label: 'Hamkor',
-          value: transaction.partnerName ?? 'Noma\'lum',
-          icon: Icons.person_rounded,
-          color: const Color(0xFF8B5CF6),
-        ),
-        if (transaction.returnDate != null && transaction.returnDate!.isNotEmpty) ...[
+        _buildLongInfoRow(label: 'Hamkor', value: transaction.partnerName ?? 'Noma\'lum', icon: Icons.person_rounded, color: const Color(0xFF8B5CF6)),
+        if (partnerPhone != null && partnerPhone!.isNotEmpty) ...[
           SizedBox(height: 12.h),
           _buildLongInfoRow(
-            label: 'Qaytarish sanasi',
-            value: _formatDate(transaction.returnDate),
-            icon: Icons.history_rounded,
-            color: const Color(0xFF10B981),
+            label: 'Telefon raqami',
+            value: _formatPhoneNumber(partnerPhone!),
+            icon: Icons.phone_rounded,
+            color: const Color(0xFF8B5CF6),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () => _sendSms(
+                    phoneNumber: partnerPhone!,
+                    partnerName: transaction.partnerName ?? 'Hamkor',
+                    amount: _formatAmount(transaction.summa ?? '0'),
+                    currency: transaction.currencyTypeName ?? '',
+                    isIncoming: isKirim,
+                    returnDate: (transaction.returnDate != null && transaction.returnDate!.isNotEmpty) ? transaction.returnDate : null,
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(color: const Color(0xFF6366F1).withValues(alpha: 0.1), shape: BoxShape.circle),
+                    child: SvgPicture.asset(AppIcons.sms, width: 18.w, height: 18.w, colorFilter: const ColorFilter.mode(Color(0xFF6366F1), BlendMode.srcIn)),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                GestureDetector(
+                  onTap: () => _makePhoneCall(partnerPhone!),
+                  child: Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.1), shape: BoxShape.circle),
+                    child: SvgPicture.asset(AppIcons.phone, width: 18.w, height: 18.w, colorFilter: const ColorFilter.mode(Color(0xFF10B981), BlendMode.srcIn)),
+                  ),
+                ),
+              ],
+            ),
           ),
+        ],
+        if (transaction.returnDate != null && transaction.returnDate!.isNotEmpty) ...[
+          SizedBox(height: 12.h),
+          _buildLongInfoRow(label: 'Qaytarish sanasi', value: _formatDate(transaction.returnDate), icon: Icons.history_rounded, color: const Color(0xFF10B981)),
         ],
       ],
     );
@@ -229,24 +209,14 @@ class TransactionDetailBottomSheet extends StatelessWidget {
               SizedBox(width: 8.w),
               Text(
                 'IZOH',
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF94A3B8),
-                  letterSpacing: 1,
-                ),
+                style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w800, color: const Color(0xFF94A3B8), letterSpacing: 1),
               ),
             ],
           ),
           SizedBox(height: 8.h),
           Text(
             transaction.description!,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: const Color(0xFF334155),
-              height: 1.5,
-              fontWeight: FontWeight.w500,
-            ),
+            style: TextStyle(fontSize: 14.sp, color: const Color(0xFF334155), height: 1.5, fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -271,24 +241,14 @@ class TransactionDetailBottomSheet extends StatelessWidget {
               SizedBox(width: 8.w),
               Text(
                 'BEKOR QILISH SABABI',
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFFE11D48),
-                  letterSpacing: 1,
-                ),
+                style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w800, color: const Color(0xFFE11D48), letterSpacing: 1),
               ),
             ],
           ),
           SizedBox(height: 8.h),
           Text(
             transaction.canselReason ?? 'Sabab ko\'rsatilmagan',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: const Color(0xFF9F1239),
-              height: 1.5,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: 14.sp, color: const Color(0xFF9F1239), height: 1.5, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -313,12 +273,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
               SizedBox(width: 8.w),
               Text(
                 'RASMLAR',
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF94A3B8),
-                  letterSpacing: 1,
-                ),
+                style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w800, color: const Color(0xFF94A3B8), letterSpacing: 1),
               ),
             ],
           ),
@@ -333,9 +288,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => ImageViewerPage(
-                        images: transaction.files!
-                            .map((f) => ImageItem(path: f.url ?? '', isNetwork: true))
-                            .toList(),
+                        images: transaction.files!.map((f) => ImageItem(path: f.url ?? '', isNetwork: true)).toList(),
                         initialIndex: transaction.files!.indexOf(file),
                       ),
                     ),
@@ -350,17 +303,8 @@ class TransactionDetailBottomSheet extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14.r),
                       border: Border.all(color: const Color(0xFFE2E8F0)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                      image: DecorationImage(
-                        image: NetworkImage(file.url ?? ''),
-                        fit: BoxFit.cover,
-                      ),
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                      image: DecorationImage(image: NetworkImage(file.url ?? ''), fit: BoxFit.cover),
                     ),
                     child: Stack(
                       children: [
@@ -369,10 +313,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
                           bottom: 4.w,
                           child: Container(
                             padding: EdgeInsets.all(4.w),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
-                              shape: BoxShape.circle,
-                            ),
+                            decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), shape: BoxShape.circle),
                             child: Icon(Icons.fullscreen_rounded, size: 12.sp, color: Colors.white),
                           ),
                         ),
@@ -388,25 +329,14 @@ class TransactionDetailBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard({
-    required String label,
-    required String value,
-    required IconData icon,
-    required Color color,
-  }) {
+  Widget _buildInfoCard({required String label, required String value, required IconData icon, required Color color}) {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: const Color(0xFFF1F5F9)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,57 +347,34 @@ class TransactionDetailBottomSheet extends StatelessWidget {
               SizedBox(width: 6.w),
               Text(
                 label.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 9.sp,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF94A3B8),
-                  letterSpacing: 0.5,
-                ),
+                style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w800, color: const Color(0xFF94A3B8), letterSpacing: 0.5),
               ),
             ],
           ),
           SizedBox(height: 6.h),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF1E293B),
-            ),
+            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildLongInfoRow({
-    required String label,
-    required String value,
-    required IconData icon,
-    required Color color,
-  }) {
+  Widget _buildLongInfoRow({required String label, required String value, required IconData icon, required Color color, Widget? trailing}) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: const Color(0xFFF1F5F9)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2))],
       ),
       child: Row(
         children: [
           Container(
             padding: EdgeInsets.all(8.w),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10.r),
-            ),
+            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10.r)),
             child: Icon(icon, size: 16.sp, color: color),
           ),
           SizedBox(width: 12.w),
@@ -477,24 +384,16 @@ class TransactionDetailBottomSheet extends StatelessWidget {
               children: [
                 Text(
                   label.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF94A3B8),
-                    letterSpacing: 0.5,
-                  ),
+                  style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w800, color: const Color(0xFF94A3B8), letterSpacing: 0.5),
                 ),
                 Text(
                   value,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1E293B),
-                  ),
+                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
                 ),
               ],
             ),
           ),
+          if (trailing != null) ...[SizedBox(width: 8.w), trailing],
         ],
       ),
     );
@@ -504,7 +403,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
     if (value.isEmpty) return '0';
     final double? amount = double.tryParse(value);
     if (amount == null) return value;
-    
+
     final formatter = NumberFormat('#,###', 'uz-UZ');
     return formatter.format(amount).replaceAll(',', ' ');
   }
@@ -522,5 +421,47 @@ class TransactionDetailBottomSheet extends StatelessWidget {
         return dateStr;
       }
     }
+  }
+
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    }
+  }
+
+  Future<void> _sendSms({required String phoneNumber, required String partnerName, required String amount, required String currency, required bool isIncoming, String? returnDate}) async {
+    String message = "";
+
+    if (isIncoming) {
+      message = "Hurmatli $partnerName, Sizdan $amount $currency miqdoridagi to'lov qabul qilindi. Hamkorlik uchun rahmat!";
+    } else {
+      if (returnDate != null && returnDate.isNotEmpty) {
+        final String formattedDate = _formatDate(returnDate);
+        message = "Hurmatli $partnerName, Sizning $amount $currency miqdoridagi qarzdorligingizni $formattedDate sanasigacha qaytarishingizni eslatib o'tamiz. Hamkorlik uchun rahmat!";
+      } else {
+        message =
+            "Hurmatli $partnerName, Sizning $amount $currency miqdoridagi qarzdorligingizni eslatib o'tamiz. Iltimos, to'lovni o'z vaqtida amalga oshirishingizni so'raymiz. E'tiboringiz uchun rahmat!";
+      }
+    }
+
+    final String encodedMessage = Uri.encodeComponent(message);
+    final Uri launchUri = Uri.parse('sms:$phoneNumber?body=$encodedMessage');
+
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    }
+  }
+
+  String _formatPhoneNumber(String phone) {
+    if (phone.isEmpty) return phone;
+    final clean = phone.replaceAll(RegExp(r'\D'), '');
+
+    if (clean.length == 9) {
+      return '+998 (${clean.substring(0, 2)}) ${clean.substring(2, 5)} ${clean.substring(5, 7)} ${clean.substring(7, 9)}';
+    } else if (clean.length == 12 && clean.startsWith('998')) {
+      return '+998 (${clean.substring(3, 5)}) ${clean.substring(5, 8)} ${clean.substring(8, 10)} ${clean.substring(10, 12)}';
+    }
+    return phone;
   }
 }

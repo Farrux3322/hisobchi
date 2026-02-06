@@ -291,7 +291,7 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
           child: HisobKitobTarixPage(
             id: widget.partnerModel.id ?? 0,
             initialType: type,
-            initialCurrencyId: currencyId,
+            initialCurrencyId: currencyId,partnerPhone: widget.partnerModel.phone,
           ),
         ),
       ),

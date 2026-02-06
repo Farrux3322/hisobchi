@@ -37,6 +37,7 @@ class Result {
   String? returnDate;
   String? type;
   int? isCancelled;
+  String? partnerPhone;
   String? createdAt;
   String? deletedAt;
 
@@ -52,6 +53,7 @@ class Result {
     this.returnDate,
     this.type,
     this.isCancelled,
+    this.partnerPhone,
     this.createdAt,
     this.canselReason,
     this.deletedAt,
@@ -75,6 +77,7 @@ class Result {
     returnDate = json['return_date'];
     type = json['type'];
     isCancelled = json['is_cancelled'];
+    partnerPhone = json['partner_phone'];
     createdAt = json['created_at'];
     deletedAt = json['deleted_at'];
   }
@@ -95,6 +98,7 @@ class Result {
     data['return_date'] = returnDate;
     data['type'] = type;
     data['is_cancelled'] = isCancelled;
+    data['partner_phone'] = partnerPhone;
     data['created_at'] = createdAt;
     data['deleted_at'] = deletedAt;
     return data;

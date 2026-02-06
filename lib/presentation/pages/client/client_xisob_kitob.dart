@@ -19,10 +19,11 @@ import 'package:hisobchi/presentation/pages/client/components/history_transactio
 import 'package:hisobchi/presentation/pages/client/components/history_dialogs.dart';
 
 class HisobKitobTarixPage extends StatefulWidget {
-  const HisobKitobTarixPage({super.key, this.id, this.initialType, this.initialCurrencyId});
+  const HisobKitobTarixPage({super.key, this.id, this.initialType, this.initialCurrencyId, this.partnerPhone});
 
   final int? id;
   final String? initialType;
+  final String? partnerPhone;
   final int? initialCurrencyId;
 
   @override
@@ -195,7 +196,7 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
         minChildSize: 0.4,
         maxChildSize: 0.99,
         expand: false,
-        builder: (context, scrollController) => TransactionDetailBottomSheet(transaction: item, scrollController: scrollController),
+        builder: (context, scrollController) => TransactionDetailBottomSheet(transaction: item, scrollController: scrollController,partnerPhone: widget.partnerPhone,),
       ),
     );
   }

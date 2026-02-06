@@ -382,7 +382,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                           MaterialPageRoute(
                             builder: (_) => BlocProvider.value(
                               value: context.read<PartnerBloc>(),
-                              child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0),
+                              child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0,partnerPhone: widget.partnerModel.phone,),
                             ),
                           ),
                         );
@@ -878,7 +878,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       MaterialPageRoute(
         builder: (_) => BlocProvider.value(
           value: context.read<PartnerBloc>(),
-          child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0, initialType: type, initialCurrencyId: currencyId),
+          child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0, initialType: type, initialCurrencyId: currencyId,partnerPhone: widget.partnerModel.phone,),
         ),
       ),
     );
