@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/assets/res/app_icons.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/buttons/main_button.dart';
 import '../basic_widgets.dart';
 

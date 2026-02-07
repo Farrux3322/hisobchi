@@ -73,6 +73,7 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
         final String name = secondData['result']?['name'] ?? '';
         final String phone = secondData['result']?['phone'] ?? '';
         final int userId = secondData['result']?['user_id'] ?? 0;
+        final bool xZiffler = secondData['result']?['x_ziffler'] ?? false;
         final String image = secondData['result']?['image'] ?? '';
         final String message0 = secondData['error']?['message'] ?? '';
         List<String> role = ((secondData['result']?['role']).cast<String>()) ?? [];
@@ -82,12 +83,14 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
           UserData.phone = phone;
           UserData.image = image;
           UserData.role = role;
+          UserData.xZiffler = xZiffler;
           prefs.setUserId(userId);
           prefs.setToken(token);
           prefs.setName(name);
           prefs.setPhone(phone);
           prefs.setImage(image);
           prefs.setRole(role);
+          prefs.setXZiffler(xZiffler);
           emit(SignInSuccess());
         } else {
           emit(SignInError(message0));
@@ -142,6 +145,7 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
         final String name = secondData['result']?['name'] ?? '';
         final String phone = secondData['result']?['phone'] ?? '';
         final int userId = secondData['result']?['user_id'] ?? 0;
+        final bool xZiffler = secondData['result']?['x_ziffler'] ?? false;
         final String image = secondData['result']?['image'] ?? '';
         final String message0 = secondData['error']?['message'] ?? '';
         List<String> role = ((secondData['result']?['role']).cast<String>()) ?? [];
@@ -151,12 +155,14 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
           UserData.phone = phone;
           UserData.image = image;
           UserData.role = role;
+          UserData.xZiffler = xZiffler;
           prefs.setUserId(userId);
           prefs.setToken(token);
           prefs.setName(name);
           prefs.setPhone(phone);
           prefs.setImage(image);
           prefs.setRole(role);
+          prefs.setXZiffler(xZiffler);
           emit(RegisterSuccess());
         } else {
           emit(RegisterFailed(error: message0));
@@ -192,6 +198,7 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
           final String name = secondData['result']?['name'] ?? '';
           final String phone = secondData['result']?['phone'] ?? '';
           final int userId = secondData['result']?['user_id'] ?? 0;
+          final bool xZiffler = secondData['result']?['x_ziffler'] ?? false;
           final String image = secondData['result']?['image'] ?? '';
           final String message0 = secondData['error']?['message'] ?? '';
           List<String> role = ((secondData['result']?['role']).cast<String>()) ?? [];
@@ -201,12 +208,14 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
             UserData.phone = phone;
             UserData.image = image;
             UserData.role = role;
+            UserData.xZiffler = xZiffler;
             prefs.setUserId(userId);
             prefs.setToken(token);
             prefs.setName(name);
             prefs.setPhone(phone);
             prefs.setImage(image);
             prefs.setRole(role);
+            prefs.setXZiffler(xZiffler);
             emit(RegisterSuccess());
           } else {
             emit(RegisterFailed(error: message0));

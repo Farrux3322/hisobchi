@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hisobchi/infrastructure/dto/models/notification/notification_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:intl/intl.dart';
-import '../../components/basic_widgets.dart';
 
 class NotificationDetail extends StatelessWidget {
   final NotificationItemModel item;

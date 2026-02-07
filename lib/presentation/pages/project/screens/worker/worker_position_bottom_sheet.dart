@@ -71,7 +71,7 @@ class _WorkerPositionBottomSheetState extends State<WorkerPositionBottomSheet> {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, -5),
               ),
@@ -102,7 +102,7 @@ class _WorkerPositionBottomSheetState extends State<WorkerPositionBottomSheet> {
                         borderRadius: BorderRadius.circular(3),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.shade300.withOpacity(0.5),
+                            color: Colors.grey.shade300.withValues(alpha: 0.5),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -150,8 +150,8 @@ class _WorkerPositionBottomSheetState extends State<WorkerPositionBottomSheet> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              const Color(0xFF6366F1).withOpacity(0.1),
-                              const Color(0xFF8B5CF6).withOpacity(0.1),
+                              const Color(0xFF6366F1).withValues(alpha: 0.1),
+                              const Color(0xFF8B5CF6).withValues(alpha: 0.1),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(10),
@@ -217,8 +217,8 @@ class _WorkerPositionBottomSheetState extends State<WorkerPositionBottomSheet> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              const Color(0xFF10B981).withOpacity(0.1),
-                              const Color(0xFF059669).withOpacity(0.1),
+                              const Color(0xFF10B981).withValues(alpha: 0.1),
+                              const Color(0xFF059669).withValues(alpha: 0.1),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(10),

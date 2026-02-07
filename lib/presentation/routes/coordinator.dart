@@ -18,8 +18,6 @@ import 'package:hisobchi/presentation/pages/subscription/subscription_page.dart'
 import 'package:hisobchi/presentation/pages/subscription/subscription_detail_page.dart';
 import 'package:hisobchi/presentation/pages/subscription/payment_success_page.dart';
 import 'package:hisobchi/presentation/pages/profile/screens/sms_buy_page/sms_buy_page.dart';
-import 'package:hisobchi/presentation/pages/profile/screens/identification/identification_page.dart';
-
 import 'entity/pages.dart';
 import 'entity/routes.dart';
 import 'widgets/liquid_glass_shell.dart';

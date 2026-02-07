@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hisobchi/application/subscription/subscription_bloc.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/routes/entity/routes.dart';
 
 class PaymentSuccessPage extends StatelessWidget {

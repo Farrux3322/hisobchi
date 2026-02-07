@@ -7,8 +7,6 @@ import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_cost/project_cost_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_list_page.dart';
-import 'package:hisobchi/presentation/pages/project/screens/report/project_cost_details_page.dart';
-import 'package:hisobchi/presentation/pages/project/screens/report/project_income_details_page.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProjectReportPage extends StatelessWidget {

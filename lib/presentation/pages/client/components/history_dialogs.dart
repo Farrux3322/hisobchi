@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/partner/income_history_model.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 
 class HistoryDialogs {

@@ -16,7 +16,7 @@ class AppManagerCubit extends Cubit<AppManagerState> {
   Future<void> init() async {
     emit(AppManagerLoading());
     try {
-       AppTheme.init();
+      AppTheme.init();
       await ScreenSize.setSizes();
 
       PlatformInfo.init();
@@ -33,6 +33,7 @@ class AppManagerCubit extends Cubit<AppManagerState> {
       UserData.authorGuid = pref.getAuthorGuid;
       UserData.passCode = pref.passcode;
       UserData.passCodeStatus = pref.isPasscodeEnabled;
+      UserData.xZiffler = pref.getXZiffler;
       // UserData.role = pref.getRole;
 
       // if (UserData.role == 'seller') {
@@ -42,7 +43,6 @@ class AppManagerCubit extends Cubit<AppManagerState> {
       // } else {
       //   router.value = routerPhoto;
       // }
-
 
       emit(AppManagerInitial());
     } catch (e) {

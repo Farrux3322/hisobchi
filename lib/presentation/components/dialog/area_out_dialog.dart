@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/assets/res/app_icons.dart';
 import 'package:lottie/lottie.dart';
 
 

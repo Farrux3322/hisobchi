@@ -15,6 +15,7 @@ class UserData {
   static String passCode = "";
   static bool passCodeStatus = false;
   static bool isAdmin = false;
+  static bool xZiffler = false;
   static List<String>? role = [];
   static String responsibleWorker = "";
   static Map<String, dynamic> deviceInfo = {};

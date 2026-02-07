@@ -90,8 +90,8 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               _buildUserCard(),
               const SizedBox(height: 16),
-              const UsageSection(),
-              const SizedBox(height: 24),
+              if(UserData.xZiffler) const UsageSection(),
+              if(UserData.xZiffler)const SizedBox(height: 24),
               _buildSectionTitle('Savollaringiz bormi?'),
               const SizedBox(height: 12),
               _buildMenuItem(

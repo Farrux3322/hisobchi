@@ -52,3 +52,9 @@ Dio createDio() {
 }
 
 final dio = createDio();
+
+@Deprecated('Use DioInterceptor directly - generates unique keys per request')
+class ApiMethods {
+  static String key = "";
+  static String id = "";
+}

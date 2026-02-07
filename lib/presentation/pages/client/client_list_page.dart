@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
-import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
@@ -38,7 +37,6 @@ class _ClientPageState extends State<ClientPage> {
   void initState() {
     super.initState();
     _fetchPartners();
-    context.read<CurrencyBloc>().add(const GetExchangeRates());
   }
 
   @override
@@ -109,12 +107,7 @@ class _ClientPageState extends State<ClientPage> {
               body: NestedScrollView(
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
-                    SliverAppBar(
-                      title: const Text('Hamkorlar'),
-                      elevation: 0,
-                      centerTitle: false,
-                      pinned: true,
-                    ),
+                    SliverAppBar(title: const Text('Hamkorlar'), elevation: 0, centerTitle: false, pinned: true),
                     SliverToBoxAdapter(
                       child: PartnerReportWidget(
                         onTap: () {

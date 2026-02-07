@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hisobchi/infrastructure/dto/models/project/project_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
@@ -29,7 +28,7 @@ class _EditProjectBottomSheetState extends State<EditProjectBottomSheet> {
   final _locationController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
 
-  List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
 
   @override
   void dispose() {

@@ -200,7 +200,7 @@ class _WorkTypeAddEditBottomSheetState extends State<WorkTypeAddEditBottomSheet>
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.colors.primary,
                                 foregroundColor: Colors.white,
-                                disabledBackgroundColor: AppTheme.colors.primary.withOpacity(0.6),
+                                disabledBackgroundColor: AppTheme.colors.primary.withValues(alpha: 0.6),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 elevation: 0,
                               ),
@@ -213,7 +213,7 @@ class _WorkTypeAddEditBottomSheetState extends State<WorkTypeAddEditBottomSheet>
                       if (state.statusAdd == Status.loading)
                         Positioned.fill(
                           child: Container(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             child: const Center(child: Loading()),
                           ),
                         ),

@@ -10,7 +10,6 @@ import 'package:hisobchi/application/file_upload/file_upload_state.dart';
 import 'package:hisobchi/application/work_type/work_type_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/work_type_model.dart';
-import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/full_screen_photo.dart';
@@ -184,8 +183,6 @@ class _ContractAddPageState extends State<ContractAddPage> {
             );
       }
     } catch (e) {
-      print('=================');
-      print(e.toString());
       Toast.showErrorToast(message: 'Xatolik yuz berdi: $e');
     }
   }

@@ -3,5 +3,3 @@
 
 ///Global
 const String baseUrlApp = "https://api.ehisob.uz/api/";
-
-

@@ -34,7 +34,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
             margin: EdgeInsets.only(top: 12.h, bottom: 8.h),
             width: 36.w,
             height: 4.h,
-            decoration: BoxDecoration(color: AppTheme.colors.gray.withOpacity(0.1), borderRadius: BorderRadius.circular(10.r)),
+            decoration: BoxDecoration(color: AppTheme.colors.gray.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10.r)),
           ),
 
           Expanded(
@@ -81,7 +81,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
             decoration: BoxDecoration(
               color: brandColor,
               shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: brandColor.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 4))],
+              boxShadow: [BoxShadow(color: brandColor.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 4))],
             ),
             child: Icon(isKirim ? Icons.south_west_rounded : Icons.north_east_rounded, color: Colors.white, size: 20.sp),
           ),
@@ -92,7 +92,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
               children: [
                 Text(
                   isKirim ? 'KIRIM' : 'CHIQIM',
-                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w800, color: brandColor.withOpacity(0.7), letterSpacing: 1.2),
+                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w800, color: brandColor.withValues(alpha: 0.7), letterSpacing: 1.2),
                 ),
                 Text(
                   _formatAmount(transaction.summa ?? '0'),
@@ -111,9 +111,9 @@ class TransactionDetailBottomSheet extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Text(
         text,
@@ -303,7 +303,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14.r),
                       border: Border.all(color: const Color(0xFFE2E8F0)),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
                       image: DecorationImage(image: NetworkImage(file.url ?? ''), fit: BoxFit.cover),
                     ),
                     child: Stack(
@@ -313,7 +313,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
                           bottom: 4.w,
                           child: Container(
                             padding: EdgeInsets.all(4.w),
-                            decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), shape: BoxShape.circle),
+                            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
                             child: Icon(Icons.fullscreen_rounded, size: 12.sp, color: Colors.white),
                           ),
                         ),
@@ -336,14 +336,14 @@ class TransactionDetailBottomSheet extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: const Color(0xFFF1F5F9)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 12.sp, color: color.withOpacity(0.5)),
+              Icon(icon, size: 12.sp, color: color.withValues(alpha: 0.5)),
               SizedBox(width: 6.w),
               Text(
                 label.toUpperCase(),
@@ -368,13 +368,13 @@ class TransactionDetailBottomSheet extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: const Color(0xFFF1F5F9)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2))],
       ),
       child: Row(
         children: [
           Container(
             padding: EdgeInsets.all(8.w),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10.r)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10.r)),
             child: Icon(icon, size: 16.sp, color: color),
           ),
           SizedBox(width: 12.w),

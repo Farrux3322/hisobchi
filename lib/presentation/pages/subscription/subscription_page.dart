@@ -7,7 +7,6 @@ import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
-import 'package:hisobchi/presentation/pages/subscription/subscription_detail_page.dart';
 import 'package:hisobchi/presentation/pages/subscription/widgets/tarif_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hisobchi/presentation/routes/entity/routes.dart';

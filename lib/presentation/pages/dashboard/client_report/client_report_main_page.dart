@@ -7,7 +7,6 @@ import 'package:hisobchi/application/client_report/client_report_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/client_report_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/pages/dashboard/client_report/client_report_two_page.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -206,21 +205,6 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> with Single
     );
   }
 
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: TextField(
-        controller: _searchController,
-        decoration: InputDecoration(
-          hintText: 'Qidirish...',
-          hintStyle: TextStyle(fontSize: 14.sp, color: const Color(0xFF94A3B8)),
-          border: InputBorder.none,
-          suffixIcon: _searchController.text.isNotEmpty ? IconButton(icon: const Icon(Icons.close, size: 18), onPressed: () => _searchController.clear()) : null,
-        ),
-        style: TextStyle(fontSize: 14.sp),
-      ),
-    );
-  }
 
   Widget _buildFilters() {
     return Container(

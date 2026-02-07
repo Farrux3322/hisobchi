@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'liquid_bottom_bar.dart';
 import 'package:hisobchi/application/subscription/subscription_status_cubit.dart';
 import 'package:hisobchi/domain/common/enums/subscription_status.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_blocked_view.dart';
-import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
 
 class LiquidGlassShell extends StatefulWidget {

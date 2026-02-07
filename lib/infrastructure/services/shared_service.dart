@@ -19,7 +19,7 @@ class SharedPrefService {
   static const String _authorGuid = 'author_guid';
   static const String _biometricEnabled = 'biometric_enabled';
   static const String _onboardingCompleted = 'onboarding_completed';
-
+  static const String _xZiffler = 'x_ziffler';
 
   static late SharedPreferences _preference;
 
@@ -31,35 +31,47 @@ class SharedPrefService {
   }
 
   void setAuthorGuid(String authorGuid) => _preference.setString(_authorGuid, authorGuid);
+
   String get getAuthorGuid => _preference.getString(_authorGuid) ?? '';
 
   void setIsAdmin(bool isAdmin) => _preference.setBool(_isAdmin, isAdmin);
+
   bool get getIsAdmin => _preference.getBool(_isAdmin) ?? false;
 
+  void setXZiffler(bool xZiffler) => _preference.setBool(_xZiffler, xZiffler);
+
+  bool get getXZiffler => _preference.getBool(_xZiffler) ?? false;
+
   void setToken(String token) => _preference.setString(_token, token);
+
   String get getToken => _preference.getString(_token) ?? '';
 
   void setRole(List<String> role) => _preference.setStringList(_role, role);
-  List<String> get getRole => _preference.getStringList(_role) ?? [];
 
+  List<String> get getRole => _preference.getStringList(_role) ?? [];
 
   void setUserId(int userId) => _preference.setInt(_userId, userId);
 
   int get getUserId => _preference.getInt(_userId) ?? 0;
 
-
-
   void setBranchName(String branchName) => _preference.setString(_branchName, branchName);
+
   String get getBranchName => _preference.getString(_branchName) ?? '';
 
   void setImage(String image) => _preference.setString(_image, image);
+
   String get getImage => _preference.getString(_image) ?? '';
 
   void setPercent(String percent) => _preference.setString(_percent, percent);
+
   String get getPercent => _preference.getString(_percent) ?? '';
+
   void setBranchGuid(String branchGuid) => _preference.setString(_branchGuid, branchGuid);
+
   String get getBranchGuid => _preference.getString(_branchGuid) ?? '';
+
   void setWorkerGuid(String workerGuid) => _preference.setString(_workerGuid, workerGuid);
+
   String get getWorkerGuid => _preference.getString(_workerGuid) ?? '';
 
   void setName(String name) => _preference.setString(_name, name);

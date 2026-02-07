@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/utils/phone_formatter.dart';
@@ -43,8 +42,8 @@ class ClientCardItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isUZSPositive = (partnerModel?.balance?.uzs ?? 0) >= 0;
-    final bool isUSDPositive = (partnerModel?.balance?.usd ?? 0) >= 0;
+    // final bool isUZSPositive = (partnerModel?.balance?.uzs ?? 0) >= 0;
+    // final bool isUSDPositive = (partnerModel?.balance?.usd ?? 0) >= 0;
 
     return Container(
       margin: EdgeInsets.only(bottom: 7.h),

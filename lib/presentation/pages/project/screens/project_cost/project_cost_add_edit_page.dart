@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hisobchi/application/cost_type/cost_type_bloc.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_event.dart';
@@ -17,7 +16,6 @@ import 'package:hisobchi/infrastructure/dto/models/currency/currency_model.dart'
 import 'package:hisobchi/infrastructure/models/cost_type_model.dart';
 import 'package:hisobchi/infrastructure/models/project_cost_model.dart';
 import 'package:hisobchi/infrastructure/models/worker_model.dart';
-import 'package:hisobchi/infrastructure/repository/cost_type/cost_type_repository.dart';
 import 'package:hisobchi/infrastructure/repository/worker/worker_repository.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
