@@ -79,7 +79,7 @@ class AppTheme {
       dividerColor: themeColors.divider,
       brightness: brightness,
       appBarTheme: AppBarTheme(
-        titleTextStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.black, letterSpacing: 0.5),
+        titleTextStyle: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Colors.black, letterSpacing: 0.5),
         backgroundColor: themeColors.background,
         elevation: 0,
         centerTitle: true,

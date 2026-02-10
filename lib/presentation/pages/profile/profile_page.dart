@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:hisobchi/presentation/pages/auth/passcode/set_passcode_page.dart';
 import 'package:hisobchi/presentation/pages/auth/passcode/verify_old_passcode_page.dart';
 import 'package:hisobchi/presentation/pages/notification/notification_page.dart';
@@ -210,76 +212,130 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildUserCard() {
     final userName = UserData.name.isEmpty ? 'Ism kiritilmagan' : UserData.name;
     final userPhone = _formatPhoneNumber(UserData.phone);
+    final userImage = UserData.image;
 
     return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppTheme.colors.divider.withValues(alpha: 0.5)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 10))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 15,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                child: Icon(Icons.person_rounded, color: AppTheme.colors.primary, size: 32),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        children: [
+          _buildAvatar(userName, userImage),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  userName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.colors.black,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
                   children: [
+                    Icon(Icons.phone_android_rounded, color: AppTheme.colors.gray, size: 14),
+                    const SizedBox(width: 4),
                     Text(
-                      userName,
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.colors.black, letterSpacing: -0.5),
-                    ),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: AppTheme.colors.background, borderRadius: BorderRadius.circular(8)),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.phone_android_rounded, color: AppTheme.colors.primary, size: 14),
-                          const SizedBox(width: 6),
-                          Text(
-                            userPhone,
-                            style: TextStyle(fontSize: 15, color: AppTheme.colors.primary, fontWeight: FontWeight.w600),
-                          ),
-                        ],
+                      userPhone,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppTheme.colors.gray,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 44,
-                height: 44,
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppTheme.colors.background,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppTheme.colors.divider),
-                ),
-                child: IconButton(
-                  icon: SvgPicture.asset(AppIcons.edit, colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn)),
-                  onPressed: () {
-                    pushScreen(context, screen: const ProfileUpdatePage()).then((_) {
-                      setState(() {});
-                    });
-                  },
-                  padding: EdgeInsets.zero,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              pushScreen(context, screen: const ProfileUpdatePage()).then((_) {
+                setState(() {});
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.colors.background,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.colors.divider),
+              ),
+              child: SvgPicture.asset(
+                AppIcons.edit,
+                width: 18,
+                height: 18,
+                colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar(String name, String? imageUrl) {
+    final initials = name.isNotEmpty ? name[0].toUpperCase() : '?';
+
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.colors.primary,
+            AppTheme.colors.primary.withValues(alpha: 0.85),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: imageUrl != null && imageUrl.isNotEmpty
+            ? CachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[200]!,
+                  highlightColor: Colors.grey[50]!,
+                  child: Container(color: Colors.white),
+                ),
+                errorWidget: (context, url, error) => _buildInitials(initials),
+              )
+            : _buildInitials(initials),
+      ),
+    );
+  }
+
+  Widget _buildInitials(String initials) {
+    return Center(
+      child: Text(
+        initials,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
