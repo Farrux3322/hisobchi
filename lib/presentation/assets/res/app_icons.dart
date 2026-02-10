@@ -5,6 +5,8 @@ class AppIcons {
   static const home = 'assets/icons/main.svg';
 
   static const click = 'assets/icons/click.svg';
+  static const faceid = 'assets/icons/faceid.svg';
+  static const fingerprint = 'assets/icons/fingerprint.svg';
   static const payme = 'assets/icons/payme.svg';
   static const success = 'assets/icons/success.svg';
   static const professional = 'assets/icons/professional.svg';

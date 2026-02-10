@@ -21,6 +21,7 @@ class SignInConfirmationPage extends StatefulWidget {
 class _SignInConfirmationPageState extends State<SignInConfirmationPage>
     with TickerProviderStateMixin {
   bool showCountDown = true;
+  final TextEditingController _pinController = TextEditingController();
 
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -66,6 +67,7 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
+    _pinController.dispose();
     super.dispose();
   }
 
@@ -260,9 +262,10 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
             ],
           ),
           child: PintPutX(
+            controller: _pinController,
             onComplete: (value) {
               HapticFeedback.mediumImpact();
-              context.read<InitAuthBloc>().add(RegisterEvent(otp: value));
+              context.read<InitAuthBloc>().add(VerifyOtpEvent(otp: value));
             },
           ),
         ),
@@ -352,6 +355,7 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
       child: ElevatedButton(
         onPressed: () {
           HapticFeedback.mediumImpact();
+          _pinController.clear();
           setState(() {
             showCountDown = true;
           });

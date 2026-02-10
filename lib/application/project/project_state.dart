@@ -13,6 +13,9 @@ class ProjectState extends Equatable {
   final String? search;
   final String? statusFilter;
   final List<String>? date;
+  final int currentPage;
+  final int lastPage;
+  final bool hasReachedMax;
 
   const ProjectState({
     this.status = Status.pure,
@@ -25,6 +28,9 @@ class ProjectState extends Equatable {
     this.search,
     this.statusFilter,
     this.date,
+    this.currentPage = 1,
+    this.lastPage = 1,
+    this.hasReachedMax = false,
   });
 
   ProjectState copyWith({
@@ -38,6 +44,9 @@ class ProjectState extends Equatable {
     String? search,
     String? Function()? statusFilter,
     List<String>? Function()? date,
+    int? currentPage,
+    int? lastPage,
+    bool? hasReachedMax,
   }) {
     return ProjectState(
       status: status ?? this.status,
@@ -50,6 +59,9 @@ class ProjectState extends Equatable {
       search: search ?? this.search,
       statusFilter: statusFilter != null ? statusFilter() : this.statusFilter,
       date: date != null ? date() : this.date,
+      currentPage: currentPage ?? this.currentPage,
+      lastPage: lastPage ?? this.lastPage,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
     );
   }
 
@@ -65,5 +77,8 @@ class ProjectState extends Equatable {
         search,
         statusFilter,
         date,
+        currentPage,
+        lastPage,
+        hasReachedMax,
       ];
 }

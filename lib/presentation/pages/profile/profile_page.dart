@@ -391,12 +391,7 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                  child: Icon(Icons.pin, color: AppTheme.colors.primary, size: 16),
-                ),
+                SvgPicture.asset(AppIcons.lock),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -406,7 +401,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Switch.adaptive(
                   value: isEnabled,
-                  activeTrackColor: AppTheme.colors.primary.withValues(alpha: 0.5),
+                  activeTrackColor: AppTheme.colors.primary.withValues(alpha: 0.65),
                   activeThumbColor: AppTheme.colors.primary,
                   onChanged: (value) async {
                     final pref = await SharedPrefService.initialize();

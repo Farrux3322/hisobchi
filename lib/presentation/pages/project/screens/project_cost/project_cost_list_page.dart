@@ -14,7 +14,9 @@ import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_cost/cost_type_bottom_sheet.dart';
+import 'package:hisobchi/infrastructure/dto/models/project_report/project_cost_detail_item_model.dart';
 import 'package:hisobchi/presentation/pages/project/screens/project_cost/project_cost_add_edit_page.dart';
+import 'package:hisobchi/presentation/pages/project/screens/report/project_cost_document_show_page.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:collection/collection.dart';
 import 'package:shimmer/shimmer.dart';
@@ -47,6 +49,7 @@ class ProjectCostListPage extends StatefulWidget {
 
 class _ProjectCostListPageState extends State<ProjectCostListPage> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   List<ProjectCostModel> _filteredCosts = [];
   List<ProjectCostModel> _allCosts = [];
   int? _selectedCostTypeId;
@@ -65,11 +68,32 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
     }
     _loadCosts();
     _searchController.addListener(_filterCosts);
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_isBottom) {
+      context.read<ProjectCostBloc>().add(
+            LoadMoreProjectCostsEvent(
+              projectId: widget.projectId,
+              costTypeId: _selectedCostTypeId,
+              search: _searchController.text,
+            ),
+          );
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -105,6 +129,10 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
   /// Mark that changes were made - parent should refresh when going back
   void _markAsChanged() {
     _hasChanges = true;
+  }
+
+  void _onSearch(String query) {
+    context.read<ProjectCostBloc>().add(GetProjectCostsEvent(projectId: widget.projectId, costTypeId: _selectedCostTypeId, search: query));
   }
 
   void _filterCosts() {
@@ -194,6 +222,34 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
       _markAsChanged();
       _loadCosts();
     }
+  }
+
+  void _navigateToDetails(ProjectCostModel cost) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProjectCostDocumentShowPage(
+          cost: _convertToDetailItem(cost),
+        ),
+      ),
+    );
+  }
+
+  ProjectCostDetailItemModel _convertToDetailItem(ProjectCostModel cost) {
+    return ProjectCostDetailItemModel(
+      id: cost.id,
+      costTypeId: cost.costTypeId,
+      costTypeName: cost.costTypeName,
+      workerId: cost.workerId,
+      workerName: cost.workerName,
+      currencyTypeId: cost.currencyTypeId,
+      currencyType: cost.currencyTypeName,
+      summa: double.tryParse(cost.summa ?? '0'),
+      description: cost.description,
+      files: cost.files?.map((f) => f.url ?? '').where((u) => u.isNotEmpty).toList() ?? [],
+      projectId: cost.projectId,
+      createdAt: cost.createdAt,
+    );
   }
 
   Future<void> _showDeleteDialog(ProjectCostModel cost) async {
@@ -590,10 +646,11 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
             padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
             child: SubscriptionGuard(
               child: FloatingActionButton(
-                onPressed: _navigateToAddCost,
-                backgroundColor: AppTheme.colors.primary,
-                child: SvgPicture.asset(AppIcons.projectAdd),
-              ),
+              heroTag: 'project_cost_fab',
+              onPressed: _navigateToAddCost,
+              backgroundColor: AppTheme.colors.primary,
+              child: SvgPicture.asset(AppIcons.projectAdd),
+            ),
             ),
           ),
           body: BlocConsumer<ProjectCostBloc, ProjectCostState>(
@@ -621,9 +678,12 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                   children: [
                     // Search Bar
                     Container(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                       child: TextField(
                         controller: _searchController,
+                        onChanged: (value) {
+                          _onSearch(value);
+                        },
                         decoration: InputDecoration(
                           hintText: 'Qidirish...',
                           hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
@@ -683,18 +743,26 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                           ? _buildShimmerLoading()
                           : _filteredCosts.isEmpty
                           ? _buildEmptyState()
-                          : Stack(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
-                                  child: CustomScrollView(slivers: _buildGroupedCosts()),
-                                ),
-                                if (state.statusAction == Status.loading)
-                                  Container(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    child: const Center(child: Loading()),
+                          : RefreshIndicator(
+                              onRefresh: () async {
+                                _loadCosts();
+                              },
+                              child: Stack(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(16, 0, 6, 16),
+                                    child: CustomScrollView(
+                                      controller: _scrollController,
+                                      slivers: _buildGroupedCosts(state),
+                                    ),
                                   ),
-                              ],
+                                  if (state.statusAction == Status.loading)
+                                    Container(
+                                      color: Colors.black.withValues(alpha: 0.3),
+                                      child: const Center(child: Loading()),
+                                    ),
+                                ],
+                              ),
                             ),
                     ),
                   ],
@@ -707,7 +775,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
     );
   }
 
-  List<Widget> _buildGroupedCosts() {
+  List<Widget> _buildGroupedCosts(ProjectCostState state) {
     final groupedData = groupBy<ProjectCostModel, DateTime>(_filteredCosts, (cost) {
       final parsed = _tryParseDate(cost.createdAt);
       if (parsed == null) {
@@ -716,29 +784,54 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
       return _toDateOnly(parsed);
     });
 
-    return groupedData.entries.map((entry) {
-      final dateKey = entry.key;
-      final items = entry.value;
+    final List<Widget> slivers = [];
 
-      return SliverStickyHeader(
-        header: Container(
-          height: 45.h,
-          color: AppTheme.colors.background,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          alignment: Alignment.centerLeft,
-          child: Text(
-            DateFormat('dd.MM.yyyy').format(dateKey),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF212529)),
+    groupedData.forEach((dateKey, items) {
+      slivers.add(
+        SliverStickyHeader(
+          header: Container(
+            height: 45.h,
+            color: AppTheme.colors.background,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              DateFormat('dd.MM.yyyy').format(dateKey),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF212529)),
+            ),
+          ),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final cost = items[index];
+              return Padding(padding: const EdgeInsets.only(bottom: 10), child: _buildCostCard(cost));
+            }, childCount: items.length),
           ),
         ),
-        sliver: SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
-            final cost = items[index];
-            return Padding(padding: const EdgeInsets.only(bottom: 10), child: _buildCostCard(cost));
-          }, childCount: items.length),
+      );
+    });
+
+    if (!state.hasReachedMax) {
+      slivers.add(
+        SliverToBoxAdapter(
+          child: _buildLoadMoreIndicator(),
         ),
       );
-    }).toList();
+    }
+
+    return slivers;
+  }
+
+  Widget _buildLoadMoreIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      alignment: Alignment.center,
+      child: const SizedBox(
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+        ),
+      ),
+    );
   }
 
   Widget _buildShimmerLoading() {
@@ -845,7 +938,7 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
 
     return SubscriptionGuard(
       child: GestureDetector(
-        onTap: isDeleted ? null : () => _navigateToEditCost(cost),
+        onTap: isDeleted ? null : () => _navigateToDetails(cost),
         child: Slidable(
         key: ValueKey(cost.id),
 
@@ -856,32 +949,64 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
               ? [
                   CustomSlidableAction(
                     onPressed: (context) => _showRestoreDialog(cost),
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: const Color(0xFF10B981),
+                    padding: EdgeInsets.zero,
                     child: SubscriptionGuard(
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.restore),
-                            Text("Tiklash", style: TextStyle(fontSize: 10)),
-                          ],
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981).withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.undo_rounded, size: 22.sp),
+                              Gap(4.h),
+                              Text(
+                                "Tiklash",
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                   CustomSlidableAction(
                     onPressed: (context) => _showForceDeleteDialog(cost),
-                    backgroundColor: Colors.red.shade700,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: const Color(0xFFE11D48),
+                    padding: EdgeInsets.zero,
                     child: SubscriptionGuard(
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.delete_forever),
-                            Text("Butunlay", style: TextStyle(fontSize: 10)),
-                          ],
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE11D48).withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.delete_forever_rounded, size: 22.sp),
+                              Gap(4.h),
+                              Text(
+                                "Butunlay",
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -890,32 +1015,65 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
               : [
                   CustomSlidableAction(
                     onPressed: (context) => _navigateToEditCost(cost),
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: const Color(0xFF6366F1),
+                    padding: EdgeInsets.zero,
                     child: SubscriptionGuard(
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.edit_outlined),
-                            Text("Tahrirlash", style: TextStyle(fontSize: 10)),
-                          ],
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF6366F1).withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SvgPicture.asset(AppIcons.edit, height: 22.sp, width: 22.sp),
+                              Gap(4.h),
+                              Text(
+                                "Tahrirlash",
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  color:  Colors.black54,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                   CustomSlidableAction(
                     onPressed: (context) => _showDeleteDialog(cost),
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: const Color(0xFFF43F5E),
+                    padding: EdgeInsets.zero,
                     child: SubscriptionGuard(
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.delete_outline),
-                            Text("O'chirish", style: TextStyle(fontSize: 10)),
-                          ],
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF43F5E).withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.delete_outline_rounded, size: 22.sp),
+                              Gap(4.h),
+                              Text(
+                                "O'chirish",
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -982,6 +1140,23 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                       Text(timeText, style: TextStyle(color: Colors.black54, fontSize: 12)),
                     ],
                   ),
+                  // if (!isDeleted) ...[
+                  //   const SizedBox(width: 8),
+                  //   Container(
+                  //     width: 32,
+                  //     height: 32,
+                  //     decoration: BoxDecoration(
+                  //       color: const Color(0xFFF1F5F9),
+                  //       borderRadius: BorderRadius.circular(8),
+                  //     ),
+                  //     child: IconButton(
+                  //       onPressed: () => _navigateToEditCost(cost),
+                  //       icon: const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF64748B)),
+                  //       padding: EdgeInsets.zero,
+                  //       constraints: const BoxConstraints(),
+                  //     ),
+                  //   ),
+                  // ],
                 ],
               ),
               if (isDeleted) ...[

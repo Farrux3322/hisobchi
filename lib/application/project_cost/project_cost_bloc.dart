@@ -9,6 +9,7 @@ class ProjectCostBloc extends Bloc<ProjectCostEvent, ProjectCostState> {
 
   ProjectCostBloc({required this.repository}) : super(const ProjectCostState()) {
     on<GetProjectCostsEvent>(_onGetProjectCosts);
+    on<LoadMoreProjectCostsEvent>(_onLoadMoreProjectCosts);
     on<CreateProjectCostEvent>(_onCreateProjectCost);
     on<UpdateProjectCostEvent>(_onUpdateProjectCost);
     on<DeleteProjectCostEvent>(_onDeleteProjectCost);
@@ -23,12 +24,27 @@ class ProjectCostBloc extends Bloc<ProjectCostEvent, ProjectCostState> {
     emit(state.copyWith(
       status: Status.loading,
       statusAction: Status.initial,
+      currentPage: 1,
+      hasReachedMax: false,
+      projectCosts: [],
     ));
     try {
-      final response = await repository.getProjectCosts(event.projectId, costTypeId: event.costTypeId);
+      final response = await repository.getProjectCosts(
+        event.projectId,
+        costTypeId: event.costTypeId,
+        page: 1,
+        search: event.search,
+      );
+
+      final int lastPage = response.meta?.lastPage ?? 1;
+      final int currentPage = response.meta?.currentPage ?? 1;
+
       emit(state.copyWith(
         status: Status.success,
-        projectCosts: response.result,
+        projectCosts: response.costs,
+        currentPage: currentPage,
+        lastPage: lastPage,
+        hasReachedMax: currentPage >= lastPage,
         statusAction: Status.initial,
       ));
     } catch (e) {
@@ -37,6 +53,36 @@ class ProjectCostBloc extends Bloc<ProjectCostEvent, ProjectCostState> {
         errorMessage: e.toString(),
         statusAction: Status.initial,
       ));
+    }
+  }
+
+  Future<void> _onLoadMoreProjectCosts(
+    LoadMoreProjectCostsEvent event,
+    Emitter<ProjectCostState> emit,
+  ) async {
+    if (state.hasReachedMax || state.status == Status.loading) return;
+
+    try {
+      final int nextPage = state.currentPage + 1;
+      final response = await repository.getProjectCosts(
+        event.projectId,
+        costTypeId: event.costTypeId,
+        page: nextPage,
+        search: event.search,
+      );
+
+      final int lastPage = response.meta?.lastPage ?? 1;
+      final int currentPage = response.meta?.currentPage ?? nextPage;
+
+      emit(state.copyWith(
+        status: Status.success,
+        projectCosts: List.of(state.projectCosts)..addAll(response.costs),
+        currentPage: currentPage,
+        lastPage: lastPage,
+        hasReachedMax: currentPage >= lastPage,
+      ));
+    } catch (_) {
+      // For load more, we might want to just stop trying or show a silent error
     }
   }
 

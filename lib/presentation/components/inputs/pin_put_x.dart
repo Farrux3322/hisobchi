@@ -6,9 +6,11 @@ class PintPutX extends StatelessWidget {
   const PintPutX({
     super.key,
     this.onComplete,
+    this.controller,
   });
 
   final Function(String)? onComplete;
+  final TextEditingController? controller;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +24,7 @@ class PintPutX extends StatelessWidget {
     return Pinput(
       length: 4,
       autofocus: true,
+      controller: controller,
       cursor: ColoredBox(color: AppTheme.colors.primary, child: SizedBox(width: 1.5, height: 20.h)),
       androidSmsAutofillMethod: AndroidSmsAutofillMethod.smsUserConsentApi,
       listenForMultipleSmsOnAndroid: true,

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
@@ -157,7 +158,7 @@ class _SmsSettingPageState extends State<SmsSettingPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), shape: BoxShape.circle),
-                child: const Icon(Icons.sms_rounded, color: Colors.white, size: 24),
+                child: SvgPicture.asset(AppIcons.sms,colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)),
               ),
               const Gap(16),
               Expanded(

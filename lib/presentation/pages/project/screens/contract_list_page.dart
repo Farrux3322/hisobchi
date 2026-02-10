@@ -627,10 +627,11 @@ class _ContractListPageState extends State<ContractListPage> {
         padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
         child: SubscriptionGuard(
           child: FloatingActionButton(
-            onPressed: _navigateToAddContract,
-            backgroundColor: AppTheme.colors.primary,
-            child: SvgPicture.asset(AppIcons.projectAdd),
-          ),
+          heroTag: 'contract_fab',
+          onPressed: _navigateToAddContract,
+          backgroundColor: AppTheme.colors.primary,
+          child: SvgPicture.asset(AppIcons.projectAdd),
+        ),
         ),
       ),
 

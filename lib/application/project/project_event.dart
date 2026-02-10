@@ -27,6 +27,21 @@ class GetAllProjectEvent extends ProjectEvent {
   List<Object?> get props => [search, status, date, updateSearch, updateFilters];
 }
 
+class LoadMoreProjectsEvent extends ProjectEvent {
+  final String? search;
+  final String? status;
+  final List<String>? date;
+
+  const LoadMoreProjectsEvent({
+    this.search,
+    this.status,
+    this.date,
+  });
+
+  @override
+  List<Object?> get props => [search, status, date];
+}
+
 class GetProjectByIdEvent extends ProjectEvent {
   final int id;
 

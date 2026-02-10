@@ -23,16 +23,39 @@ class ProjectListPage extends StatefulWidget {
 
 class _ProjectListPageState extends State<ProjectListPage> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     context.read<ProjectBloc>().add(const GetAllProjectEvent());
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_isBottom) {
+      final state = context.read<ProjectBloc>().state;
+      context.read<ProjectBloc>().add(
+            LoadMoreProjectsEvent(
+              search: state.search,
+              status: state.statusFilter,
+              date: state.date,
+            ),
+          );
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -79,6 +102,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
               ),
               floatingActionButton: SubscriptionGuard(
                 child: FloatingActionButton(
+                  heroTag: 'project_fab',
                   onPressed: () {
                     context.pushNamed(Routes.projectAddPage.name);
                   },
@@ -113,9 +137,13 @@ class _ProjectListPageState extends State<ProjectListPage> {
         context.read<ProjectBloc>().add(const GetAllProjectEvent());
       },
       child: ListView.builder(
+        controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: projects.length,
+        itemCount: state.hasReachedMax ? projects.length : projects.length + 1,
         itemBuilder: (context, index) {
+          if (index >= projects.length) {
+            return _buildLoadMoreIndicator();
+          }
           final project = projects[index];
           return ProjectCardItem(
             projectModel: project,
@@ -127,6 +155,21 @@ class _ProjectListPageState extends State<ProjectListPage> {
             },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildLoadMoreIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      alignment: Alignment.center,
+      child: SizedBox(
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary.withOpacity(0.5)),
+        ),
       ),
     );
   }

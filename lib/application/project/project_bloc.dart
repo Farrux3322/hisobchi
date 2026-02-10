@@ -13,6 +13,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
 
   ProjectBloc() : super(ProjectState()) {
     on<GetAllProjectEvent>(getAll);
+    on<LoadMoreProjectsEvent>(loadMore);
     on<GetProjectByIdEvent>(getById);
     on<CreateProjectEvent>(create);
     on<UpdateProjectEvent>(update);
@@ -33,6 +34,9 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       search: search,
       statusFilter: event.updateFilters ? () => event.status : null,
       date: event.updateFilters ? () => event.date : null,
+      currentPage: 1,
+      hasReachedMax: false,
+      models: [],
     ));
 
     try {
@@ -41,12 +45,24 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       if (statusFilter != null && statusFilter.isNotEmpty) params['status'] = statusFilter;
       if (date != null && date.isNotEmpty) params['date[]'] = date;
 
-      final data = await _repo.get(params: params);
+      final data = await _repo.get(params: params, page: 1);
 
       if (data["status"] == true) {
-        List<ProjectModel> model = [];
-        model = data["result"].map<ProjectModel>((element) => ProjectModel.fromJson(element)).toList();
-        emit(state.copyWith(status: Status.success, models: model));
+        final result = data["result"];
+        final List<dynamic> dataList = result["data"] ?? [];
+        final List<ProjectModel> models = dataList.map((element) => ProjectModel.fromJson(element)).toList();
+        
+        final meta = result["meta"];
+        final int lastPage = meta?["last_page"] ?? 1;
+        final int currentPage = meta?["current_page"] ?? 1;
+
+        emit(state.copyWith(
+          status: Status.success, 
+          models: models,
+          currentPage: currentPage,
+          lastPage: lastPage,
+          hasReachedMax: currentPage >= lastPage,
+        ));
       } else {
         emit(state.copyWith(status: Status.error, errorMessage: data["error"].toString()));
       }
@@ -54,6 +70,41 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       emit(state.copyWith(status: Status.error, errorMessage: e.toString()));
     } catch (e) {
       emit(state.copyWith(status: Status.error, errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> loadMore(LoadMoreProjectsEvent event, Emitter<ProjectState> emit) async {
+    if (state.hasReachedMax || state.status == Status.loading) return;
+
+    try {
+      final int nextPage = state.currentPage + 1;
+      
+      final Map<String, dynamic> params = {};
+      if (state.search != null && state.search!.isNotEmpty) params['search'] = state.search;
+      if (state.statusFilter != null && state.statusFilter!.isNotEmpty) params['status'] = state.statusFilter;
+      if (state.date != null && state.date!.isNotEmpty) params['date[]'] = state.date;
+
+      final data = await _repo.get(params: params, page: nextPage);
+
+      if (data["status"] == true) {
+        final result = data["result"];
+        final List<dynamic> dataList = result["data"] ?? [];
+        final List<ProjectModel> newModels = dataList.map((element) => ProjectModel.fromJson(element)).toList();
+        
+        final meta = result["meta"];
+        final int lastPage = meta?["last_page"] ?? 1;
+        final int currentPage = meta?["current_page"] ?? nextPage;
+
+        emit(state.copyWith(
+          status: Status.success,
+          models: List.of(state.models)..addAll(newModels),
+          currentPage: currentPage,
+          lastPage: lastPage,
+          hasReachedMax: currentPage >= lastPage,
+        ));
+      }
+    } catch (_) {
+      // For load more, we might want to just stop trying or show a silent error
     }
   }
 
@@ -83,7 +134,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
       if (data["status"] == true) {
         emit(state.copyWith(statusAdd: Status.success));
       } else {
-        emit(state.copyWith(statusAdd: Status.error, errorMessage: data["error"].toString()));
+        emit(state.copyWith(statusAdd: Status.error, errorMessage: data["error"]?['message'].toString()));
       }
     } on DioException catch (e) {
       emit(state.copyWith(statusAdd: Status.error, errorMessage: e.toString()));

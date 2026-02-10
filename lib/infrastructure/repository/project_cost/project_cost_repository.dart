@@ -11,18 +11,22 @@ class ProjectCostRepository {
   }
 
   // Get project costs
-  Future<ProjectCostListResponse> getProjectCosts(int projectId, {int? costTypeId}) async {
+  Future<ProjectCostListResponse> getProjectCosts(int projectId, {int? costTypeId, int? page, String search = ''}) async {
     try {
-      final data = {
+      final Map<String, dynamic> params = {
         'project_id': projectId,
-        'search': '',
+        'search': search,
       };
 
       if (costTypeId != null) {
-        data['cost_type_id'] = costTypeId;
+        params['cost_type_id'] = costTypeId;
       }
 
-      final response = await dio.get('/project/project-costs', data: data);
+      if (page != null) {
+        params['page'] = page;
+      }
+
+      final response = await dio.get('/project/project-costs', queryParameters: params);
 
       if (response.statusCode == 200) {
         return ProjectCostListResponse.fromJson(response.data);

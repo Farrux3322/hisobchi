@@ -26,6 +26,25 @@ class GetAllEvent extends PartnerEvent {
   List<Object?> get props => [startDate, endDate, search, sort, statusFilter];
 }
 
+class LoadMorePartnersEvent extends PartnerEvent {
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String? search;
+  final String? sort;
+  final String? statusFilter;
+
+  const LoadMorePartnersEvent({
+    this.startDate,
+    this.endDate,
+    this.search,
+    this.sort,
+    this.statusFilter,
+  });
+
+  @override
+  List<Object?> get props => [startDate, endDate, search, sort, statusFilter];
+}
+
 class ShowEvent extends PartnerEvent {
   final String guid;
 

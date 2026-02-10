@@ -7,6 +7,7 @@ class PartnerRepository {
     String? search,
     String? sort,
     String? statusFilter,
+    int? page,
   }) async {
     final Map<String, dynamic> params = {};
 
@@ -24,6 +25,9 @@ class PartnerRepository {
     }
     if (statusFilter != null && statusFilter.isNotEmpty) {
       params['status_filter'] = statusFilter;
+    }
+    if (page != null) {
+      params['page'] = page;
     }
 
     final response = await dio.get(

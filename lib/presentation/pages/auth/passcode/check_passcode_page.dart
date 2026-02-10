@@ -153,7 +153,7 @@ class _CheckPasscodePageState extends State<CheckPasscodePage> with TickerProvid
                                   style: TextStyle(
                                     fontSize: 24.sp,
                                     fontWeight: FontWeight.w700,
-                                    color: state.isIncorrectPasscode ? AppTheme.colors.red : AppTheme.colors.black,
+                                    color: state.isIncorrectPasscode ? AppTheme.colors.red : const Color(0xFF1E293B),
                                   ),
                                 ),
                                 Gap(8.h),
@@ -167,7 +167,7 @@ class _CheckPasscodePageState extends State<CheckPasscodePage> with TickerProvid
                                     fontWeight: FontWeight.w400,
                                     color: state.isIncorrectPasscode
                                         ? AppTheme.colors.red.withValues(alpha: 0.7)
-                                        : AppTheme.colors.gray,
+                                        : const Color(0xFF64748B),
                                   ),
                                 ),
                               ],

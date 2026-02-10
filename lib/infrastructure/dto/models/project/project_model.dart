@@ -132,3 +132,46 @@ class CurrencyAmount {
     return data;
   }
 }
+
+class PaginationLinks {
+  String? first;
+  String? last;
+  String? prev;
+  String? next;
+
+  PaginationLinks({this.first, this.last, this.prev, this.next});
+
+  PaginationLinks.fromJson(Map<String, dynamic> json) {
+    first = json['first'];
+    last = json['last'];
+    prev = json['prev'];
+    next = json['next'];
+  }
+}
+
+class PaginationMeta {
+  int? currentPage;
+  String? currentPageUrl;
+  int? from;
+  String? path;
+  int? perPage;
+  int? to;
+
+  PaginationMeta({
+    this.currentPage,
+    this.currentPageUrl,
+    this.from,
+    this.path,
+    this.perPage,
+    this.to,
+  });
+
+  PaginationMeta.fromJson(Map<String, dynamic> json) {
+    currentPage = json['current_page'];
+    currentPageUrl = json['current_page_url'];
+    from = json['from'];
+    path = json['path'];
+    perPage = json['per_page'];
+    to = json['to'];
+  }
+}

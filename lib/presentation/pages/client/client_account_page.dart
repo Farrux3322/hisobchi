@@ -10,7 +10,6 @@ import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import 'package:hisobchi/presentation/components/utils/phone_formatter.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
@@ -35,6 +34,13 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _hasChanges = false;
+
+  void _markAsChanged() {
+    if (!_hasChanges) {
+      setState(() => _hasChanges = true);
+    }
+  }
 
   @override
   void initState() {
@@ -71,350 +77,374 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     const double horizontalPadding = 16;
-    return BlocConsumer<PartnerBloc, PartnerState>(
-      listener: (context, state) {
-        if (state.statusAdd == Status.success) {
-          context.pop(true);
-        }
-        if (state.statusKirim == Status.success) {
-          context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
-        }
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        Navigator.pop(context, _hasChanges);
       },
-      builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: AppTheme.colors.white,
-            elevation: 0,
-            leading: BackArrowButton(),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.settings, color: AppTheme.colors.primary),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SmsSettingPage(partnerId: widget.partnerModel.id ?? 0),
-                    ),
-                  );
-                },
-              ),
-              Gap(10.w),
-            ],
-            title: Text('Hisob-kitob',
-              style: TextStyle(color: Color(0xFF1E293B),
-                  fontSize: 18, fontWeight: FontWeight.w800),            ),
-          ),
-          body: RefreshIndicator(
-            onRefresh: () async {
-              context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
-            },
-            child: SingleChildScrollView(
-              // physics: NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
-              child: Column(
-                children: [
-                  // Profile card
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
+      child: BlocConsumer<PartnerBloc, PartnerState>(
+        listener: (context, state) {
+          if (state.statusAdd == Status.success) {
+            context.pop(true);
+          }
+          if (state.statusKirim == Status.success) {
+            _markAsChanged();
+            context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
+          }
+        },
+        builder: (context, state) {
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: AppTheme.colors.white,
+              elevation: 0,
+              leading: Center(
+                child: InkWell(
+                  onTap: () => Navigator.pop(context, _hasChanges),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                if ((widget.partnerModel.files ?? []).isNotEmpty) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ImageViewerPage(images: widget.partnerModel.files!.map((e) => ImageItem(path: e.url ?? '', isNetwork: true)).toList(), initialIndex: 0),
+                    child: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 18),
+                  ),
+                ),
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.settings, color: AppTheme.colors.primary),
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => SmsSettingPage(partnerId: widget.partnerModel.id ?? 0))).then((v) {
+                      if (v == true && context.mounted) {
+                        _markAsChanged();
+                      }
+                    });
+                  },
+                ),
+                Gap(10.w),
+              ],
+              title: Text(
+                'Hisob-kitob',
+                style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w800),
+              ),
+            ),
+            body: RefreshIndicator(
+              onRefresh: () async {
+                context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
+              },
+              child: SingleChildScrollView(
+                // physics: NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
+                child: Column(
+                  children: [
+                    // Profile card
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  if ((widget.partnerModel.files ?? []).isNotEmpty) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ImageViewerPage(images: widget.partnerModel.files!.map((e) => ImageItem(path: e.url ?? '', isNetwork: true)).toList(), initialIndex: 0),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: Hero(
+                                  tag: (widget.partnerModel.files ?? []).isNotEmpty ? widget.partnerModel.files!.first.url ?? '' : 'profile_image',
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    child: CachedNetworkImage(
+                                      imageUrl: (widget.partnerModel.files ?? []).isNotEmpty
+                                          ? widget.partnerModel.files?.first.url ?? ''
+                                          : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEM7h-3_xucDg6PXVOyOxh9QOnMkS0dvydRA&s',
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) => CupertinoActivityIndicator(),
+                                      errorWidget: (context, url, error) => Icon(Icons.error),
                                     ),
-                                  );
-                                }
-                              },
-                              child: Hero(
-                                tag: (widget.partnerModel.files ?? []).isNotEmpty ? widget.partnerModel.files!.first.url ?? '' : 'profile_image',
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.r),
-                                  child: CachedNetworkImage(
-                                    imageUrl: (widget.partnerModel.files ?? []).isNotEmpty
-                                        ? widget.partnerModel.files?.first.url ?? ''
-                                        : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEM7h-3_xucDg6PXVOyOxh9QOnMkS0dvydRA&s',
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) => CupertinoActivityIndicator(),
-                                    errorWidget: (context, url, error) => Icon(Icons.error),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(widget.partnerModel.name ?? 'Noma\'lum', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                    const SizedBox(height: 4),
+                                    Text(PhoneFormatter.formatPhoneNumber(widget.partnerModel.phone ?? ''), style: const TextStyle(fontSize: 13, color: Colors.grey)),
+                                  ],
+                                ),
+                              ),
+                              // edit and delete icons
+                              Row(
                                 children: [
-                                  Text(widget.partnerModel.name ?? 'Noma\'lum', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                                  const SizedBox(height: 4),
-                                  Text(PhoneFormatter.formatPhoneNumber(widget.partnerModel.phone ?? ''), style: const TextStyle(fontSize: 13, color: Colors.grey)),
-                                ],
-                              ),
-                            ),
-                            // edit and delete icons
-                            Row(
-                              children: [
-                                SubscriptionGuard(
-                                  child: IconButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => MultiBlocProvider(
-                                            providers: [
-                                              BlocProvider(create: (context) => FileUploadBloc(repository: FileUploadRepository())),
-                                              // We don't need to provide PartnerBloc here as it's already in the context
-                                            ],
-                                            child: ClientEditPage(partnerModel: widget.partnerModel),
+                                  SubscriptionGuard(
+                                    child: IconButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => MultiBlocProvider(
+                                              providers: [
+                                                BlocProvider(create: (context) => FileUploadBloc(repository: FileUploadRepository())),
+                                                // We don't need to provide PartnerBloc here as it's already in the context
+                                              ],
+                                              child: ClientEditPage(partnerModel: widget.partnerModel),
+                                            ),
                                           ),
-                                        ),
-                                      ).then((v) {
-                                        if (v == true && context.mounted) {
-                                          // Refresh partner data if needed
-                                          // The parent screen (ClientPage) will also refresh when we pop back to it
-                                          // But we can also refresh the current data here
-                                          context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
-                                        }
-                                      });
-                                    },
-                                    icon: SvgPicture.asset(AppIcons.edit),
+                                        ).then((v) {
+                                          if (v == true && context.mounted) {
+                                            _markAsChanged();
+                                            // Refresh partner data if needed
+                                            context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
+                                          }
+                                        });
+                                      },
+                                      icon: SvgPicture.asset(AppIcons.edit),
+                                    ),
                                   ),
-                                ),
-                                if (widget.partnerModel.deletedAt != null)
+                                  if (widget.partnerModel.deletedAt != null)
+                                    SubscriptionGuard(
+                                      child: IconButton(
+                                        onPressed: () {
+                                          showDeleteDialog(
+                                            context,
+                                            isDelete: false,
+                                            onConfirm: () {
+                                              context.read<PartnerBloc>().add(RestoreEvent(id: widget.partnerModel.id ?? 0));
+                                              _markAsChanged();
+                                            },
+                                          );
+                                        },
+                                        icon: Icon(Icons.restore, color: AppTheme.colors.color9E97FF),
+                                      ),
+                                    ),
                                   SubscriptionGuard(
                                     child: IconButton(
                                       onPressed: () {
                                         showDeleteDialog(
                                           context,
-                                          isDelete: false,
+                                          isDelete: true,
                                           onConfirm: () {
-                                            context.read<PartnerBloc>().add(RestoreEvent(id: widget.partnerModel.id ?? 0));
+                                            if (widget.partnerModel.deletedAt == null) {
+                                              context.read<PartnerBloc>().add(DeleteEvent(id: widget.partnerModel.id ?? 0));
+                                            } else {
+                                              context.read<PartnerBloc>().add(ForceDeleteEvent(id: widget.partnerModel.id ?? 0));
+                                            }
+                                            _markAsChanged();
                                           },
                                         );
                                       },
-                                      icon: Icon(Icons.restore, color: AppTheme.colors.color9E97FF),
+                                      icon: SvgPicture.asset(AppIcons.delete),
                                     ),
                                   ),
-                                SubscriptionGuard(
-                                  child: IconButton(
-                                    onPressed: () {
-                                      showDeleteDialog(
-                                        context,
-                                        isDelete: true,
-                                        onConfirm: () {
-                                          if (widget.partnerModel.deletedAt == null) {
-                                            context.read<PartnerBloc>().add(DeleteEvent(id: widget.partnerModel.id ?? 0));
-                                          } else {
-                                            context.read<PartnerBloc>().add(ForceDeleteEvent(id: widget.partnerModel.id ?? 0));
-                                          }
-                                        },
-                                      );
-                                    },
-                                    icon: SvgPicture.asset(AppIcons.delete),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                ],
+                              ),
+                            ],
+                          ),
 
-                        const SizedBox(height: 12),
+                          const SizedBox(height: 12),
 
-                        // small action row (Hisobot + icons)
-                        Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (_) => ReportClientShowPage(partnerModel: widget.partnerModel)));
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.colors.white,
-                                    border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
-                                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SvgPicture.asset(AppIcons.report),
-                                      SizedBox(width: 10),
-                                      Text('Hisobot', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15)),
-                                    ],
+                          // small action row (Hisobot + icons)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => ReportClientShowPage(partnerModel: widget.partnerModel)));
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.colors.white,
+                                      border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
+                                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        SvgPicture.asset(AppIcons.report),
+                                        SizedBox(width: 10),
+                                        Text('Hisobot', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15)),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            _iconButton(
-                              AppIcons.phoneSms,
-                              onTap: () async {
-                                try {
-                                  await launchSms(widget.partnerModel.phone ?? '');
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xato: $e')));
-                                }
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            _iconButton(
-                              AppIcons.phone,
-                              onTap: () async {
-                                try {
-                                  await launchPhone(widget.partnerModel.phone ?? '');
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xato: $e')));
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Currency TabBar - Professional Design
-                  Container(
-                    padding: EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
-
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-
-                    child: TabBar(
-                      controller: _tabController,
-                      indicator: BoxDecoration(
-                        color: AppTheme.colors.primary,
-                        borderRadius: BorderRadius.circular(12.r),
-                        boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
-                      ),
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      dividerColor: Colors.transparent,
-                      labelColor: AppTheme.colors.white,
-                      unselectedLabelColor: const Color(0xFF64748B),
-                      labelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
-                      unselectedLabelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500),
-                      indicatorPadding: EdgeInsets.all(4.w),
-                      tabs: const [
-                        Tab(child: Text('UZS Hisob')),
-                        Tab(child: Text('USD Hisob')),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // TabBarView with Currency Data
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final screenHeight = MediaQuery.of(context).size.height;
-                      final availableHeight = screenHeight * 0.37; // Responsive height
-
-                      return Container(
-                        width: double.infinity,
-                        height: availableHeight.clamp(300, 500), // Min 300, Max 500
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
-                          child: state.statusIncomeStatement == Status.success
-                              ? TabBarView(
-                                  controller: _tabController,
-                                  children: [
-                                    // UZS Tab Content
-                                    _buildCurrencyContent(
-                                      state: state,
-                                      debt: state.incomeStatementModel?.result?.uzsAccount?.debt ?? 0,
-                                      credit: state.incomeStatementModel?.result?.uzsAccount?.credit ?? 0,
-                                      balance: state.incomeStatementModel?.result?.uzsAccount?.balance ?? 0,
-                                      currencySymbol: 'UZS',
-                                      currencyId: 1,
-                                    ),
-                                    // USD Tab Content
-                                    _buildCurrencyContent(
-                                      state: state,
-                                      debt: state.incomeStatementModel?.result?.usdAccount?.debt ?? 0,
-                                      credit: state.incomeStatementModel?.result?.usdAccount?.credit ?? 0,
-                                      balance: state.incomeStatementModel?.result?.usdAccount?.balance ?? 0,
-                                      currencySymbol: 'USD',
-                                      currencyId: 2,
-                                    ),
-                                  ],
-                                )
-                              : _buildShimmerCards(),
-                        ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  // Bottom action outlined button
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BlocProvider.value(
-                              value: context.read<PartnerBloc>(),
-                              child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0,partnerPhone: widget.partnerModel.phone,),
-                            ),
+                              const SizedBox(width: 8),
+                              _iconButton(
+                                AppIcons.phoneSms,
+                                onTap: () async {
+                                  try {
+                                    await launchSms(widget.partnerModel.phone ?? '');
+                                  } catch (e) {
+                                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xato: $e')));
+                                  }
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              _iconButton(
+                                AppIcons.phone,
+                                onTap: () async {
+                                  try {
+                                    await launchPhone(widget.partnerModel.phone ?? '');
+                                  } catch (e) {
+                                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xato: $e')));
+                                  }
+                                },
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        side: BorderSide(color: AppTheme.colors.primary, width: .5),
-                        backgroundColor: AppTheme.colors.white,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Kirim-chiqim tarixlari',
-                            style: TextStyle(color: AppTheme.colors.primary, fontSize: 16, fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(width: 8),
-                          Icon(Icons.arrow_forward, color: AppTheme.colors.primary),
                         ],
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 28),
-                  SizedBox(height: MediaQuery.of(context).padding.bottom),
-                ],
+                    const SizedBox(height: 12),
+
+                    // Currency TabBar - Professional Design
+                    Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+
+                      child: TabBar(
+                        controller: _tabController,
+                        indicator: BoxDecoration(
+                          color: AppTheme.colors.primary,
+                          borderRadius: BorderRadius.circular(12.r),
+                          boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
+                        ),
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        dividerColor: Colors.transparent,
+                        labelColor: AppTheme.colors.white,
+                        unselectedLabelColor: const Color(0xFF64748B),
+                        labelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
+                        unselectedLabelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500),
+                        indicatorPadding: EdgeInsets.all(4.w),
+                        tabs: const [
+                          Tab(child: Text('UZS Hisob')),
+                          Tab(child: Text('USD Hisob')),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // TabBarView with Currency Data
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final screenHeight = MediaQuery.of(context).size.height;
+                        final availableHeight = screenHeight * 0.37; // Responsive height
+
+                        return Container(
+                          width: double.infinity,
+                          height: availableHeight.clamp(300, 500), // Min 300, Max 500
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
+                            child: state.statusIncomeStatement == Status.success
+                                ? TabBarView(
+                                    controller: _tabController,
+                                    children: [
+                                      // UZS Tab Content
+                                      _buildCurrencyContent(
+                                        state: state,
+                                        debt: state.incomeStatementModel?.result?.uzsAccount?.debt ?? 0,
+                                        credit: state.incomeStatementModel?.result?.uzsAccount?.credit ?? 0,
+                                        balance: state.incomeStatementModel?.result?.uzsAccount?.balance ?? 0,
+                                        currencySymbol: 'UZS',
+                                        currencyId: 1,
+                                      ),
+                                      // USD Tab Content
+                                      _buildCurrencyContent(
+                                        state: state,
+                                        debt: state.incomeStatementModel?.result?.usdAccount?.debt ?? 0,
+                                        credit: state.incomeStatementModel?.result?.usdAccount?.credit ?? 0,
+                                        balance: state.incomeStatementModel?.result?.usdAccount?.balance ?? 0,
+                                        currencySymbol: 'USD',
+                                        currencyId: 2,
+                                      ),
+                                    ],
+                                  )
+                                : _buildShimmerCards(),
+                          ),
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // Bottom action outlined button
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BlocProvider.value(
+                                value: context.read<PartnerBloc>(),
+                                child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0, partnerPhone: widget.partnerModel.phone),
+                              ),
+                            ),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          side: BorderSide(color: AppTheme.colors.primary, width: .5),
+                          backgroundColor: AppTheme.colors.white,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Kirim-chiqim tarixlari',
+                              style: TextStyle(color: AppTheme.colors.primary, fontSize: 16, fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(Icons.arrow_forward, color: AppTheme.colors.primary),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 28),
+                    SizedBox(height: MediaQuery.of(context).padding.bottom),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -878,7 +908,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       MaterialPageRoute(
         builder: (_) => BlocProvider.value(
           value: context.read<PartnerBloc>(),
-          child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0, initialType: type, initialCurrencyId: currencyId,partnerPhone: widget.partnerModel.phone,),
+          child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0, initialType: type, initialCurrencyId: currencyId, partnerPhone: widget.partnerModel.phone),
         ),
       ),
     );

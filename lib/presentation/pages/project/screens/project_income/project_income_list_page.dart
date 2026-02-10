@@ -41,6 +41,7 @@ class ProjectIncomeListPage extends StatefulWidget {
 
 class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   List<ProjectIncomeModel> _filteredCosts = [];
   List<ProjectIncomeModel> _allCosts = [];
 
@@ -52,11 +53,32 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
     super.initState();
     _loadCosts();
     _searchController.addListener(_filterCosts);
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_isBottom) {
+      final state = context.read<ProjectIncomeBloc>().state;
+      context.read<ProjectIncomeBloc>().add(
+            LoadMoreProjectIncomesEvent(
+              projectId: widget.projectId,
+              search: _searchController.text,
+            ),
+          );
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -67,6 +89,10 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
   /// Mark that changes were made - parent should refresh when going back
   void _markAsChanged() {
     _hasChanges = true;
+  }
+
+  void _onSearch(String query) {
+    context.read<ProjectIncomeBloc>().add(GetProjectIncomesEvent(projectId: widget.projectId, search: query));
   }
 
   void _filterCosts() {
@@ -474,10 +500,11 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
             padding:  EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
             child: SubscriptionGuard(
               child: FloatingActionButton(
-                onPressed: _navigateToAddCost,
-                backgroundColor: AppTheme.colors.primary,
-                child: SvgPicture.asset(AppIcons.projectAdd),
-              ),
+              heroTag: 'project_income_fab',
+              onPressed: _navigateToAddCost,
+              backgroundColor: AppTheme.colors.primary,
+              child: SvgPicture.asset(AppIcons.projectAdd),
+            ),
             ),
           ),
 
@@ -527,6 +554,9 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                       child: TextField(
                         controller: _searchController,
+                        onChanged: (value) {
+                          _onSearch(value);
+                        },
                         decoration: InputDecoration(
                           hintText: 'Qidirish...',
                           hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
@@ -559,14 +589,22 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
                           ? _buildShimmerLoading()
                           : _filteredCosts.isEmpty
                           ? _buildEmptyState()
-                          : Stack(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(16, 0, 6, 0),
-                                  child: CustomScrollView(slivers: _buildGroupedCosts()),
-                                ),
-                                if (state.statusAction == Status.loading) const Center(child: Loading()),
-                              ],
+                          : RefreshIndicator(
+                              onRefresh: () async {
+                                _loadCosts();
+                              },
+                              child: Stack(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(16, 0, 6, 0),
+                                    child: CustomScrollView(
+                                      controller: _scrollController,
+                                      slivers: _buildGroupedCosts(state),
+                                    ),
+                                  ),
+                                  if (state.statusAction == Status.loading) const Center(child: Loading()),
+                                ],
+                              ),
                             ),
                     ),
                   ],
@@ -579,7 +617,7 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
     );
   }
 
-  List<Widget> _buildGroupedCosts() {
+  List<Widget> _buildGroupedCosts(ProjectIncomeState state) {
     final groupedData = groupBy<ProjectIncomeModel, DateTime>(_filteredCosts, (cost) {
       final parsed = _tryParseDate(cost.createdAt);
       if (parsed == null) {
@@ -588,29 +626,54 @@ class _ProjectIncomeListPageState extends State<ProjectIncomeListPage> {
       return _toDateOnly(parsed);
     });
 
-    return groupedData.entries.map((entry) {
-      final dateKey = entry.key;
-      final items = entry.value;
+    final List<Widget> slivers = [];
 
-      return SliverStickyHeader(
-        header: Container(
-          height: 40,
-          color: AppTheme.colors.background,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          alignment: Alignment.centerLeft,
-          child: Text(
-            DateFormat('dd.MM.yyyy').format(dateKey),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF212529)),
+    groupedData.forEach((dateKey, items) {
+      slivers.add(
+        SliverStickyHeader(
+          header: Container(
+            height: 40,
+            color: AppTheme.colors.background,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              DateFormat('dd.MM.yyyy').format(dateKey),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF212529)),
+            ),
+          ),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final cost = items[index];
+              return Padding(padding: const EdgeInsets.only(bottom: 10), child: _buildCostCard(cost));
+            }, childCount: items.length),
           ),
         ),
-        sliver: SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
-            final cost = items[index];
-            return Padding(padding: const EdgeInsets.only(bottom: 10), child: _buildCostCard(cost));
-          }, childCount: items.length),
+      );
+    });
+
+    if (!state.hasReachedMax) {
+      slivers.add(
+        SliverToBoxAdapter(
+          child: _buildLoadMoreIndicator(),
         ),
       );
-    }).toList();
+    }
+
+    return slivers;
+  }
+
+  Widget _buildLoadMoreIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      alignment: Alignment.center,
+      child: const SizedBox(
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+        ),
+      ),
+    );
   }
 
   Widget _buildCostCard(ProjectIncomeModel cost) {

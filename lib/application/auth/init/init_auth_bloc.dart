@@ -14,6 +14,7 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
     on<VerifyNumber>(_verifyNumber);
     on<SignInEvent>(_signIn);
     on<SendOtpEvent>(_sendOtp);
+    on<VerifyOtpEvent>(_verifyOtp);
     on<ResetSendOtpEvent>(_optResetPassword);
     on<RegisterEvent>(_signConfrimation);
     on<ResetAuthEvent>((event, emit) {
@@ -25,7 +26,7 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
   }
 
   final _repo = AuthRepository();
-  String phone = '', password = '',name = '';
+  String phone = '', password = '', name = '', verifyToken = '';
   Future<void> _verifyNumber(
     VerifyNumber event,
     Emitter<InitAuthState> emit,
@@ -123,6 +124,25 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
     }
   }
 
+  Future<void> _verifyOtp(
+    VerifyOtpEvent event,
+    Emitter<InitAuthState> emit,
+  ) async {
+    try {
+      emit(OtpLoading());
+      final data = await _repo.verifyOtp(phone: phone, otpCode: event.otp);
+      if (data['status'] == true) {
+        verifyToken = data['result']['verify_token'] ?? '';
+        // After successful verification, we automatically trigger registration
+        add(RegisterEvent(otp: event.otp));
+      } else {
+        emit(OtpFailed(error: data['error']?['message']));
+      }
+    } catch (e) {
+      emit(OtpFailed(error: e.toString()));
+    }
+  }
+
   Future<void> _optResetPassword(
     ResetSendOtpEvent event,
     Emitter<InitAuthState> emit,
@@ -187,7 +207,7 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
         phone: phone,
         name: name,
         password: password,
-        otp: event.otp,
+        verifyToken: verifyToken,
       );
       if(data['status']==true){
         final String token = data['result']?['token'] ?? '';

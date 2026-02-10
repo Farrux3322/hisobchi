@@ -8,6 +8,10 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:hisobchi/infrastructure/repository/auth/auth_repository.dart';
 import 'package:pinput/pinput.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hisobchi/presentation/routes/entity/routes.dart';
+import 'package:hisobchi/presentation/routes/coordinator.dart';
+import '../widgets/delete_account_dialog.dart';
 
 import '../../../assets/asset_index.dart';
 
@@ -167,6 +171,46 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     }
   }
 
+  Future<void> _handleDeleteAccount() async {
+    showDialog(
+      context: context,
+      builder: (context) => DeleteAccountDialog(
+        onConfirm: () async {
+          try {
+            final res = await _repo.deleteAccount();
+            if (res['status'] != true) {
+              final error = res['error'];
+              String? message;
+              if (error is Map) message = error['message']?.toString();
+              throw message ?? 'Akkauntni o\'chirib bo\'lmadi';
+            }
+
+            // Clear all data
+            final pref = await SharedPrefService.initialize();
+            pref.clear(); // Clear SharedPreferences
+            UserData.reset(); // Clear UserData in-memory
+            setPasscodeVerified(false); // Reset session passcode status
+
+            if (context.mounted) {
+              Navigator.pop(context); // Close dialog
+              context.go(Routes.signIn.path); // Navigate to Sign-In
+              showToast(
+                'Akkaunt muvaffaqiyatli o\'chirildi',
+                backgroundColor: const Color(0xFF10B981),
+                position: ToastPosition.bottom,
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              Navigator.pop(context); // Close dialog
+              _showError(e);
+            }
+          }
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -254,6 +298,8 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                   ),
                   const Gap(20),
                   _buildSubmitButton(),
+                  const Gap(24),
+                  _buildDeleteAccountButton(),
                   const Gap(80),
                 ],
               ),
@@ -379,6 +425,31 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
         child: _isLoading
             ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
             : const Text('Saqlash', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+      ),
+    );
+  }
+
+  Widget _buildDeleteAccountButton() {
+    return TextButton(
+      onPressed: _isLoading ? null : _handleDeleteAccount,
+      style: TextButton.styleFrom(
+        foregroundColor: const Color(0xFFEF4444),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: Color(0xFFEF4444), width: 1),
+        ),
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.person_remove_rounded, size: 20),
+          Gap(8),
+          Text(
+            'Akkauntni o\'chirish',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+        ],
       ),
     );
   }

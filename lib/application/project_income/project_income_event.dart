@@ -9,11 +9,22 @@ abstract class ProjectIncomeEvent extends Equatable {
 
 class GetProjectIncomesEvent extends ProjectIncomeEvent {
   final int projectId;
+  final String search;
 
-  const GetProjectIncomesEvent({required this.projectId});
+  const GetProjectIncomesEvent({required this.projectId, this.search = ''});
 
   @override
-  List<Object?> get props => [projectId];
+  List<Object?> get props => [projectId, search];
+}
+
+class LoadMoreProjectIncomesEvent extends ProjectIncomeEvent {
+  final int projectId;
+  final String search;
+
+  const LoadMoreProjectIncomesEvent({required this.projectId, this.search = ''});
+
+  @override
+  List<Object?> get props => [projectId, search];
 }
 
 class CreateProjectIncomeEvent extends ProjectIncomeEvent {

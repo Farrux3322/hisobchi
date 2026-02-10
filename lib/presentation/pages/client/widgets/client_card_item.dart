@@ -1,9 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/utils/phone_formatter.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ClientCardItem extends StatelessWidget {
   final PartnerModel? partnerModel;
@@ -52,7 +53,7 @@ class ClientCardItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withOpacity(0.04),
+            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -98,8 +99,25 @@ class ClientCardItem extends StatelessWidget {
                           width: 48.w,
                           height: 48.w,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => const CupertinoActivityIndicator(),
-                          errorWidget: (context, url, error) => const Icon(Icons.person, color: Colors.grey),
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: const Color(0xFFF1F5F9),
+                            highlightColor: Colors.white,
+                            child: Container(
+                              width: 48.w,
+                              height: 48.w,
+                              color: Colors.white,
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 48.w,
+                            height: 48.w,
+                            color: const Color(0xFFF1F5F9),
+                            child: Icon(
+                              Icons.person_rounded,
+                              color: const Color(0xFFCBD5E1),
+                              size: 24.sp,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -113,8 +131,8 @@ class ClientCardItem extends StatelessWidget {
                           Text(
                             partnerModel?.name ?? 'Noma\'lum',
                             style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w600,
                               color: const Color(0xFF1E293B),
                               height: 1.2,
                             ),
@@ -163,7 +181,7 @@ class ClientCardItem extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(Icons.calendar_today_rounded, size: 12.sp, color: const Color(0xFF94A3B8)),
+                        SvgPicture.asset(AppIcons.date),
                         SizedBox(width: 4.w),
                         Text(
                           partnerModel?.createdAt?.split(" ").first ?? '',
@@ -180,9 +198,9 @@ class ClientCardItem extends StatelessWidget {
                        Text(
                          'Batafsil',
                          style: TextStyle(
-                           fontSize: 12.sp,
+                           fontSize: 13.sp,
                            color: AppTheme.colors.primary,
-                           fontWeight: FontWeight.bold,
+                           fontWeight: FontWeight.w600,
                          ),
                        ),
                        Icon(

@@ -9,6 +9,7 @@ class ProjectIncomeBloc extends Bloc<ProjectIncomeEvent, ProjectIncomeState> {
 
   ProjectIncomeBloc({required this.repository}) : super(const ProjectIncomeState()) {
     on<GetProjectIncomesEvent>(_onGetProjectIncomes);
+    on<LoadMoreProjectIncomesEvent>(_onLoadMoreProjectIncomes);
     on<CreateProjectIncomeEvent>(_onCreateProjectIncome);
     on<UpdateProjectIncomeEvent>(_onUpdateProjectIncome);
     on<DeleteProjectIncomeEvent>(_onDeleteProjectIncome);
@@ -20,19 +21,64 @@ class ProjectIncomeBloc extends Bloc<ProjectIncomeEvent, ProjectIncomeState> {
     GetProjectIncomesEvent event,
     Emitter<ProjectIncomeState> emit,
   ) async {
-    emit(state.copyWith(status: Status.loading));
+    emit(state.copyWith(
+      status: Status.loading,
+      currentPage: 1,
+      hasReachedMax: false,
+      incomes: [],
+    ));
 
     try {
-      final response = await repository.getProjectIncomes(event.projectId);
+      final response = await repository.getProjectIncomes(
+        event.projectId,
+        page: 1,
+        search: event.search,
+      );
+
+      final int lastPage = response.meta?.lastPage ?? 1;
+      final int currentPage = response.meta?.currentPage ?? 1;
+
       emit(state.copyWith(
         status: Status.success,
-        incomes: response.result,
+        incomes: response.incomes,
+        currentPage: currentPage,
+        lastPage: lastPage,
+        hasReachedMax: currentPage >= lastPage,
       ));
     } catch (e) {
       emit(state.copyWith(
         status: Status.error,
         errorMessage: e.toString(),
       ));
+    }
+  }
+
+  Future<void> _onLoadMoreProjectIncomes(
+    LoadMoreProjectIncomesEvent event,
+    Emitter<ProjectIncomeState> emit,
+  ) async {
+    if (state.hasReachedMax || state.status == Status.loading) return;
+
+    try {
+      final int nextPage = state.currentPage + 1;
+      final response = await repository.getProjectIncomes(
+        event.projectId,
+        page: nextPage,
+        search: event.search,
+      );
+
+      final int lastPage = response.meta?.lastPage ?? 1;
+      final int currentPage = response.meta?.currentPage ?? nextPage;
+
+      emit(state.copyWith(
+        status: Status.success,
+        incomes: List.of(state.incomes)..addAll(response.incomes),
+        currentPage: currentPage,
+        lastPage: lastPage,
+        hasReachedMax: currentPage >= lastPage,
+      ));
+    } catch (_) {
+      // For load more, we might want to just stop trying or show a silent error
     }
   }
 

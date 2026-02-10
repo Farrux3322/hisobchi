@@ -39,13 +39,29 @@ class AuthRepository {
     return response.data;
   }
 
-  Future<Map<String, dynamic>> register({required String phone, required String password, required String otp, required String name}) async {
+  Future<Map<String, dynamic>> verifyOtp({required String phone, required String otpCode}) async {
+    final response = await dio.post(
+      '/auth/otp/verify',
+      data: {
+        'phone': phone,
+        'otp_code': otpCode,
+      }
+    );
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> register({
+    required String phone,
+    required String password,
+    required String verifyToken,
+    required String name,
+  }) async {
     var a = await getDeviceInfo();
     final response = await dio.post(
       '/auth/register',
       data: {
         'password': password,
-        'otp_code': otp,
+        'verify_token': verifyToken,
         'name': name,
         'phone': phone,
         'device_token': a['device_token'],
@@ -79,6 +95,11 @@ class AuthRepository {
 
   Future<Map<String, dynamic>> updateProfileInfo({required String name}) async {
     final response = await dio.put('/auth/update-profile-info', data: {'name': name});
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> deleteAccount() async {
+    final response = await dio.delete('/auth/delete-account');
     return response.data;
   }
 

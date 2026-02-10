@@ -28,6 +28,7 @@ class ClientPage extends StatefulWidget {
 
 class _ClientPageState extends State<ClientPage> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   DateTime? filterStartDate;
   DateTime? filterEndDate;
   String? filterSort;
@@ -37,11 +38,34 @@ class _ClientPageState extends State<ClientPage> {
   void initState() {
     super.initState();
     _fetchPartners();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_isBottom) {
+      context.read<PartnerBloc>().add(
+        LoadMorePartnersEvent(
+          startDate: filterStartDate,
+          endDate: filterEndDate,
+          search: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
+          sort: filterSort,
+          statusFilter: filterStatusFilter,
+        ),
+      );
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -125,6 +149,7 @@ class _ClientPageState extends State<ClientPage> {
               ),
               floatingActionButton: SubscriptionGuard(
                 child: FloatingActionButton(
+                  heroTag: 'client_fab',
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -186,9 +211,13 @@ class _ClientPageState extends State<ClientPage> {
         context.read<PartnerBloc>().add(const GetAllEvent());
       },
       child: ListView.builder(
+        controller: _scrollController,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
-        itemCount: filteredPartners.length,
+        itemCount: state.hasReachedMax ? filteredPartners.length : filteredPartners.length + 1,
         itemBuilder: (context, index) {
+          if (index >= filteredPartners.length) {
+            return _buildLoadMoreIndicator();
+          }
           final partner = filteredPartners[index];
           return Column(
             children: [
@@ -202,10 +231,22 @@ class _ClientPageState extends State<ClientPage> {
                 },
                 partnerModel: partner,
               ),
-              if (index == filteredPartners.length - 1) Gap(MediaQuery.of(context).padding.bottom),
+              if (index == filteredPartners.length - 1 && state.hasReachedMax) Gap(MediaQuery.of(context).padding.bottom + 20.h),
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildLoadMoreIndicator() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 32.h),
+      alignment: Alignment.center,
+      child: SizedBox(
+        width: 24.w,
+        height: 24.w,
+        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary.withValues(alpha: 0.5))),
       ),
     );
   }

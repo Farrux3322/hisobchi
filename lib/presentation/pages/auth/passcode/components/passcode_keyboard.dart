@@ -6,6 +6,7 @@ import 'package:hisobchi/application/auth/passcode/passcode_cubit.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/infrastructure/services/shared_service.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class PasscodeKeyboard extends StatefulWidget {
   const PasscodeKeyboard({super.key});
@@ -49,7 +50,7 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
       final pref = await SharedPrefService.initialize();
       if (canCheckBiometrics && availableBiometrics.isNotEmpty && pref.isBiometricEnabled) {
         // Delay slightly to allow UI to settle and avoid issues on some devices
-        Future.delayed(const Duration(milliseconds: 300), () {
+        Future.delayed(const Duration(milliseconds: 500), () {
           if (mounted) {
             _authenticateWithBiometrics();
           }
@@ -156,12 +157,12 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
             shape: BoxShape.circle,
             color: Colors.white,
             border: Border.all(
-              color: AppTheme.colors.gray.withValues(alpha: 0.12),
+              color: const Color(0xFFE2E8F0),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -170,10 +171,9 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
           child: Text(
             number,
             style: TextStyle(
-              fontSize: 32.sp,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.colors.black,
-              // Senior: Using font display properly
+              fontSize: 30.sp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF1E293B),
             ),
           ),
         ),
@@ -182,15 +182,18 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
   }
 
   Widget _buildBiometricKey() {
-    IconData icon = Icons.fingerprint;
+    String iconPath = AppIcons.fingerprint;
 
     if (Platform.isIOS) {
       if (_availableBiometrics.contains(BiometricType.face)) {
-        icon = Icons.face;
+        iconPath = AppIcons.faceid;
       }
     } else {
-      if (_availableBiometrics.contains(BiometricType.fingerprint)) {
-        icon = Icons.fingerprint;
+      // Android often reports generic weak/strong, but we can try to guess or use fingerprint as default
+      if (_availableBiometrics.contains(BiometricType.face)) {
+        iconPath = AppIcons.faceid;
+      } else if (_availableBiometrics.contains(BiometricType.fingerprint) || _availableBiometrics.contains(BiometricType.strong)) {
+        iconPath = AppIcons.fingerprint;
       }
     }
 
@@ -207,16 +210,33 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppTheme.colors.primary.withValues(alpha: 0.08),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppTheme.colors.primary.withValues(alpha: 0.12),
+                AppTheme.colors.primary.withValues(alpha: 0.05),
+              ],
+            ),
             border: Border.all(
-              color: AppTheme.colors.primary.withValues(alpha: 0.2),
+              color: AppTheme.colors.primary.withValues(alpha: 0.25),
               width: 1.5,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.colors.primary.withValues(alpha: 0.08),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: Icon(
-            icon,
-            size: 32.sp,
-            color: AppTheme.colors.primary,
+          child: SvgPicture.asset(
+            iconPath,
+            width: 34.w,
+            colorFilter: ColorFilter.mode(
+              AppTheme.colors.primary,
+              BlendMode.srcIn,
+            ),
           ),
         ),
       ),
@@ -242,13 +262,13 @@ class _PasscodeKeyboardState extends State<PasscodeKeyboard> {
             shape: BoxShape.circle,
             color: Colors.white,
             border: Border.all(
-              color: AppTheme.colors.gray.withValues(alpha: 0.12),
+              color: const Color(0xFFE2E8F0),
               width: 1.5,
             ),
           ),
           child: Icon(
             Icons.backspace_outlined,
-            color: AppTheme.colors.gray.withValues(alpha: 0.8),
+            color: const Color(0xFF64748B),
             size: 26.sp,
           ),
         ),

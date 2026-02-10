@@ -22,6 +22,7 @@ import 'package:hisobchi/presentation/pages/client/widgets/add_client_components
 
 class ClientEditPage extends StatefulWidget {
   final PartnerModel partnerModel;
+
   const ClientEditPage({super.key, required this.partnerModel});
 
   @override
@@ -34,18 +35,18 @@ class _ClientEditPageState extends State<ClientEditPage> {
   late final TextEditingController _phoneController;
   late final TextEditingController _additionalPhoneController;
   final ImagePicker _picker = ImagePicker();
-  
+
   late final _maskFormatter1 = MaskTextInputFormatter(
-    mask: '+998 (##) ###-##-##', 
-    filter: {"#": RegExp(r'[0-9]')}, 
-    initialText: widget.partnerModel.phone ?? "+998", 
-    type: MaskAutoCompletionType.lazy
+    mask: '+998 (##) ###-##-##',
+    filter: {"#": RegExp(r'[0-9]')},
+    initialText: widget.partnerModel.phone ?? "+998",
+    type: MaskAutoCompletionType.lazy,
   );
   late final _maskFormatter2 = MaskTextInputFormatter(
-    mask: '+998 (##) ###-##-##', 
-    filter: {"#": RegExp(r'[0-9]')}, 
-    initialText: widget.partnerModel.additionalPhone ?? "+998", 
-    type: MaskAutoCompletionType.lazy
+    mask: '+998 (##) ###-##-##',
+    filter: {"#": RegExp(r'[0-9]')},
+    initialText: widget.partnerModel.additionalPhone ?? "+998",
+    type: MaskAutoCompletionType.lazy,
   );
 
   File? _selectedImage;
@@ -59,7 +60,7 @@ class _ClientEditPageState extends State<ClientEditPage> {
     _nameController = TextEditingController(text: widget.partnerModel.name);
     _phoneController = TextEditingController(text: _maskFormatter1.getMaskedText());
     _additionalPhoneController = TextEditingController(text: _maskFormatter2.getMaskedText());
-    
+
     context.read<CurrencyBloc>().add(const GetCurrency());
   }
 
@@ -250,12 +251,18 @@ class _ClientEditPageState extends State<ClientEditPage> {
 
   String _getFieldNameInUzbek(String field) {
     switch (field.toLowerCase()) {
-      case 'name': return 'Ism';
-      case 'phone': return 'Telefon raqam';
-      case 'additional_phone': return 'Qo\'shimcha telefon';
-      case 'currency_type_id': return 'Valyuta';
-      case 'file_id': return 'Rasm';
-      default: return field;
+      case 'name':
+        return 'Ism';
+      case 'phone':
+        return 'Telefon raqam';
+      case 'additional_phone':
+        return 'Qo\'shimcha telefon';
+      case 'currency_type_id':
+        return 'Valyuta';
+      case 'file_id':
+        return 'Rasm';
+      default:
+        return field;
     }
   }
 
@@ -263,10 +270,14 @@ class _ClientEditPageState extends State<ClientEditPage> {
     final msg = message.toLowerCase();
     if (msg.contains('already been taken') || msg.contains('already taken')) {
       switch (field.toLowerCase()) {
-        case 'phone': return 'Bu telefon raqam allaqachon ro\'yxatdan o\'tgan.';
-        case 'name': return 'Bu ism allaqachon mavjud.';
-        case 'additional_phone': return 'Bu qo\'shimcha raqam allaqachon mavjud.';
-        default: return 'Ushbu ma\'lumot allaqachon band qilingan.';
+        case 'phone':
+          return 'Bu telefon raqam allaqachon ro\'yxatdan o\'tgan.';
+        case 'name':
+          return 'Bu ism allaqachon mavjud.';
+        case 'additional_phone':
+          return 'Bu qo\'shimcha raqam allaqachon mavjud.';
+        default:
+          return 'Ushbu ma\'lumot allaqachon band qilingan.';
       }
     }
     if (msg.contains('required') || msg.contains('field is required')) {
@@ -306,24 +317,17 @@ class _ClientEditPageState extends State<ClientEditPage> {
             if (state.status == Status.success && state.currencyModel != null) {
               final currencies = state.currencyModel?.result ?? [];
               if (currencies.isNotEmpty) {
-                 try {
-                   final matched = currencies.firstWhere((c) => c.id == widget.partnerModel.mainCurrencyTypeId);
-                   setState(() => _selectedCurrency = matched);
-                 } catch(_) {}
+                try {
+                  final matched = currencies.firstWhere((c) => c.id == widget.partnerModel.mainCurrencyTypeId);
+                  setState(() => _selectedCurrency = matched);
+                } catch (_) {}
               }
             }
           },
         ),
       ],
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          leading: BackArrowButton(),
-          centerTitle: true,
-          title: const Text(
-            'Tahrirlash',
-          ),
-        ),
+        appBar: AppBar(backgroundColor: Colors.white, leading: BackArrowButton(), centerTitle: true, title: const Text('Tahrirlash')),
         body: _buildBody(),
       ),
     );
@@ -406,13 +410,15 @@ class _ClientEditPageState extends State<ClientEditPage> {
   Widget _buildImageSection(bool isUploading, double progress) {
     return Center(
       child: GestureDetector(
-        onTap: isUploading ? null : () {
-          if (_selectedImage != null || (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty)) {
-            _showFullScreenImage();
-          } else {
-            _showImageSourceDialog();
-          }
-        },
+        onTap: isUploading
+            ? null
+            : () {
+                if (_selectedImage != null || (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty)) {
+                  _showFullScreenImage();
+                } else {
+                  _showImageSourceDialog();
+                }
+              },
         child: Container(
           width: 100,
           height: 100,
@@ -442,11 +448,9 @@ class _ClientEditPageState extends State<ClientEditPage> {
                     border: Border.all(color: Colors.white, width: 2),
                   ),
                   child: Icon(
-                    (_selectedImage == null && (_isImageDeleted || widget.partnerModel.files == null || widget.partnerModel.files!.isEmpty)) 
-                        ? Icons.add_rounded 
-                        : Icons.edit_rounded, 
-                    color: Colors.white, 
-                    size: 16
+                    (_selectedImage == null && (_isImageDeleted || widget.partnerModel.files == null || widget.partnerModel.files!.isEmpty)) ? Icons.add_rounded : Icons.edit_rounded,
+                    color: Colors.white,
+                    size: 16,
                   ),
                 ),
               ),
@@ -461,11 +465,11 @@ class _ClientEditPageState extends State<ClientEditPage> {
     if (_selectedImage != null) {
       return ClipOval(child: Image.file(_selectedImage!, width: 100, height: 100, fit: BoxFit.cover));
     }
-    
+
     if (!_isImageDeleted && widget.partnerModel.files != null && widget.partnerModel.files!.isNotEmpty) {
       return ClipOval(child: Image.network(widget.partnerModel.files!.first.url ?? '', width: 100, height: 100, fit: BoxFit.cover));
     }
-    
+
     return Center(child: SvgPicture.asset(AppIcons.photo, width: 32, height: 32, colorFilter: const ColorFilter.mode(Color(0xFF94A3B8), BlendMode.srcIn)));
   }
 
@@ -511,20 +515,12 @@ class _ClientEditPageState extends State<ClientEditPage> {
     return InkWell(
       onTap: () {
         final currencies = context.read<CurrencyBloc>().state.currencyModel?.result ?? [];
-        AddClientDialogs.showCurrencySelection(
-          context: context,
-          currencies: currencies,
-          selectedCurrency: _selectedCurrency,
-          onSelected: (currency) => setState(() => _selectedCurrency = currency),
-        );
+        AddClientDialogs.showCurrencySelection(context: context, currencies: currencies, selectedCurrency: _selectedCurrency, onSelected: (currency) => setState(() => _selectedCurrency = currency));
       },
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
         child: Row(
           children: [
             const Icon(Icons.currency_exchange_rounded, size: 22, color: Color(0xFF94A3B8)),

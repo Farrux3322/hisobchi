@@ -17,6 +17,7 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
 
   PartnerBloc() : super(PartnerState()) {
     on<GetAllEvent>(getAll);
+    on<LoadMorePartnersEvent>(loadMore);
     on<CreateEvent>(create);
     on<UpdateEvent>(update);
     on<DeleteEvent>(delete);
@@ -36,19 +37,80 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
   }
 
   Future<void> getAll(GetAllEvent event, Emitter<PartnerState> emit) async {
-    emit(state.copyWith(status: Status.loading, statusAdd: Status.pure));
+    emit(state.copyWith(
+      status: Status.loading,
+      statusAdd: Status.pure,
+      currentPage: 1,
+      hasReachedMax: false,
+      models: [],
+    ));
     try {
-      final data = await _repo.get(startDate: event.startDate, endDate: event.endDate, search: event.search, sort: event.sort, statusFilter: event.statusFilter);
+      final data = await _repo.get(
+        startDate: event.startDate,
+        endDate: event.endDate,
+        search: event.search,
+        sort: event.sort,
+        statusFilter: event.statusFilter,
+        page: 1,
+      );
 
       if (data["status"] == true) {
-        List<PartnerModel> model = [];
-        model = data["result"].map<PartnerModel>((element) => PartnerModel.fromJson(element)).toList();
-        emit(state.copyWith(status: Status.success, models: model));
+        final result = data["result"];
+        final List<dynamic> dataList = result["data"] ?? [];
+        final List<PartnerModel> models = dataList.map((element) => PartnerModel.fromJson(element)).toList();
+        
+        final meta = result["meta"];
+        final int lastPage = meta?["last_page"] ?? 1;
+        final int currentPage = meta?["current_page"] ?? 1;
+
+        emit(state.copyWith(
+          status: Status.success,
+          models: models,
+          currentPage: currentPage,
+          lastPage: lastPage,
+          hasReachedMax: currentPage >= lastPage,
+        ));
       } else {
         emit(state.copyWith(status: Status.error, errorMessage: _extractMessageFromData(data)));
       }
     } catch (e) {
       emit(state.copyWith(status: Status.error, errorMessage: _getErrorMessage(e)));
+    }
+  }
+
+  Future<void> loadMore(LoadMorePartnersEvent event, Emitter<PartnerState> emit) async {
+    if (state.hasReachedMax || state.status == Status.loading) return;
+
+    try {
+      final int nextPage = state.currentPage + 1;
+      final data = await _repo.get(
+        startDate: event.startDate,
+        endDate: event.endDate,
+        search: event.search,
+        sort: event.sort,
+        statusFilter: event.statusFilter,
+        page: nextPage,
+      );
+
+      if (data["status"] == true) {
+        final result = data["result"];
+        final List<dynamic> dataList = result["data"] ?? [];
+        final List<PartnerModel> newModels = dataList.map((element) => PartnerModel.fromJson(element)).toList();
+        
+        final meta = result["meta"];
+        final int lastPage = meta?["last_page"] ?? 1;
+        final int currentPage = meta?["current_page"] ?? nextPage;
+
+        emit(state.copyWith(
+          status: Status.success,
+          models: List.of(state.models)..addAll(newModels),
+          currentPage: currentPage,
+          lastPage: lastPage,
+          hasReachedMax: currentPage >= lastPage,
+        ));
+      }
+    } catch (_) {
+      // For load more, we might want to just stop trying or show a silent error
     }
   }
 

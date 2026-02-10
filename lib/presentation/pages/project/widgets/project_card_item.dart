@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/infrastructure/dto/models/project/project_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/utils/phone_formatter.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ProjectCardItem extends StatelessWidget {
   final ProjectModel? projectModel;
@@ -69,23 +69,39 @@ class ProjectCardItem extends StatelessWidget {
                                 fit: BoxFit.cover,
                                 width: 52.w,
                                 height: 52.h,
-                                placeholder: (context, url) => const Center(
-                                  child: CupertinoActivityIndicator(
-                                    color: Color(0xFF6366F1),
-                                    radius: 10,
+                                placeholder: (context, url) => Shimmer.fromColors(
+                                  baseColor: const Color(0xFFF1F5F9),
+                                  highlightColor: Colors.white,
+                                  child: Container(
+                                    width: 52.w,
+                                    height: 52.h,
+                                    color: Colors.white,
                                   ),
                                 ),
-                                errorWidget: (context, url, error) => const Icon(
-                                  Icons.business_center_rounded,
-                                  color: Color(0xFF6366F1),
-                                  size: 24,
+                                errorWidget: (context, url, error) => Container(
+                                  width: 52.w,
+                                  height: 52.h,
+                                  color: const Color(0xFFF1F5F9),
+                                  child: Icon(
+                                    Icons.business_center_rounded,
+                                    color: const Color(0xFF6366F1).withValues(alpha: 0.4),
+                                    size: 24.sp,
+                                  ),
                                 ),
                               ),
                             )
-                          : const Icon(
-                              Icons.business_center_rounded,
-                              color: Color(0xFF6366F1),
-                              size: 24,
+                          : Container(
+                              width: 52.w,
+                              height: 52.h,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6366F1).withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(14.r),
+                              ),
+                              child: Icon(
+                                Icons.business_center_rounded,
+                                color: const Color(0xFF6366F1),
+                                size: 24.sp,
+                              ),
                             ),
                     ),
                     SizedBox(width: 14.w),

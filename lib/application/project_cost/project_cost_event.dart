@@ -3,8 +3,17 @@ abstract class ProjectCostEvent {}
 class GetProjectCostsEvent extends ProjectCostEvent {
   final int projectId;
   final int? costTypeId;
+  final String search;
 
-  GetProjectCostsEvent({required this.projectId, this.costTypeId});
+  GetProjectCostsEvent({required this.projectId, this.costTypeId, this.search = ''});
+}
+
+class LoadMoreProjectCostsEvent extends ProjectCostEvent {
+  final int projectId;
+  final int? costTypeId;
+  final String search;
+
+  LoadMoreProjectCostsEvent({required this.projectId, this.costTypeId, this.search = ''});
 }
 
 class CreateProjectCostEvent extends ProjectCostEvent {

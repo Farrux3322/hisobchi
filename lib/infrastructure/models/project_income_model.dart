@@ -1,4 +1,4 @@
-import 'package:hisobchi/infrastructure/dto/models/project/project_model.dart';
+import '../dto/models/project/project_model.dart';
 
 class ProjectIncomeModel {
   final int? id;
@@ -82,19 +82,81 @@ class ProjectIncomeModel {
 
 class ProjectIncomeListResponse {
   final bool status;
-  final List<ProjectIncomeModel> result;
+  final List<ProjectIncomeModel> incomes;
+  final PaginationLinks? links;
+  final PaginationMeta? meta;
 
   ProjectIncomeListResponse({
     required this.status,
-    required this.result,
+    required this.incomes,
+    this.links,
+    this.meta,
   });
 
   factory ProjectIncomeListResponse.fromJson(Map<String, dynamic> json) {
+    final result = json['result'];
+    if (result is Map<String, dynamic>) {
+      return ProjectIncomeListResponse(
+        status: json['status'] as bool,
+        incomes: (result['data'] as List<dynamic>)
+            .map((e) => ProjectIncomeModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        links: result['links'] != null ? PaginationLinks.fromJson(result['links']) : null,
+        meta: result['meta'] != null ? PaginationMeta.fromJson(result['meta']) : null,
+      );
+    }
+    // Fallback for old direct list result
     return ProjectIncomeListResponse(
       status: json['status'] as bool,
-      result: (json['result'] as List<dynamic>)
+      incomes: (result as List<dynamic>)
           .map((e) => ProjectIncomeModel.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
+  }
+}
+
+class PaginationLinks {
+  String? first;
+  String? last;
+  String? prev;
+  String? next;
+
+  PaginationLinks({this.first, this.last, this.prev, this.next});
+
+  PaginationLinks.fromJson(Map<String, dynamic> json) {
+    first = json['first'];
+    last = json['last'];
+    prev = json['prev'];
+    next = json['next'];
+  }
+}
+
+class PaginationMeta {
+  int? currentPage;
+  String? currentPageUrl;
+  int? from;
+  String? path;
+  int? perPage;
+  int? to;
+  int? lastPage;
+
+  PaginationMeta({
+    this.currentPage,
+    this.currentPageUrl,
+    this.from,
+    this.path,
+    this.perPage,
+    this.to,
+    this.lastPage,
+  });
+
+  PaginationMeta.fromJson(Map<String, dynamic> json) {
+    currentPage = json['current_page'];
+    currentPageUrl = json['current_page_url'];
+    from = json['from'];
+    path = json['path'];
+    perPage = json['per_page'];
+    to = json['to'];
+    lastPage = json['last_page'];
   }
 }

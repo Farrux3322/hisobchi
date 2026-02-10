@@ -11,12 +11,17 @@ class ProjectIncomeRepository {
   }
 
   // Get project incomes
-  Future<ProjectIncomeListResponse> getProjectIncomes(int projectId) async {
+  Future<ProjectIncomeListResponse> getProjectIncomes(int projectId, {int? page, String search = ''}) async {
     try {
-      final response = await dio.get('/project/project-incomes', data: {
+      final Map<String, dynamic> params = {
         'project_id': projectId,
-        'search': '',
-      });
+        'search': search,
+      };
+      if (page != null) {
+        params['page'] = page;
+      }
+
+      final response = await dio.get('/project/project-incomes', queryParameters: params);
 
       if (response.statusCode == 200) {
         return ProjectIncomeListResponse.fromJson(response.data);

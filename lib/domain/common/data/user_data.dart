@@ -20,4 +20,28 @@ class UserData {
   static String responsibleWorker = "";
   static Map<String, dynamic> deviceInfo = {};
   static Map<String?, List<String?>?>? permissions = {};
+
+  static void reset() {
+    branchId = 0;
+    workerId = 0;
+    positionId = 0;
+    userId = -1;
+    roleId = [];
+    name = '';
+    authorGuid = '';
+    branchName = '';
+    positionName = '';
+    image = '';
+    phone = '';
+    token = '';
+    deviceToken = '';
+    passCode = "";
+    passCodeStatus = false;
+    isAdmin = false;
+    xZiffler = false;
+    role = [];
+    responsibleWorker = "";
+    deviceInfo = {};
+    permissions = {};
+  }
 }

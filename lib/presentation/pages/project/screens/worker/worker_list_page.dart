@@ -195,6 +195,7 @@ class _WorkerListPageState extends State<WorkerListPage> {
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
         child: SubscriptionGuard(
           child: FloatingActionButton(
+            heroTag: 'worker_fab',
             onPressed: _showAddWorkerSelection,
             backgroundColor: AppTheme.colors.primary,
             child: SvgPicture.asset(AppIcons.clientAdd),

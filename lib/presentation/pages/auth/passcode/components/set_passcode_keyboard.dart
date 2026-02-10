@@ -71,12 +71,12 @@ class SetPasscodeKeyboard extends StatelessWidget {
             shape: BoxShape.circle,
             color: Colors.white,
             border: Border.all(
-              color: AppTheme.colors.gray.withValues(alpha: 0.12),
+              color: const Color(0xFFE2E8F0),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -85,9 +85,9 @@ class SetPasscodeKeyboard extends StatelessWidget {
           child: Text(
             number,
             style: TextStyle(
-              fontSize: 32.sp,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.colors.black,
+              fontSize: 30.sp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF1E293B),
             ),
           ),
         ),
@@ -114,13 +114,13 @@ class SetPasscodeKeyboard extends StatelessWidget {
             shape: BoxShape.circle,
             color: Colors.white,
             border: Border.all(
-              color: AppTheme.colors.gray.withValues(alpha: 0.12),
+              color: const Color(0xFFE2E8F0),
               width: 1.5,
             ),
           ),
           child: Icon(
             Icons.backspace_outlined,
-            color: AppTheme.colors.gray.withValues(alpha: 0.8),
+            color: const Color(0xFF64748B),
             size: 26.sp,
           ),
         ),

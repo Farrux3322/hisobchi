@@ -37,6 +37,12 @@ class RegisterEvent extends InitAuthEvent {
   RegisterEvent({required this.otp});
 }
 
+class VerifyOtpEvent extends InitAuthEvent {
+  final String otp;
+
+  VerifyOtpEvent({required this.otp});
+}
+
 class ScannerLoginEvent extends InitAuthEvent {
   final String qrCode;
 

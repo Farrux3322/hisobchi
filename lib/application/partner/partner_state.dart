@@ -14,7 +14,9 @@ class PartnerState extends Equatable {
   final IncomeHistoryModel? incomeHistoryModel;
   final Map<String, dynamic>? smsSettingsMap;
   final List<PartnerModel> models;
-
+  final int currentPage;
+  final int lastPage;
+  final bool hasReachedMax;
 
   const PartnerState({
     this.status = Status.pure,
@@ -30,6 +32,9 @@ class PartnerState extends Equatable {
     this.incomeHistoryModel,
     this.smsSettingsMap,
     this.models = const [],
+    this.currentPage = 1,
+    this.lastPage = 1,
+    this.hasReachedMax = false,
   });
 
   PartnerState copyWith({
@@ -46,6 +51,9 @@ class PartnerState extends Equatable {
     IncomeHistoryModel? incomeHistoryModel,
     Map<String, dynamic>? smsSettingsMap,
     List<PartnerModel>? models,
+    int? currentPage,
+    int? lastPage,
+    bool? hasReachedMax,
   }) {
     return PartnerState(
         status: status ?? this.status,
@@ -60,7 +68,10 @@ class PartnerState extends Equatable {
         incomeStatementModel: incomeStatementModel ?? this.incomeStatementModel,
         incomeHistoryModel: incomeHistoryModel ?? this.incomeHistoryModel,
         smsSettingsMap: smsSettingsMap ?? this.smsSettingsMap,
-        models: models ?? this.models
+        models: models ?? this.models,
+        currentPage: currentPage ?? this.currentPage,
+        lastPage: lastPage ?? this.lastPage,
+        hasReachedMax: hasReachedMax ?? this.hasReachedMax,
     );
   }
 
@@ -79,5 +90,8 @@ class PartnerState extends Equatable {
     incomeHistoryModel,
     smsSettingsMap,
     models,
+    currentPage,
+    lastPage,
+    hasReachedMax,
   ];
 }
