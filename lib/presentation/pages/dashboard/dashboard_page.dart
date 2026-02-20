@@ -135,19 +135,10 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           Row(
             children: [
               Image.asset(AppIcons.appLogo, width: 44.w, height: 44.h),
-              SizedBox(width: 14.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'E-Hisob',
-                    style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A), letterSpacing: -0.5),
-                  ),
-                  Text(
-                    'Bosh sahifa',
-                    style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: const Color(0xFF94A3B8)),
-                  ),
-                ],
+              SizedBox(width: 10.w),
+              Text(
+                'E-Hisob',
+                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A), letterSpacing: -0.5),
               ),
             ],
           ),

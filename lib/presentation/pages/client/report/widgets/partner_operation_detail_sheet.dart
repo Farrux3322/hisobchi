@@ -4,6 +4,7 @@ import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.d
 import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import '../../../../assets/asset_index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hisobchi/domain/common/data/user_data.dart';
 
 class PartnerOperationDetailSheet extends StatelessWidget {
   final PartnerOperation operation;
@@ -644,15 +645,67 @@ class PartnerOperationDetailSheet extends StatelessWidget {
     String? dueDate,
   }) async {
     String message = "";
+    final String senderName = UserData.name;
+    final String senderPhone = _formatPhoneNumber(UserData.phone);
 
     if (isIncoming) {
-      message = "Hurmatli $partnerName, Sizdan $amount $currency miqdoridagi to'lov qabul qilindi. Hamkorlik uchun rahmat!";
+      // 2. To'lov qabul qilinganda
+      message = "Hurmatli $partnerName, Sizdan $amount $currency miqdoridagi to‘lov qabul qilindi.\n"
+          "Qabul qiluvchi: $senderName\n"
+          "Tel: $senderPhone\n"
+          "Hamkorlik uchun rahmat\n"
+          "Manba: E-Hisob";
     } else {
+      final String header = "Hurmatli $partnerName, ";
+      final String footer = "\nBeruvchi: $senderName\nTel: $senderPhone\nManba: E-Hisob";
+
       if (dueDate != null && dueDate.isNotEmpty) {
         final String formattedDate = _formatDueDate(dueDate);
-        message = "Hurmatli $partnerName, Sizning $amount $currency miqdoridagi qarzdorligingizni $formattedDate sanasigacha qaytarishingizni eslatib o'tamiz. Hamkorlik uchun rahmat!";
+        DateTime? dueDateTime;
+        try {
+          dueDateTime = DateTime.parse(dueDate);
+        } catch (_) {
+          // Fallback parsing for dd.MM.yyyy
+          final parts = dueDate.split('.');
+          if (parts.length == 3) {
+            final day = int.tryParse(parts[0]);
+            final month = int.tryParse(parts[1]);
+            final year = int.tryParse(parts[2]);
+            if (day != null && month != null && year != null) {
+              dueDateTime = DateTime(year, month, day);
+            }
+          }
+        }
+
+        if (dueDateTime != null) {
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          final dueDay = DateTime(dueDateTime.year, dueDateTime.month, dueDateTime.day);
+          final difference = dueDay.difference(today).inDays;
+
+          if (difference == 0) {
+            // 4. Bugun qaytarish muddati bo'lsa
+            message = "${header}Bugun $amount $currency qarzni qaytarish muddati.$footer";
+          } else if (difference > 0 && difference <= 3) {
+            // 3. Qarz muddati yaqinlashmoqda
+            message = "${header}Siz olgan $amount $currency qarz muddati yaqinlashmoqda.\n"
+                "Qaytarish sanasi: $formattedDate$footer";
+          } else if (difference < 0) {
+            // 5. Qarz muddati o'tib ketgan bo'lsa
+            message = "$header$amount $currency qarz muddati o‘tib ketdi.\n"
+                "Iltimos, tez orada to‘lovni amalga oshiring.$footer";
+          } else {
+            // 1. Yangi qarz berilganda
+            message = "${header}Sizga $amount $currency qarz berildi.\n"
+                "Qaytarish sanasi: $formattedDate$footer";
+          }
+        } else {
+          // Sana parsing xatosi bo'lsa
+          message = "${header}Sizga $amount $currency qarz berildi.$footer";
+        }
       } else {
-        message = "Hurmatli $partnerName, Sizning $amount $currency miqdoridagi qarzdorligingizni eslatib o'tamiz. Iltimos, to'lovni o'z vaqtida amalga oshirishingizni so'raymiz. E'tiboringiz uchun rahmat!";
+        // Muddat belgilanmagan qarz
+        message = "${header}Sizga $amount $currency qarz berildi.$footer";
       }
     }
 

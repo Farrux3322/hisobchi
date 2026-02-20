@@ -294,7 +294,7 @@ class _PartnerOperationsDetailPageState extends State<PartnerOperationsDetailPag
             ),
             SizedBox(height: 8.h),
             Text(
-              'Ushbu ruknda hozircha hech qanday\nma\'lumot mavjud emas',
+              'Ushbu sahifada hozircha hech qanday\nma\'lumot mavjud emas',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray.withOpacity(0.6), height: 1.5),
             ),

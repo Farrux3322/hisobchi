@@ -50,21 +50,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
         Color(0xFF059669),
       ],
     ),
-    const OnboardingModel(
-      title: 'Moliyangizni\nNazorat Qiling',
-      description:
-          'Kirim, chiqim va balansni real-time kuzating. Professional hisobotlar oling',
-      features: [
-        'To\'liq kirim va chiqim kuzatuvi',
-        'Avtomatik valyuta konvertatsiyasi',
-        'Batafsil moliyaviy hisobotlar',
-      ],
-      iconAsset: '',
-      gradientColors: [
-        Color(0xFFF59E0B),
-        Color(0xFFEF4444),
-      ],
-    ),
   ];
 
   @override
@@ -137,7 +122,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   child: TextButton(
                     onPressed: _skipOnboarding,
                     style: TextButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.2),
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 10,
@@ -174,7 +159,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         currentPage: _currentPage,
                         pageCount: _pages.length,
                         activeColor: Colors.white,
-                        inactiveColor: Colors.white.withOpacity(0.3),
+                        inactiveColor: Colors.white.withValues(alpha: 0.3),
                       ),
 
                       const SizedBox(height: 32),
@@ -187,7 +172,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         onPressed: _nextPage,
                         gradientColors: [
                           Colors.white,
-                          Colors.white.withOpacity(0.9),
+                          Colors.white.withValues(alpha: 0.9),
                         ],
                         textColor: _pages[_currentPage].gradientColors.first,
                       ),

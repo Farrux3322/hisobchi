@@ -211,7 +211,7 @@ class _SmsSettingPageState extends State<SmsSettingPage> {
         const Gap(10),
         _buildConfigSection(
           title: 'Eslatma SMS (muddatidan keyin)',
-          subtitle: 'To\'lov muddati otgandan keyin necha kungacha yuborilsin?',
+          subtitle: 'To\'lov muddati o\'tgandan keyin necha kungacha yuborilsin?',
           icon: Icons.error_outline_rounded,
           iconColor: Colors.red,
           options: _afterOptions,

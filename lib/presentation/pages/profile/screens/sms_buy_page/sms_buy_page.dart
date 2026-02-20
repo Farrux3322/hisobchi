@@ -193,7 +193,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
       elevation: 0,
       centerTitle: true,
       title: Text(
-        "SMS To'plami",
+        "SMS To'plamlar",
         style: TextStyle(
           color: AppTheme.colors.black,
           fontSize: 16.sp,
@@ -213,7 +213,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Yangi to'plam tanlang",
+              "Yangi to'plamni tanlang",
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w700,

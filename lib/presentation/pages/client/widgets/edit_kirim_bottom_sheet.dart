@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/income_history_model.dart';
 import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../assets/asset_index.dart';
 
@@ -412,14 +413,9 @@ class TransactionDetailBottomSheet extends StatelessWidget {
     if (dateStr == null || dateStr.isEmpty) return 'Noma\'lum';
     try {
       final date = DateTime.parse(dateStr);
-      return DateFormat('dd.MM.yyyy HH:mm').format(date);
+      return DateFormat('dd.MM.yyyy').format(date);
     } catch (_) {
-      try {
-        final date = DateTime.parse(dateStr);
-        return DateFormat('dd.MM.yyyy').format(date);
-      } catch (_) {
-        return dateStr;
-      }
+      return dateStr;
     }
   }
 
@@ -430,18 +426,65 @@ class TransactionDetailBottomSheet extends StatelessWidget {
     }
   }
 
-  Future<void> _sendSms({required String phoneNumber, required String partnerName, required String amount, required String currency, required bool isIncoming, String? returnDate}) async {
+  Future<void> _sendSms({
+    required String phoneNumber,
+    required String partnerName,
+    required String amount,
+    required String currency,
+    required bool isIncoming,
+    String? returnDate,
+  }) async {
     String message = "";
+    final String senderName = UserData.name;
+    final String senderPhone = _formatPhoneNumber(UserData.phone);
 
     if (isIncoming) {
-      message = "Hurmatli $partnerName, Sizdan $amount $currency miqdoridagi to'lov qabul qilindi. Hamkorlik uchun rahmat!";
+      // 2. To'lov qabul qilinganda
+      message = "Hurmatli $partnerName, Sizdan $amount $currency miqdoridagi to‘lov qabul qilindi.\n"
+          "Qabul qiluvchi: $senderName\n"
+          "Tel: $senderPhone\n"
+          "Hamkorlik uchun rahmat\n"
+          "Manba: E-Hisob";
     } else {
+      final String header = "Hurmatli $partnerName, ";
+      final String footer = "\nBeruvchi: $senderName\nTel: $senderPhone\nManba: E-Hisob";
+
       if (returnDate != null && returnDate.isNotEmpty) {
         final String formattedDate = _formatDate(returnDate);
-        message = "Hurmatli $partnerName, Sizning $amount $currency miqdoridagi qarzdorligingizni $formattedDate sanasigacha qaytarishingizni eslatib o'tamiz. Hamkorlik uchun rahmat!";
+        DateTime? dueDate;
+        try {
+          dueDate = DateTime.parse(returnDate);
+        } catch (_) {}
+
+        if (dueDate != null) {
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          final dueDay = DateTime(dueDate.year, dueDate.month, dueDate.day);
+          final difference = dueDay.difference(today).inDays;
+
+          if (difference == 0) {
+            // 4. Bugun qaytarish muddati bo'lsa
+            message = "${header}Bugun $amount $currency qarzni qaytarish muddati.$footer";
+          } else if (difference > 0 && difference <= 3) {
+            // 3. Qarz muddati yaqinlashmoqda
+            message = "${header}Siz olgan $amount $currency qarz muddati yaqinlashmoqda.\n"
+                "Qaytarish sanasi: $formattedDate$footer";
+          } else if (difference < 0) {
+            // 5. Qarz muddati o'tib ketgan bo'lsa
+            message = "${header}$amount $currency qarz muddati o‘tib ketdi.\n"
+                "Iltimos, tez orada to‘lovni amalga oshiring.$footer";
+          } else {
+            // 1. Yangi qarz berilganda (3 kundan ko'p vaqt bo'lsa)
+            message = "${header}Sizga $amount $currency qarz berildi.\n"
+                "Qaytarish sanasi: $formattedDate$footer";
+          }
+        } else {
+          // Sana parsing xatosi bo'lsa
+          message = "${header}Sizga $amount $currency qarz berildi.$footer";
+        }
       } else {
-        message =
-            "Hurmatli $partnerName, Sizning $amount $currency miqdoridagi qarzdorligingizni eslatib o'tamiz. Iltimos, to'lovni o'z vaqtida amalga oshirishingizni so'raymiz. E'tiboringiz uchun rahmat!";
+        // Qaytarish sanasi yo'q qarz
+        message = "${header}Sizga $amount $currency qarz berildi.$footer";
       }
     }
 

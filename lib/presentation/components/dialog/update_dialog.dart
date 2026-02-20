@@ -1,9 +1,10 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:lottie/lottie.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-import '../basic_widgets.dart';
 
 class UpdateAppDialog extends StatelessWidget {
   const UpdateAppDialog({super.key, required this.status});
@@ -13,7 +14,10 @@ class UpdateAppDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppTheme.colors.secondary,
+      backgroundColor: AppTheme.colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24.r),
+      ),
       child: SizedBox(
         height: 0.44.sh,
         child: Padding(
@@ -21,16 +25,18 @@ class UpdateAppDialog extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                'Yangilash',
-                style: AppTheme.data.textTheme.titleSmall!.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.white),
+                'Yangilanish mavjud',
+                style: AppTheme.data.textTheme.titleSmall!.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
               ),
+              Gap(8.h),
               Text(
-                "Dasturga qo'shimcha imkoniyatlar qo'shildi uni yangilab oling !!!",
-                style: AppTheme.data.textTheme.titleSmall!.copyWith(fontSize: 10.sp, fontWeight: FontWeight.w400, color: AppTheme.colors.white),
+                "Dasturga qo'shimcha imkoniyatlar qo'shildi uni yangilab oling!",
+                textAlign: TextAlign.center,
+                style: AppTheme.data.textTheme.titleSmall!.copyWith(fontSize: 10.sp, fontWeight: FontWeight.w400, color: AppTheme.colors.black),
               ),
               Gap(20.h),
               Lottie.asset(
-                "assets/animations/update_app.json",
+                "assets/icons/update_app.json",
                 height: 0.2.sh,
                 fit: BoxFit.fitHeight,
                 repeat: false,
@@ -60,17 +66,17 @@ class UpdateAppDialog extends StatelessWidget {
                     Expanded(
                       child: GestureDetector(
                         onTap: () async {
-                          // if (Platform.isAndroid) {
-                          //   _launchUrl();
-                          // } else if (Platform.isIOS) {
-                          //   _launchUrlIos();
-                          // } else {
-                          //   if (kDebugMode) {
-                          //     print("Error Platform!");
-                          //   }
-                          // }
+                          if (Platform.isAndroid) {
+                            _launchUrl();
+                          } else if (Platform.isIOS) {
+                            _launchUrlIos();
+                          } else {
+                            if (kDebugMode) {
+                              print("Error Platform!");
+                            }
+                          }
 
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
                         },
                         child: Container(
                             width: double.infinity,
@@ -79,7 +85,7 @@ class UpdateAppDialog extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 "Yangilash",
-                                style: AppTheme.data.textTheme.labelSmall!.copyWith(color: AppTheme.colors.secondary, fontWeight: FontWeight.w500),
+                                style: AppTheme.data.textTheme.labelSmall!.copyWith(color: AppTheme.colors.white,fontSize: 16.sp, fontWeight: FontWeight.w500),
                               ),
                             )),
                       ),
@@ -94,17 +100,17 @@ class UpdateAppDialog extends StatelessWidget {
     );
   }
 
-// Future<void> _launchUrl() async {
-//   final Uri url = Uri.parse('https://play.google.com/store/apps/details?id=com.garantsoft.casl_fit&pli=1');
-//   if (!await launchUrl(url)) {
-//     throw Exception('Could not launch $url');
-//   }
-// }
-//
-// Future<void> _launchUrlIos() async {
-//   final Uri url = Uri.parse('https://apps.apple.com/us/app/rendostaff/id6739629896');
-//   if (!await launchUrl(url)) {
-//     throw Exception('Could not launch $url');
-//   }
-// }
+Future<void> _launchUrl() async {
+  final Uri url = Uri.parse('https://play.google.com/store/apps/details?id=com.alpha.hisobchi&hl=en');
+  if (!await launchUrl(url)) {
+    throw Exception('Could not launch $url');
+  }
+}
+
+Future<void> _launchUrlIos() async {
+  final Uri url = Uri.parse('');
+  if (!await launchUrl(url)) {
+    throw Exception('Could not launch $url');
+  }
+}
 }

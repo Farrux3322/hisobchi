@@ -50,7 +50,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
   }
 
   Future<void> getSMSPricingPlans(GetSMSPricingPlansEvent event, Emitter<SubscriptionState> emit) async {
-    emit(state.copyWith(smsStatus: Status.loading));
+    emit(state.copyWith(smsStatus: Status.loading, purchaseStatus: Status.initial));
     try {
       final data = await _repo.getSMSPricingPlans();
 

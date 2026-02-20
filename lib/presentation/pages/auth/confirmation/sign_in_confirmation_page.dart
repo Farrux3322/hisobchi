@@ -18,8 +18,7 @@ class SignInConfirmationPage extends StatefulWidget {
   State<SignInConfirmationPage> createState() => _SignInConfirmationPageState();
 }
 
-class _SignInConfirmationPageState extends State<SignInConfirmationPage>
-    with TickerProviderStateMixin {
+class _SignInConfirmationPageState extends State<SignInConfirmationPage> with TickerProviderStateMixin {
   bool showCountDown = true;
   final TextEditingController _pinController = TextEditingController();
 
@@ -36,28 +35,15 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
   }
 
   void _setupAnimations() {
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
+    _fadeController = AnimationController(duration: const Duration(milliseconds: 1200), vsync: this);
 
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
+    _slideController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeOut),
-    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeOutBack),
-    );
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOutBack));
 
     _fadeController.forward();
     _slideController.forward();
@@ -82,12 +68,7 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                AppTheme.colors.primary.withValues(alpha: 0.05),
-                AppTheme.colors.primary.withValues(alpha: 0.02),
-                Colors.white,
-                AppTheme.colors.primary.withValues(alpha: 0.03),
-              ],
+              colors: [AppTheme.colors.primary.withValues(alpha: 0.05), AppTheme.colors.primary.withValues(alpha: 0.02), Colors.white, AppTheme.colors.primary.withValues(alpha: 0.03)],
               stops: const [0.0, 0.3, 0.7, 1.0],
             ),
           ),
@@ -127,8 +108,7 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
                       ),
                     ),
                   ),
-                  if (state is RegisterLoading || state is OtpLoading)
-                    const PremiumLoading(),
+                  if (state is RegisterLoading || state is OtpLoading) const PremiumLoading(),
                 ],
               );
             },
@@ -149,43 +129,21 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
               padding: EdgeInsets.all(16.w),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.colors.primary.withValues(alpha: 0.15),
-                    blurRadius: 20,
-                    offset: const Offset(0, 6),
-                    spreadRadius: 0,
-                  ),
-                ],
+                boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.15), blurRadius: 20, offset: const Offset(0, 6), spreadRadius: 0)],
               ),
-              child: Image.asset(
-                AppIcons.appLogo,
-                height: 80.h,
-                width: 80.w,
-              ),
+              child: Image.asset(AppIcons.appLogo, height: 80.h, width: 80.w),
             ),
             SizedBox(height: 6.h),
             Text(
               'E-HISOB',
-              style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w900,
-                color: AppTheme.colors.primary,
-                letterSpacing: 0.8,
-              ),
+              style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w900, color: AppTheme.colors.primary, letterSpacing: 0.8),
             ),
             SizedBox(height: 3.h),
             Container(
               height: 2.5.h,
               width: 35.w,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.colors.primary.withValues(alpha: 0.3),
-                    AppTheme.colors.primary,
-                    AppTheme.colors.primary.withValues(alpha: 0.3),
-                  ],
-                ),
+                gradient: LinearGradient(colors: [AppTheme.colors.primary.withValues(alpha: 0.3), AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: 0.3)]),
                 borderRadius: BorderRadius.circular(2.r),
               ),
             ),
@@ -204,36 +162,19 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
           children: [
             Container(
               padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: AppTheme.colors.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.verified_user_rounded,
-                size: 40.sp,
-                color: AppTheme.colors.primary,
-              ),
+              decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: Icon(Icons.verified_user_rounded, size: 40.sp, color: AppTheme.colors.primary),
             ),
             SizedBox(height: 16.h),
             Text(
               'Tasdiqlash kodi',
-              style: TextStyle(
-                fontSize: 28.sp,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.colors.black,
-                letterSpacing: -0.4,
-              ),
+              style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.black, letterSpacing: -0.4),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 8.h),
             Text(
               'Telefon raqamingizga yuborilgan\n4 raqamli kodni kiriting',
-              style: TextStyle(
-                fontSize: 15.sp,
-                fontWeight: FontWeight.w400,
-                color: AppTheme.colors.black.withValues(alpha: 0.6),
-                height: 1.4,
-              ),
+              style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w400, color: AppTheme.colors.black.withValues(alpha: 0.6), height: 1.4),
               textAlign: TextAlign.center,
             ),
           ],
@@ -252,14 +193,7 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
-                spreadRadius: 0,
-              ),
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 4), spreadRadius: 0)],
           ),
           child: PintPutX(
             controller: _pinController,
@@ -284,17 +218,12 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
             return FadeTransition(
               opacity: animation,
               child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.2),
-                  end: Offset.zero,
-                ).animate(animation),
+                position: Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(animation),
                 child: child,
               ),
             );
           },
-          child: showCountDown
-              ? _buildCountdownWidget()
-              : _buildResendButton(),
+          child: showCountDown ? _buildCountdownWidget() : _buildResendButton(),
         ),
       ),
     );
@@ -303,37 +232,23 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
   Widget _buildCountdownWidget() {
     return Container(
       key: const ValueKey('countdown'),
+      width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       decoration: BoxDecoration(
         color: AppTheme.colors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppTheme.colors.primary.withValues(alpha: 0.2),
-          width: 1,
-        ),
+        border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.2), width: 1),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.schedule_rounded,
-            size: 20.sp,
-            color: AppTheme.colors.primary,
-          ),
+          Icon(Icons.schedule_rounded, size: 20.sp, color: AppTheme.colors.primary),
           SizedBox(width: 8.w),
           Countdown(
-            seconds: 120,
+            seconds: 60,
             build: (_, time) {
               return Text(
-                tr(
-                  'confirmation.resend_in',
-                  namedArgs: {'time': secondToTime(time.toInt())},
-                ),
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.colors.primary,
-                ),
+                tr('confirmation.resend_in', namedArgs: {'time': secondToTime(time.toInt())}),
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.primary),
               );
             },
             onFinished: () {
@@ -359,21 +274,14 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
           setState(() {
             showCountDown = true;
           });
-          context.read<InitAuthBloc>().add(
-                SendOtpEvent(
-                  password: context.read<InitAuthBloc>().password,
-                  name: context.read<InitAuthBloc>().name,
-                ),
-              );
+          context.read<InitAuthBloc>().add(SendOtpEvent(password: context.read<InitAuthBloc>().password, name: context.read<InitAuthBloc>().name));
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.colors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
           shadowColor: AppTheme.colors.primary.withValues(alpha: 0.4),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.r),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -382,11 +290,7 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage>
             SizedBox(width: 8.w),
             Text(
               'Qayta yuborish',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.3,
-              ),
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, letterSpacing: 0.3),
             ),
           ],
         ),

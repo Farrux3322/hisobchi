@@ -309,7 +309,7 @@ class _PartnerDebtDetailPageState extends State<PartnerDebtDetailPage> {
             ),
             SizedBox(height: 8.h),
             Text(
-              'Ushbu ruknda hozircha hech qanday\nma\'lumot mavjud emas',
+              'Ushbu sahifada hozircha hech qanday\nma\'lumot mavjud emas',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray.withValues(alpha: 0.9), height: 1.5),
             ),

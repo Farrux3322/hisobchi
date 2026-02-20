@@ -45,7 +45,7 @@ class TarifCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gradient = _getGradient(tarif.name);
-    final isBusiness = tarif.name == 'BUSINESS';
+    final isBusiness = tarif.name == 'PROFESSIONAL';
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 20),
@@ -267,7 +267,7 @@ class TarifCard extends StatelessWidget {
           children: [
             Text(
               muddat.toUpperCase(),
-              style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.7), fontWeight: FontWeight.w800, letterSpacing: 1.2),
+              style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.7), fontWeight: FontWeight.w800, letterSpacing: 1.2),
             ),
             if (chegirma != null)
               Container(
