@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hisobchi/domain/enums/bloc_status.dart';
 import 'package:hisobchi/infrastructure/dto/models/notification/notification_model.dart';
@@ -64,7 +65,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       await repo.readNotification(event.id);
     } catch (e) {
       // If server call fails, we might want to revert or just log
-      print("Error marking notification as read: $e");
+      debugPrint("Error marking notification as read: $e");
     }
   }
 
@@ -76,7 +77,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     try {
       await repo.readAllNotifications();
     } catch (e) {
-      print("Error marking all notifications as read: $e");
+      debugPrint("Error marking all notifications as read: $e");
     }
   }
 }

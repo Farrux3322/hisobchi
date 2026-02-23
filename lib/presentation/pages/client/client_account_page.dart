@@ -16,12 +16,14 @@ import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:hisobchi/presentation/pages/client/client_xisob_kitob.dart';
 import 'package:hisobchi/presentation/pages/client/report/report_client_show_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_delete_dialog.dart';
-import 'package:hisobchi/presentation/pages/client/client_edit_page.dart';
 import 'package:hisobchi/presentation/pages/client/sms_setting_page.dart';
+import 'package:hisobchi/presentation/pages/client/sms_detail_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/kirim_bottom_sheet.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:hisobchi/utils/url_louncher_util.dart';
 import 'package:shimmer/shimmer.dart';
+
+import 'client_edit_page.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key, required this.partnerModel});
@@ -115,6 +117,20 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 ),
               ),
               actions: [
+                IconButton(
+                  icon: SvgPicture.asset(AppIcons.sms),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SmsDetailPage(
+                          partnerId: widget.partnerModel.id ?? 0,
+                          partnerName: widget.partnerModel.name ?? 'SMS Tarixi',
+                        ),
+                      ),
+                    );
+                  },
+                ),
                 IconButton(
                   icon: Icon(Icons.settings, color: AppTheme.colors.primary),
                   onPressed: () {

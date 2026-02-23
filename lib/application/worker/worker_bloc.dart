@@ -20,6 +20,7 @@ class WorkerBloc extends Bloc<WorkerEvent, WorkerState> {
     on<ForceDeleteWorkerEvent>(_onForceDeleteWorker);
     on<GetWorkerPositionsEvent>(_onGetWorkerPositions);
     on<CreateWorkerPositionEvent>(_onCreateWorkerPosition);
+    on<UpdateWorkerPositionEvent>(_onUpdateWorkerPosition);
     on<DeleteWorkerPositionEvent>(_onDeleteWorkerPosition);
     on<RestoreWorkerPositionEvent>(_onRestoreWorkerPosition);
     on<ForceDeleteWorkerPositionEvent>(_onForceDeleteWorkerPosition);
@@ -211,6 +212,30 @@ class WorkerBloc extends Bloc<WorkerEvent, WorkerState> {
       ));
     }
   }
+
+  Future<void> _onUpdateWorkerPosition(
+    UpdateWorkerPositionEvent event,
+    Emitter<WorkerState> emit,
+  ) async {
+    emit(state.copyWith(statusPositionAction: Status.loading));
+    try {
+      await repository.updateWorkerPosition(
+        positionId: event.positionId,
+        name: event.name,
+        description: event.description,
+      );
+      emit(state.copyWith(statusPositionAction: Status.success));
+      // Reset statusPositionAction after a short delay to allow UI to react
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(state.copyWith(statusPositionAction: Status.initial));
+    } catch (e) {
+      emit(state.copyWith(
+        statusPositionAction: Status.error,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
 
   Future<void> _onDeleteWorkerPosition(
     DeleteWorkerPositionEvent event,

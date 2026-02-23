@@ -3,6 +3,7 @@ import 'package:hisobchi/infrastructure/common/network_provider.dart';
 import 'package:hisobchi/infrastructure/models/partner_details_report_model.dart';
 import 'package:hisobchi/infrastructure/models/partner_report_model.dart';
 import 'package:hisobchi/infrastructure/models/partner_summary_model.dart';
+import 'package:hisobchi/infrastructure/models/sent_sms_model.dart';
 
 class PartnerReportRepository {
   /// Get partner details report (UZS and USD statistics)
@@ -86,6 +87,32 @@ class PartnerReportRepository {
         return PartnerReportMainResponse.fromJson(response.data);
       } else {
         throw Exception('Failed to refresh partner main report');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  /// Get sent SMS report for a partner
+  /// Endpoint: GET /reports/partners/sended-sms/{partnerId}
+  Future<SentSmsResponse> getSentSms({
+    required int partnerId,
+    int page = 1,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/reports/partners/sended-sms/$partnerId',
+        queryParameters: {
+          'page': page,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return SentSmsResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load sent SMS report');
       }
     } on DioException catch (e) {
       throw Exception(_getErrorMessage(e));

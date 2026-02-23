@@ -353,18 +353,17 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                     style: TextStyle(fontSize: 15, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600, color: const Color(0xFF1E293B)),
                   ),
                   const SizedBox(height: 4),
+                  if (worker.phone != null)
+                    Text(
+                      _formatPhone(worker.phone),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                    ),
+                  const SizedBox(height: 4),
                   Text(worker.workerPositionName ?? 'Lavozim ko\'rsatilmagan', style: const TextStyle(fontSize: 13, color: Color(0xFF64748B))),
                 ],
               ),
             ),
-            if (worker.phone != null)
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Text(
-                  _formatPhone(worker.phone),
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
-                ),
-              ),
+
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               width: 28,

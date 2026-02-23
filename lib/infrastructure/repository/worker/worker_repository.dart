@@ -270,6 +270,31 @@ class WorkerRepository {
     }
   }
 
+  // Update worker position
+  Future<void> updateWorkerPosition({
+    required int positionId,
+    required String name,
+    String? description,
+  }) async {
+    try {
+      final data = {
+        'name': name,
+        'description': description,
+      };
+
+      final response = await dio.put('/documents/worker-position/$positionId', data: data);
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update worker position');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+
   // Delete worker position
   Future<void> deleteWorkerPosition(int positionId) async {
     try {

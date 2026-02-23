@@ -89,7 +89,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
   }
 
   Future<void> getPricingPlanDetail(GetPricingPlanDetailEvent event, Emitter<SubscriptionState> emit) async {
-    emit(state.copyWith(detailStatus: Status.loading));
+    emit(state.copyWith(detailStatus: Status.loading,purchaseStatus: Status.initial));
     try {
       final data = await _repo.getPricingPlanDetail(id: event.id);
 

@@ -123,6 +123,22 @@ class CreateWorkerPositionEvent extends WorkerEvent {
   List<Object?> get props => [name, description];
 }
 
+// Update worker position event
+class UpdateWorkerPositionEvent extends WorkerEvent {
+  final int positionId;
+  final String name;
+  final String? description;
+
+  const UpdateWorkerPositionEvent({
+    required this.positionId,
+    required this.name,
+    this.description,
+  });
+
+  @override
+  List<Object?> get props => [positionId, name, description];
+}
+
 // Delete worker position event
 class DeleteWorkerPositionEvent extends WorkerEvent {
   final int positionId;

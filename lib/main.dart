@@ -39,6 +39,8 @@ import 'infrastructure/repository/cost_type/cost_type_repository.dart';
 import 'infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'presentation/assets/theme/app_theme.dart';
 import 'presentation/pages/app_widget.dart';
+import 'package:hisobchi/application/sent_sms/sent_sms_bloc.dart';
+import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
 
 
 @pragma('vm:entry-point')
@@ -194,7 +196,9 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => NotificationBloc()),
         BlocProvider(create: (context) => SubscriptionStatusCubit()),
         BlocProvider(create: (context) => UpdateCheckerBloc()..add(const CheckUpdate())),
+        BlocProvider(create: (context) => SentSmsBloc(repository: PartnerReportRepository())),
       ],
+
       child: ScreenUtilInit(
         designSize: const Size(375, 812),
         minTextAdapt: true,

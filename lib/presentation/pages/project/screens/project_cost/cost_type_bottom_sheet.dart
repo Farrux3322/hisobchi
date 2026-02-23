@@ -8,8 +8,11 @@ import 'package:hisobchi/application/cost_type/cost_type_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/cost_type_model.dart';
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:hisobchi/presentation/pages/project/screens/project_cost/widgets/add_cost_type_sheet.dart';
+import 'package:hisobchi/presentation/pages/project/screens/project_cost/widgets/delete_confirm_sheet.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
-import 'package:hisobchi/presentation/components/toast/toast.dart';
+
+import '../../../../components/toast/toast.dart';
 
 class CostTypeBottomSheet extends StatefulWidget {
   const CostTypeBottomSheet({super.key, required this.isCreate});
@@ -49,142 +52,45 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
     });
   }
 
-  Future<void> _showAddCostTypeDialog({CostTypeModel? costType}) async {
+  Future<void> _showAddCostTypeSheet({CostTypeModel? costType}) async {
     // Check if update is allowed
     if (costType != null && costType.isUpdateAndDelete == false) {
       Toast.showErrorToast(message: 'Ushbu chiqim turini tahrirlash mumkin emas');
       return;
     }
 
-    final nameController = TextEditingController(text: costType?.name);
-    final descriptionController = TextEditingController(text: costType?.description);
-    final formKey = GlobalKey<FormState>();
-
-    final result = await showDialog<bool>(
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(costType == null ? 'Yangi chiqim turi' : 'Chiqim turini tahrirlash'),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: 'Chiqim turi nomi*',
-                  hintText: 'Masalan: Transport xarajatlari',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Nomni kiriting';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: descriptionController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  labelText: 'Izoh',
-                  hintText: 'Qo\'shimcha ma\'lumot',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF5B4FFF), width: 2),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Bekor qilish')),
-          ElevatedButton(
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                Navigator.pop(context, true);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.colors.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: Text(costType == null ? 'Yaratish' : 'Saqlash'),
-          ),
-        ],
-      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddCostTypeSheet(costType: costType),
     );
 
-    if (result == true && mounted) {
+    if (result != null && mounted) {
+      final String name = result['name'];
+      final String? description = result['description'];
+
       if (costType == null) {
-        context.read<CostTypeBloc>().add(CreateCostTypeEvent(name: nameController.text.trim(), description: descriptionController.text.trim().isEmpty ? null : descriptionController.text.trim()));
+        context.read<CostTypeBloc>().add(CreateCostTypeEvent(name: name, description: description));
       } else {
         context.read<CostTypeBloc>().add(
-          UpdateCostTypeEvent(costTypeId: costType.id!, name: nameController.text.trim(), description: descriptionController.text.trim().isEmpty ? null : descriptionController.text.trim()),
+          UpdateCostTypeEvent(costTypeId: costType.id!, name: name, description: description),
         );
       }
     }
   }
 
-  Future<void> _showDeleteDialog(CostTypeModel costType) async {
+  Future<void> _showDeleteSheet(CostTypeModel costType) async {
     // Check if delete is allowed
     if (costType.isUpdateAndDelete == false) {
       Toast.showErrorToast(message: 'Ushbu chiqim turini o\'chirish mumkin emas');
       return;
     }
 
-    final result = await showDialog<String>(
+    final result = await showModalBottomSheet<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-              child: const Icon(Icons.delete_outline, color: Colors.red, size: 24),
-            ),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Text('O\'chirish', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            ),
-          ],
-        ),
-        content: Text(costType.isDeleted ? 'Ushbu chiqim turini butunlay o\'chirmoqchimisiz?' : 'Ushbu chiqim turini o\'chirmoqchimisiz?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Yo\'q')),
-          if (costType.isDeleted) ...[
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'restore'),
-              child: const Text('Tiklash', style: TextStyle(color: Colors.green)),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, 'force_delete'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade700,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: const Text('Butunlay o\'chirish'),
-            ),
-          ] else
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, 'delete'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: const Text('O\'chirish'),
-            ),
-        ],
-      ),
+      backgroundColor: Colors.transparent,
+      builder: (context) => DeleteConfirmSheet(costType: costType),
     );
 
     if (result != null && mounted) {
@@ -268,7 +174,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                             decoration: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(8)),
                             child: const Icon(Icons.add, color: Colors.white, size: 20),
                           ),
-                          onPressed: () => _showAddCostTypeDialog(),
+                          onPressed: () => _showAddCostTypeSheet(),
                         ),
                         if(!widget.isCreate)Gap(26)
                       ],
@@ -354,7 +260,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
         children: isDeleted
             ? [
                 SlidableAction(
-                  onPressed: (context) => _showDeleteDialog(costType),
+                  onPressed: (context) => _showDeleteSheet(costType),
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
                   icon: Icons.restore,
@@ -362,7 +268,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 SlidableAction(
-                  onPressed: (context) => _showDeleteDialog(costType),
+                  onPressed: (context) => _showDeleteSheet(costType),
                   backgroundColor: Colors.red.shade700,
                   foregroundColor: Colors.white,
                   icon: Icons.delete_forever,
@@ -372,7 +278,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
               ]
             : [
                 SlidableAction(
-                  onPressed: (context) => _showAddCostTypeDialog(costType: costType),
+                  onPressed: (context) => _showAddCostTypeSheet(costType: costType),
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
                   icon: Icons.edit,
@@ -380,7 +286,7 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 SlidableAction(
-                  onPressed: (context) => _showDeleteDialog(costType),
+                  onPressed: (context) => _showDeleteSheet(costType),
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                   icon: Icons.delete_outline,
@@ -402,13 +308,6 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
           ),
           child: Row(
             children: [
-              Container(
-                height: 40,
-                width: 40,
-                decoration: BoxDecoration(color: const Color(0xFF5B4FFF).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.category_outlined, color: Color(0xFF5B4FFF), size: 20),
-              ),
-              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
