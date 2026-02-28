@@ -77,9 +77,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('To\'lov sahifasini ochib bo\'lmadi')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('To\'lov sahifasini ochib bo\'lmadi')));
       }
     }
   }
@@ -106,21 +104,11 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
             });
           }
         } else if (state.purchaseStatus == Status.error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage.isNotEmpty ? state.errorMessage : 'Xarid amalga oshmadi'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.errorMessage.isNotEmpty ? state.errorMessage : 'Xarid amalga oshmadi'), backgroundColor: Colors.red));
         }
 
         if (state.orderStatus == Status.error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage),
-              backgroundColor: Colors.red,
-            ),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.errorMessage), backgroundColor: Colors.red));
         }
 
         if (state.orderStatus == Status.success) {
@@ -134,7 +122,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
         builder: (context, state) {
           final isLoading = state.smsStatus == Status.loading;
           final packages = state.smsPricingPlans;
-          
+
           if (_selectedPackageIndex >= packages.length && packages.isNotEmpty) {
             _selectedPackageIndex = 0;
           }
@@ -142,11 +130,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
           final selectedPackage = packages.isNotEmpty ? packages[_selectedPackageIndex] : null;
 
           if (isWaitingForPayment) {
-            return Scaffold(
-              backgroundColor: AppTheme.colors.background,
-              appBar: _buildAppBar(context),
-              body: _buildWaitingForPaymentUI(state),
-            );
+            return Scaffold(backgroundColor: AppTheme.colors.background, appBar: _buildAppBar(context), body: _buildWaitingForPaymentUI(state));
           }
 
           return Scaffold(
@@ -166,19 +150,13 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
                         SizedBox(height: 12.h),
                         isLoading ? _buildShimmerSelection() : _buildPackageSelection(packages),
                         SizedBox(height: 12.h),
-                        if (!isLoading && selectedPackage != null)
-                          _buildSelectedPlanDetails(selectedPackage)
-                        else if (isLoading)
-                          _buildShimmerDetails(),
+                        if (!isLoading && selectedPackage != null) _buildSelectedPlanDetails(selectedPackage) else if (isLoading) _buildShimmerDetails(),
                         SizedBox(height: 12.h),
                       ],
                     ),
                   ),
                 ),
-                if (!isLoading && selectedPackage != null)
-                  _buildCheckoutFooter(selectedPackage)
-                else if (isLoading)
-                  _buildShimmerFooter(),
+                if (!isLoading && selectedPackage != null) _buildCheckoutFooter(selectedPackage) else if (isLoading) _buildShimmerFooter(),
               ],
             ),
           );
@@ -194,12 +172,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
       centerTitle: true,
       title: Text(
         "SMS To'plamlar",
-        style: TextStyle(
-          color: AppTheme.colors.black,
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
+        style: TextStyle(color: AppTheme.colors.black, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.5),
       ),
       leading: const BackArrowButton(),
     );
@@ -214,11 +187,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
           children: [
             Text(
               "Yangi to'plamni tanlang",
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.colors.black,
-              ),
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
             ),
             SizedBox(height: 8.h),
             Row(
@@ -262,19 +231,8 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(24.r),
-              border: Border.all(
-                color: isSelected ? AppTheme.colors.primary : Colors.transparent,
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: isSelected
-                      ? AppTheme.colors.primary.withValues(alpha: 0.08)
-                      : Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+              border: Border.all(color: isSelected ? AppTheme.colors.primary : Colors.transparent, width: 2),
+              boxShadow: [BoxShadow(color: isSelected ? AppTheme.colors.primary.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 10))],
             ),
             child: Row(
               children: [
@@ -287,30 +245,18 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
                         children: [
                           Text(
                             "${package.smsCount} SMS",
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              color: isSelected ? AppTheme.colors.primary : AppTheme.colors.black,
-                            ),
+                            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: isSelected ? AppTheme.colors.primary : AppTheme.colors.black),
                           ),
                           Text(
                             "${_formatPrice(package.price)} so'm",
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.colors.black,
-                            ),
+                            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
                           ),
                         ],
                       ),
                       SizedBox(height: 4.h),
                       Text(
                         package.description,
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: AppTheme.colors.black.withValues(alpha: 0.5),
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: TextStyle(fontSize: 12.sp, color: AppTheme.colors.black.withValues(alpha: 0.5), fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -321,10 +267,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
                   height: 24.w,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected ? AppTheme.colors.primary : AppTheme.colors.divider,
-                      width: isSelected ? 8.w : 2.w,
-                    ),
+                    border: Border.all(color: isSelected ? AppTheme.colors.primary : AppTheme.colors.divider, width: isSelected ? 8.w : 2.w),
                   ),
                 ),
               ],
@@ -392,13 +335,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, -10),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, -10))],
       ),
       child: ElevatedButton(
         onPressed: () {
@@ -421,13 +358,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
   }
 
   void _handlePurchase(SMSPricingModel package, String method) {
-    context.read<SubscriptionBloc>().add(
-          PurchaseSMSPackageEvent(
-            smsPackageId: package.id,
-            paymentMethod: method,
-            returnUrl: 'hisobchi://payment-success',
-          ),
-        );
+    context.read<SubscriptionBloc>().add(PurchaseSMSPackageEvent(smsPackageId: package.id, paymentMethod: method, returnUrl: 'hisobchi://payment-success'));
   }
 
   void _showPaymentMethodBottomSheet(SMSPricingModel package) {
@@ -449,10 +380,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
               child: Container(
                 width: 40.w,
                 height: 4.h,
-                decoration: BoxDecoration(
-                  color: AppTheme.colors.divider.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(2.r),
-                ),
+                decoration: BoxDecoration(color: AppTheme.colors.divider.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(2.r)),
               ),
             ),
             SizedBox(height: 24.h),
@@ -517,7 +445,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
   }
 
   void _showSuccessDialog() {
-    context.pushReplacementNamed(Routes.paymentSuccess.name);
+    context.pushReplacementNamed(Routes.paymentSuccess.name, extra: false);
   }
 
   void _showPendingDialog() {
@@ -528,19 +456,13 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
         backgroundColor: Colors.transparent,
         child: Container(
           padding: EdgeInsets.all(24.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(28.r),
-          ),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(28.r)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: EdgeInsets.all(20.w),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: const Color(0xFFF59E0B).withValues(alpha: 0.1), shape: BoxShape.circle),
                 child: Icon(Icons.hourglass_empty_rounded, color: const Color(0xFFF59E0B), size: 40.sp),
               ),
               SizedBox(height: 24.h),
@@ -563,7 +485,10 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
                   minimumSize: Size(double.infinity, 52.h),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
                 ),
-                child: const Text("Tushundim", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  "Tushundim",
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
@@ -583,10 +508,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
           const Spacer(),
           Container(
             padding: EdgeInsets.all(24.w),
-            decoration: BoxDecoration(
-              color: AppTheme.colors.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
             child: Icon(Icons.schedule_rounded, size: 64.sp, color: AppTheme.colors.primary),
           ),
           SizedBox(height: 24.h),
@@ -624,8 +546,15 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
             ),
             child: isVerifying
-                ? SizedBox(width: 24.w, height: 24.w, child: const CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-                : const Text("To'lovni tekshirish", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                ? SizedBox(
+                    width: 24.w,
+                    height: 24.w,
+                    child: const CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                  )
+                : const Text(
+                    "To'lovni tekshirish",
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
           ),
           SizedBox(height: 16.h),
           TextButton(
@@ -634,7 +563,10 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
                 _launchPaymentUrl(state.purchaseResult!.paymentUrl!);
               }
             },
-            child: Text("To'lov sahifasiga qaytish", style: TextStyle(color: AppTheme.colors.black.withValues(alpha: 0.6), fontWeight: FontWeight.bold)),
+            child: Text(
+              "To'lov sahifasiga qaytish",
+              style: TextStyle(color: AppTheme.colors.black.withValues(alpha: 0.6), fontWeight: FontWeight.bold),
+            ),
           ),
           const Spacer(),
         ],
@@ -651,10 +583,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
           child: Container(
             height: 100.h,
             margin: EdgeInsets.only(bottom: 16.h),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24.r),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24.r)),
           ),
         );
       }),
@@ -667,10 +596,7 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
       highlightColor: Colors.black.withValues(alpha: 0.01),
       child: Container(
         height: 160.h,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24.r)),
       ),
     );
   }

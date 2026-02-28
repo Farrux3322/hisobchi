@@ -90,18 +90,15 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // We remove automatic verification here to avoid false positives 
-    // when returning to the app manually without paying. 
+    // We remove automatic verification here to avoid false positives
+    // when returning to the app manually without paying.
     // The user can still press the "Verify" button manually.
   }
 
   String _formatPrice(String? amount) {
     if (amount == null) return '0';
     final numValue = double.tryParse(amount) ?? 0;
-    return numValue.toInt().toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]} ',
-        );
+    return numValue.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]} ');
   }
 
   String _getBillingCycle() {
@@ -130,22 +127,15 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('To\'lov sahifasini ochib bo\'lmadi')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('To\'lov sahifasini ochib bo\'lmadi')));
       }
     }
   }
 
   void _handlePurchase() {
     context.read<SubscriptionBloc>().add(
-          PurchaseSubscriptionEvent(
-            planId: widget.planId,
-            billingCycle: _getBillingCycle(),
-            paymentMethod: _getPaymentMethod(),
-            returnUrl: 'hisobchi://payment-success',
-          ),
-        );
+      PurchaseSubscriptionEvent(planId: widget.planId, billingCycle: _getBillingCycle(), paymentMethod: _getPaymentMethod(), returnUrl: 'hisobchi://payment-success'),
+    );
   }
 
   void _verifyPayment() {
@@ -158,7 +148,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
   }
 
   void _showSuccessDialog() {
-    context.pushReplacementNamed(Routes.paymentSuccess.name);
+    context.pushReplacementNamed(Routes.paymentSuccess.name, extra: true);
   }
 
   void _showPendingDialog() {
@@ -172,49 +162,27 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.hourglass_empty_rounded,
-                  color: Color(0xFFF59E0B),
-                  size: 40,
-                ),
+                decoration: BoxDecoration(color: const Color(0xFFF59E0B).withValues(alpha: 0.1), shape: BoxShape.circle),
+                child: const Icon(Icons.hourglass_empty_rounded, color: Color(0xFFF59E0B), size: 40),
               ),
               const Gap(24),
               const Text(
                 'To\'lov kutilmoqda',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1D1D1F),
-                  letterSpacing: -0.5,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1D1D1F), letterSpacing: -0.5),
               ),
               const Gap(12),
               const Text(
                 'To\'lov hali yakunlanmadi. Iltimos, bir ozdan so\'ng qayta urinib ko\'ring.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Color(0xFF8E8E93),
-                  height: 1.5,
-                ),
+                style: TextStyle(fontSize: 15, color: Color(0xFF8E8E93), height: 1.5),
               ),
               const Gap(32),
               SizedBox(
@@ -224,18 +192,12 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1D1D1F),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     elevation: 0,
                   ),
                   child: const Text(
                     'Tushundim',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
                   ),
                 ),
               ),
@@ -258,21 +220,11 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
             });
           }
         } else if (state.purchaseStatus == Status.error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage.isNotEmpty ? state.errorMessage : 'Xarid amalga oshmadi'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.errorMessage.isNotEmpty ? state.errorMessage : 'Xarid amalga oshmadi'), backgroundColor: Colors.red));
         }
 
         if (state.orderStatus == Status.error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage),
-              backgroundColor: Colors.red,
-            ),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.errorMessage), backgroundColor: Colors.red));
         }
 
         if (state.orderStatus == Status.success) {
@@ -291,19 +243,19 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
           if (isWaitingForPayment) {
             final currentSub = state.subscriptionInfo?.subscription;
             final subStatus = currentSub?.status?.toLowerCase();
-            
+
             bool isSuccess = false;
 
             // 1. If we got a deep link, it's a guaranteed success signal from the gateway
             if (_deepLinkReceived && subStatus == 'active') {
               isSuccess = true;
-            } 
+            }
             // 2. If no deep link, check if the subscription state actually changed
             else if (currentSub != null && _initialSubscription != null) {
               // Plan changed
               if (currentSub.plan?.id != _initialSubscription?.plan?.id) {
                 isSuccess = subStatus == 'active';
-              } 
+              }
               // Payment date changed (meaning a new payment was processed)
               else if (currentSub.lastPayment?.date != _initialSubscription?.lastPayment?.date) {
                 isSuccess = subStatus == 'active';
@@ -322,16 +274,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
       },
       child: Scaffold(
         backgroundColor: AppColors.background,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-          leading: const BackArrowButton(),
-          title: Text(
-            widget.planName,
-
-          ),
-        ),
+        appBar: AppBar(backgroundColor: Colors.white, elevation: 0, centerTitle: true, leading: const BackArrowButton(), title: Text(widget.planName)),
         body: BlocBuilder<SubscriptionBloc, SubscriptionState>(
           builder: (context, state) {
             if (state.detailStatus == Status.loading && !isWaitingForPayment) {
@@ -345,10 +288,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
                   children: [
                     const Icon(Icons.error_outline, size: 64, color: Colors.red),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Xatolik yuz berdi',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                    ),
+                    const Text('Xatolik yuz berdi', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     Text(
                       state.errorMessage,
@@ -387,21 +327,10 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
                       children: [
                         const Text(
                           'Tarif muddatini tanlang',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textPrimary,
-                          ),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 8),
-                        if (plan.monthlyPrice != null)
-                          _buildTariffCard(
-                            type: TariffType.monthly,
-                            label: 'Oylik',
-                            price: plan.monthlyPrice!.amount,
-                            discount: null,
-                            description: null,
-                          ),
+                        if (plan.monthlyPrice != null) _buildTariffCard(type: TariffType.monthly, label: 'Oylik', price: plan.monthlyPrice!.amount, discount: null, description: null),
                         if (plan.semiAnnualPrice != null)
                           _buildTariffCard(
                             type: TariffType.semiAnnual,
@@ -422,17 +351,13 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
                           ),
                         const Text(
                           'To\'lov turini tanlang',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textPrimary,
-                          ),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 8),
                         _buildPaymentMethodSection(plan),
                         const Gap(24),
                         _buildPurchaseButton(state),
-                        Gap(MediaQuery.of(context).padding.bottom + 10)
+                        Gap(MediaQuery.of(context).padding.bottom + 10),
                       ],
                     ),
                   ),
@@ -448,23 +373,11 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
   Widget _buildPaymentMethodSection(dynamic plan) {
     final List<Widget> methods = [];
     if (plan.paymentMethods != null && plan.paymentMethods!.contains('PAYME')) {
-      methods.add(
-        _buildPaymentCard(
-          type: PaymentType.card,
-          label: 'Payme',
-          icon: AppIcons.payme,
-        ),
-      );
+      methods.add(_buildPaymentCard(type: PaymentType.card, label: 'Payme', icon: AppIcons.payme));
       methods.add(const Gap(12));
     }
     if (plan.paymentMethods != null && plan.paymentMethods!.contains('CLICK')) {
-      methods.add(
-        _buildPaymentCard(
-          type: PaymentType.click,
-          label: 'Click',
-          icon: AppIcons.click,
-        ),
-      );
+      methods.add(_buildPaymentCard(type: PaymentType.click, label: 'Click', icon: AppIcons.click));
     }
     return Column(children: methods);
   }
@@ -479,27 +392,14 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
         onPressed: isLoading ? null : _handlePurchase,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.colors.primary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           elevation: 0,
         ),
         child: isLoading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
+            ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
             : const Text(
                 'Xarid qilish',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
               ),
       ),
     );
@@ -516,34 +416,19 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
           const Spacer(),
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.schedule_rounded,
-              size: 64,
-              color: AppColors.primary,
-            ),
+            decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+            child: const Icon(Icons.schedule_rounded, size: 64, color: AppColors.primary),
           ),
           const Gap(24),
           const Text(
             'To\'lov kutilmoqda',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           ),
           const Gap(12),
           const Text(
             'To\'lovni amalga oshirganingizdan so\'ng pastdagi tugmani bosing',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: AppColors.textSecondary,
-              height: 1.5,
-            ),
+            style: TextStyle(fontSize: 16, color: AppColors.textSecondary, height: 1.5),
           ),
           const Spacer(),
           if (state.purchaseResult?.orderNumber != null) ...[
@@ -557,10 +442,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
               ),
               child: Text(
                 'Buyurtma raqami: ${state.purchaseResult!.orderNumber}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w500, color: AppColors.textPrimary),
               ),
             ),
           ],
@@ -572,27 +454,14 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
               onPressed: isVerifying ? null : _verifyPayment,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 0,
               ),
               child: isVerifying
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
+                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
                   : const Text(
                       'To\'lovni tekshirish',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
                     ),
             ),
           ),
@@ -611,13 +480,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
     );
   }
 
-  Widget _buildTariffCard({
-    required TariffType type,
-    required String label,
-    required String? price,
-    required double? discount,
-    required String? description,
-  }) {
+  Widget _buildTariffCard({required TariffType type, required String label, required String? price, required double? discount, required String? description}) {
     final isSelected = selectedTariff == type;
 
     return GestureDetector(
@@ -632,10 +495,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? AppColors.green : AppColors.borderGray,
-            width: isSelected ? 2 : 1,
-          ),
+          border: Border.all(color: isSelected ? AppColors.green : AppColors.borderGray, width: isSelected ? 2 : 1),
         ),
         child: Row(
           children: [
@@ -645,46 +505,25 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
-                    ),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
                       Text(
                         '${_formatPrice(price)} uzs',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                       ),
                       if (discount != null) ...[
                         const SizedBox(width: 8),
                         Text(
                           '(-${discount.toInt()}%)',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.green,
-                          ),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.green),
                         ),
                       ],
                     ],
                   ),
-                  if (description != null && description.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      description,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
+                  if (description != null && description.isNotEmpty) ...[const SizedBox(height: 4), Text(description, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary))],
                 ],
               ),
             ),
@@ -693,19 +532,10 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
               height: 24,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? AppColors.green : AppColors.borderGray,
-                  width: 2,
-                ),
+                border: Border.all(color: isSelected ? AppColors.green : AppColors.borderGray, width: 2),
                 color: isSelected ? AppColors.green : Colors.transparent,
               ),
-              child: isSelected
-                  ? const Icon(
-                      Icons.check,
-                      size: 16,
-                      color: Colors.white,
-                    )
-                  : null,
+              child: isSelected ? const Icon(Icons.check, size: 16, color: Colors.white) : null,
             ),
           ],
         ),
@@ -713,11 +543,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
     );
   }
 
-  Widget _buildPaymentCard({
-    required PaymentType type,
-    required String label,
-    required String icon,
-  }) {
+  Widget _buildPaymentCard({required PaymentType type, required String label, required String icon}) {
     final isSelected = selectedPayment == type;
 
     return GestureDetector(
@@ -731,10 +557,7 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? AppTheme.colors.primary : AppColors.borderGray,
-            width: isSelected ? 2 : 1,
-          ),
+          border: Border.all(color: isSelected ? AppTheme.colors.primary : AppColors.borderGray, width: isSelected ? 2 : 1),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -756,19 +579,10 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
               height: 24,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? AppTheme.colors.primary : AppColors.borderGray,
-                  width: 2,
-                ),
+                border: Border.all(color: isSelected ? AppTheme.colors.primary : AppColors.borderGray, width: 2),
                 color: isSelected ? AppTheme.colors.primary : Colors.transparent,
               ),
-              child: isSelected
-                  ? const Icon(
-                      Icons.check,
-                      size: 16,
-                      color: Colors.white,
-                    )
-                  : null,
+              child: isSelected ? const Icon(Icons.check, size: 16, color: Colors.white) : null,
             ),
           ],
         ),

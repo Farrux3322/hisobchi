@@ -108,7 +108,7 @@ Future<void> _launchUrl() async {
 }
 
 Future<void> _launchUrlIos() async {
-  final Uri url = Uri.parse('');
+  final Uri url = Uri.parse('https://apps.apple.com/uz/app/e-hisob/id6758664453');
   if (!await launchUrl(url)) {
     throw Exception('Could not launch $url');
   }

@@ -52,7 +52,7 @@ class _SmsDetailPageState extends State<SmsDetailPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text(widget.partnerName),
+        title: Text('Yuborilgan xabarlar tarixi'),
         leading: BackArrowButton()
       ),
       body: BlocBuilder<SentSmsBloc, SentSmsState>(

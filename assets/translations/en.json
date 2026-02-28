@@ -1,7 +1,6 @@
-
 {
   "retry": "Retry",
-  "branch":"Branch",
+  "branch": "Branch",
   "price": "Summa",
   "profile": {
     "cabinet": "SHaxsiy kabinet",
@@ -25,7 +24,6 @@
     "payment_summa": "Total payment",
     "month": "To the moon",
     "payment_term": "Payment term"
-
   },
   "root": {
     "products": "Mahsulotlar",
@@ -56,18 +54,17 @@
     "count_not": "Mahsulot sonini kiriting !!!",
     "text_not": "Maydonlar to'ldirilmagan !!!",
     "advance_payment_should_not_be_more_than_50_of_the_price_of_the_product": "Advance payment should not be more than 50% of the price of the product !!!"
-
   },
-  "sum" : "{price} сум",
+  "sum": "{price} сум",
   "paid": "Оплачено",
   "canceled": "Возврат {price} сум",
   "canceled_": "Возврат",
   "success": "Успешно",
-  "sign_in" : {
-    "login" : "Войти",
-    "login_to_your_account" : "Войти в аккаунт",
-    "phone_number" : "Номер телефона",
-    "sign_in_condition" : "Регистрируясь, вы соглашаетесь с нашими условиями.",
+  "sign_in": {
+    "login": "Войти",
+    "login_to_your_account": "Войти в аккаунт",
+    "phone_number": "Номер телефона",
+    "sign_in_condition": "Регистрируясь, вы соглашаетесь с нашими условиями.",
     "password": "Пароль",
     "name": "Name",
     "data_is_loaded": "Данные загружаются, пожалуйста, не покидайте и не выключайте этот экран, пока процесс не завершится",
@@ -75,35 +72,35 @@
     "scan_fm": "Сканируйте FM-модуль",
     "connect_usb": "Подключите usb"
   },
-  "confirmation" : {
-    "confirmation" : "Подтверждение",
-    "confirm" : "Подтвердить",
-    "confirmation_info" : "Код подтверждения был отправлен на введенный вами номер",
-    "resend_in" : "Отправить повторно через {time}",
-    "did_not_receive" : "Не получили?",
-    "resend" : "Повторно"
+  "confirmation": {
+    "confirmation": "Подтверждение",
+    "confirm": "Подтвердить",
+    "confirmation_info": "Код подтверждения был отправлен на введенный вами номер",
+    "resend_in": "Отправить повторно через {time}",
+    "did_not_receive": "Не получили?",
+    "resend": "Повторно"
   },
-  "passcode" : {
-    "confirmation" : "Подтвердить",
-    "set_passcode" : "Установить ПИН-код",
-    "confirm_passcode" : "Подтвердить ПИН-код"
+  "passcode": {
+    "confirmation": "Подтвердить",
+    "set_passcode": "Установить ПИН-код",
+    "confirm_passcode": "Подтвердить ПИН-код"
   },
-  "home" : {
-    "change" : "Смена",
-    "history" : "История",
-    "search_by_name_or_bar_code" : "Поиск по названию или штрих-коду",
-    "sales_and_returns" : "Продажи и возвраты",
-    "free_price" : "Свободная цена",
-    "z_x_reports" : "Z и X-отчёты",
-    "cart_discount" : "Скидка на карзину",
-    "comment_on_the_order" : "Комментарий к заказу",
-    "cart_price" : "Корзина ({price} sum)",
-    "confirm" : "Подтвердить",
+  "home": {
+    "change": "Смена",
+    "history": "История",
+    "search_by_name_or_bar_code": "Поиск по названию или штрих-коду",
+    "sales_and_returns": "Продажи и возвраты",
+    "free_price": "Свободная цена",
+    "z_x_reports": "Z и X-отчёты",
+    "cart_discount": "Скидка на карзину",
+    "comment_on_the_order": "Комментарий к заказу",
+    "cart_price": "Корзина ({price} sum)",
+    "confirm": "Подтвердить",
     "cart_is_empty": "Корзина пустa",
-    "bottom_bar" : {
-      "catalog" : "Каталог",
-      "cashbox" : "Касса",
-      "settings" : "Настройки"
+    "bottom_bar": {
+      "catalog": "Каталог",
+      "cashbox": "Касса",
+      "settings": "Настройки"
     },
     "drawer": {
       "check_journal": "Журнал чеков",
@@ -113,25 +110,25 @@
       "usb": "USB"
     }
   },
-  "basket" : {
-    "basket" : "Корзина",
-    "choose_payment_method" : "Выбрать способ оплаты",
-    "payable" : "К оплате: ",
-    "subtotal" : "Подытог:",
-    "discount" : "Скидка:",
-    "vat" : "НДС:",
-    "payment" : "Оплата ({price}) сум",
+  "basket": {
+    "basket": "Корзина",
+    "choose_payment_method": "Выбрать способ оплаты",
+    "payable": "К оплате: ",
+    "subtotal": "Подытог:",
+    "discount": "Скидка:",
+    "vat": "НДС:",
+    "payment": "Оплата ({price}) сум",
     "payed": "Оплачено {price} сум",
     "amount_not_payed": "Сумма полностью не оплачено"
   },
-  "payment_method" : {
-    "choose_payment_method" : "Выберите тип оплаты",
-    "cash" : "Наличные",
-    "credit_card" : "Карта",
-    "separate_payment" : "Раздельная оплата",
-    "payment_type" : "Тип оплаты: {type}",
+  "payment_method": {
+    "choose_payment_method": "Выберите тип оплаты",
+    "cash": "Наличные",
+    "credit_card": "Карта",
+    "separate_payment": "Раздельная оплата",
+    "payment_type": "Тип оплаты: {type}",
     "select_or_enter_an_amount": "Выберите или введите сумму",
-    "other_amount":"Другая сумма",
+    "other_amount": "Другая сумма",
     "accept": "Принять",
     "check_printed": "Чек успешно напечатан!",
     "close": "Закрыть",
@@ -141,104 +138,104 @@
     "print_receipt": "Распечатать чек",
     "share": "Поделиться",
     "new_sale": "Новая продажа",
-    "pay" : "Оплатить"
+    "pay": "Оплатить"
   },
-  "notifications" : {
-    "notifications" : "Уведомления",
-    "pay" : "Оплатить",
-    "setting_notifications" : "Настройки уведомлений",
-    "push_notification" : "Push уведомления"  
+  "notifications": {
+    "notifications": "Уведомления",
+    "pay": "Оплатить",
+    "setting_notifications": "Настройки уведомлений",
+    "push_notification": "Push уведомления"
   },
-  "catalog" : {
-    "catalog" : "Каталог",
-    "search_by_name_or_barcode" : "Поиск по названию или штрих-коду",
-    "you_do_not_have_products" : "У вас нет товаров",
-    "add_product" : {
-      "adding_product" : "Добавление товара",
-      "name" : "Наименование",
-      "rate" : "Расценка",
-      "selling_price" : "Цена продажи",
-      "purchase_price" : "Закупочная цена",
-      "discount" : "Скидка",
-      "vat_percentage" : "Процент НДС",
-      "about_the_product" : "О товаре",
-      "category" : "Категория",
-      "ikpu" : "ИКПУ",
-      "barcode" : "Штрих код",
-      "vendor_code" : "Артикул",
-      "description" : "Описание",
-      "has_a_label" : "Имеет маркировку?",
-      "yes" : "Да",
-      "no" : "Нет",
-      "tin_of_the_consignor" : "ИНН комитента",
-      "unit" : "Единица измерения",
-      "item" : "Штука",
-      "add_item" : "Добавить товар",
-      "product_added_successfully" : "Товар успешно добавлен",
-      "cancel" : "Отменить",
+  "catalog": {
+    "catalog": "Каталог",
+    "search_by_name_or_barcode": "Поиск по названию или штрих-коду",
+    "you_do_not_have_products": "У вас нет товаров",
+    "add_product": {
+      "adding_product": "Добавление товара",
+      "name": "Наименование",
+      "rate": "Расценка",
+      "selling_price": "Цена продажи",
+      "purchase_price": "Закупочная цена",
+      "discount": "Скидка",
+      "vat_percentage": "Процент НДС",
+      "about_the_product": "О товаре",
+      "category": "Категория",
+      "ikpu": "ИКПУ",
+      "barcode": "Штрих код",
+      "vendor_code": "Артикул",
+      "description": "Описание",
+      "has_a_label": "Имеет маркировку?",
+      "yes": "Да",
+      "no": "Нет",
+      "tin_of_the_consignor": "ИНН комитента",
+      "unit": "Единица измерения",
+      "item": "Штука",
+      "add_item": "Добавить товар",
+      "product_added_successfully": "Товар успешно добавлен",
+      "cancel": "Отменить",
       "edit_product": "Изменение товара",
       "edit": "Изменить товар",
       "get_product": "Получить товар",
       "save": "Сохранить"
     },
-    "search" : {
-      "no_result_found" : "Ничего не найдено"
+    "search": {
+      "no_result_found": "Ничего не найдено"
     }
   },
-  "report" : {
-    "report" : "Отчёт",
-    "shift_closed" : "Смена закрыта\n{date}",
-    "no_of_last_z_report" : "№ последнего Z-отчёта",
-    "no_fm" : "№ ФМ",
-    "opening_time" : "Время открытия",
-    "closing_time" : "Время закрытия",
-    "checks" : "Чеки",
-    "no_of_the_first_check" : "№ первого чека",
-    "no_of_the_last_check" : "№ последнего чека",
-    "number_of_return_checks" : "Количество чеков возврата",
-    "sales" : "Продажи",
-    "cash" : "Наличные",
-    "card" : "Карта",
-    "total_amount" : "Общая сумма",
-    "vat" : "НДС",
-    "returns" : "Возвраты",
-    "close_shift" : "Закрыть смену",
-    "open_shift" : "Открыть смену",
-    "z_report_opened" : "ZReport открыт",
-    "z_report_closed" : "ZReport закрыт"
+  "report": {
+    "report": "Отчёт",
+    "shift_closed": "Смена закрыта\n{date}",
+    "no_of_last_z_report": "№ последнего Z-отчёта",
+    "no_fm": "№ ФМ",
+    "opening_time": "Время открытия",
+    "closing_time": "Время закрытия",
+    "checks": "Чеки",
+    "no_of_the_first_check": "№ первого чека",
+    "no_of_the_last_check": "№ последнего чека",
+    "number_of_return_checks": "Количество чеков возврата",
+    "sales": "Продажи",
+    "cash": "Наличные",
+    "card": "Карта",
+    "total_amount": "Общая сумма",
+    "vat": "НДС",
+    "returns": "Возвраты",
+    "close_shift": "Закрыть смену",
+    "open_shift": "Открыть смену",
+    "z_report_opened": "ZReport открыт",
+    "z_report_closed": "ZReport закрыт"
   },
-  "search_products" : {
-    "search_products" : "Поиск товаров",
-    "search_by_name_or_bar_code" : "Поиск по названию или штрих-коду",
-    "searching_results" : "Результаты поиска",
-    "have_you_recently_searched" : "Вы недавно искали......"
+  "search_products": {
+    "search_products": "Поиск товаров",
+    "search_by_name_or_bar_code": "Поиск по названию или штрих-коду",
+    "searching_results": "Результаты поиска",
+    "have_you_recently_searched": "Вы недавно искали......"
   },
-  "basket_discount" : {
-    "cart_discount" : "Скидка на корзину",
-    "apply" : "Принять",
-    "sum" : "Сумма",
-    "percent" : "Процент",
-    "discount_percentage" : "Процент скидки",
-    "discount_amount" : "Сумма скидки"
+  "basket_discount": {
+    "cart_discount": "Скидка на корзину",
+    "apply": "Принять",
+    "sum": "Сумма",
+    "percent": "Процент",
+    "discount_percentage": "Процент скидки",
+    "discount_amount": "Сумма скидки"
   },
-  "comment_on_the_order" : {
-    "comments" : "Комментарий",
-    "save" : "Сохранить",
-    "write_here_a_comment" : "Напишите здесь комментарий к заказу..."
+  "comment_on_the_order": {
+    "comments": "Комментарий",
+    "save": "Сохранить",
+    "write_here_a_comment": "Напишите здесь комментарий к заказу..."
   },
-  "settings" : {
-    "settings" : "Настройки",
-    "cashier" : "Кассир",
-    "main" : "Основные",
-    "safety" : "Безопастномть",
-    "appearance" : "Внешний вид",
-    "devices" : "Устройства",
-    "languages" : "Язык",
+  "settings": {
+    "settings": "Настройки",
+    "cashier": "Кассир",
+    "main": "Основные",
+    "safety": "Безопастномть",
+    "appearance": "Внешний вид",
+    "devices": "Устройства",
+    "languages": "Язык",
     "report": "Смена",
     "history": "История",
     "params": "Параметры",
     "settings_eps": "Настройки EPS",
-    "fiscal_module":"Фискальный модуль",
+    "fiscal_module": "Фискальный модуль",
     "logout": "Выйти с аккаунта",
     "update_cashdesk": "Обновить Cashdesk",
     "fiscal_module_": {
@@ -250,45 +247,45 @@
       "unsent_receipt_count": "Количество не отправленных чеков {count}",
       "receipts_sent": "Чеки успешно отправлено"
     },
-    "cashier_" : {
-      "cashier_information" : "Данные кассира",
-      "name" : "Имя",
-      "surname" : "Фамилия",
-      "position" : "Должность",
-      "phone_number" : "Номер телефона"
+    "cashier_": {
+      "cashier_information": "Данные кассира",
+      "name": "Имя",
+      "surname": "Фамилия",
+      "position": "Должность",
+      "phone_number": "Номер телефона"
     },
-    "license" : {
-      "license" : "Лицензия",
-      "license_key" : "Лицензионный ключ",
+    "license": {
+      "license": "Лицензия",
+      "license_key": "Лицензионный ключ",
       "license_period": "Период лицензии",
       "fiscal_module": "Фискальный модуль",
       "status": "Статус",
       "connected": "Подключен",
       "blocked": "Блокирован"
     },
-    "safety_" : {
-      "passcode" : "PIN-код",
-      "change_passcode" : "Изменить PIN-код",
-      "off_passcode" : "Отключить PIN-код",
-      "auto_lock" : "Автоблокировка",
-      "minute" : "минут",
-      "unlock_with_face_id" : "Разблокировка с FaceID"
+    "safety_": {
+      "passcode": "PIN-код",
+      "change_passcode": "Изменить PIN-код",
+      "off_passcode": "Отключить PIN-код",
+      "auto_lock": "Автоблокировка",
+      "minute": "минут",
+      "unlock_with_face_id": "Разблокировка с FaceID"
     },
-    "params_" : {
-      "interface" : "Интерфейс",
+    "params_": {
+      "interface": "Интерфейс",
       "form_quantity_by_sum": "Образовать кол-во суммой",
       "form_price_by_sum": "Образовать цену суммой",
       "printer": "Принтер",
-      "check_size" : "Размер чека",
+      "check_size": "Размер чека",
       "select_printer": "Выбор принтера",
       "auto_print": "Выбор принтера",
       "check": "Чек"
     },
-    "devices_" : {
-      "fiscal_module" : "Фискальный модуль",
-      "fiscal_module_settings" : "Настройки фискального модуля",
-      "thermal_printer_settings" : "Настройки термопринтера",
-      "check" : "Чек"
+    "devices_": {
+      "fiscal_module": "Фискальный модуль",
+      "fiscal_module_settings": "Настройки фискального модуля",
+      "thermal_printer_settings": "Настройки термопринтера",
+      "check": "Чек"
     }
   },
   "free_price": {
@@ -329,9 +326,9 @@
     "back": "Назад",
     "sale_history_empty": "История покупок пусто"
   },
-  "errors" : {
-    "please_select_products" : "Пожалуйста выберите товар",
-    "this_field_cannot_empty" : "Это поле не может быть пустым",
+  "errors": {
+    "please_select_products": "Пожалуйста выберите товар",
+    "this_field_cannot_empty": "Это поле не может быть пустым",
     "you_must_agree_to_the_terms_to_enter": "Для входа необходимо принять условия"
   },
   "menu": {
@@ -351,7 +348,7 @@
       "additional_settings": "Доп. настройки"
     },
     "payment_settings": {
-      "_" : "Настройки оплаты",
+      "_": "Настройки оплаты",
       "specify_available_payment_methods": "Укажите доступные способы оплаты",
       "cash": "Наличные",
       "terminal": "Терминал (сторонний)",
@@ -362,6 +359,11 @@
       "key": "Ключ",
       "settings_updated": "Настройка обновился"
     }
+  },
+  "connectivity": {
+    "noInternetTitle": "No Internet Connection",
+    "noInternetMessage": "Please check your internet connection and try again.",
+    "retry": "Retry",
+    "stillNoInternet": "Still no internet"
   }
 }
-  

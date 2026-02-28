@@ -8,6 +8,7 @@ import 'package:hisobchi/application/theme/theme_bloc.dart';
 import 'package:hisobchi/application/theme/theme_state.dart';
 import 'package:hisobchi/application/update_checker/update_checker_bloc.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/connectivity_listener.dart';
 import 'package:hisobchi/presentation/components/dialog/update_dialog.dart';
 import 'package:hisobchi/presentation/routes/coordinator.dart';
 import 'package:oktoast/oktoast.dart';
@@ -54,39 +55,41 @@ class _AppWidgetState extends State<AppWidget> with WidgetsBindingObserver {
                     statusBarColor:  Color(0xFFF5F6F8),
                     systemNavigationBarColor: Color(0xFFF5F6F8),
                   ),
-                  child: MaterialApp.router(
-                    title: 'Hisobchi',
-                    theme: AppTheme.data,
-                    darkTheme: AppTheme.darkData,
-                    themeMode: themeState.themeMode,
-                    debugShowCheckedModeBanner: false,
-                    locale: context.locale,
-                    localizationsDelegates: context.localizationDelegates,
-                    supportedLocales: context.supportedLocales,
-                    routeInformationParser: router.routeInformationParser,
-                    routeInformationProvider: router.routeInformationProvider,
-                    routerDelegate: router.routerDelegate,
-                    builder: EasyLoading.init(
-                      builder: (context, child) {
-                        return MediaQuery(
-                          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1)),
-                          child: BlocConsumer<UpdateCheckerBloc, UpdateCheckerState>(
-                            listener: (context, updateState) {
-                              if (updateState.hasUpdate == true) {
-                                if (context.mounted) {
-                                  showDialog(
-                                      barrierDismissible: updateState.updateStatus != 'hard',
-                                      context: AppManagerCubit.context ?? context,
-                                      builder: (BuildContext context) => UpdateAppDialog(status: updateState.updateStatus));
+                  child: ConnectivityListener(
+                    child: MaterialApp.router(
+                      title: 'Hisobchi',
+                      theme: AppTheme.data,
+                      darkTheme: AppTheme.darkData,
+                      themeMode: themeState.themeMode,
+                      debugShowCheckedModeBanner: false,
+                      locale: context.locale,
+                      localizationsDelegates: context.localizationDelegates,
+                      supportedLocales: context.supportedLocales,
+                      routeInformationParser: router.routeInformationParser,
+                      routeInformationProvider: router.routeInformationProvider,
+                      routerDelegate: router.routerDelegate,
+                      builder: EasyLoading.init(
+                        builder: (context, child) {
+                          return MediaQuery(
+                            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1)),
+                            child: BlocConsumer<UpdateCheckerBloc, UpdateCheckerState>(
+                              listener: (context, updateState) {
+                                if (updateState.hasUpdate == true) {
+                                  if (context.mounted) {
+                                    showDialog(
+                                        barrierDismissible: updateState.updateStatus != 'hard',
+                                        context: AppManagerCubit.context ?? context,
+                                        builder: (BuildContext context) => UpdateAppDialog(status: updateState.updateStatus));
+                                  }
                                 }
-                              }
-                            },
-                            builder: (context, updateState) {
-                              return child ?? const Material(color: Colors.white, child: SizedBox());
-                            },
-                          ),
-                        );
-                      },
+                              },
+                              builder: (context, updateState) {
+                                return child ?? const Material(color: Colors.white, child: SizedBox());
+                              },
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),

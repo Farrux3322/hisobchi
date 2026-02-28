@@ -56,7 +56,7 @@ class _TermsOfServicePageState extends State<TermsOfServicePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: AppTheme.colors.white, leading: BackArrowButton(), title: Text('Offerta'), centerTitle: true),
+      appBar: AppBar(backgroundColor: AppTheme.colors.white, leading: BackArrowButton(), title: Text('Oferta'), centerTitle: true),
       body: Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
         child: Column(

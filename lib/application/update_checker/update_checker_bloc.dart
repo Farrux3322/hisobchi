@@ -23,9 +23,13 @@ class UpdateCheckerBloc extends Bloc<UpdateCheckerEvent, UpdateCheckerState> {
       Map<String, dynamic> data = {};
       data = await repo.updateApp(appVersion: packageInfo.version);
       if (data["status"] == true) {
-        emit(state.copyWith(hasUpdate: data["result"]["update"], updateStatus: data["result"]["update_status"]));
+        emit(state.copyWith(
+          hasUpdate: data["result"]["update"],
+          updateStatus: data["result"]["update_status"],
+          version: packageInfo.version,
+        ));
       } else {
-        return emit(state.copyWith());
+        return emit(state.copyWith(version: packageInfo.version));
       }
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));

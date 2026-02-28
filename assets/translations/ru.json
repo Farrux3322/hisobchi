@@ -84,6 +84,12 @@
     "please_select_products" : "Пожалуйста выберите товар",
     "this_field_cannot_empty" : "Это поле не может быть пустым",
     "you_must_agree_to_the_terms_to_enter": "Для входа необходимо принять условия"
+  },
+  "connectivity": {
+    "noInternetTitle": "Нет интернет-соединения",
+    "noInternetMessage": "Пожалуйста, проверьте ваше интернет-соединение и попробуйте снова.",
+    "retry": "Повторить попытку",
+    "stillNoInternet": "Интернет все еще отсутствует"
   }
 }
   

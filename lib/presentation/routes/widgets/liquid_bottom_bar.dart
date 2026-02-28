@@ -77,11 +77,11 @@ class LiquidBottomBar extends StatelessWidget {
                         margin: EdgeInsets.symmetric(horizontal: 10.w),
                         decoration: BoxDecoration(
                           color: AppTheme.colors.primary,
-                          borderRadius: BorderRadius.circular(28.r),
+                          borderRadius: BorderRadius.circular(22.r),
                           boxShadow: [
                             BoxShadow(
                               color: AppTheme.colors.primary.withValues(alpha: 0.35),
-                              blurRadius: 18,
+                              blurRadius: 12,
                               offset: const Offset(0, 8),
                             ),
                           ],

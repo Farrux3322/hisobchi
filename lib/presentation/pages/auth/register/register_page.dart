@@ -341,7 +341,7 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                         child: GestureDetector(
                           onTap: _openOferta,
                           child: Text(
-                            'foydalanish shartlari',
+                            'ommaviy oferta shartlari',
                             style: TextStyle(
                               fontSize: 11.sp,
                               fontWeight: FontWeight.w700,

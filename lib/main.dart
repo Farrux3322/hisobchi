@@ -41,6 +41,7 @@ import 'presentation/assets/theme/app_theme.dart';
 import 'presentation/pages/app_widget.dart';
 import 'package:hisobchi/application/sent_sms/sent_sms_bloc.dart';
 import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
+import 'package:hisobchi/infrastructure/services/connectivity_service.dart';
 
 
 @pragma('vm:entry-point')
@@ -120,17 +121,18 @@ Future<void> main() async {
     ));
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     await initializeApp();
+    await ConnectivityService().initialize();
 
     runApp(
       EasyLocalization(
         supportedLocales: const [
-          Locale('en'),
           Locale('uz'),
+          Locale('en'),
           Locale('ru'),
         ],
         useFallbackTranslations: true,
         useOnlyLangCode: true,
-        fallbackLocale: const Locale('ru'),
+        fallbackLocale: const Locale('uz'),
         startLocale: const Locale('uz'),
         path: 'assets/translations',
         child: const MyApp(),

@@ -117,20 +117,20 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 ),
               ),
               actions: [
-                IconButton(
-                  icon: SvgPicture.asset(AppIcons.sms),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SmsDetailPage(
-                          partnerId: widget.partnerModel.id ?? 0,
-                          partnerName: widget.partnerModel.name ?? 'SMS Tarixi',
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                // IconButton(
+                //   icon: SvgPicture.asset(AppIcons.smsHistory),
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) => SmsDetailPage(
+                //           partnerId: widget.partnerModel.id ?? 0,
+                //           partnerName: widget.partnerModel.name ?? 'SMS Tarixi',
+                //         ),
+                //       ),
+                //     );
+                //   },
+                // ),
                 IconButton(
                   icon: Icon(Icons.settings, color: AppTheme.colors.primary),
                   onPressed: () {
@@ -305,6 +305,21 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                     ),
                                   ),
                                 ),
+                              ),
+                              const SizedBox(width: 8),
+                              _iconButton(
+                                AppIcons.smsHistory,
+                                onTap: () async {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SmsDetailPage(
+                                        partnerId: widget.partnerModel.id ?? 0,
+                                        partnerName: widget.partnerModel.name ?? 'SMS Tarixi',
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                               const SizedBox(width: 8),
                               _iconButton(

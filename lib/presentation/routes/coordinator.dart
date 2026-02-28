@@ -100,7 +100,10 @@ final router = GoRouter(
     GoRoute(
       name: Routes.paymentSuccess.name,
       path: Routes.paymentSuccess.path,
-      pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const PaymentSuccessPage()),
+      pageBuilder: (context, state) => MaterialPage<void>(
+        key: state.pageKey,
+        child: PaymentSuccessPage(isTarif: state.extra as bool? ?? false),
+      ),
     ),
     GoRoute(
       name: Routes.subscription.name,
@@ -124,10 +127,7 @@ final router = GoRouter(
         final extras = state.extra as Map<String, dynamic>?;
         return MaterialPage<void>(
           key: state.pageKey,
-          child: SubscriptionDetailPage(
-            planId: extras?['planId'] ?? 0,
-            planName: extras?['planName'] ?? '',
-          ),
+          child: SubscriptionDetailPage(planId: extras?['planId'] ?? 0, planName: extras?['planName'] ?? ''),
         );
       },
     ),

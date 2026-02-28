@@ -2,6 +2,8 @@ class AppIcons {
   const AppIcons();
 
   static const notificationDualtone = 'assets/icons/notification_duotone.svg';
+  static const smsSetting = 'assets/images/sms_setting.svg';
+  static const smsHistory = 'assets/images/sms_history.svg';
   static const home = 'assets/icons/main.svg';
 
   static const click = 'assets/icons/click.svg';

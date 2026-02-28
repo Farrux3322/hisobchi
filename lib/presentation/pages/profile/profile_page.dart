@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -18,6 +19,7 @@ import 'package:hisobchi/presentation/routes/entity/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../application/update_checker/update_checker_bloc.dart';
 import 'widgets/usage_section.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -199,6 +201,39 @@ class _ProfilePageState extends State<ProfilePage> {
                 showArrow: false,
                 onTap: () {
                   _showLogoutDialog();
+                },
+              ),
+              FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  final version = snapshot.data?.version ?? '...';
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Versiya: $version',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: AppTheme.colors.gray.withValues(alpha: 0.6),
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            height: 1.5,
+                            width: 30,
+                            decoration: BoxDecoration(
+                              color: AppTheme.colors.primary.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 },
               ),
               SizedBox(height: MediaQuery.of(context).padding.bottom + 10),
