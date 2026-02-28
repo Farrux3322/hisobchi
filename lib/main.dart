@@ -26,6 +26,8 @@ import 'package:hisobchi/application/theme/theme_event.dart';
 import 'package:hisobchi/application/update_checker/update_checker_bloc.dart';
 import 'package:hisobchi/application/work_type/work_type_bloc.dart';
 import 'package:hisobchi/application/worker/worker_bloc.dart';
+import 'package:hisobchi/application/tutorial/tutorial_bloc.dart';
+import 'package:hisobchi/infrastructure/repository/tutorial/tutorial_repository.dart';
 import 'package:hisobchi/firebase_options.dart';
 import 'package:hisobchi/infrastructure/repository/project_cost/project_cost_repository.dart';
 import 'package:hisobchi/infrastructure/repository/project_income/project_income_repository.dart';
@@ -199,6 +201,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => SubscriptionStatusCubit()),
         BlocProvider(create: (context) => UpdateCheckerBloc()..add(const CheckUpdate())),
         BlocProvider(create: (context) => SentSmsBloc(repository: PartnerReportRepository())),
+        BlocProvider(create: (context) => TutorialBloc(repository: TutorialRepository())),
       ],
 
       child: ScreenUtilInit(

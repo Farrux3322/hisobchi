@@ -18,8 +18,6 @@ import 'package:hisobchi/presentation/pages/profile/screens/profile_update_page.
 import 'package:hisobchi/presentation/routes/entity/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../../../application/update_checker/update_checker_bloc.dart';
 import 'widgets/usage_section.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -59,9 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: Text(
-          'Profil',
-        ),
+        title: Text('Profil'),
         actions: [
           Container(
             margin: const EdgeInsets.all(8),
@@ -94,16 +90,19 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               _buildUserCard(),
               const SizedBox(height: 16),
-               UsageSection(),
-              SizedBox(height: 24),
-              _buildSectionTitle('Savollaringiz bormi?'),
+              if (UserData.xZiffler) UsageSection(),
+              if (UserData.xZiffler) SizedBox(height: 24),
+              _buildSectionTitle('Foydalanish qo\'llanmasi'),
               const SizedBox(height: 12),
               _buildMenuItem(
-                icon: AppIcons.telegram,
-                title: 'Telegram bot',
-                onTap: () {},
-                isEnabled: false,
+                icon: AppIcons.info, // Using info icon for guide
+                title: 'Foydalanish bo\'yicha qo\'llanma',
+                onTap: () => context.pushNamed(Routes.usageGuide.name),
               ),
+              const SizedBox(height: 12),
+              _buildSectionTitle('Savollaringiz bormi?'),
+              const SizedBox(height: 12),
+              _buildMenuItem(icon: AppIcons.telegram, title: 'Telegram bot', onTap: () {}, isEnabled: false),
               const SizedBox(height: 8),
               _buildMenuItem(
                 icon: AppIcons.telegram,
@@ -122,13 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 24),
               _buildSectionTitle('Tashqi ko\'rinishi'),
               const SizedBox(height: 12),
-              _buildMenuItem(
-                icon: AppIcons.language,
-                title: 'Tillar',
-                subtitle: 'Uzbek tili',
-                onTap: () {},
-                isEnabled: false,
-              ),
+              _buildMenuItem(icon: AppIcons.language, title: 'Tillar', subtitle: 'Uzbek tili', onTap: () {}, isEnabled: false),
               const SizedBox(height: 24),
               _buildSectionTitle('Xavfsizlik'),
               // const SizedBox(height: 12),
@@ -214,21 +207,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: [
                           Text(
                             'Versiya: $version',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: AppTheme.colors.gray.withValues(alpha: 0.6),
-                              letterSpacing: 0.5,
-                            ),
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppTheme.colors.gray.withValues(alpha: 0.6), letterSpacing: 0.5),
                           ),
                           const SizedBox(height: 4),
                           Container(
                             height: 1.5,
                             width: 30,
-                            decoration: BoxDecoration(
-                              color: AppTheme.colors.primary.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(1),
-                            ),
+                            decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(1)),
                           ),
                         ],
                       ),
@@ -255,13 +240,7 @@ class _ProfilePageState extends State<ProfilePage> {
       decoration: BoxDecoration(
         color: AppTheme.colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 15,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 4))],
       ),
       child: Row(
         children: [
@@ -276,12 +255,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   userName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.colors.black,
-                    letterSpacing: -0.3,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.colors.black, letterSpacing: -0.3),
                 ),
                 const SizedBox(height: 4),
                 Row(
@@ -290,11 +264,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(width: 4),
                     Text(
                       userPhone,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.colors.gray,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: TextStyle(fontSize: 14, color: AppTheme.colors.gray, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -315,12 +285,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppTheme.colors.divider),
               ),
-              child: SvgPicture.asset(
-                AppIcons.edit,
-                width: 18,
-                height: 18,
-                colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),
-              ),
+              child: SvgPicture.asset(AppIcons.edit, width: 18, height: 18, colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn)),
             ),
           ),
         ],
@@ -336,14 +301,7 @@ class _ProfilePageState extends State<ProfilePage> {
       height: 56,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.colors.primary,
-            AppTheme.colors.primary.withValues(alpha: 0.85),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: LinearGradient(colors: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: 0.85)], begin: Alignment.topLeft, end: Alignment.bottomRight),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
@@ -367,11 +325,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Center(
       child: Text(
         initials,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -386,15 +340,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildMenuItem({
-    required String icon,
-    required String title,
-    String? subtitle,
-    Color? titleColor,
-    bool showArrow = true,
-    required VoidCallback onTap,
-    bool isEnabled = true,
-  }) {
+  Widget _buildMenuItem({required String icon, required String title, String? subtitle, Color? titleColor, bool showArrow = true, required VoidCallback onTap, bool isEnabled = true}) {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.colors.white,
@@ -428,17 +374,10 @@ class _ProfilePageState extends State<ProfilePage> {
                               const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.colors.primary.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
+                                decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
                                 child: Text(
                                   'Yaqinda',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppTheme.colors.primary,
-                                  ),
+                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppTheme.colors.primary),
                                 ),
                               ),
                             ],

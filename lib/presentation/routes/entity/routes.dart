@@ -40,6 +40,8 @@ class Routes implements Coordinate {
   static const projectCostListPage = Routes._(name: 'project_cost_list_page', path: '/project_cost_list_page');
   static const smsBuyPage = Routes._(name: 'sms_buy_page', path: '/sms_buy_page');
   static const identification = Routes._(name: 'identification_page', path: '/identification');
+  static const usageGuide = Routes._(name: 'usage_guide_page', path: '/usage_guide');
+  static const videoPlayer = Routes._(name: 'video_player_page', path: '/video_player');
 
   @override
   String toString() => 'name=$name, path=$path';

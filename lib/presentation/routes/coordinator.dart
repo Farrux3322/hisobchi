@@ -18,6 +18,8 @@ import 'package:hisobchi/presentation/pages/subscription/subscription_page.dart'
 import 'package:hisobchi/presentation/pages/subscription/subscription_detail_page.dart';
 import 'package:hisobchi/presentation/pages/subscription/payment_success_page.dart';
 import 'package:hisobchi/presentation/pages/profile/screens/sms_buy_page/sms_buy_page.dart';
+import 'package:hisobchi/presentation/pages/profile/screens/usage_guide_page.dart';
+import 'package:hisobchi/presentation/pages/profile/screens/youtube_full_screen_player_page.dart';
 import 'entity/pages.dart';
 import 'entity/routes.dart';
 import 'widgets/liquid_glass_shell.dart';
@@ -115,6 +117,11 @@ final router = GoRouter(
       path: Routes.smsBuyPage.path,
       pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const SMSBuyPage()),
     ),
+    GoRoute(
+      name: Routes.usageGuide.name,
+      path: Routes.usageGuide.path,
+      pageBuilder: (context, state) => MaterialPage<void>(key: state.pageKey, child: const UsageGuidePage()),
+    ),
     // GoRoute(
     //   name: Routes.identification.name,
     //   path: Routes.identification.path,
@@ -128,6 +135,20 @@ final router = GoRouter(
         return MaterialPage<void>(
           key: state.pageKey,
           child: SubscriptionDetailPage(planId: extras?['planId'] ?? 0, planName: extras?['planName'] ?? ''),
+        );
+      },
+    ),
+
+    GoRoute(
+      name: Routes.videoPlayer.name,
+      path: Routes.videoPlayer.path,
+      pageBuilder: (context, state) {
+        final extras = state.extra as Map<String, dynamic>?;
+        final videoId = extras?['videoId'] as String? ?? '';
+        final startAt = extras?['startAt'] as Duration? ?? Duration.zero;
+        return MaterialPage<void>(
+          key: state.pageKey,
+          child: YouTubeFullScreenPlayerPage(videoId: videoId, startAt: startAt),
         );
       },
     ),

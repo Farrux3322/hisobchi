@@ -216,7 +216,7 @@ class _UsageProgressItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isUnlimited = max is String && max.toLowerCase() == 'unlimited';
+    final bool isUnlimited = (max is String && (max.toLowerCase() == 'unlimited' || max == '-1')) || (max is num && max == -1);
     final int maxValue = isUnlimited ? 0 : (max is int ? max : int.tryParse(max.toString()) ?? 0);
     final double progress = isUnlimited ? 0.0 : (maxValue > 0 ? (current / maxValue).clamp(0.0, 1.0) : 0.0);
 
