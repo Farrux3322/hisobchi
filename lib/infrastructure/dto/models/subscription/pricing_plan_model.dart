@@ -12,6 +12,9 @@ class PricingPlanModel {
   int? smsPerMonth;
   PlanFeatures? features;
   List<String>? paymentMethods;
+  bool? currentlySubscribed;
+  bool? canSubscribe;
+  List<DowngradeWarning>? downgradeWarnings;
 
   PricingPlanModel({
     this.id,
@@ -27,6 +30,9 @@ class PricingPlanModel {
     this.smsPerMonth,
     this.features,
     this.paymentMethods,
+    this.currentlySubscribed,
+    this.canSubscribe,
+    this.downgradeWarnings,
   });
 
   PricingPlanModel.fromJson(Map<String, dynamic> json) {
@@ -52,6 +58,14 @@ class PricingPlanModel {
         : null;
     if (json['payment_methods'] != null) {
       paymentMethods = List<String>.from(json['payment_methods']);
+    }
+    currentlySubscribed = json['currently_subscribed'];
+    canSubscribe = json['can_subscribe'];
+    if (json['downgrade_warnings'] != null) {
+      downgradeWarnings = <DowngradeWarning>[];
+      json['downgrade_warnings'].forEach((v) {
+        downgradeWarnings!.add(DowngradeWarning.fromJson(v));
+      });
     }
   }
 
@@ -80,11 +94,18 @@ class PricingPlanModel {
     if (paymentMethods != null) {
       data['payment_methods'] = paymentMethods;
     }
+    data['currently_subscribed'] = currentlySubscribed;
+    data['can_subscribe'] = canSubscribe;
+    if (downgradeWarnings != null) {
+      data['downgrade_warnings'] =
+          downgradeWarnings!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }
 
 class PriceInfo {
+  bool? currentlySubscribed;
   String? amount;
   String? formatted;
   dynamic discount;
@@ -92,6 +113,7 @@ class PriceInfo {
   String? description1;
 
   PriceInfo({
+    this.currentlySubscribed,
     this.amount,
     this.formatted,
     this.discount,
@@ -100,6 +122,7 @@ class PriceInfo {
   });
 
   PriceInfo.fromJson(Map<String, dynamic> json) {
+    currentlySubscribed = json['currently_subscribed'];
     amount = json['amount'];
     formatted = json['formatted'];
     discount = json['discount'];
@@ -109,6 +132,7 @@ class PriceInfo {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['currently_subscribed'] = currentlySubscribed;
     data['amount'] = amount;
     data['formatted'] = formatted;
     data['discount'] = discount;
@@ -126,6 +150,31 @@ class PriceInfo {
       return discount.toDouble();
     }
     return 0;
+  }
+}
+
+class DowngradeWarning {
+  String? field;
+  int? current;
+  int? limit;
+  String? message;
+
+  DowngradeWarning({this.field, this.current, this.limit, this.message});
+
+  DowngradeWarning.fromJson(Map<String, dynamic> json) {
+    field = json['field'];
+    current = json['current'];
+    limit = json['limit'];
+    message = json['message'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['field'] = field;
+    data['current'] = current;
+    data['limit'] = limit;
+    data['message'] = message;
+    return data;
   }
 }
 

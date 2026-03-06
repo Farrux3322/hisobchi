@@ -15,4 +15,9 @@ class NotificationRepository {
     final response = await dio.post('/notifications/$id/mark-as-read');
     return response.data;
   }
+
+  Future<Map<String, dynamic>> getUnreadCount() async {
+    final response = await dio.get('/notifications/unread-count');
+    return response.data;
+  }
 }

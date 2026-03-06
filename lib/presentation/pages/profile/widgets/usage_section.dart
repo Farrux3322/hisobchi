@@ -7,6 +7,7 @@ import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/routes/entity/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:hisobchi/infrastructure/dto/models/subscription/subscription_info_model.dart';
 
 class UsageSection extends StatefulWidget {
   const UsageSection({super.key});
@@ -34,7 +35,14 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
         return Column(
           children: [
             // Premium Subscription Card
-            _SubscriptionInfoCard(planType: planType, planExpiry: planExpiry),
+            _SubscriptionInfoCard(
+              planType: planType,
+              planExpiry: planExpiry,
+              statusLabel: subscription?.statusLabel,
+              status: subscription?.status ?? '',
+              daysUntilDue: subscription?.daysUntilDue,
+              daysPastDue: subscription?.daysPastDue,
+            ),
             const Gap(20),
 
             // Usage Progress Container
@@ -133,11 +141,18 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
 class _SubscriptionInfoCard extends StatelessWidget {
   final String planType;
   final String planExpiry;
+  final String status;
+  final String? statusLabel;
+  final num? daysUntilDue;
+  final num? daysPastDue;
 
-  const _SubscriptionInfoCard({required this.planType, required this.planExpiry});
+  const _SubscriptionInfoCard({required this.planType, required this.planExpiry, required this.status, this.statusLabel, this.daysPastDue, this.daysUntilDue});
 
   @override
   Widget build(BuildContext context) {
+    final int days = daysUntilDue?.round() ?? 0;
+    final int dueDays = 4 - (daysPastDue?.round() ?? 0);
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [AppTheme.colors.primary, AppTheme.colors.primary.withBlue(150)], begin: Alignment.topLeft, end: Alignment.bottomRight),
@@ -149,51 +164,131 @@ class _SubscriptionInfoCard extends StatelessWidget {
           Positioned(
             right: -20,
             top: -20,
-            child: Opacity(opacity: 0.1, child: SvgPicture.asset(AppIcons.crown, width: 120, height: 120, colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn))),
+            child: Opacity(opacity: 0.1, child: SvgPicture.asset(AppIcons.crown, width: 120, height: 120, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn))),
           ),
           Padding(
             padding: const EdgeInsets.all(20),
-            child: Row(
+            child: Column(
               children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
-                  padding: const EdgeInsets.all(14),
-                  child: SvgPicture.asset(AppIcons.crown, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-                ),
-                const Gap(16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        planType,
-                        style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w800),
-                      ),
-                      const Gap(4),
-                      Text(
-                        'Amal qilish muddati: $planExpiry',
-                        style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
-                ),
-                Material(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  child: InkWell(
-                    onTap: () => context.pushNamed(Routes.subscription.name),
-                    borderRadius: BorderRadius.circular(14),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      child: Text(
-                        'Yangilash',
-                        style: TextStyle(color: AppTheme.colors.primary, fontWeight: FontWeight.bold, fontSize: 14),
+                Row(
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.all(14),
+                      child: SvgPicture.asset(AppIcons.crown, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                    ),
+                    const Gap(16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                planType,
+                                style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w800),
+                              ),
+                              if (statusLabel != null) ...[
+                                const Gap(8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
+                                  child: Text(
+                                    statusLabel!,
+                                    style: const TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const Gap(4),
+                          Text(
+                            'Amal qilish muddati: $planExpiry',
+                            style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w500),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                    Material(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      child: InkWell(
+                        onTap: () => context.pushNamed(Routes.subscription.name),
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          child: Text(
+                            'Yangilash',
+                            style: TextStyle(color: AppTheme.colors.primary, fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+                if (status == 'ACTIVE' || status == 'GRACE_PERIOD') ...[
+                  if (daysUntilDue != null && daysPastDue != null) ...[
+                    const Gap(16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.timer_outlined, color: Colors.white, size: 20),
+                          const Gap(8),
+                          Text(
+                            status == 'GRACE_PERIOD' ? 'Imtiyozli davr tugashiga:' : 'Tarif tugashiga:',
+                            style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.9), fontWeight: FontWeight.w500),
+                          ),
+                          const Spacer(),
+                          Text(
+                            '${status == 'GRACE_PERIOD' ? dueDays : days} kun qoldi',
+                            style: const TextStyle(fontSize: 15, color: Colors.white, fontWeight: FontWeight.w800),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ] else ...[
+                  const Gap(16),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline_rounded, color: Colors.white, size: 20),
+                        const Gap(8),
+                        Expanded(
+                          child: Text(
+                            status == 'READ_ONLY'
+                                ? 'Hisobingiz "Faqat ko\'rish" rejimida. Hamkorlar va loyihalar qo\'shish cheklangan.'
+                                : status == 'ARCHIVED'
+                                    ? 'Sizning hisobingiz arxivlangan.'
+                                    : 'Sizning hisobingiz o\'chirilgan.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withValues(alpha: 0.95),
+                              fontWeight: FontWeight.w600,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

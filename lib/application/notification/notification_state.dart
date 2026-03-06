@@ -5,6 +5,7 @@ class NotificationState extends Equatable {
   final List<NotificationItemModel> notifications;
   final int currentPage;
   final bool hasReachedMax;
+  final int unreadCount;
   final String? errorMessage;
 
   const NotificationState({
@@ -12,6 +13,7 @@ class NotificationState extends Equatable {
     this.notifications = const [],
     this.currentPage = 1,
     this.hasReachedMax = false,
+    this.unreadCount = 0,
     this.errorMessage,
   });
 
@@ -20,6 +22,7 @@ class NotificationState extends Equatable {
     List<NotificationItemModel>? notifications,
     int? currentPage,
     bool? hasReachedMax,
+    int? unreadCount,
     String? errorMessage,
   }) {
     return NotificationState(
@@ -27,6 +30,7 @@ class NotificationState extends Equatable {
       notifications: notifications ?? this.notifications,
       currentPage: currentPage ?? this.currentPage,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      unreadCount: unreadCount ?? this.unreadCount,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -37,6 +41,7 @@ class NotificationState extends Equatable {
         notifications,
         currentPage,
         hasReachedMax,
+        unreadCount,
         errorMessage,
       ];
 }

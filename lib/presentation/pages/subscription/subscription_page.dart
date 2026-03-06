@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:gap/gap.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hisobchi/application/subscription/subscription_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/pages/subscription/widgets/tarif_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hisobchi/presentation/routes/entity/routes.dart';
+
+import '../../../infrastructure/dto/models/subscription/pricing_plan_model.dart';
 
 class TariflarScreen extends StatefulWidget {
   const TariflarScreen({super.key});
@@ -28,19 +31,10 @@ class _TariflarScreenState extends State<TariflarScreen> {
     context.read<SubscriptionBloc>().add(GetPricingPlansEvent());
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: BackArrowButton(),
-        title: const Text(
-          'Obuna sotib olish',
-        ),
-        centerTitle: true,
-      ),
+      appBar: AppBar(backgroundColor: Colors.white, elevation: 0, leading: BackArrowButton(), title: const Text('Obuna sotib olish'), centerTitle: true),
       body: BlocBuilder<SubscriptionBloc, SubscriptionState>(
         builder: (context, state) {
           if (state.status == Status.loading) {
@@ -86,19 +80,19 @@ class _TariflarScreenState extends State<TariflarScreen> {
                   itemBuilder: (context, index, realIndex) {
                     return TarifCard(tarif: state.pricingPlans[index]);
                   },
-                    options: CarouselOptions(
-                      enlargeFactor: 0.2,
-                      height: double.infinity,
-                      viewportFraction: 0.88,
-                      enlargeCenterPage: true,
-                      enlargeStrategy: CenterPageEnlargeStrategy.scale,
-                      enableInfiniteScroll: false,
-                      onPageChanged: (index, reason) {
-                        setState(() {
-                          _currentIndex = index;
-                        });
-                      },
-                    ),
+                  options: CarouselOptions(
+                    enlargeFactor: 0.2,
+                    height: double.infinity,
+                    viewportFraction: 0.88,
+                    enlargeCenterPage: true,
+                    enlargeStrategy: CenterPageEnlargeStrategy.scale,
+                    enableInfiniteScroll: false,
+                    onPageChanged: (index, reason) {
+                      setState(() {
+                        _currentIndex = index;
+                      });
+                    },
+                  ),
                 ),
               ),
               Padding(
@@ -110,14 +104,15 @@ class _TariflarScreenState extends State<TariflarScreen> {
                     onPressed: () {
                       if (state.pricingPlans.isNotEmpty && _currentIndex < state.pricingPlans.length) {
                         final selectedPlan = state.pricingPlans[_currentIndex];
+
+                        // Check if subscription is allowed
+                        if (!(selectedPlan.canSubscribe ?? true)) {
+                          _showDowngradeDialog(context, selectedPlan);
+                          return;
+                        }
+
                         if (selectedPlan.id != null) {
-                          context.pushNamed(
-                            Routes.subscriptionDetail.name,
-                            extra: {
-                              'planId': selectedPlan.id,
-                              'planName': selectedPlan.displayName ?? selectedPlan.name ?? '',
-                            },
-                          );
+                          context.pushNamed(Routes.subscriptionDetail.name, extra: {'planId': selectedPlan.id, 'planName': selectedPlan.displayName ?? selectedPlan.name ?? ''});
                         }
                       }
                     },
@@ -133,11 +128,209 @@ class _TariflarScreenState extends State<TariflarScreen> {
                   ),
                 ),
               ),
-              Gap(MediaQuery.of(context).padding.bottom+10)
+              Gap(MediaQuery.of(context).padding.bottom + 10),
             ],
           );
         },
       ),
     );
+  }
+
+  void _showDowngradeDialog(BuildContext context, PricingPlanModel plan) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: '',
+      barrierColor: Colors.black.withValues(alpha: 0.6),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation1, animation2) => Container(),
+      transitionBuilder: (context, a1, a2, widget) {
+        return Transform.scale(
+          scale: a1.value,
+          child: Opacity(
+            opacity: a1.value,
+            child: Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(32),
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 40, offset: const Offset(0, 20))],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Premium Header with Animated-style Gradient
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 32),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFFF59E0B), // Amber 400
+                              const Color(0xFFE11D48), // Rose 600
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
+                              ),
+                              child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 48),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Limitlar oshib ketgan',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: -0.5,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                        child: Column(
+                          children: [
+                            RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                text: plan.displayName ?? plan.name ?? '',
+                                style: GoogleFonts.montserrat(fontSize: 13.sp, fontWeight: FontWeight.w800, color: Colors.black),
+                                children: [
+                                  TextSpan(
+                                    text: " tarifiga o'tish uchun hozirgi ",
+                                    style: GoogleFonts.montserrat(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: "hamkorlar va loyihalar",
+                                    style: GoogleFonts.montserrat(fontSize: 13.sp, fontWeight: FontWeight.w800, color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: "ingiz soni ushbu tarif limitidan oshmasligi kerak!",
+                                    style: GoogleFonts.montserrat(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.black),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            if (plan.downgradeWarnings != null && plan.downgradeWarnings!.isNotEmpty)
+                              ...plan.downgradeWarnings!.map((warning) {
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade50,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: Colors.grey.shade200, width: 1),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(color: const Color(0xFFF59E0B).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                                        child: SvgPicture.asset(_getWarningIcon(warning.field), colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn)),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              _getWarningTitle(warning.field),
+                                              style: GoogleFonts.montserrat(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.grey.shade500, letterSpacing: 0.5),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              warning.message ?? 'Limit oshib ketgan',
+                                              style: GoogleFonts.montserrat(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              })
+                            else
+                              const Text(
+                                'Tushunarsiz xatolik yuz berdi. Iltimos qayta urinib ko\'ring.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+
+                            const SizedBox(height: 32),
+
+                            SizedBox(
+                              width: double.infinity,
+                              height: 60,
+                              child: ElevatedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.colors.primary,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  elevation: 0,
+                                ),
+                                child: Text(
+                                  'Tushunarli',
+                                  style: GoogleFonts.montserrat(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _getWarningIcon(String? field) {
+    if (field == null) return AppIcons.info;
+    switch (field.toLowerCase()) {
+      case 'customers':
+        return AppIcons.clients;
+      case 'projects':
+        return AppIcons.project;
+      case 'users':
+        return AppIcons.clients;
+      default:
+        return AppIcons.info;
+    }
+  }
+
+  String _getWarningTitle(String? field) {
+    if (field == null) return 'CHEKLOV';
+    switch (field.toLowerCase()) {
+      case 'customers':
+        return 'HAMKORLAR';
+      case 'projects':
+        return 'LOYIHALAR';
+      case 'users':
+        return 'FOYDALANUVCHILAR';
+      default:
+        return 'CHEKLOV';
+    }
   }
 }

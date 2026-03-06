@@ -8,5 +8,6 @@ class NotificationEvent with _$NotificationEvent {
   
   const factory NotificationEvent.readNotification({required int id}) = ReadNotification;
   const factory NotificationEvent.readAllNotifications() = ReadAllNotifications;
+  const factory NotificationEvent.getUnreadCount() = GetUnreadCount;
   const factory NotificationEvent.reset() = ResetNotificationState;
 }

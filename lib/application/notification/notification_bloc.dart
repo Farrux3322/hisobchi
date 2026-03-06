@@ -17,7 +17,20 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     on<GetNotifications>(_getNotifications);
     on<ReadNotification>(_readNotification);
     on<ReadAllNotifications>(_readAllNotifications);
+    on<GetUnreadCount>(_getUnreadCount);
     on<ResetNotificationState>((event, emit) => emit(const NotificationState()));
+  }
+
+  Future<void> _getUnreadCount(GetUnreadCount event, Emitter<NotificationState> emit) async {
+    try {
+      final response = await repo.getUnreadCount();
+      final model = NotificationUnreadCountModel.fromJson(response);
+      if (model.status == true && model.result != null) {
+        emit(state.copyWith(unreadCount: model.result!.unreadCount ?? 0));
+      }
+    } catch (e) {
+      debugPrint("Error fetching unread count: $e");
+    }
   }
 
   Future<void> _getNotifications(GetNotifications event, Emitter<NotificationState> emit) async {
@@ -59,7 +72,10 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       return n;
     }).toList();
 
-    emit(state.copyWith(notifications: updatedNotifications));
+    emit(state.copyWith(
+      notifications: updatedNotifications,
+      unreadCount: (state.unreadCount - 1).clamp(0, 999),
+    ));
 
     try {
       await repo.readNotification(event.id);
@@ -72,7 +88,10 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   Future<void> _readAllNotifications(ReadAllNotifications event, Emitter<NotificationState> emit) async {
     // Optimistic UI update
     final updatedNotifications = state.notifications.map((n) => n.copyWith(isRead: true)).toList();
-    emit(state.copyWith(notifications: updatedNotifications));
+    emit(state.copyWith(
+      notifications: updatedNotifications,
+      unreadCount: 0,
+    ));
 
     try {
       await repo.readAllNotifications();

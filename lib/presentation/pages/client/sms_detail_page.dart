@@ -80,7 +80,7 @@ class _SmsDetailPageState extends State<SmsDetailPage> {
             },
             child: ListView.separated(
               controller: _scrollController,
-              padding: EdgeInsets.all(16.w),
+              padding: EdgeInsets.all(16.w).copyWith(bottom: MediaQuery.of(context).padding.bottom+10),
               itemCount: state.smsList.length + (state.hasMore ? 1 : 0),
               separatorBuilder: (context, index) => Gap(12.h),
               itemBuilder: (context, index) {

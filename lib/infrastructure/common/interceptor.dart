@@ -55,6 +55,7 @@ class DioInterceptor extends Interceptor {
   void _updateSubscriptionStatus(Response response) {
     final statusHeader = response.headers.value('X-Subscription-Status');
     if (statusHeader != null && AppManagerCubit.context != null) {
+      // AppManagerCubit.context!.read<SubscriptionStatusCubit>().updateStatusFromServer('ACTIVE');
       AppManagerCubit.context!.read<SubscriptionStatusCubit>().updateStatusFromServer(statusHeader);
     }
   }

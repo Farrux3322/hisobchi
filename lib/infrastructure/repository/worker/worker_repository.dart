@@ -216,7 +216,7 @@ class WorkerRepository {
   // Force delete worker
   Future<void> forceDeleteWorker(int workerId) async {
     try {
-      final response = await dio.delete('/documents/worker/$workerId/force');
+      final response = await dio.delete('/documents/worker/$workerId/force-delete');
 
       if (response.statusCode != 200) {
         throw Exception('Failed to force delete worker');

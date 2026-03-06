@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/worker/worker_bloc.dart';
 import 'package:hisobchi/application/worker/worker_event.dart';
 import 'package:hisobchi/application/worker/worker_state.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/worker_model.dart';
 import 'package:hisobchi/infrastructure/repository/worker/worker_repository.dart';
@@ -142,8 +143,16 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
             }
             if (state.statusAction == Status.success) {
               HapticFeedback.mediumImpact();
-              Toast.showSuccessToast(message: '${_selectedWorkerIds.length} ta ishchi qo\'shildi');
-              Navigator.pop(context, true);
+              
+              // Only pop if we were adding workers to the project
+              if (_selectedWorkerIds.isNotEmpty && state.statusAllWorkers != Status.loading) {
+                Toast.showSuccessToast(message: '${_selectedWorkerIds.length} ta ishchi qo\'shildi');
+                Navigator.pop(context, true);
+              } else {
+                // If it was a delete/restore/force-delete action, just refresh the list
+                context.read<WorkerBloc>().add(GetAllWorkersEvent(projectId: widget.projectId));
+                _selectedWorkerIds.clear(); // Clear selection after action
+              }
             }
             if (state.statusAction == Status.error) {
               Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
@@ -261,9 +270,9 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
                                   return Column(children: [_buildWorkerItem(worker, isSelected), if (index == _filteredWorkers.length - 1) Gap(80 + MediaQuery.of(context).padding.bottom)]);
                                 },
                               ),
-                              if (state.statusAction == Status.loading)
+                              if (state.statusAction == Status.loading || (state.statusAllWorkers == Status.loading && _allWorkers.isNotEmpty))
                                 Container(
-                                  color: Colors.black.withValues(alpha: 0.3),
+                                  color: Colors.white.withValues(alpha: 0.5),
                                   child: const Center(child: Loading()),
                                 ),
                             ],
@@ -314,68 +323,343 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
     );
   }
 
-  Widget _buildWorkerItem(WorkerModel worker, bool isSelected) {
-    return GestureDetector(
-      onTap: () => _toggleWorkerSelection(worker),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF5B4FFF).withValues(alpha: 0.05) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppTheme.colors.primary : const Color(0xFFE2E8F0), width: isSelected ? 2 : 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isSelected ? 0.05 : 0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+  void _showDeleteConfirmation(WorkerModel worker) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titlePadding: EdgeInsets.zero,
+        contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          decoration: BoxDecoration(
+            color: AppTheme.colors.red.withValues(alpha: 0.1),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Icon(Icons.delete_outline_rounded, color: AppTheme.colors.red, size: 48),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Ishchini o\'chirish',
+              style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.black),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Rostdan ham "${worker.name}" ishchisini o\'chirmoqchimisiz?',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray, height: 1.5),
             ),
           ],
         ),
-        child: Row(
-          children: [
-            Container(
-              height: 48,
-              width: 48,
-              decoration: BoxDecoration(
-                color: const Color(0xFF5B4FFF).withValues(alpha: isSelected ? 0.2 : 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(Icons.person_outline, color: isSelected ? const Color(0xFF5B4FFF) : const Color(0xFF5B4FFF).withValues(alpha: 0.7), size: 24),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    worker.name ?? '',
-                    style: TextStyle(fontSize: 15, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600, color: const Color(0xFF1E293B)),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  const SizedBox(height: 4),
-                  if (worker.phone != null)
-                    Text(
-                      _formatPhone(worker.phone),
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                    ),
-                  const SizedBox(height: 4),
-                  Text(worker.workerPositionName ?? 'Lavozim ko\'rsatilmagan', style: const TextStyle(fontSize: 13, color: Color(0xFF64748B))),
-                ],
+                  child: Text('Bekor qilish', style: TextStyle(color: AppTheme.colors.gray, fontWeight: FontWeight.w600)),
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    context.read<WorkerBloc>().add(DeleteWorkerEvent(workerId: worker.id!));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.colors.red,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('O\'chirish', style: TextStyle(fontWeight: FontWeight.w600)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: isSelected ? AppTheme.colors.primary : Colors.transparent,
-                shape: BoxShape.circle,
-                border: Border.all(color: isSelected ? AppTheme.colors.primary : const Color(0xFF94A3B8), width: 2),
-              ),
-              child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 16) : null,
+  void _showRestoreForceDeleteDialog(WorkerModel worker) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titlePadding: EdgeInsets.zero,
+        contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          decoration: BoxDecoration(
+            color: AppTheme.colors.primary.withValues(alpha: 0.1),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Icon(Icons.settings_backup_restore_rounded, color: AppTheme.colors.primary, size: 48),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'O\'chirilgan ishchi',
+              style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.black),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '"${worker.name}" ishchisini qayta tiklamoqchimisiz yoki butunlay o\'chirib tashlaysizmi?',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray, height: 1.5),
             ),
           ],
+        ),
+        actions: [
+          Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    context.read<WorkerBloc>().add(RestoreWorkerEvent(workerId: worker.id!));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.colors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Qayta tiklash', style: TextStyle(fontWeight: FontWeight.w600)),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showForceDeleteConfirmation(worker);
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.colors.red,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Butunlay o\'chirish', style: TextStyle(fontWeight: FontWeight.w600)),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Yopish', style: TextStyle(color: AppTheme.colors.gray)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showForceDeleteConfirmation(WorkerModel worker) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title:  Icon(Icons.warning_amber_rounded, color: AppTheme.colors.red, size: 48),
+        content: Text(
+          'Diqqat! "${worker.name}" ishchisini butunlay o\'chirib yuborsangiz, unga tegishli barcha ma\'lumotlar qayta tiklanmaydigan qilib o\'chiriladi. Davom etasizmi?',
+          textAlign: TextAlign.center,
+          style: const TextStyle(height: 1.5),
+        ),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.colors.gray, foregroundColor: Colors.white),
+                  child: const Text('Bekor qilish'),
+                ),
+              ),
+              Gap(10.w),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    context.read<WorkerBloc>().add(ForceDeleteWorkerEvent(workerId: worker.id!));
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.colors.red, foregroundColor: Colors.white),
+                  child: Center(child: const Text('Ha, butunlay o\'chirilsin',textAlign: TextAlign.center)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWorkerItem(WorkerModel worker, bool isSelected) {
+    final bool isDeleted = worker.isDeleted;
+
+    return Slidable(
+      key: ValueKey(worker.id),
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(),
+        extentRatio: isDeleted ? 0.5 : 0.25,
+        children: [
+          if (!isDeleted)
+            SlidableAction(
+              onPressed: (context) => _showDeleteConfirmation(worker),
+              backgroundColor: AppTheme.colors.red,
+              foregroundColor: Colors.white,
+              icon: Icons.delete_outline_rounded,
+              label: 'O\'chirish',
+              borderRadius: BorderRadius.circular(12),
+            )
+          else ...[
+            SlidableAction(
+              onPressed: (context) => context.read<WorkerBloc>().add(RestoreWorkerEvent(workerId: worker.id!)),
+              backgroundColor: AppTheme.colors.primary,
+              foregroundColor: Colors.white,
+              icon: Icons.restore_rounded,
+              label: 'Tiklash',
+              borderRadius: BorderRadius.horizontal(left: Radius.circular(12)),
+            ),
+            SlidableAction(
+              onPressed: (context) => _showForceDeleteConfirmation(worker),
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              icon: Icons.delete_forever_rounded,
+              label: "O'chirish",
+              borderRadius: BorderRadius.horizontal(right: Radius.circular(12)),
+            ),
+          ],
+        ],
+      ),
+      child: GestureDetector(
+        onTap: isDeleted ? () => _showRestoreForceDeleteDialog(worker) : () => _toggleWorkerSelection(worker),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isDeleted 
+                ? AppTheme.colors.gray.withValues(alpha: 0.05)
+                : isSelected ? const Color(0xFF5B4FFF).withValues(alpha: 0.05) : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDeleted 
+                  ? AppTheme.colors.red.withValues(alpha: 0.2)
+                  : isSelected ? AppTheme.colors.primary : const Color(0xFFE2E8F0), 
+              width: isSelected ? 2 : 1
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isSelected ? 0.05 : 0.02),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                height: 48,
+                width: 48,
+                decoration: BoxDecoration(
+                  color: isDeleted 
+                      ? AppTheme.colors.gray.withValues(alpha: 0.1)
+                      : const Color(0xFF5B4FFF).withValues(alpha: isSelected ? 0.2 : 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  isDeleted ? Icons.person_off_outlined : Icons.person_outline, 
+                  color: isDeleted 
+                      ? AppTheme.colors.black.withValues(alpha: 0.9)
+                      : isSelected ? const Color(0xFF5B4FFF) : const Color(0xFF5B4FFF).withValues(alpha: 0.7), 
+                  size: 24
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            worker.name ?? '',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 15, 
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600, 
+                              color: isDeleted ? AppTheme.colors.black.withValues(alpha: 0.6) : const Color(0xFF1E293B),
+                              decoration: isDeleted ? TextDecoration.lineThrough : null,
+                            ),
+                          ),
+                        ),
+                        if (isDeleted)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppTheme.colors.red.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              'O\'chirilgan',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.colors.red),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    if (worker.phone != null)
+                      Text(
+                        _formatPhone(worker.phone),
+                        style: TextStyle(
+                          fontSize: 14, 
+                          fontWeight: FontWeight.w600, 
+                          color: isDeleted ? AppTheme.colors.black.withValues(alpha: 0.4) : Color(0xFF64748B)
+                        ),
+                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      worker.workerPositionName ?? 'Lavozim ko\'rsatilmagan', 
+                      style: TextStyle(
+                        fontSize: 13, 
+                        color: isDeleted ? AppTheme.colors.black.withValues(alpha: 0.4) : Color(0xFF64748B)
+                      )
+                    ),
+                  ],
+                ),
+              ),
+
+              if (!isDeleted)
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppTheme.colors.primary : Colors.transparent,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: isSelected ? AppTheme.colors.primary : const Color(0xFF94A3B8), width: 2),
+                  ),
+                  child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 16) : null,
+                )
+              else
+                Icon(Icons.more_vert_rounded, color: AppTheme.colors.gray.withValues(alpha: 0.3)),
+            ],
+          ),
         ),
       ),
     );

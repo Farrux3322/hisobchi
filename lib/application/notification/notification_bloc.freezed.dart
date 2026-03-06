@@ -55,13 +55,14 @@ extension NotificationEventPatterns on NotificationEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( GetNotifications value)?  getNotifications,TResult Function( ReadNotification value)?  readNotification,TResult Function( ReadAllNotifications value)?  readAllNotifications,TResult Function( ResetNotificationState value)?  reset,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( GetNotifications value)?  getNotifications,TResult Function( ReadNotification value)?  readNotification,TResult Function( ReadAllNotifications value)?  readAllNotifications,TResult Function( GetUnreadCount value)?  getUnreadCount,TResult Function( ResetNotificationState value)?  reset,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case GetNotifications() when getNotifications != null:
 return getNotifications(_that);case ReadNotification() when readNotification != null:
 return readNotification(_that);case ReadAllNotifications() when readAllNotifications != null:
-return readAllNotifications(_that);case ResetNotificationState() when reset != null:
+return readAllNotifications(_that);case GetUnreadCount() when getUnreadCount != null:
+return getUnreadCount(_that);case ResetNotificationState() when reset != null:
 return reset(_that);case _:
   return orElse();
 
@@ -80,13 +81,14 @@ return reset(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( GetNotifications value)  getNotifications,required TResult Function( ReadNotification value)  readNotification,required TResult Function( ReadAllNotifications value)  readAllNotifications,required TResult Function( ResetNotificationState value)  reset,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( GetNotifications value)  getNotifications,required TResult Function( ReadNotification value)  readNotification,required TResult Function( ReadAllNotifications value)  readAllNotifications,required TResult Function( GetUnreadCount value)  getUnreadCount,required TResult Function( ResetNotificationState value)  reset,}){
 final _that = this;
 switch (_that) {
 case GetNotifications():
 return getNotifications(_that);case ReadNotification():
 return readNotification(_that);case ReadAllNotifications():
-return readAllNotifications(_that);case ResetNotificationState():
+return readAllNotifications(_that);case GetUnreadCount():
+return getUnreadCount(_that);case ResetNotificationState():
 return reset(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -104,13 +106,14 @@ return reset(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( GetNotifications value)?  getNotifications,TResult? Function( ReadNotification value)?  readNotification,TResult? Function( ReadAllNotifications value)?  readAllNotifications,TResult? Function( ResetNotificationState value)?  reset,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( GetNotifications value)?  getNotifications,TResult? Function( ReadNotification value)?  readNotification,TResult? Function( ReadAllNotifications value)?  readAllNotifications,TResult? Function( GetUnreadCount value)?  getUnreadCount,TResult? Function( ResetNotificationState value)?  reset,}){
 final _that = this;
 switch (_that) {
 case GetNotifications() when getNotifications != null:
 return getNotifications(_that);case ReadNotification() when readNotification != null:
 return readNotification(_that);case ReadAllNotifications() when readAllNotifications != null:
-return readAllNotifications(_that);case ResetNotificationState() when reset != null:
+return readAllNotifications(_that);case GetUnreadCount() when getUnreadCount != null:
+return getUnreadCount(_that);case ResetNotificationState() when reset != null:
 return reset(_that);case _:
   return null;
 
@@ -128,12 +131,13 @@ return reset(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( bool isLoadMore)?  getNotifications,TResult Function( int id)?  readNotification,TResult Function()?  readAllNotifications,TResult Function()?  reset,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( bool isLoadMore)?  getNotifications,TResult Function( int id)?  readNotification,TResult Function()?  readAllNotifications,TResult Function()?  getUnreadCount,TResult Function()?  reset,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case GetNotifications() when getNotifications != null:
 return getNotifications(_that.isLoadMore);case ReadNotification() when readNotification != null:
 return readNotification(_that.id);case ReadAllNotifications() when readAllNotifications != null:
-return readAllNotifications();case ResetNotificationState() when reset != null:
+return readAllNotifications();case GetUnreadCount() when getUnreadCount != null:
+return getUnreadCount();case ResetNotificationState() when reset != null:
 return reset();case _:
   return orElse();
 
@@ -152,12 +156,13 @@ return reset();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( bool isLoadMore)  getNotifications,required TResult Function( int id)  readNotification,required TResult Function()  readAllNotifications,required TResult Function()  reset,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( bool isLoadMore)  getNotifications,required TResult Function( int id)  readNotification,required TResult Function()  readAllNotifications,required TResult Function()  getUnreadCount,required TResult Function()  reset,}) {final _that = this;
 switch (_that) {
 case GetNotifications():
 return getNotifications(_that.isLoadMore);case ReadNotification():
 return readNotification(_that.id);case ReadAllNotifications():
-return readAllNotifications();case ResetNotificationState():
+return readAllNotifications();case GetUnreadCount():
+return getUnreadCount();case ResetNotificationState():
 return reset();case _:
   throw StateError('Unexpected subclass');
 
@@ -175,12 +180,13 @@ return reset();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( bool isLoadMore)?  getNotifications,TResult? Function( int id)?  readNotification,TResult? Function()?  readAllNotifications,TResult? Function()?  reset,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( bool isLoadMore)?  getNotifications,TResult? Function( int id)?  readNotification,TResult? Function()?  readAllNotifications,TResult? Function()?  getUnreadCount,TResult? Function()?  reset,}) {final _that = this;
 switch (_that) {
 case GetNotifications() when getNotifications != null:
 return getNotifications(_that.isLoadMore);case ReadNotification() when readNotification != null:
 return readNotification(_that.id);case ReadAllNotifications() when readAllNotifications != null:
-return readAllNotifications();case ResetNotificationState() when reset != null:
+return readAllNotifications();case GetUnreadCount() when getUnreadCount != null:
+return getUnreadCount();case ResetNotificationState() when reset != null:
 return reset();case _:
   return null;
 
@@ -345,6 +351,38 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
   return 'NotificationEvent.readAllNotifications()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class GetUnreadCount implements NotificationEvent {
+  const GetUnreadCount();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GetUnreadCount);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'NotificationEvent.getUnreadCount()';
 }
 
 

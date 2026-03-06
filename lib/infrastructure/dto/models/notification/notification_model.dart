@@ -164,3 +164,29 @@ class NotificationDetailModel {
     );
   }
 }
+
+class NotificationUnreadCountModel {
+  final bool? status;
+  final NotificationUnreadCountResult? result;
+
+  NotificationUnreadCountModel({this.status, this.result});
+
+  factory NotificationUnreadCountModel.fromJson(Map<String, dynamic> json) {
+    return NotificationUnreadCountModel(
+      status: json['status'],
+      result: json['result'] != null ? NotificationUnreadCountResult.fromJson(json['result']) : null,
+    );
+  }
+}
+
+class NotificationUnreadCountResult {
+  final int? unreadCount;
+
+  NotificationUnreadCountResult({this.unreadCount});
+
+  factory NotificationUnreadCountResult.fromJson(Map<String, dynamic> json) {
+    return NotificationUnreadCountResult(
+      unreadCount: json['unread_count'],
+    );
+  }
+}

@@ -4,9 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:hisobchi/domain/common/api_path.dart';
 
 class UpdateRepository {
-  Future<Map<String, dynamic>> updateApp({
-    required String appVersion,
-  }) async {
+  Future<Map<String, dynamic>> updateApp({required String appVersion}) async {
     final dio = Dio();
     String username = 'login';
     String password = 'password';

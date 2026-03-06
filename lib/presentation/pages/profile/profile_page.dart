@@ -18,6 +18,7 @@ import 'package:hisobchi/presentation/pages/profile/screens/profile_update_page.
 import 'package:hisobchi/presentation/routes/entity/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../application/notification/notification_bloc.dart';
 import 'widgets/usage_section.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -32,6 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     context.read<SubscriptionBloc>().add(GetSubscriptionInfoEvent());
+    context.read<NotificationBloc>().add(const GetUnreadCount());
   }
 
   String _formatPhoneNumber(String phone) {
@@ -59,22 +61,60 @@ class _ProfilePageState extends State<ProfilePage> {
         centerTitle: false,
         title: Text('Profil'),
         actions: [
-          Container(
-            margin: const EdgeInsets.all(8),
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppTheme.colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.2)),
-            ),
-            child: IconButton(
-              icon: Icon(Icons.notifications, color: AppTheme.colors.primary, size: 20),
-              onPressed: () {
-                pushScreen(context, screen: const NotificationPage());
-              },
-              padding: EdgeInsets.zero,
-            ),
+          BlocBuilder<NotificationBloc, NotificationState>(
+            builder: (context, state) {
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.all(8),
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppTheme.colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.2)),
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.notifications, color: AppTheme.colors.primary, size: 20),
+                      onPressed: () {
+                        pushScreen(context, screen: const NotificationPage()).then((_) {
+                          if (context.mounted) {
+                            context.read<NotificationBloc>().add(const GetUnreadCount());
+                          }
+                        });
+                      },
+                      padding: EdgeInsets.zero,
+                    ),
+                  ),
+                  if (state.unreadCount > 0)
+                    Positioned(
+                      right: 4,
+                      top: 4,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration:  BoxDecoration(
+                          color: AppTheme.colors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        child: Text(
+                          state.unreadCount > 99 ? '99+' : '${state.unreadCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
           const Gap(10),
         ],
@@ -82,6 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
       body: RefreshIndicator(
         onRefresh: () async {
           context.read<SubscriptionBloc>().add(GetSubscriptionInfoEvent());
+          context.read<NotificationBloc>().add(const GetUnreadCount());
         },
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16),

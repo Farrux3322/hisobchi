@@ -23,14 +23,15 @@ class TarifCard extends StatelessWidget {
   LinearGradient _getGradient(String? name) {
     if (name == 'BUSINESS') {
       return const LinearGradient(
-        colors: [Color(0xFFF59E0B), Color(0xFFE11D48)], // Sunset Orange to Deep Rose
+        colors: [Color(0xFF7C3AED), Color(0xFFDB2777)], // Royal Purple to Fuchsia
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
     }
     if (name == 'PROFESSIONAL') {
       return const LinearGradient(
-        colors: [Color(0xFF7C3AED), Color(0xFFDB2777)], // Royal Purple to Fuchsia
+        colors: [Color(0xFFF59E0B), Color(0xFFFF6B35)], // Amber → Warm Orange
+
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
@@ -160,7 +161,7 @@ class TarifCard extends StatelessWidget {
                 const SizedBox(height: 20),
                 _buildFeatureItem('Hamkorlar:', _formatValue(tarif.maxCustomers)),
                 _buildFeatureItem('Loyihalar:', _formatValue(tarif.maxProjects)),
-                _buildFeatureItem('SMS Limit:', _formatValue(tarif.smsPerMonth)),
+                _buildFeatureItem('SMS Limit (har oyda):', _formatValue(tarif.smsPerMonth)),
                 if (tarif.features?.reports == true) _buildFeatureItem('Hisobotlar:', 'Cheksiz'),
                 if (tarif.features?.fileUpload == true) _buildFeatureItem('Fayl yuklash:', 'Cheksiz'),
                 const SizedBox(height: 12),
