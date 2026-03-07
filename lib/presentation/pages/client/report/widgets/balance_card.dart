@@ -78,14 +78,33 @@ class BalanceCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                'Joriy balans',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: Colors.white.withValues(alpha: 0.8),
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
+              (() {
+                final String? subtitle = balance < 0 ? 'Hamkor qarzi' : (balance > 0 ? 'Hamkor haqqi' : null);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Joriy balans',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      SizedBox(height: 2.h),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              })(),
               SizedBox(height: 4.h),
               TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: balance),

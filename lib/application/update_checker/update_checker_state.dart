@@ -5,12 +5,14 @@ class UpdateCheckerState extends Equatable {
   final String updateStatus;
   final String version;
   final String? errorMessage;
+  final bool isDismissed;
 
   const UpdateCheckerState({
     required this.hasUpdate,
     required this.updateStatus,
     this.version = '',
     this.errorMessage,
+    this.isDismissed = false,
   });
 
   UpdateCheckerState copyWith({
@@ -18,15 +20,17 @@ class UpdateCheckerState extends Equatable {
     String? updateStatus,
     String? version,
     String? errorMessage,
+    bool? isDismissed,
   }) {
     return UpdateCheckerState(
       hasUpdate: hasUpdate ?? this.hasUpdate,
       updateStatus: updateStatus ?? this.updateStatus,
       version: version ?? this.version,
       errorMessage: errorMessage ?? this.errorMessage,
+      isDismissed: isDismissed ?? this.isDismissed,
     );
   }
 
   @override
-  List<Object?> get props => [hasUpdate, updateStatus, version, errorMessage];
+  List<Object?> get props => [hasUpdate, updateStatus, version, errorMessage, isDismissed];
 }

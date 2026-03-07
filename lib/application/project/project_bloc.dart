@@ -31,6 +31,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
     emit(state.copyWith(
       status: Status.loading,
       statusAdd: Status.pure,
+      statusLoadMore: Status.pure,
       search: search,
       statusFilter: event.updateFilters ? () => event.status : null,
       date: event.updateFilters ? () => event.date : null,
@@ -53,15 +54,23 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
         final List<ProjectModel> models = dataList.map((element) => ProjectModel.fromJson(element)).toList();
         
         final meta = result["meta"];
+        final links = result["links"];
         final int lastPage = meta?["last_page"] ?? 1;
         final int currentPage = meta?["current_page"] ?? 1;
+
+        bool hasReachedMax = false;
+        if (links != null && links.containsKey('next')) {
+          hasReachedMax = links['next'] == null;
+        } else if (meta != null && meta.containsKey('last_page')) {
+          hasReachedMax = currentPage >= lastPage;
+        }
 
         emit(state.copyWith(
           status: Status.success, 
           models: models,
           currentPage: currentPage,
           lastPage: lastPage,
-          hasReachedMax: currentPage >= lastPage,
+          hasReachedMax: hasReachedMax,
         ));
       } else {
         emit(state.copyWith(status: Status.error, errorMessage: data["error"].toString()));
@@ -74,7 +83,9 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   }
 
   Future<void> loadMore(LoadMoreProjectsEvent event, Emitter<ProjectState> emit) async {
-    if (state.hasReachedMax || state.status == Status.loading) return;
+    if (state.hasReachedMax || state.statusLoadMore == Status.loading) return;
+
+    emit(state.copyWith(statusLoadMore: Status.loading));
 
     try {
       final int nextPage = state.currentPage + 1;
@@ -92,19 +103,30 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
         final List<ProjectModel> newModels = dataList.map((element) => ProjectModel.fromJson(element)).toList();
         
         final meta = result["meta"];
+        final links = result["links"];
         final int lastPage = meta?["last_page"] ?? 1;
         final int currentPage = meta?["current_page"] ?? nextPage;
 
+        bool hasReachedMax = false;
+        if (links != null && links.containsKey('next')) {
+          hasReachedMax = links['next'] == null;
+        } else if (meta != null && meta.containsKey('last_page')) {
+          hasReachedMax = currentPage >= lastPage;
+        }
+
         emit(state.copyWith(
           status: Status.success,
+          statusLoadMore: Status.success,
           models: List.of(state.models)..addAll(newModels),
           currentPage: currentPage,
           lastPage: lastPage,
-          hasReachedMax: currentPage >= lastPage,
+          hasReachedMax: hasReachedMax,
         ));
+      } else {
+        emit(state.copyWith(statusLoadMore: Status.error));
       }
     } catch (_) {
-      // For load more, we might want to just stop trying or show a silent error
+      emit(state.copyWith(statusLoadMore: Status.error));
     }
   }
 

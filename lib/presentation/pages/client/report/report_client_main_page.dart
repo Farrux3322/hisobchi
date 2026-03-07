@@ -54,7 +54,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
-          'Hamkorlar xisoboti',
+          'Hamkorlar hisoboti',
           style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w700),
         ),
         elevation: 0,
@@ -167,13 +167,19 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           Row(
             children: [
               Expanded(
-                child: _buildMainStatCard(
-                  title: 'Qoldiq',
-                  value: _formatCurrency(data.balance, isUZS),
-                  icon: AppIcons.balance,
-                  iconColor: Colors.white,
-                  backgroundColor: const Color(0xFF2196F3),
-                  isUZS: isUZS,
+                child: Builder(
+                  builder: (context) {
+                    final correctedBalance = -data.balanceAmount;
+                    return _buildMainStatCard(
+                      title: 'Qoldiq',
+                      value: _formatCurrency(correctedBalance.toString(), isUZS),
+                      icon: AppIcons.balance,
+                      iconColor: Colors.white,
+                      backgroundColor: const Color(0xFF2196F3),
+                      isUZS: isUZS,
+                      subtitle: correctedBalance < 0 ? '(Sizning qarzingiz)' : (correctedBalance > 0 ? '(Hamkorlar qarzi)' : null),
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 12),
@@ -341,6 +347,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
     required Color backgroundColor,
     bool isUZS = true,
     bool showCurrency = true,
+    String? subtitle,
   }) {
     return Container(
       height: 0.15.sh,
@@ -368,6 +375,17 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
               ),
             ],
           ),
+          if (subtitle != null)
+            Row(
+              children: [
+                Icon(Icons.fiber_manual_record,size: 10.sp,color: Colors.white),
+                Gap(6.w),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: iconColor.withOpacity(0.9)),
+                ),
+              ],
+            ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -431,7 +449,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                     const SizedBox(width: 8),
                     Text(
                       '$count',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color, height: 1),
+                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: color, height: 1),
                     ),
                   ],
                 ),
@@ -494,7 +512,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                     const SizedBox(width: 8),
                     Text(
                       '$count',
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: color, height: 1),
+                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: color, height: 1),
                     ),
                   ],
                 ),

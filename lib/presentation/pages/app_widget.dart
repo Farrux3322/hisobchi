@@ -30,6 +30,16 @@ class _AppWidgetState extends State<AppWidget> with WidgetsBindingObserver {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      if (mounted) {
+        context.read<UpdateCheckerBloc>().add(const CheckUpdate());
+      }
+    }
+  }
+
+  @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -72,19 +82,31 @@ class _AppWidgetState extends State<AppWidget> with WidgetsBindingObserver {
                         builder: (context, child) {
                           return MediaQuery(
                             data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1)),
-                            child: BlocConsumer<UpdateCheckerBloc, UpdateCheckerState>(
-                              listener: (context, updateState) {
-                                if (updateState.hasUpdate == true) {
-                                  if (context.mounted) {
-                                    showDialog(
-                                        barrierDismissible: updateState.updateStatus != 'hard',
-                                        context: AppManagerCubit.context ?? context,
-                                        builder: (BuildContext context) => UpdateAppDialog(status: updateState.updateStatus));
-                                  }
-                                }
-                              },
+                            child: BlocBuilder<UpdateCheckerBloc, UpdateCheckerState>(
                               builder: (context, updateState) {
-                                return child ?? const Material(color: Colors.white, child: SizedBox());
+                                return Stack(
+                                  children: [
+                                    child ?? const Material(color: Colors.white, child: SizedBox()),
+                                    if (updateState.hasUpdate && !updateState.isDismissed) ...[
+                                      // Modal Barrier
+                                      Positioned.fill(
+                                        child: ListenableBuilder(
+                                          listenable: Listenable.merge([]),
+                                          builder: (context, _) => GestureDetector(
+                                            onTap: null,
+                                            child: Container(
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      // Dialog
+                                      Center(
+                                        child: UpdateAppDialog(status: updateState.updateStatus),
+                                      ),
+                                    ],
+                                  ],
+                                );
                               },
                             ),
                           );

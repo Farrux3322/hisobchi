@@ -28,7 +28,6 @@ class ClientPage extends StatefulWidget {
 
 class _ClientPageState extends State<ClientPage> {
   final TextEditingController _searchController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
   DateTime? filterStartDate;
   DateTime? filterEndDate;
   String? filterSort;
@@ -38,34 +37,12 @@ class _ClientPageState extends State<ClientPage> {
   void initState() {
     super.initState();
     _fetchPartners();
-    _scrollController.addListener(_onScroll);
   }
 
-  void _onScroll() {
-    if (_isBottom) {
-      context.read<PartnerBloc>().add(
-        LoadMorePartnersEvent(
-          startDate: filterStartDate,
-          endDate: filterEndDate,
-          search: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
-          sort: filterSort,
-          statusFilter: filterStatusFilter,
-        ),
-      );
-    }
-  }
-
-  bool get _isBottom {
-    if (!_scrollController.hasClients) return false;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.position.pixels;
-    return currentScroll >= (maxScroll * 0.9);
-  }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _scrollController.dispose();
     super.dispose();
   }
 
@@ -205,36 +182,59 @@ class _ClientPageState extends State<ClientPage> {
       );
     }
 
-    return RefreshIndicator(
-      color: AppTheme.colors.primary,
-      onRefresh: () async {
-        context.read<PartnerBloc>().add(const GetAllEvent());
-      },
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        itemCount: state.hasReachedMax ? filteredPartners.length : filteredPartners.length + 1,
-        itemBuilder: (context, index) {
-          if (index >= filteredPartners.length) {
-            return _buildLoadMoreIndicator();
-          }
-          final partner = filteredPartners[index];
-          return Column(
-            children: [
-              ClientCardItem(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => AccountPage(partnerModel: partner))).then((v) {
-                    if (v == true && context.mounted) {
-                      context.read<PartnerBloc>().add(const GetAllEvent());
-                    }
-                  });
-                },
-                partnerModel: partner,
+    return NotificationListener<ScrollNotification>(
+      onNotification: (ScrollNotification scrollInfo) {
+        if (scrollInfo is ScrollUpdateNotification) {
+          final maxScroll = scrollInfo.metrics.maxScrollExtent;
+          final currentScroll = scrollInfo.metrics.pixels;
+          
+          if (currentScroll >= (maxScroll * 0.9) && 
+              state.statusLoadMore != Status.loading && 
+              !state.hasReachedMax) {
+            context.read<PartnerBloc>().add(
+              LoadMorePartnersEvent(
+                startDate: filterStartDate,
+                endDate: filterEndDate,
+                search: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
+                sort: filterSort,
+                statusFilter: filterStatusFilter,
               ),
-              if (index == filteredPartners.length - 1 && state.hasReachedMax) Gap(MediaQuery.of(context).padding.bottom + 20.h),
-            ],
-          );
+            );
+          }
+        }
+        return false;
+      },
+      child: RefreshIndicator(
+        color: AppTheme.colors.primary,
+        onRefresh: () async {
+          context.read<PartnerBloc>().add(const GetAllEvent());
         },
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          itemCount: state.hasReachedMax ? filteredPartners.length : filteredPartners.length + 1,
+          itemBuilder: (context, index) {
+            if (index >= filteredPartners.length) {
+              return _buildLoadMoreIndicator();
+            }
+            final partner = filteredPartners[index];
+            return Column(
+              children: [
+                ClientCardItem(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => AccountPage(partnerModel: partner))).then((v) {
+                      if (v == true && context.mounted) {
+                        context.read<PartnerBloc>().add(const GetAllEvent());
+                      }
+                    });
+                  },
+                  partnerModel: partner,
+                ),
+                if (index == filteredPartners.length - 1 && state.hasReachedMax) Gap(MediaQuery.of(context).padding.bottom + 20.h),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

@@ -19,7 +19,7 @@ class ConnectivityListener extends StatefulWidget {
   State<ConnectivityListener> createState() => _ConnectivityListenerState();
 }
 
-class _ConnectivityListenerState extends State<ConnectivityListener> {
+class _ConnectivityListenerState extends State<ConnectivityListener> with WidgetsBindingObserver {
   final ConnectivityService _connectivityService = ConnectivityService();
   StreamSubscription<bool>? _connectivitySubscription;
   bool _hasShownDialog = false;
@@ -29,8 +29,29 @@ class _ConnectivityListenerState extends State<ConnectivityListener> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _listenToConnectivity();
     _checkInitialConnection();
+  }
+
+  // Tracking grace period after resume to prevent false positives
+  DateTime? _lastResumeTime;
+  bool get _isWithinGracePeriod {
+    if (_lastResumeTime == null) return false;
+    return DateTime.now().difference(_lastResumeTime!) < const Duration(seconds: 3);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      debugPrint('🌐 ConnectivityListener: App resumed, triggering refresh and starting grace period.');
+      _lastResumeTime = DateTime.now();
+      _connectivityService.refresh();
+    } else if (state == AppLifecycleState.paused) {
+      debugPrint('🌐 ConnectivityListener: App paused, cancelling pending timers.');
+      _debounceTimer?.cancel();
+      _debounceTimer = null;
+    }
   }
 
   Future<void> _checkInitialConnection() async {
@@ -84,8 +105,17 @@ class _ConnectivityListenerState extends State<ConnectivityListener> {
 
   void _startConnectionTimer() {
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 1500), () {
+    _debounceTimer = Timer(const Duration(milliseconds: 1510), () {
       if (!mounted) return;
+      
+      // If we are within the 3s grace period after resume, don't show the dialog yet.
+      // Instead, we'll wait for the next connectivity event or another check.
+      if (_isWithinGracePeriod) {
+        debugPrint('🌐 ConnectivityListener: Suppressing dialog trigger - within post-resume grace period.');
+        _debounceTimer = null;
+        return;
+      }
+
       if (!_connectivityService.hasConnection && !_hasShownDialog) {
         debugPrint('🌐 ConnectivityListener: Timer expired, showing dialog.');
         _hasShownDialog = true;
@@ -108,6 +138,7 @@ class _ConnectivityListenerState extends State<ConnectivityListener> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _connectivitySubscription?.cancel();
     _debounceTimer?.cancel();
     super.dispose();

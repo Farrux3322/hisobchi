@@ -32,7 +32,7 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
 
   // Design Constants
   final Color primaryGradientStart = AppTheme.colors.primary;
-  final Color primaryGradientEnd = AppTheme.colors.primary.withOpacity(0.8);
+  final Color primaryGradientEnd = AppTheme.colors.primary.withValues(alpha: 0.8);
   final Color backgroundColor = AppTheme.colors.background;
   final Color textPrimary = const Color(0xFF0F172A);
   final Color textSecondary = const Color(0xFF64748B);
@@ -184,7 +184,7 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
         indicator: BoxDecoration(
           color: AppTheme.colors.primary,
           borderRadius: BorderRadius.circular(10.r),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))],
         ),
         labelColor: Colors.white,
         unselectedLabelColor: textSecondary,

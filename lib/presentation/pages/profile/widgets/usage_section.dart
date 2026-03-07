@@ -175,9 +175,15 @@ class _SubscriptionInfoCard extends StatelessWidget {
                     Container(
                       width: 56,
                       height: 56,
-                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       padding: const EdgeInsets.all(14),
-                      child: SvgPicture.asset(AppIcons.crown, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                      child: SvgPicture.asset(
+                        AppIcons.crown,
+                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      ),
                     ),
                     const Gap(16),
                     Expanded(
@@ -185,45 +191,101 @@ class _SubscriptionInfoCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                planType,
-                                style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w800),
+                              Expanded(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: RichText(
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: 'Tarif: ',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                color: Colors.white.withValues(alpha: 0.7),
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: planType,
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w900,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    if (statusLabel != null) ...[
+                                      const Gap(8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(alpha: 0.2),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          statusLabel!,
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
                               ),
-                              if (statusLabel != null) ...[
-                                const Gap(8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
-                                  child: Text(
-                                    statusLabel!,
-                                    style: const TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w700),
+                              const Gap(8),
+                              Material(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                child: InkWell(
+                                  onTap: () => context.pushNamed(Routes.subscription.name),
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(6),
+                                    child: const Icon(
+                                      Icons.add_rounded,
+                                      color: Colors.black,
+                                      size: 24,
+                                    ),
                                   ),
                                 ),
-                              ],
+                              ),
                             ],
                           ),
-                          const Gap(4),
-                          Text(
-                            'Amal qilish muddati: $planExpiry',
-                            style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w500),
+                          const Gap(6),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.access_time_filled_rounded,
+                                size: 14,
+                                color: Colors.white.withValues(alpha: 0.7),
+                              ),
+                              const Gap(4),
+                              Expanded(
+                                child: Text(
+                                  'Amal qilish muddati: $planExpiry',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
-                      ),
-                    ),
-                    Material(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      child: InkWell(
-                        onTap: () => context.pushNamed(Routes.subscription.name),
-                        borderRadius: BorderRadius.circular(14),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                          child: Text(
-                            'Yangilash',
-                            style: TextStyle(color: AppTheme.colors.primary, fontWeight: FontWeight.bold, fontSize: 14),
-                          ),
-                        ),
                       ),
                     ),
                   ],

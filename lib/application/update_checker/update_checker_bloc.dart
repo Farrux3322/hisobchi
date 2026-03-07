@@ -12,7 +12,8 @@ part 'update_checker_state.dart';
 
 class UpdateCheckerBloc extends Bloc<UpdateCheckerEvent, UpdateCheckerState> {
   UpdateCheckerBloc() : super(const UpdateCheckerState(hasUpdate: false, updateStatus: 'hard')) {
-    on<UpdateCheckerEvent>(checkUpdate);
+    on<CheckUpdate>(checkUpdate);
+    on<DismissUpdate>((event, emit) => emit(state.copyWith(isDismissed: true)));
   }
 
   final repo = UpdateRepository();

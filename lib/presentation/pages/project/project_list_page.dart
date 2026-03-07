@@ -33,8 +33,8 @@ class _ProjectListPageState extends State<ProjectListPage> {
   }
 
   void _onScroll() {
-    if (_isBottom) {
-      final state = context.read<ProjectBloc>().state;
+    final state = context.read<ProjectBloc>().state;
+    if (_isBottom && state.statusLoadMore != Status.loading && !state.hasReachedMax) {
       context.read<ProjectBloc>().add(
             LoadMoreProjectsEvent(
               search: state.search,

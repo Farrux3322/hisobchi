@@ -120,10 +120,12 @@ class _AddCostTypeSheetState extends State<AddCostTypeSheet> {
             // Description Field
             TextFormField(
               controller: _descriptionController,
-              maxLines: 3,
+              maxLines: null,
+              maxLength: 100,
               style: const TextStyle(fontWeight: FontWeight.w500),
               decoration: InputDecoration(
                 labelText: 'Izoh',
+                counter: SizedBox(),
                 hintText: 'Qo\'shimcha ma\'lumot',
                 labelStyle: const TextStyle(color: Color(0xFF64748B)),
                 filled: true,

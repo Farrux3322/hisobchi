@@ -58,7 +58,7 @@ class ProjectCostInputs extends StatelessWidget {
           label: 'Izoh',
           hint: 'Qo\'shimcha ma\'lumot (ixtiyoriy)',
           icon: Icons.description_outlined,
-          maxLines: 1,
+          maxLines: null,
         ),
       ],
     );
@@ -165,7 +165,7 @@ class ProjectCostInputs extends StatelessWidget {
     required String hint,
     required IconData icon,
     TextInputType? keyboardType,
-    int maxLines = 1,
+    int? maxLines = 1,
     bool isRequired = false,
     String? Function(String?)? validator,
   }) {
@@ -199,7 +199,7 @@ class ProjectCostInputs extends StatelessWidget {
           focusNode: focusNode,
           keyboardType: keyboardType,
           maxLines: maxLines,
-          maxLength: 30,
+          maxLength: 100,
           validator: validator,
           style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500),
           decoration: InputDecoration(

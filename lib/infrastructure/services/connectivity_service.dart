@@ -134,8 +134,18 @@ class ConnectivityService {
     }
   }
 
+  /// Explicitly re-verify connection and broadcast the result
+  /// Useful for lifecycle events (resumed) or manual retries
+  Future<void> refresh() async {
+    if (kDebugMode) {
+      print('🌐 ConnectivityService: Refreshing connection status...');
+    }
+    final isConnected = await checkConnection();
+    _updateConnectionStatus(isConnected, forceBroadcast: true);
+  }
+
   /// Update connection status and notify listeners
-  void _updateConnectionStatus(bool isConnected) {
+  void _updateConnectionStatus(bool isConnected, {bool forceBroadcast = false}) {
     // Only update and notify if service is initialized
     if (!_isInitialized) {
       if (kDebugMode) {
@@ -144,10 +154,10 @@ class ConnectivityService {
       return;
     }
 
-    if (_hasConnection != isConnected) {
+    if (_hasConnection != isConnected || forceBroadcast) {
       _hasConnection = isConnected;
       if (kDebugMode) {
-        print('🌐 Connection status updated: ${isConnected ? "✅ CONNECTED" : "❌ DISCONNECTED"}');
+        print('🌐 Connection status updated: ${isConnected ? "✅ CONNECTED" : "❌ DISCONNECTED"} (forced: $forceBroadcast)');
       }
       _connectionStatusController.add(isConnected);
     }

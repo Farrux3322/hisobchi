@@ -40,6 +40,7 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
     emit(state.copyWith(
       status: Status.loading,
       statusAdd: Status.pure,
+      statusLoadMore: Status.pure,
       currentPage: 1,
       hasReachedMax: false,
       models: [],
@@ -60,15 +61,28 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
         final List<PartnerModel> models = dataList.map((element) => PartnerModel.fromJson(element)).toList();
         
         final meta = result["meta"];
+        final links = result["links"];
         final int lastPage = meta?["last_page"] ?? 1;
         final int currentPage = meta?["current_page"] ?? 1;
+
+        bool hasReachedMax = false;
+        if (links != null && links.containsKey('next')) {
+          hasReachedMax = links['next'] == null;
+        } else if (meta != null && meta.containsKey('last_page')) {
+          hasReachedMax = currentPage >= lastPage;
+        } else {
+          // If no links and no meta[last_page], we can't be sure, 
+          // but let's assume if we got less than per_page items we're at the end.
+          // However, user said specifically to follow 'next' link.
+          hasReachedMax = false; 
+        }
 
         emit(state.copyWith(
           status: Status.success,
           models: models,
           currentPage: currentPage,
           lastPage: lastPage,
-          hasReachedMax: currentPage >= lastPage,
+          hasReachedMax: hasReachedMax,
         ));
       } else {
         emit(state.copyWith(status: Status.error, errorMessage: _extractMessageFromData(data)));
@@ -79,7 +93,9 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
   }
 
   Future<void> loadMore(LoadMorePartnersEvent event, Emitter<PartnerState> emit) async {
-    if (state.hasReachedMax || state.status == Status.loading) return;
+    if (state.hasReachedMax || state.statusLoadMore == Status.loading) return;
+
+    emit(state.copyWith(statusLoadMore: Status.loading));
 
     try {
       final int nextPage = state.currentPage + 1;
@@ -98,19 +114,30 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
         final List<PartnerModel> newModels = dataList.map((element) => PartnerModel.fromJson(element)).toList();
         
         final meta = result["meta"];
+        final links = result["links"];
         final int lastPage = meta?["last_page"] ?? 1;
         final int currentPage = meta?["current_page"] ?? nextPage;
 
+        bool hasReachedMax = false;
+        if (links != null && links.containsKey('next')) {
+          hasReachedMax = links['next'] == null;
+        } else if (meta != null && meta.containsKey('last_page')) {
+          hasReachedMax = currentPage >= lastPage;
+        }
+
         emit(state.copyWith(
           status: Status.success,
+          statusLoadMore: Status.success,
           models: List.of(state.models)..addAll(newModels),
           currentPage: currentPage,
           lastPage: lastPage,
-          hasReachedMax: currentPage >= lastPage,
+          hasReachedMax: hasReachedMax,
         ));
+      } else {
+        emit(state.copyWith(statusLoadMore: Status.error));
       }
     } catch (_) {
-      // For load more, we might want to just stop trying or show a silent error
+      emit(state.copyWith(statusLoadMore: Status.error));
     }
   }
 

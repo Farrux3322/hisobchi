@@ -10,3 +10,7 @@ abstract class UpdateCheckerEvent extends Equatable {
 class CheckUpdate extends UpdateCheckerEvent {
   const CheckUpdate();
 }
+
+class DismissUpdate extends UpdateCheckerEvent {
+  const DismissUpdate();
+}

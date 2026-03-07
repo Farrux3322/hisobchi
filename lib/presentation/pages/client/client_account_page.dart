@@ -639,6 +639,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           // Senior approach: Conditional colors based on balance
           (() {
             final Color balanceColor = balance < 0 ? AppTheme.colors.colorDE5050 : (balance == 0 ? Colors.black : AppTheme.colors.color3CC293);
+            final String? subtitle = balance < 0 ? 'Hamkor qarzi' : (balance > 0 ? 'Hamkor haqqi' : null);
+            final String sign = balance < 0 ? '-' : (balance > 0 ? '+' : '');
             return Container(
               padding: EdgeInsets.all(cardPadding.clamp(12, 18)),
               decoration: BoxDecoration(
@@ -657,27 +659,47 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                     child: SvgPicture.asset(AppIcons.balance, width: iconSize.clamp(20, 26), height: iconSize.clamp(20, 26), colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
                   ),
                   SizedBox(width: screenWidth * 0.035),
-                  Text(
-                    'Qoldiq',
-                    style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.4),
-                  ),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    child: Row(
                       children: [
-                        Text(
-                          PriceFormatter.priceFormat('$balance'),
-                          style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.end,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Qoldiq',
+                              style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.4),
+                            ),
+                            if (subtitle != null) ...[
+                              Gap(4.h),
+                              Text(
+                                subtitle,
+                                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: balanceColor.withValues(alpha: 0.9)),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
                         ),
-                        Text(
-                          currencySymbol,
-                          style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: Colors.black),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.end,
+                        const Spacer(),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '$sign ${PriceFormatter.priceFormat('${balance.abs()}')}',
+                              style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                            ),
+                            Text(
+                              currencySymbol,
+                              style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: Colors.black),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                            ),
+                          ],
                         ),
                       ],
                     ),

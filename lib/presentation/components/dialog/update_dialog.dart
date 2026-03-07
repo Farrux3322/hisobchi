@@ -45,23 +45,7 @@ class UpdateAppDialog extends StatelessWidget {
               SizedBox(
                 child: Row(
                   children: [
-                    status == "hard"
-                        ? const SizedBox()
-                        : Expanded(
-                            child: GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: Container(
-                                  width: double.infinity,
-                                  padding: EdgeInsets.symmetric(vertical: 10.h),
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.r), color: Colors.grey.shade200),
-                                  child: Center(
-                                    child: Text(
-                                      "Keyinroq",
-                                      style: AppTheme.data.textTheme.labelSmall!.copyWith(color: AppTheme.colors.black, fontWeight: FontWeight.w500),
-                                    ),
-                                  )),
-                            ),
-                          ),
+                    const SizedBox(),
                     Gap(10.w),
                     Expanded(
                       child: GestureDetector(

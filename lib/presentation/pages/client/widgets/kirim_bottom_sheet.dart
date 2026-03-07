@@ -558,7 +558,9 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                 TextFormField(
                                   controller: _descriptionController,
                                   maxLines: null,
+                                  maxLength: 100,
                                   decoration: InputDecoration(
+                                    counter: SizedBox(),
                                     hintText: 'Izoh qoldiring (ixtiyoriy)',
                                     hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
                                     filled: true,

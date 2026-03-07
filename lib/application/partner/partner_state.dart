@@ -9,6 +9,7 @@ class PartnerState extends Equatable {
   final Status statusIncomeHistory;
   final Status statusGetSmsSettings;
   final Status statusUpdateSmsSettings;
+  final Status statusLoadMore;
   final String? errorMessage;
   final IncomeStatementModel? incomeStatementModel;
   final IncomeHistoryModel? incomeHistoryModel;
@@ -27,6 +28,7 @@ class PartnerState extends Equatable {
     this.statusUpdateSmsSettings = Status.pure,
     this.statusKirim = Status.pure,
     this.statusKirimAdd = Status.pure,
+    this.statusLoadMore = Status.pure,
     this.errorMessage,
     this.incomeStatementModel,
     this.incomeHistoryModel,
@@ -46,6 +48,7 @@ class PartnerState extends Equatable {
     Status? statusIncomeHistory,
     Status? statusGetSmsSettings,
     Status? statusUpdateSmsSettings,
+    Status? statusLoadMore,
     String? errorMessage,
     IncomeStatementModel? incomeStatementModel,
     IncomeHistoryModel? incomeHistoryModel,
@@ -64,6 +67,7 @@ class PartnerState extends Equatable {
         statusIncomeStatement: statusIncomeStatement ?? this.statusIncomeStatement,
         statusGetSmsSettings: statusGetSmsSettings ?? this.statusGetSmsSettings,
         statusUpdateSmsSettings: statusUpdateSmsSettings ?? this.statusUpdateSmsSettings,
+        statusLoadMore: statusLoadMore ?? this.statusLoadMore,
         errorMessage: errorMessage ?? this.errorMessage,
         incomeStatementModel: incomeStatementModel ?? this.incomeStatementModel,
         incomeHistoryModel: incomeHistoryModel ?? this.incomeHistoryModel,
@@ -85,6 +89,7 @@ class PartnerState extends Equatable {
     statusIncomeStatement,
     statusGetSmsSettings,
     statusUpdateSmsSettings,
+    statusLoadMore,
     errorMessage,
     incomeStatementModel,
     incomeHistoryModel,

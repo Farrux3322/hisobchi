@@ -373,7 +373,7 @@ class _WorkerAddEditPageState extends State<WorkerAddEditPage> {
           controller: controller,
           keyboardType: keyboardType,
           maxLines: maxLines,
-          maxLength: 30,
+          maxLength: 60,
           validator: validator,
           inputFormatters: inputFormatters,
 
