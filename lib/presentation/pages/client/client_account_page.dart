@@ -729,7 +729,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                     child: SubscriptionGuard(
                       child: GestureDetector(
                         onTap: () async {
-                          showKirimBottomSheet(context, widget.partnerModel.id ?? 0, true, currencySymbol);
+                          showKirimBottomSheet(context, widget.partnerModel.id ?? 0, true, currencySymbol,widget.partnerModel);
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),
@@ -772,7 +772,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                     child: SubscriptionGuard(
                       child: GestureDetector(
                         onTap: () {
-                          showKirimBottomSheet(context, widget.partnerModel.id ?? 0, false, currencySymbol);
+                          showKirimBottomSheet(context, widget.partnerModel.id ?? 0, false, currencySymbol,widget.partnerModel);
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),

@@ -56,9 +56,7 @@ class _AppWidgetState extends State<AppWidget> with WidgetsBindingObserver {
         } else {
           return BlocBuilder<ThemeBloc, ThemeState>(
             builder: (context, themeState) {
-              // Theme o'zgarganda AppTheme ni yangilash
               AppTheme.updateTheme(themeState.themeMode);
-
               return OKToast(
                 child: AnnotatedRegion<SystemUiOverlayStyle>(
                   value: SystemUiOverlayStyle(

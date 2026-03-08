@@ -349,7 +349,7 @@ class _WorkerSelectionBottomSheetState extends State<WorkerSelectionBottomSheet>
             Text(
               'Rostdan ham "${worker.name}" ishchisini o\'chirmoqchimisiz?',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray, height: 1.5),
+              style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.black, height: 1.5),
             ),
           ],
         ),

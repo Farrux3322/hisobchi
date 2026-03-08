@@ -5,6 +5,8 @@ class PartnerModel {
   String? additionalPhone;
   List<PartnerFile>? files;
   int? mainCurrencyTypeId;
+  bool? sendOnKirim;
+  bool? sendOnChiqim;
   String? mainCurrencyTypeName;
   String? createdAt;
   String? deletedAt;
@@ -20,6 +22,8 @@ class PartnerModel {
     this.mainCurrencyTypeName,
     this.createdAt,
     this.deletedAt,
+    this.sendOnChiqim,
+    this.sendOnKirim,
     this.balance,
   });
 
@@ -38,6 +42,8 @@ class PartnerModel {
     mainCurrencyTypeName = json['main_currency_type_name'];
     createdAt = json['created_at'];
     deletedAt = json['deleted_at'];
+    sendOnKirim = json['send_on_kirim'];
+    sendOnChiqim = json['send_on_chiqim'];
     balance = json['balance'] != null ? PartnerBalance.fromJson(json['balance']) : null;
   }
 
@@ -54,6 +60,8 @@ class PartnerModel {
     data['main_currency_type_name'] = mainCurrencyTypeName;
     data['created_at'] = createdAt;
     data['deleted_at'] = deletedAt;
+    data['send_on_kirim'] = sendOnKirim;
+    data['send_on_chiqim'] = sendOnChiqim;
     if (balance != null) {
       data['balance'] = balance!.toJson();
     }
@@ -123,14 +131,7 @@ class PaginationMeta {
   int? perPage;
   int? to;
 
-  PaginationMeta({
-    this.currentPage,
-    this.currentPageUrl,
-    this.from,
-    this.path,
-    this.perPage,
-    this.to,
-  });
+  PaginationMeta({this.currentPage, this.currentPageUrl, this.from, this.path, this.perPage, this.to});
 
   PaginationMeta.fromJson(Map<String, dynamic> json) {
     currentPage = json['current_page'];

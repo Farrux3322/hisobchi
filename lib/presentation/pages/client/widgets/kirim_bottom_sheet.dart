@@ -9,12 +9,12 @@ import 'package:hisobchi/application/file_upload/file_upload_event.dart';
 import 'package:hisobchi/application/file_upload/file_upload_state.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
+import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 
 // Number formatter - raqamlarni space bilan ajratadi va kasr sonlarni qo'llab-quvvatlaydi
 class DecimalTextInputFormatter extends TextInputFormatter {
@@ -62,18 +62,18 @@ class DecimalTextInputFormatter extends TextInputFormatter {
   }
 }
 
-Future<void> showKirimBottomSheet(BuildContext context, int partnerId, bool isKirim, String currencySymbol) async {
+Future<void> showKirimBottomSheet(BuildContext context, int partnerId, bool isKirim, String currencySymbol, PartnerModel partnerModel) async {
   await showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (context) => DraggableScrollableSheet(
-      initialChildSize: 0.8,
+      initialChildSize: 0.85,
       minChildSize: 0.5,
       maxChildSize: 0.95,
       builder: (context, scrollController) => BlocProvider(
         create: (context) => FileUploadBloc(repository: FileUploadRepository()),
-        child: _KirimBottomSheetContent(partnerId: partnerId, isKirim: isKirim, scrollController: scrollController, currencySymbol: currencySymbol),
+        child: _KirimBottomSheetContent(partnerId: partnerId, isKirim: isKirim, scrollController: scrollController, currencySymbol: currencySymbol,partnerModel: partnerModel,),
       ),
     ),
   );
@@ -83,9 +83,10 @@ class _KirimBottomSheetContent extends StatefulWidget {
   final int partnerId;
   final bool isKirim;
   final ScrollController scrollController;
+  final PartnerModel partnerModel;
   final String currencySymbol;
 
-  const _KirimBottomSheetContent({required this.partnerId, required this.isKirim, required this.scrollController, required this.currencySymbol});
+  const _KirimBottomSheetContent({required this.partnerId, required this.isKirim, required this.scrollController, required this.currencySymbol, required this.partnerModel});
 
   @override
   State<_KirimBottomSheetContent> createState() => _KirimBottomSheetContentState();
@@ -362,7 +363,12 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                   widget.isKirim ? 'Kirim qo\'shish' : 'Chiqim qo\'shish',
                                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
                                 ),
-                                const SizedBox(height: 24),
+                                const SizedBox(height: 12),
+                                Text(
+                                  widget.isKirim ? (widget.partnerModel.sendOnKirim==true ? "Kirim qo‘shilishi bilan hamkorga avtomatik SMS xabarnoma yuboriladi.":'SMS xabarnomalar o‘chirilgan. Kirim qo‘shilganda hamkorga SMS yuborilmaydi.') : (widget.partnerModel.sendOnChiqim==true ? "Chiqim qo‘shilishi bilan hamkorga avtomatik SMS xabarnoma yuboriladi.":'SMS xabarnomalar o‘chirilgan. Chiqim qo‘shilganda hamkorga SMS yuborilmaydi.'),
+                                  style:  TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.grey),
+                                ),
+                                const SizedBox(height: 12),
 
                                 // Amount and Currency
                                 RichText(
