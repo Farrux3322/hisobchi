@@ -3,6 +3,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
+import 'package:dio/dio.dart';
+
 /// Senior-level Connectivity Service
 ///
 /// Features:
@@ -29,8 +31,24 @@ class ConnectivityService {
 
   final StreamController<bool> _connectionStatusController = StreamController<bool>.broadcast();
 
-  /// Stream to listen for connection status changes
-  Stream<bool> get connectionStatusStream => _connectionStatusController.stream;
+  /// Stream to listen for connection status changes (emits current status immediately)
+  Stream<bool> get currentStatusStream {
+    return Stream.multi((controller) {
+      // Emit current status if available
+      if (_hasConnection != null) {
+        controller.add(_hasConnection!);
+      }
+      
+      // Pipe subsequent changes
+      final subscription = _connectionStatusController.stream.listen(
+        (status) => controller.add(status),
+        onError: (e) => controller.addError(e),
+        onDone: () => controller.close(),
+      );
+      
+      controller.onCancel = () => subscription.cancel();
+    });
+  }
 
   bool? _hasConnection;
   bool _isInitialized = false;
@@ -49,13 +67,12 @@ class ConnectivityService {
     }
 
     // Mark as initialized BEFORE setting up listeners
-    // This prevents stream events during initialization from triggering dialogs
     _isInitialized = true;
 
     // Small delay to ensure app is fully ready
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // Listen to internet status changes (more reliable than just network status)
+    // Listen to internet status changes
     _internetStatusSubscription = _internetConnection.onStatusChange.listen(
           (InternetStatus status) {
         final isConnected = status == InternetStatus.connected;
@@ -65,9 +82,6 @@ class ConnectivityService {
         _updateConnectionStatus(isConnected);
       },
       onError: (error) {
-        if (kDebugMode) {
-          print('🌐 Internet status error: $error');
-        }
         _updateConnectionStatus(false);
       },
     );
@@ -75,89 +89,112 @@ class ConnectivityService {
     // Also listen to connectivity changes as a backup
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
           (List<ConnectivityResult> results) async {
-        if (kDebugMode) {
-          debugPrint('🌐 ConnectivityService: Interface changed: $results');
-        }
-        
-        // Handle empty results or none as disconnected
         if (results.isEmpty || results.contains(ConnectivityResult.none)) {
-          if (kDebugMode) {
-            debugPrint('🌐 ConnectivityService: No network interfaces detected.');
-          }
           _updateConnectionStatus(false);
         } else {
           // If network is connected, verify actual internet access
+          // Use checkConnection which now has retry logic
           final hasInternet = await checkConnection();
           _updateConnectionStatus(hasInternet);
         }
       },
-      onError: (error) {
-        if (kDebugMode) {
-          debugPrint('🌐 ConnectivityService: Connectivity error: $error');
-        }
-        _updateConnectionStatus(false);
-      },
     );
   }
 
-  /// Check current connection status
+  /// Check current connection status with retry logic
   /// Returns true if device has actual internet access
-  Future<bool> checkConnection() async {
-    try {
-      // First check network connectivity
-      final List<ConnectivityResult> connectivityResults = await _connectivity.checkConnectivity();
+  Future<bool> checkConnection({int maxRetries = 3}) async {
+    int attempt = 0;
+    while (attempt < maxRetries) {
+      try {
+        final List<ConnectivityResult> connectivityResults = await _connectivity.checkConnectivity();
 
-      if (kDebugMode) {
-        print('🌐 Checking connection - Network: $connectivityResults');
-      }
+        // If no network interfaces at all, we can't have internet
+        if (connectivityResults.contains(ConnectivityResult.none) || connectivityResults.isEmpty) {
+          if (attempt < maxRetries - 1) {
+            attempt++;
+            await Future.delayed(Duration(milliseconds: 600 * attempt));
+            continue;
+          }
+          return false;
+        }
 
-      // If no network, return false immediately
-      if (connectivityResults.contains(ConnectivityResult.none)) {
-        if (kDebugMode) {
-          print('🌐 No network connection');
+        // Network exists, check actual internet access via library
+        final bool hasInternet = await _internetConnection.hasInternetAccess;
+        if (hasInternet) return true;
+        
+        // Fallback: Manual HTTP check if the library thinks there's no internet
+        // Sometimes the library's socket check is blocked or fails while HTTP works
+        final bool manualCheck = await _manualHttpCheck();
+        if (manualCheck) return true;
+        
+        // If still no internet but we have network, retry a few times as DNS/routing might be settling
+        if (attempt < maxRetries - 1) {
+          attempt++;
+          await Future.delayed(Duration(milliseconds: 600 * attempt));
+          continue;
+        }
+        return false;
+      } catch (e) {
+        if (attempt < maxRetries - 1) {
+          attempt++;
+          await Future.delayed(Duration(milliseconds: 600 * attempt));
+          continue;
         }
         return false;
       }
-
-      // Network exists, now check actual internet access
-      final bool hasInternet = await _internetConnection.hasInternetAccess;
-      if (kDebugMode) {
-        print('🌐 Network available, Internet access: $hasInternet');
-      }
-      return hasInternet;
-    } catch (e) {
-      if (kDebugMode) {
-        print('🌐 Error checking connection: $e');
-      }
-      // On error, assume no connection
-      return false;
     }
+    return false;
+  }
+
+  /// Reliable manual HTTP check against well-known endpoints
+  Future<bool> _manualHttpCheck() async {
+    final endpoints = [
+      'https://www.google.com',
+      'https://1.1.1.1', // Cloudflare DNS (IP based is faster and avoids DNS issues)
+    ];
+
+    for (final url in endpoints) {
+      try {
+        // Use a fresh Dio instance with specified timeouts
+        final dio = Dio(BaseOptions(
+          connectTimeout: const Duration(seconds: 3),
+          receiveTimeout: const Duration(seconds: 3),
+        ));
+        
+        final response = await dio.get(
+          url,
+          options: Options(
+            headers: {
+              'Cache-Control': 'no-cache',
+            },
+          ),
+        );
+        if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 400) {
+          if (kDebugMode) print('🌐 Manual HTTP check success: $url');
+          return true;
+        }
+      } catch (e) {
+        if (kDebugMode) print('🌐 Manual HTTP check fail: $url - $e');
+      }
+    }
+    return false;
   }
 
   /// Explicitly re-verify connection and broadcast the result
-  /// Useful for lifecycle events (resumed) or manual retries
   Future<void> refresh() async {
-    if (kDebugMode) {
-      print('🌐 ConnectivityService: Refreshing connection status...');
-    }
-    final isConnected = await checkConnection();
+    final isConnected = await checkConnection(maxRetries: 3);
     _updateConnectionStatus(isConnected, forceBroadcast: true);
   }
 
   /// Update connection status and notify listeners
   void _updateConnectionStatus(bool isConnected, {bool forceBroadcast = false}) {
-    // Only update and notify if service is initialized
-    if (!_isInitialized) {
-      if (kDebugMode) {
-        print('🌐 Skipping status update - service not initialized yet');
-      }
-      return;
-    }
+    if (!_isInitialized) return;
 
     if (_hasConnection != isConnected || forceBroadcast) {
       _hasConnection = isConnected;
       if (kDebugMode) {
-        print('🌐 Connection status updated: ${isConnected ? "✅ CONNECTED" : "❌ DISCONNECTED"} (forced: $forceBroadcast)');
+        print('🌐 Connection updated: ${isConnected ? "✅" : "❌"} (forced: $forceBroadcast)');
       }
       _connectionStatusController.add(isConnected);
     }

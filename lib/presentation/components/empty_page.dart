@@ -11,24 +11,27 @@ class EmptyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-         SvgPicture.asset(icon ?? AppIcons.empty,),
-          Gap(30.h),
-          Text(
-            text1 ?? tr('errors.empty'),
-            style: AppTheme.data.textTheme.titleLarge!
-                .copyWith(color: Colors.white),
-          ),
-          Gap(15.h),
-          Text(
-            text2 ?? tr('errors.empty'),
-            style: AppTheme.data.textTheme.titleSmall!.copyWith(color: Colors.grey.shade600, fontSize: 14.sp, fontWeight: FontWeight.w400),
-            textAlign: TextAlign.center,
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+           SvgPicture.asset(icon ?? AppIcons.empty,),
+            Gap(30.h),
+            Text(
+              text1 ?? tr('errors.empty'),
+              style: AppTheme.data.textTheme.titleLarge!
+                  .copyWith(color: Colors.black),
+            ),
+            Gap(15.h),
+            Text(
+              text2 ?? tr('errors.empty'),
+              style: AppTheme.data.textTheme.titleSmall!.copyWith(color: Colors.grey.shade600, fontSize: 14.sp, fontWeight: FontWeight.w400),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

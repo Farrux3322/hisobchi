@@ -80,7 +80,7 @@ class _ConnectivityListenerState extends State<ConnectivityListener> with Widget
 
   void _listenToConnectivity() {
     _connectivitySubscription =
-        _connectivityService.connectionStatusStream.listen((hasConnection) {
+        _connectivityService.currentStatusStream.listen((hasConnection) {
       debugPrint('🌐 ConnectivityListener: Status broadcast received - hasConnection: $hasConnection');
       if (!mounted) return;
 
@@ -95,7 +95,7 @@ class _ConnectivityListenerState extends State<ConnectivityListener> with Widget
           _startConnectionTimer();
         }
       } else {
-        debugPrint('🌐 ConnectivityListener: Connection restored, cancelling timer/resetting state.');
+        debugPrint('🌐 ConnectivityListener: Connection restored, resetting state.');
         _debounceTimer?.cancel();
         _debounceTimer = null;
         _hasShownDialog = false;
@@ -109,10 +109,10 @@ class _ConnectivityListenerState extends State<ConnectivityListener> with Widget
       if (!mounted) return;
       
       // If we are within the 3s grace period after resume, don't show the dialog yet.
-      // Instead, we'll wait for the next connectivity event or another check.
+      // But we will schedule a follow-up check to ensure we don't miss a real disconnection.
       if (_isWithinGracePeriod) {
-        debugPrint('🌐 ConnectivityListener: Suppressing dialog trigger - within post-resume grace period.');
-        _debounceTimer = null;
+        debugPrint('🌐 ConnectivityListener: Suppressing dialog trigger - within post-resume grace period. Scheduling follow-up.');
+        _debounceTimer = Timer(const Duration(seconds: 2), _startConnectionTimer);
         return;
       }
 

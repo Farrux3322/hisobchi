@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bounce/flutter_bounce.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/application/project/project_bloc.dart';
@@ -124,9 +125,9 @@ class _ProjectListPageState extends State<ProjectListPage> {
 
     if (state.models.isEmpty) {
       if (state.search != null || state.statusFilter != null || state.date != null) {
-        return _buildNoResultsState();
+        return _buildNoResultsState(state);
       }
-      return _buildEmptyState();
+      return _buildEmptyState(state);
     }
 
     final projects = state.models;
@@ -168,7 +169,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
         height: 24,
         child: CircularProgressIndicator(
           strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary.withOpacity(0.5)),
+          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary.withValues(alpha: 0.5)),
         ),
       ),
     );
@@ -211,51 +212,170 @@ class _ProjectListPageState extends State<ProjectListPage> {
     );
   }
 
-  Widget _buildNoResultsState() {
+  Widget _buildNoResultsState(ProjectState state) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off_rounded, size: 80, color: Colors.grey[300]),
-          const Gap(16),
-          const Text(
-            'Hech narsa topilmadi',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
-          ),
-          const Gap(8),
-          Text(
-            'Tanlangan filtrlar bo\'yicha ma\'lumot yo\'q.\nBoshqa parametrlar bilan qidiring.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Colors.grey[500], height: 1.5),
-          ),
-        ],
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(24.w),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.search_off_rounded,
+                size: 48.w,
+                color: Colors.grey[400],
+              ),
+            ),
+            Gap(24.h),
+            Text(
+              'Hech narsa topilmadi',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1E293B),
+                letterSpacing: -0.5,
+              ),
+            ),
+            Gap(8.h),
+            Text(
+              'Tanlangan filtrlar bo\'yicha ma\'lumot yo\'q.\nBoshqa parametrlar bilan qidiring.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.grey[500],
+                height: 1.5,
+              ),
+            ),
+            Gap(32.h),
+            SizedBox(
+              height: 46.h,
+              child: Bounce(
+                duration: const Duration(milliseconds: 110),
+                onPressed: () {
+                  if (state.status != Status.loading) {
+                    context.read<ProjectBloc>().add(const GetAllProjectEvent(search: '', updateSearch: true, date: null, status: null, updateFilters: true));
+                    _searchController.clear();
+                  }
+                },
+                child: OutlinedButton.icon(
+                  onPressed: null,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.colors.primary,
+                    side: BorderSide(color: AppTheme.colors.primary.withValues(alpha: 0.2), width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  ),
+                  icon: state.status == Status.loading
+                      ? SizedBox(
+                          width: 18.w,
+                          height: 18.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary),
+                          ),
+                        )
+                      : Icon(Icons.layers_clear_rounded, size: 20.sp),
+                  label: Text(
+                    'Filtrlarni tozalash',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(ProjectState state) {
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 20.h),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(60)),
-              child: SvgPicture.asset(AppIcons.project,width: 60,height: 60,),
+              padding: EdgeInsets.all(28.w),
+              decoration: BoxDecoration(
+                color: AppTheme.colors.primary.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: SvgPicture.asset(
+                AppIcons.project,
+                width: 64.w,
+                height: 64.w,
+                colorFilter: ColorFilter.mode(
+                  AppTheme.colors.primary.withValues(alpha: 0.4),
+                  BlendMode.srcIn,
+                ),
+              ),
             ),
-            const SizedBox(height: 24),
-            const Text(
-              'Loyihalar topilmadi',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-            ),
-            const SizedBox(height: 8),
+            Gap(24.h),
             Text(
-              'Yangi loyiha qo\'shish uchun\npastdagi tugmani bosing',
+              'Loyihalar topilmadi',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1E293B),
+                letterSpacing: -0.5,
+              ),
+            ),
+            Gap(8.h),
+            Text(
+              'Hali hech qanday loyiha qo\'shilmagan\nyoki ma\'lumotlar yuklanmadi',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey[600], height: 1.5),
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.grey[500],
+                height: 1.5,
+              ),
+            ),
+            Gap(32.h),
+            SizedBox(
+              height: 46.h,
+              child: Bounce(
+                duration: const Duration(milliseconds: 110),
+                onPressed: () {
+                  if (state.status != Status.loading) {
+                    context.read<ProjectBloc>().add(const GetAllProjectEvent());
+                  }
+                },
+                child: OutlinedButton.icon(
+                  onPressed: null,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.colors.primary,
+                    side: BorderSide(color: AppTheme.colors.primary.withValues(alpha: 0.2), width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  ),
+                  icon: state.status == Status.loading
+                      ? SizedBox(
+                          width: 18.w,
+                          height: 18.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary),
+                          ),
+                        )
+                      : Icon(Icons.refresh_rounded, size: 20.sp),
+                  label: Text(
+                    'Qayta yuklash',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

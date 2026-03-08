@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../infrastructure/services/connectivity_service.dart';
@@ -39,30 +40,48 @@ class _NoInternetDialogState extends State<NoInternetDialog> {
   bool _isRetrying = false;
   final ConnectivityService _connectivityService = ConnectivityService();
 
+  StreamSubscription? _statusSubscription;
+
   @override
   void initState() {
     super.initState();
+    _checkInitialState();
     _listenToConnectivity();
   }
 
+  void _checkInitialState() {
+    // If we're already connected when dialog shows, close it immediately
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_connectivityService.hasConnection && mounted) {
+        Navigator.of(context).pop();
+      }
+    });
+  }
+
   void _listenToConnectivity() {
-    // Auto-dismiss when connection is restored
-    _connectivityService.connectionStatusStream.listen((hasConnection) {
+    // Use currentStatusStream to catch immediate status if needed
+    _statusSubscription = _connectivityService.currentStatusStream.listen((hasConnection) {
       if (hasConnection && mounted) {
         Navigator.of(context).pop();
       }
     });
   }
 
+  @override
+  void dispose() {
+    _statusSubscription?.cancel();
+    super.dispose();
+  }
+
   Future<void> _retry() async {
     setState(() => _isRetrying = true);
 
-    // Check connection
-    final hasConnection = await _connectivityService.checkConnection();
+    // Force a full refresh in the service
+    await _connectivityService.refresh();
 
     if (!mounted) return;
 
-    if (hasConnection) {
+    if (_connectivityService.hasConnection) {
       // Connection restored, close dialog
       Navigator.of(context).pop();
     } else {
