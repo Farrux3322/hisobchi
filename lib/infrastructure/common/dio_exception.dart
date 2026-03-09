@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
+import 'package:hisobchi/presentation/routes/coordinator.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
 
 Bloc? lastBloc;
@@ -39,11 +39,19 @@ class DioExceptionX extends DioException {
     try {
       if (checkUnauthorized && statusCode == 401) {
         UserData.token = "";
-        AppManagerCubit.context!.go(Routes.signIn.path);
+        parentKey.currentContext?.go(Routes.signIn.path);
         return '';
-      } else if (statusCode == 309) {
+      } else if (statusCode == 309 || errorType == DioExceptionType.cancel) {
         return '';
       } else {
+        if (errorType == DioExceptionType.connectionTimeout || errorType == DioExceptionType.sendTimeout || errorType == DioExceptionType.receiveTimeout) {
+          return 'Tarmoq ulanishida vaqt kutilganidan oshib ketdi. Internet aloqasini tekshiring.';
+        }
+        
+        if (errorType == DioExceptionType.connectionError) {
+          return 'Internet aloqasi mavjud emas yoki server bilan bog\'lanishda xatolik yuz berdi.';
+        }
+
         if (statusCode != null && statusCode! >= 500) {
           return tr('errors.no_connection_to_server');
         } else {

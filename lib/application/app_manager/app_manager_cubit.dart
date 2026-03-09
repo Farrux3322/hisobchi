@@ -11,8 +11,6 @@ part 'app_manager_state.dart';
 class AppManagerCubit extends Cubit<AppManagerState> {
   AppManagerCubit() : super(AppManagerLoading());
 
-  static BuildContext? context;
-
   Future<void> init() async {
     emit(AppManagerLoading());
     try {

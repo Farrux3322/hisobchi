@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/infrastructure/services/shared_service.dart';
 import 'package:hisobchi/presentation/routes/coordinator.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
@@ -30,7 +29,7 @@ class DioInterceptor extends Interceptor {
       pref.setToken('');
       pref.setPhone('');
       setPasscodeVerified(false);
-      AppManagerCubit.context!.go(Routes.signIn.path);
+      parentKey.currentContext?.go(Routes.signIn.path);
     }
     return handler.reject(
       DioExceptionX(
@@ -54,9 +53,9 @@ class DioInterceptor extends Interceptor {
 
   void _updateSubscriptionStatus(Response response) {
     final statusHeader = response.headers.value('X-Subscription-Status');
-    if (statusHeader != null && AppManagerCubit.context != null) {
-      // AppManagerCubit.context!.read<SubscriptionStatusCubit>().updateStatusFromServer('ACTIVE');
-      AppManagerCubit.context!.read<SubscriptionStatusCubit>().updateStatusFromServer(statusHeader);
+    if (statusHeader != null && parentKey.currentContext != null) {
+      // parentKey.currentContext!.read<SubscriptionStatusCubit>().updateStatusFromServer('ACTIVE');
+      parentKey.currentContext!.read<SubscriptionStatusCubit>().updateStatusFromServer(statusHeader);
     }
   }
 

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/assets/res/app_icons.dart';
 import 'package:hisobchi/presentation/components/buttons/text_button.dart';
 import 'package:hisobchi/presentation/components/register_dialog.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
@@ -106,7 +104,6 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    AppManagerCubit.context = context;
     return DeFocus(
       child: BlocConsumer<InitAuthBloc, InitAuthState>(
         listener: (context, state) {

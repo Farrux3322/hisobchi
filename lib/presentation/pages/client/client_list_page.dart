@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bounce/flutter_bounce.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
@@ -85,7 +84,6 @@ class _ClientPageState extends State<ClientPage> {
 
   @override
   Widget build(BuildContext context) {
-    AppManagerCubit.context = context;
     return DeFocus(
       child: Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
@@ -126,25 +124,31 @@ class _ClientPageState extends State<ClientPage> {
                 body: _buildBody(state),
               ),
               floatingActionButton: SubscriptionGuard(
-                child: FloatingActionButton(
-                  heroTag: 'client_fab',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BlocProvider(
-                          create: (context) => FileUploadBloc(repository: FileUploadRepository()),
-                          child: const ClientAddPage(),
+                child: SizedBox(
+                  width: 56.w,
+                  height: 56.w,
+                  child: FloatingActionButton(
+                    heroTag: 'client_fab',
+                    elevation: 4,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BlocProvider(
+                            create: (context) => FileUploadBloc(repository: FileUploadRepository()),
+                            child: const ClientAddPage(),
+                          ),
                         ),
-                      ),
-                    ).then((v) {
-                      if (v == true && context.mounted) {
-                        context.read<PartnerBloc>().add(const GetAllEvent());
-                      }
-                    });
-                  },
-                  backgroundColor: AppTheme.colors.primary,
-                  child: SvgPicture.asset(AppIcons.clientAdd),
+                      ).then((v) {
+                        if (v == true && context.mounted) {
+                          context.read<PartnerBloc>().add(const GetAllEvent());
+                        }
+                      });
+                    },
+                    backgroundColor: AppTheme.colors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
+                    child: Icon(Icons.add,color: Colors.white,size: 36.sp),
+                  ),
                 ),
               ),
             );

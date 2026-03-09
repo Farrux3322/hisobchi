@@ -177,7 +177,7 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       height: 46.h,
-      decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12.r)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12.r)),
       padding: EdgeInsets.all(4.w),
       child: TabBar(
         controller: _currencyTabController,

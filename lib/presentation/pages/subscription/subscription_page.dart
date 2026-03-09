@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hisobchi/application/subscription/subscription_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
@@ -196,7 +195,6 @@ class _TariflarScreenState extends State<TariflarScreen> {
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
                                 letterSpacing: -0.5,
-                                fontFamily: 'Montserrat',
                               ),
                             ),
                           ],
@@ -211,19 +209,19 @@ class _TariflarScreenState extends State<TariflarScreen> {
                               textAlign: TextAlign.center,
                               text: TextSpan(
                                 text: plan.displayName ?? plan.name ?? '',
-                                style: GoogleFonts.montserrat(fontSize: 13.sp, fontWeight: FontWeight.w800, color: Colors.black),
+                                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w800, color: Colors.black),
                                 children: [
                                   TextSpan(
                                     text: " tarifiga o'tish uchun hozirgi ",
-                                    style: GoogleFonts.montserrat(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.black),
+                                    style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.black),
                                   ),
                                   TextSpan(
                                     text: "hamkorlar va loyihalar",
-                                    style: GoogleFonts.montserrat(fontSize: 13.sp, fontWeight: FontWeight.w800, color: Colors.black),
+                                    style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w800, color: Colors.black),
                                   ),
                                   TextSpan(
                                     text: "ingiz soni ushbu tarif limitidan oshmasligi kerak!",
-                                    style: GoogleFonts.montserrat(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.black),
+                                    style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.black),
                                   ),
                                 ],
                               ),
@@ -253,12 +251,12 @@ class _TariflarScreenState extends State<TariflarScreen> {
                                           children: [
                                             Text(
                                               _getWarningTitle(warning.field),
-                                              style: GoogleFonts.montserrat(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.grey.shade500, letterSpacing: 0.5),
+                                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.grey.shade500, letterSpacing: 0.5),
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
                                               warning.message ?? 'Limit oshib ketgan',
-                                              style: GoogleFonts.montserrat(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
+                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
                                             ),
                                           ],
                                         ),
@@ -288,7 +286,7 @@ class _TariflarScreenState extends State<TariflarScreen> {
                                 ),
                                 child: Text(
                                   'Tushunarli',
-                                  style: GoogleFonts.montserrat(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white),
+                                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white),
                                 ),
                               ),
                             ),

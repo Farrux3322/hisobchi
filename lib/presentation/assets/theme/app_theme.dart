@@ -71,7 +71,7 @@ class AppTheme {
 
     return ThemeData(
       useMaterial3: false,
-      fontFamily: GoogleFonts.bebasNeue().fontFamily,
+      fontFamily: GoogleFonts.montserrat().fontFamily,
       colorScheme: mode == ThemeMode.light ? ColorScheme.light(primary: themeColors.primary, surface: themeColors.white) : ColorScheme.dark(primary: themeColors.primary, surface: themeColors.white),
       textTheme: textTheme,
       visualDensity: VisualDensity.adaptivePlatformDensity,

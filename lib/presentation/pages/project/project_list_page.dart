@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bounce/flutter_bounce.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/app_manager/app_manager_cubit.dart';
 import 'package:hisobchi/application/project/project_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
@@ -63,7 +62,6 @@ class _ProjectListPageState extends State<ProjectListPage> {
 
   @override
   Widget build(BuildContext context) {
-    AppManagerCubit.context = context;
     return DeFocus(
       child: Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
@@ -102,13 +100,19 @@ class _ProjectListPageState extends State<ProjectListPage> {
                 ],
               ),
               floatingActionButton: SubscriptionGuard(
-                child: FloatingActionButton(
-                  heroTag: 'project_fab',
-                  onPressed: () {
-                    context.pushNamed(Routes.projectAddPage.name);
-                  },
-                  backgroundColor: AppTheme.colors.primary,
-                  child: SvgPicture.asset(AppIcons.projectAdd),
+                child: SizedBox(
+                  width: 56.w,
+                  height: 56.w,
+                  child: FloatingActionButton(
+                    heroTag: 'project_fab',
+                    elevation: 4,
+                    onPressed: () {
+                      context.pushNamed(Routes.projectAddPage.name);
+                    },
+                    backgroundColor: AppTheme.colors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
+                    child: Icon(Icons.add,color: Colors.white,size: 36.sp),
+                  ),
                 ),
               ),
             );
