@@ -67,7 +67,8 @@ class _PartnerSummaryListPageContentState extends State<_PartnerSummaryListPageC
   }
 
   void _onScroll() {
-    if (_isBottom) {
+    final state = context.read<PartnerSummaryBloc>().state;
+    if (_isBottom && !state.hasReachedMax && state.statusMore != Status.loading && state.status != Status.loading) {
       context.read<PartnerSummaryBloc>().add(LoadMorePartnerSummaryEvent());
     }
   }
@@ -241,7 +242,7 @@ class _PartnerSummaryListPageContentState extends State<_PartnerSummaryListPageC
         }
 
         return SliverPadding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h).copyWith(bottom: MediaQuery.of(context).padding.bottom),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {

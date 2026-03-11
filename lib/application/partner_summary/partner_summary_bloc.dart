@@ -19,6 +19,7 @@ class PartnerSummaryBloc extends Bloc<PartnerSummaryEvent, PartnerSummaryState> 
   ) async {
     emit(state.copyWith(
       status: Status.loading,
+      statusMore: Status.pure,
       type: event.type,
       currencyTypeId: event.currencyTypeId,
       partners: [],
@@ -35,6 +36,7 @@ class PartnerSummaryBloc extends Bloc<PartnerSummaryEvent, PartnerSummaryState> 
 
       emit(state.copyWith(
         status: Status.success,
+        statusMore: Status.pure,
         partners: response.result.data,
         currentPage: response.result.currentPage,
         hasReachedMax: response.result.nextPageUrl == null,
@@ -51,7 +53,9 @@ class PartnerSummaryBloc extends Bloc<PartnerSummaryEvent, PartnerSummaryState> 
     LoadMorePartnerSummaryEvent event,
     Emitter<PartnerSummaryState> emit,
   ) async {
-    if (state.hasReachedMax || state.status == Status.loading) return;
+    if (state.hasReachedMax || state.statusMore == Status.loading || state.status == Status.loading) return;
+
+    emit(state.copyWith(statusMore: Status.loading));
 
     try {
       final nextPage = state.currentPage + 1;
@@ -62,12 +66,13 @@ class PartnerSummaryBloc extends Bloc<PartnerSummaryEvent, PartnerSummaryState> 
       );
 
       emit(state.copyWith(
+        statusMore: Status.success,
         partners: List.of(state.partners)..addAll(response.result.data),
         currentPage: response.result.currentPage,
         hasReachedMax: response.result.nextPageUrl == null,
       ));
     } catch (e) {
-      // Don't change status to error to keep the current list
+      emit(state.copyWith(statusMore: Status.error));
     }
   }
 
@@ -84,6 +89,7 @@ class PartnerSummaryBloc extends Bloc<PartnerSummaryEvent, PartnerSummaryState> 
 
       emit(state.copyWith(
         status: Status.success,
+        statusMore: Status.pure,
         partners: response.result.data,
         currentPage: response.result.currentPage,
         hasReachedMax: response.result.nextPageUrl == null,
@@ -91,6 +97,7 @@ class PartnerSummaryBloc extends Bloc<PartnerSummaryEvent, PartnerSummaryState> 
     } catch (e) {
       emit(state.copyWith(
         status: Status.error,
+        statusMore: Status.error,
         errorMessage: e.toString(),
       ));
     }

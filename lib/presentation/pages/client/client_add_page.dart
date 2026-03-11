@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
@@ -19,6 +18,8 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:hisobchi/infrastructure/dto/models/currency/currency_model.dart';
 import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/add_client_components/add_client_dialogs.dart';
+import 'package:hisobchi/presentation/components/utils/emoji_filter_formatter.dart';
+import 'package:hisobchi/presentation/pages/client/client_account_page.dart';
 
 class ClientAddPage extends StatefulWidget {
   const ClientAddPage({super.key});
@@ -282,7 +283,9 @@ class _ClientAddPageState extends State<ClientAddPage> {
         ),
         BlocListener<PartnerBloc, PartnerState>(
           listener: (context, state) {
-            if (state.statusAdd == Status.success) Navigator.pop(context, true);
+            if (state.statusAdd == Status.success && state.lastCreatedPartner != null) {
+              Navigator.pop(context, state.lastCreatedPartner);
+            }
             if (state.statusAdd == Status.error) {
               _handleValidationError(context, state.errorMessage);
             }
@@ -329,6 +332,7 @@ class _ClientAddPageState extends State<ClientAddPage> {
                             controller: _nameController,
                             hint: 'Hamkor ismi',
                             icon: Icons.person_outline_rounded,
+                            formatters: [EmojiFilterFormatter()],
                             validator: (v) => (v == null || v.isEmpty) ? 'Ism kiritilmagan' : null,
                           ),
                           const SizedBox(height: 12),
@@ -395,7 +399,7 @@ class _ClientAddPageState extends State<ClientAddPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 10))],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 10))],
           ),
           child: Stack(
             children: [
@@ -461,7 +465,7 @@ class _ClientAddPageState extends State<ClientAddPage> {
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(color: AppTheme.colors.primary.withOpacity(0.5), width: 1.5),
+          borderSide: BorderSide(color: AppTheme.colors.primary.withValues(alpha: 0.5), width: 1.5),
         ),
         errorStyle: TextStyle(fontSize: 12.sp),
       ),

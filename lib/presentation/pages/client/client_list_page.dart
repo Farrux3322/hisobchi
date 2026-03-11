@@ -91,7 +91,6 @@ class _ClientPageState extends State<ClientPage> {
           listener: (context, state) {
             if (state.statusAdd == Status.success) {
               Toast.showSuccessToast(message: 'Muvaffaqiyatli saqlandi');
-              context.read<PartnerBloc>().add(const GetAllEvent());
             }
 
             if (state.statusAdd == Status.error) {
@@ -140,7 +139,13 @@ class _ClientPageState extends State<ClientPage> {
                           ),
                         ),
                       ).then((v) {
-                        if (v == true && context.mounted) {
+                        if (v is PartnerModel && context.mounted) {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => AccountPage(partnerModel: v))).then((_) {
+                            if (context.mounted) {
+                              context.read<PartnerBloc>().add(const GetAllEvent());
+                            }
+                          });
+                        } else if (v == true && context.mounted) {
                           context.read<PartnerBloc>().add(const GetAllEvent());
                         }
                       });

@@ -46,184 +46,169 @@ class ClientCardItem extends StatelessWidget {
     // final bool isUZSPositive = (partnerModel?.balance?.uzs ?? 0) >= 0;
     // final bool isUSDPositive = (partnerModel?.balance?.usd ?? 0) >= 0;
 
-    return Container(
-      margin: EdgeInsets.only(bottom: 7.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+    final bool isDeleted = partnerModel?.deletedAt != null;
+
+    return Stack(
+      children: [
+        Container(
+          margin: EdgeInsets.only(bottom: 7.h),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20.r),
+            boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 8))],
+            border: Border.all(color: !isDeleted ? const Color(0xFFF1F5F9) : Colors.red.shade200, width: !isDeleted ? 1 : 1.5),
           ),
-        ],
-        border: Border.all(
-          color: partnerModel?.deletedAt == null 
-              ? const Color(0xFFF1F5F9) 
-              : Colors.red.shade100,
-          width: 1,
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(20.r),
-          child: Padding(
-            padding: EdgeInsets.all(16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Avatar with subtle shadow
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12.r),
-                        child: CachedNetworkImage(
-                          imageUrl: (partnerModel?.files ?? []).isNotEmpty
-                              ? partnerModel?.files?.first.url ?? ''
-                              : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEM7h-3_xucDg6PXVOyOxh9QOnMkS0dvydRA&s',
-                          width: 48.w,
-                          height: 48.w,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: const Color(0xFFF1F5F9),
-                            highlightColor: Colors.white,
-                            child: Container(
-                              width: 48.w,
-                              height: 48.w,
-                              color: Colors.white,
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            width: 48.w,
-                            height: 48.w,
-                            color: const Color(0xFFF1F5F9),
-                            child: Icon(
-                              Icons.person_rounded,
-                              color: const Color(0xFFCBD5E1),
-                              size: 24.sp,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 16.w),
-
-                    // Name, Phone and Date
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            partnerModel?.name ?? 'Noma\'lum',
-                            style: TextStyle(
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF1E293B),
-                              height: 1.2,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          SizedBox(height: 4.h),
-                          Text(
-                            PhoneFormatter.formatPhoneNumber(partnerModel?.phone ?? ''),
-                            style: TextStyle(
-                              fontSize: 10.sp,
-                              color: const Color(0xFF64748B),
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
-
-                        ],
-                      ),
-                    ),
-                    
-                    // Balance section
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(20.r),
+              child: Opacity(
+                opacity: isDeleted ? 0.7 : 1.0,
+                child: ColorFiltered(
+                  colorFilter: isDeleted
+                      ? const ColorFilter.matrix([0.2126, 0.7152, 0.0722, 0, 0, 0.2126, 0.7152, 0.0722, 0, 0, 0.2126, 0.7152, 0.0722, 0, 0, 0, 0, 0, 1, 0])
+                      : const ColorFilter.mode(Colors.transparent, BlendMode.dst),
+                  child: Padding(
+                    padding: EdgeInsets.all(16.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildBalanceRow(
-                          amount: partnerModel?.balance?.uzs ?? 0,
-                          currency: 'UZS',
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Avatar with subtle shadow
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12.r),
+                                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12.r),
+                                child: CachedNetworkImage(
+                                  imageUrl: (partnerModel?.files ?? []).isNotEmpty
+                                      ? partnerModel?.files?.first.url ?? ''
+                                      : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEM7h-3_xucDg6PXVOyOxh9QOnMkS0dvydRA&s',
+                                  width: 48.w,
+                                  height: 48.w,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => Shimmer.fromColors(
+                                    baseColor: const Color(0xFFF1F5F9),
+                                    highlightColor: Colors.white,
+                                    child: Container(width: 48.w, height: 48.w, color: Colors.white),
+                                  ),
+                                  errorWidget: (context, url, error) => Container(
+                                    width: 48.w,
+                                    height: 48.w,
+                                    color: const Color(0xFFF1F5F9),
+                                    child: Icon(Icons.person_rounded, color: const Color(0xFFCBD5E1), size: 24.sp),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 16.w),
+
+                            // Name, Phone and Date
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    partnerModel?.name ?? 'Noma\'lum',
+                                    style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600, color: const Color(0xFF1E293B), height: 1.2),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  SizedBox(height: 4.h),
+                                  Text(
+                                    PhoneFormatter.formatPhoneNumber(partnerModel?.phone ?? ''),
+                                    style: TextStyle(fontSize: 10.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w600, letterSpacing: 0.3),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Balance section
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                _buildBalanceRow(amount: partnerModel?.balance?.uzs ?? 0, currency: 'UZS'),
+                                SizedBox(height: 4.h),
+                                _buildBalanceRow(amount: partnerModel?.balance?.usd ?? 0, currency: 'USD'),
+                              ],
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 4.h),
-                        _buildBalanceRow(
-                          amount: partnerModel?.balance?.usd ?? 0,
-                          currency: 'USD',
+
+                        SizedBox(height: 12.h),
+
+                        // Footer
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SvgPicture.asset(AppIcons.date),
+                                SizedBox(width: 4.w),
+                                Text(
+                                  partnerModel?.createdAt?.split(" ").first ?? '',
+                                  style: TextStyle(fontSize: 11.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  'Batafsil',
+                                  style: TextStyle(fontSize: 13.sp, color: isDeleted ? const Color(0xFF94A3B8) : AppTheme.colors.primary, fontWeight: FontWeight.w600),
+                                ),
+                                Icon(Icons.chevron_right_rounded, size: 16.sp, color: isDeleted ? const Color(0xFF94A3B8) : AppTheme.colors.primary),
+                              ],
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-
-                SizedBox(height: 12.h),
-
-                // Footer
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        SvgPicture.asset(AppIcons.date),
-                        SizedBox(width: 4.w),
-                        Text(
-                          partnerModel?.createdAt?.split(" ").first ?? '',
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: const Color(0xFF94A3B8),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                   Row(
-                     children: [
-                       Text(
-                         'Batafsil',
-                         style: TextStyle(
-                           fontSize: 13.sp,
-                           color: AppTheme.colors.primary,
-                           fontWeight: FontWeight.w600,
-                         ),
-                       ),
-                       Icon(
-                         Icons.chevron_right_rounded,
-                         size: 16.sp,
-                         color: AppTheme.colors.primary,
-                       ),
-                     ],
-                   )
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
         ),
-      ),
+        if (isDeleted)
+          Positioned(
+            bottom: 12.h,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF2F2),
+                  borderRadius: BorderRadius.circular(10.r),
+                  border: Border.all(color: const Color(0xFFFCA5A5), width: 0.5),
+                  boxShadow: [BoxShadow(color: Colors.red.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SvgPicture.asset(AppIcons.delete, width: 14, height: 14),
+                    SizedBox(width: 4.w),
+                    Text(
+                      'O\'chirilgan',
+                      style: TextStyle(fontSize: 10.sp, color: const Color(0xFFB91C1C), fontWeight: FontWeight.w700, letterSpacing: 0.2),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
-  Widget _buildBalanceRow({
-    required num amount,
-    required String currency,
-  }) {
+  Widget _buildBalanceRow({required num amount, required String currency}) {
     final Color color;
     if (amount == 0) {
       color = const Color(0xFF1E293B);
@@ -232,7 +217,7 @@ class ClientCardItem extends StatelessWidget {
     } else {
       color = const Color(0xFFEF4444);
     }
-    
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -240,21 +225,12 @@ class ClientCardItem extends StatelessWidget {
       children: [
         Text(
           _formatBalance(amount),
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w800,
-            color: color,
-            letterSpacing: -0.5,
-          ),
+          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: color, letterSpacing: -0.5),
         ),
         SizedBox(width: 2.w),
         Text(
           currency,
-          style: TextStyle(
-            fontSize: 9.sp,
-            fontWeight: FontWeight.w700,
-            color: Colors.black54,
-          ),
+          style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w700, color: Colors.black54),
         ),
       ],
     );

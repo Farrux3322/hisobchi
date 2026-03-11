@@ -38,8 +38,8 @@ class PartnerModel {
         files!.add(PartnerFile.fromJson(v));
       });
     }
-    mainCurrencyTypeId = json['main_currency_type_id'];
-    mainCurrencyTypeName = json['main_currency_type_name'];
+    mainCurrencyTypeId = json['main_currency_type_id'] ?? json['currency_type_id'];
+    mainCurrencyTypeName = json['main_currency_type_name'] ?? json['currency_type_name'];
     createdAt = json['created_at'];
     deletedAt = json['deleted_at'];
     sendOnKirim = json['send_on_kirim'];

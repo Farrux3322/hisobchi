@@ -20,7 +20,10 @@ class PartnerOperationsBloc
     LoadOperationsEvent event,
     Emitter<PartnerOperationsState> emit,
   ) async {
-    emit(state.copyWith(status: Status.loading));
+    emit(state.copyWith(
+      status: Status.loading,
+      isLoadingMore: false,
+    ));
 
     try {
       final response = event.partnerId != null
@@ -47,6 +50,7 @@ class PartnerOperationsBloc
     } catch (e) {
       emit(state.copyWith(
         status: Status.error,
+        isLoadingMore: false,
         errorMessage: e.toString().replaceAll('Exception: ', ''),
         operations: [],
       ));

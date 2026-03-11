@@ -18,6 +18,7 @@ class PartnerState extends Equatable {
   final int currentPage;
   final int lastPage;
   final bool hasReachedMax;
+  final PartnerModel? lastCreatedPartner;
 
   const PartnerState({
     this.status = Status.pure,
@@ -37,6 +38,7 @@ class PartnerState extends Equatable {
     this.currentPage = 1,
     this.lastPage = 1,
     this.hasReachedMax = false,
+    this.lastCreatedPartner,
   });
 
   PartnerState copyWith({
@@ -57,6 +59,7 @@ class PartnerState extends Equatable {
     int? currentPage,
     int? lastPage,
     bool? hasReachedMax,
+    PartnerModel? lastCreatedPartner,
   }) {
     return PartnerState(
         status: status ?? this.status,
@@ -76,6 +79,7 @@ class PartnerState extends Equatable {
         currentPage: currentPage ?? this.currentPage,
         lastPage: lastPage ?? this.lastPage,
         hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+        lastCreatedPartner: lastCreatedPartner ?? this.lastCreatedPartner,
     );
   }
 
@@ -98,5 +102,6 @@ class PartnerState extends Equatable {
     currentPage,
     lastPage,
     hasReachedMax,
+    lastCreatedPartner,
   ];
 }

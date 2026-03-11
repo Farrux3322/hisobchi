@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -54,40 +55,73 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> getDeviceToken() async {
   try {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
-
+    
+    // Log App ID for matching with Firebase Console
+    debugPrint('🔔 FCM: App ID ishlatilmoqda: ${DefaultFirebaseOptions.ios.appId}');
     NotificationSettings settings = await messaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
+      provisional: false,
     );
 
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      if (Platform.isIOS) {
-        // APNS token Firebase Messaging ishlashi uchun zarur
-        String? apnsToken = await messaging.getAPNSToken();
+    if (settings.authorizationStatus != AuthorizationStatus.authorized &&
+        settings.authorizationStatus != AuthorizationStatus.provisional) {
+      debugPrint('🔔 FCM: Push notificationga ruxsat berilmadi (${settings.authorizationStatus})');
+      return;
+    }
+
+    debugPrint('🔔 FCM: Push notificationga ruxsat berildi');
+
+    // 2. iOS specific: Wait for APNS Token
+    // Real devices often take a few seconds to get the APNS token from Apple
+    if (Platform.isIOS) {
+      debugPrint('🔔 FCM: iOS aniqlandi, APNS token kutilmoqda...');
+      String? apnsToken;
+      int retryCount = 0;
+      const int maxRetries = 10;
+
+      while (apnsToken == null && retryCount < maxRetries) {
+        apnsToken = await messaging.getAPNSToken();
         if (apnsToken == null) {
-          debugPrint('main: APNS token hali kutilmoqda...');
-          // Bir oz kutish apnsToken kelishi uchun
-          await Future.delayed(const Duration(seconds: 3));
+          retryCount++;
+          debugPrint('🔔 FCM: APNS token hali yo\'q, kutish... ($retryCount/$maxRetries)');
+          await Future.delayed(Duration(seconds: 2));
         }
       }
 
-      String? token = await messaging.getToken().timeout(
-            const Duration(seconds: 10),
-            onTimeout: () => throw TimeoutException('Firebase token olish vaqti tugadi'),
-          );
-      debugPrint('Device Token: $token');
+      if (apnsToken == null) {
+        debugPrint('❌ FCM: APNS token olib bo\'lmadi (10 ta urinish muvaffaqiyatsiz).');
+        debugPrint('👉 ILTIMOS TEKSHIRING: Xcode -> Signing & Capabilities -> Push Notifications qo\'shilganmi?');
+        debugPrint('👉 ILTIMOS TEKSHIRING: Firebase Console -> iOS App -> .p8 key yuklanganmi?');
+        return; // iOS'da APNS tokensiz davom etib bo'lmaydi
+      } else {
+        debugPrint('✅ FCM: APNS token olindi: $apnsToken');
+      }
+    }
 
+    // 3. Get FCM Token
+    // We only reach here if permission is granted AND (APNS is ready or not iOS)
+    String? token = await messaging.getToken().timeout(
+      const Duration(seconds: 20),
+      onTimeout: () {
+        debugPrint('❌ FCM: Token olish vaqti tugadi (Timeout)');
+        return null;
+      },
+    );
+
+    if (token != null) {
+      debugPrint('🚀 FCM Token: $token');
       // Token yangilanganda kuzatib borish
       messaging.onTokenRefresh.listen((newToken) {
-        debugPrint('FCM Token yangilandi: $newToken');
-        // Bu yerda yangi tokenni serverga yuborish mantiqini qo'shish mumkin
+        debugPrint('🔄 FCM Token yangilandi: $newToken');
       });
     } else {
-      debugPrint('Push notificationga ruxsat berilmadi');
+      debugPrint('❌ FCM: Token null qaytdi');
     }
-  } catch (e) {
-    debugPrint('Firebase Token olishda xatolik: $e');
+  } catch (e, stack) {
+    debugPrint('❌ FCM Token olishda fatal xatolik: $e');
+    debugPrint('Detailed stack trace: $stack');
   }
 }
 Future<void> main() async {
@@ -96,8 +130,10 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    getDeviceToken();
+    
+    // FCM initiliazation
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    unawaited(getDeviceToken());
     AwesomeNotifications().initialize(
       null,
       [

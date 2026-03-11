@@ -11,6 +11,8 @@ import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/pages/client/report/widgets/partner_operation_detail_sheet.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../../domain/common/constants.dart';
+
 class PartnerOperationsDetailPage extends StatefulWidget {
   final String type;
   final int currencyTypeId;
@@ -44,7 +46,7 @@ class _PartnerOperationsDetailPageState extends State<PartnerOperationsDetailPag
   void _onScroll() {
     if (_isBottom) {
       final state = _bloc.state;
-      if (state.canLoadMore) {
+      if (state.canLoadMore && !state.isLoading && state.status != Status.loading) {
         _bloc.add(LoadMoreOperationsEvent(type: widget.type, currencyTypeId: widget.currencyTypeId, page: state.currentPage + 1));
       }
     }
@@ -112,11 +114,6 @@ class _PartnerOperationsDetailPageState extends State<PartnerOperationsDetailPag
   Widget _buildOperationCard(PartnerOperation operation) {
     final isUZS = widget.currencyTypeId == 1;
     final currencyText = isUZS ? 'UZS' : 'USD';
-    // User requested to swap Kirim/Chiqim logic
-    // Currently isCredit (Kirim) is green, isDebt (Chiqim) is red
-    // We swap them so Kirim (incoming) is red and Chiqim (outgoing) is green?
-    // Wait, usually Kirim = Income = Green. If they are swapped, it means what is currently Kirim should be Chiqim.
-    // However, the model has typeDisplay. Let's just swap the icon and color logic for isCredit.
     final bool isIncoming = !operation.isCredit;
 
     return Container(
@@ -124,8 +121,8 @@ class _PartnerOperationsDetailPageState extends State<PartnerOperationsDetailPag
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [BoxShadow(color: AppTheme.colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2))],
-        border: Border.all(color: AppTheme.colors.gray.withOpacity(0.05)),
+        boxShadow: [BoxShadow(color: AppTheme.colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))],
+        border: Border.all(color: AppTheme.colors.gray.withValues(alpha: 0.05)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -144,7 +141,7 @@ class _PartnerOperationsDetailPageState extends State<PartnerOperationsDetailPag
                     Container(
                       width: 36.w,
                       height: 36.w,
-                      decoration: BoxDecoration(color: isIncoming ? const Color(0xFF22C55E).withOpacity(0.1) : const Color(0xFFEF4444).withOpacity(0.1), shape: BoxShape.circle),
+                      decoration: BoxDecoration(color: isIncoming ? const Color(0xFF22C55E).withValues(alpha: 0.1) : const Color(0xFFEF4444).withValues(alpha: 0.1), shape: BoxShape.circle),
                       child: Icon(isIncoming ? Icons.south_west_rounded : Icons.north_east_rounded, color: isIncoming ? const Color(0xFF16A34A) : const Color(0xFFDC2626), size: 20.sp),
                     ),
                     SizedBox(width: 10.w),
@@ -163,7 +160,7 @@ class _PartnerOperationsDetailPageState extends State<PartnerOperationsDetailPag
                           if (operation.partnerPhone != null)
                             Text(
                               _formatPhoneNumber(operation.partnerPhone!),
-                              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500, color: AppTheme.colors.black.withOpacity(.5)),
+                              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500, color: AppTheme.colors.black.withValues(alpha: .5)),
                             ),
                         ],
                       ),
@@ -195,7 +192,7 @@ class _PartnerOperationsDetailPageState extends State<PartnerOperationsDetailPag
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                         decoration: BoxDecoration(
-                          color: operation.isOverdue ? const Color(0xFFEF4444).withOpacity(0.05) : const Color(0xFFF59E0B).withOpacity(0.05),
+                          color: operation.isOverdue ? const Color(0xFFEF4444).withValues(alpha: 0.05) : const Color(0xFFF59E0B).withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(6.r),
                         ),
                         child: Row(
@@ -284,19 +281,19 @@ class _PartnerOperationsDetailPageState extends State<PartnerOperationsDetailPag
           children: [
             Container(
               padding: EdgeInsets.all(24.w),
-              decoration: BoxDecoration(color: AppTheme.colors.gray.withOpacity(0.05), shape: BoxShape.circle),
-              child: Icon(Icons.receipt_long_rounded, size: 48.sp, color: AppTheme.colors.gray.withOpacity(0.3)),
+              decoration: BoxDecoration(color: AppTheme.colors.gray.withValues(alpha: 0.05), shape: BoxShape.circle),
+              child: Icon(Icons.receipt_long_rounded, size: 48.sp, color: AppTheme.colors.gray.withValues(alpha: 1)),
             ),
             SizedBox(height: 20.h),
             Text(
               'Operatsiyalar topilmadi',
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black.withOpacity(0.7)),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black.withValues(alpha: 1)),
             ),
             SizedBox(height: 8.h),
             Text(
               'Ushbu sahifada hozircha hech qanday\nma\'lumot mavjud emas',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray.withOpacity(0.6), height: 1.5),
+              style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray.withValues(alpha: 1), height: 1.5),
             ),
           ],
         ),
@@ -325,7 +322,7 @@ class _PartnerOperationsDetailPageState extends State<PartnerOperationsDetailPag
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray.withOpacity(0.6), height: 1.5),
+              style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray.withValues(alpha: 0.6), height: 1.5),
             ),
             SizedBox(height: 32.h),
             SizedBox(

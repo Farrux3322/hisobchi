@@ -3,6 +3,7 @@ import 'package:hisobchi/domain/common/constants.dart';
 
 class PartnerSummaryState {
   final Status status;
+  final Status statusMore;
   final List<PartnerSummaryData> partners;
   final String? errorMessage;
   final bool hasReachedMax;
@@ -12,6 +13,7 @@ class PartnerSummaryState {
 
   PartnerSummaryState({
     this.status = Status.initial,
+    this.statusMore = Status.initial,
     this.partners = const [],
     this.errorMessage,
     this.hasReachedMax = false,
@@ -22,6 +24,7 @@ class PartnerSummaryState {
 
   PartnerSummaryState copyWith({
     Status? status,
+    Status? statusMore,
     List<PartnerSummaryData>? partners,
     String? errorMessage,
     bool? hasReachedMax,
@@ -31,6 +34,7 @@ class PartnerSummaryState {
   }) {
     return PartnerSummaryState(
       status: status ?? this.status,
+      statusMore: statusMore ?? this.statusMore,
       partners: partners ?? this.partners,
       errorMessage: errorMessage ?? this.errorMessage,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,

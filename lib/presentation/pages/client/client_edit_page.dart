@@ -19,6 +19,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:hisobchi/infrastructure/dto/models/currency/currency_model.dart';
 import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/add_client_components/add_client_dialogs.dart';
+import 'package:hisobchi/presentation/components/utils/emoji_filter_formatter.dart';
 
 class ClientEditPage extends StatefulWidget {
   final PartnerModel partnerModel;
@@ -359,6 +360,7 @@ class _ClientEditPageState extends State<ClientEditPage> {
                             controller: _nameController,
                             hint: 'Hamkor ismi',
                             icon: Icons.person_outline_rounded,
+                            formatters: [EmojiFilterFormatter()],
                             validator: (v) => (v == null || v.isEmpty) ? 'Ism kiritilmagan' : null,
                           ),
                           const SizedBox(height: 12),

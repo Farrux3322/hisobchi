@@ -186,7 +186,8 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
     try {
       final data = await _repo.create(data: event.data);
       if (data["status"] == true) {
-        emit(state.copyWith(statusAdd: Status.success));
+        final model = PartnerModel.fromJson(data["result"]);
+        emit(state.copyWith(statusAdd: Status.success, lastCreatedPartner: model));
       } else {
         emit(state.copyWith(statusAdd: Status.error, errorMessage: _extractMessageFromData(data)));
       }
