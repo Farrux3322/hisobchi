@@ -220,20 +220,24 @@ class _StaffCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
             child: Row(
               children: [
-                // Avatar
+                // Premium Squircle Avatar
                 Container(
-                  width: 48.w,
-                  height: 48.w,
+                  width: 52.w,
+                  height: 52.w,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: 0.8)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    shape: BoxShape.circle,
+                    color: AppTheme.colors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(16.r),
+                    border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.12), width: 1.5),
                   ),
                   alignment: Alignment.center,
-                  child: Text(initials, style: TextStyle(color: Colors.white, fontSize: 19.sp, fontWeight: FontWeight.w700)),
+                  child: Text(
+                    initials,
+                    style: TextStyle(
+                      color: AppTheme.colors.primary,
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                 ),
                 SizedBox(width: 12.w),
                 // Name + phone

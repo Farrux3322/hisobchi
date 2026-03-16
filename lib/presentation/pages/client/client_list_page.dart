@@ -113,9 +113,6 @@ class _ClientPageState extends State<ClientPage> {
                     SliverToBoxAdapter(
                       child: PartnerReportWidget(
                         onTap: () {
-                          print('------------------------');
-                          print(UserData.activePermissions);
-                          print('------------------------');
                           if (!context.hasPermission('report_partners.view')) {
                             Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
                             return;

@@ -1,6 +1,8 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/dashboard/dashboard_bloc.dart';
@@ -11,6 +13,9 @@ import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:hisobchi/presentation/pages/client/report/partner_operations_detail_page.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../infrastructure/services/permission_extension.dart';
+import '../../components/toast/toast.dart';
+import '../client/report/report_client_main_page.dart';
 import '../currency/currency_page.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -59,7 +64,6 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
         child: BlocBuilder<DashboardBloc, DashboardState>(
           builder: (context, state) {
@@ -317,7 +321,7 @@ class HamkorlarCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.people_alt, color: const Color(0xFF1E293B), size: 22.sp),
+                  SvgPicture.asset(AppIcons.clients,colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),),
                   SizedBox(width: 10.w),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -421,7 +425,7 @@ class HamkorlarCard extends StatelessWidget {
             ),
           SizedBox(height: 20.h),
           SizedBox(
-            height: 264.h,
+            height: 270.h,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -464,33 +468,34 @@ class HamkorlarCard extends StatelessWidget {
                             // The semi-pill button inside the donut
                             Positioned(
                               left: 0,
-                              child: Container(
-                                width: availableHeight * 0.23, // proportional width
-                                height: availableHeight * 0.45, // proportional height
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(100.r),
-                                    bottomRight: Radius.circular(100.r),
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF151515).withValues(alpha: 0.06),
-                                      blurRadius: 15,
-                                      spreadRadius: 0,
-                                      offset: const Offset(4, 0),
-                                    )
-                                  ],
-                                ),
-                                alignment: Alignment.center,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (!context.hasPermission('report_partners.view')) {
+                                    Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                                    return;
+                                  }
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportClientMainPage()));
+                                },
                                 child: Container(
-                                  margin: EdgeInsets.only(right: 4.w, left: 4.w),
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFF8FAFC),
-                                    shape: BoxShape.circle,
+                                  width: availableHeight * 0.23, // proportional width
+                                  height: availableHeight * 0.45, // proportional height
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.colors.white,
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(100.r),
+                                      bottomRight: Radius.circular(100.r),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF151515).withValues(alpha: 0.06),
+                                        blurRadius: 15,
+                                        spreadRadius: 0,
+                                        offset: const Offset(4, 0),
+                                      )
+                                    ],
                                   ),
-                                  child: Icon(Icons.arrow_forward_ios_rounded, color: const Color(0xFF0F172A), size: 16.sp),
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.arrow_forward_ios_rounded, color: const Color(0xFF0F172A), size: 32.sp),
                                 ),
                               ),
                             ),
@@ -558,56 +563,62 @@ class HamkorlarCard extends StatelessWidget {
         onTap();
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+        // padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(10.r),
         ),
+        clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
-            // Decorative shapes (simplified version of the SVG gloss)
+            // Senior-level watermark decoration (shifted further for better bleeding effect)
             Positioned(
-              right: -10.w,
-              top: -10.h,
-              child: Container(
-                width: 40.w,
-                height: 40.w,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(8.r),
+              right: -12.w,
+              top: -12.h,
+              child: IgnorePointer(
+                child: Transform.rotate(
+                  angle: math.pi / 4,
+                  child: Icon(
+                    icon,
+                    color: colorTheme.withValues(alpha: 0.08),
+                    size: 48.sp,
+                  ),
                 ),
               ),
             ),
-            Positioned.fill(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, color: colorTheme, size: 18.sp),
-                  SizedBox(height: 4.h),
-                  Text(
-                    label,
-                    style: TextStyle(fontSize: 10.sp, color: const Color(0xFF475569), fontWeight: FontWeight.w600),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 2.h),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 5.w,
-                        height: 5.w,
-                        decoration: BoxDecoration(color: colorTheme, shape: BoxShape.circle),
-                      ),
-                      SizedBox(width: 4.w),
-                      AnimatedCounter(
-                        value: count,
-                        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B)),
-                      ),
-                    ],
-                  ),
-                ],
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+              child: Positioned.fill(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icon, color: colorTheme, size: 24.sp),
+                    SizedBox(height: 4.h),
+                    Text(
+                      label,
+                      style: TextStyle(fontSize: 10.sp, color: const Color(0xFF475569), fontWeight: FontWeight.w600),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 2.h),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 5.w,
+                          height: 5.w,
+                          decoration: BoxDecoration(color: colorTheme, shape: BoxShape.circle),
+                        ),
+                        SizedBox(width: 4.w),
+                        AnimatedCounter(
+                          value: count,
+                          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -764,7 +775,7 @@ class LoyihalarCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.collections_bookmark_rounded, color: const Color(0xFF1E293B), size: 22.sp),
+                  SvgPicture.asset(AppIcons.project,colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),),
                   SizedBox(width: 10.w),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -837,7 +848,7 @@ class LoyihalarCard extends StatelessWidget {
       },
       child: Container(
         height: 100.h,
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+        // padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(10.r),
@@ -854,33 +865,36 @@ class LoyihalarCard extends StatelessWidget {
                 painter: CircleDecorationPainter(color: colorTheme.withValues(alpha: 0.8)),
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(4.w),
-                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                  child: Icon(icon, color: colorTheme, size: 16.sp),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        label,
-                        style: TextStyle(fontSize: 10.sp, color: const Color(0xFF475569), fontWeight: FontWeight.w600),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(4.w),
+                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                    child: Icon(icon, color: colorTheme, size: 24.sp),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          label,
+                          style: TextStyle(fontSize: 12.sp, color: const Color(0xFF475569), fontWeight: FontWeight.w600),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 2.h),
-                    AnimatedCounter(
-                      value: count,
-                      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B)),
-                    ),
-                  ],
-                ),
-              ],
+                      SizedBox(height: 2.h),
+                      AnimatedCounter(
+                        value: count,
+                        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
