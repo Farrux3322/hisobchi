@@ -185,7 +185,7 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
           prefs.setImage(image);
           prefs.setRole(role);
           prefs.setXZiffler(xZiffler);
-          emit(RegisterSuccess());
+          emit(RegisterSuccess(meModel));
         } else {
           emit(RegisterFailed(error: message0));
         }
@@ -242,7 +242,8 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
             prefs.setPhone(phone);
             prefs.setImage(image);
             prefs.setRole(role);
-            emit(RegisterSuccess());
+            prefs.setXZiffler(xZiffler);
+            emit(RegisterSuccess(meModel));
           } else {
             emit(RegisterFailed(error: message0));
           }

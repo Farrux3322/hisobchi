@@ -92,8 +92,15 @@ class _RestOTPPageState extends State<RestOTPPage> with TickerProviderStateMixin
             listener: (context, state) {
               if (state is RegisterSuccess) {
                 HapticFeedback.mediumImpact();
-                context.read<InitAuthBloc>().add(ResetAuthEvent());
-                context.go(Routes.homePage.path);
+                final result = state.meData.result;
+                // Agar role faqat ['user'] bo'lsa va boshqa ish joylari bo'lmasa -> Dashboard
+                if (result.role.length == 1 && result.role.contains('user') && result.worksFor.isEmpty) {
+                  context.read<InitAuthBloc>().add(ResetAuthEvent());
+                  context.goNamed(Routes.homePage.name);
+                } else {
+                  // Boshqa barcha holatlarda (staff hisoblar mavjud bo'lsa yoki role 'user' bo'lmasa) -> Workspace Selection
+                  context.goNamed(Routes.workspaceSelection.name, extra: state.meData);
+                }
               } else if (state is RegisterFailed) {
                 Toast.showErrorToast(message: state.error);
               } else if (state is OtpFailed) {

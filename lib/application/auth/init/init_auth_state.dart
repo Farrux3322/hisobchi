@@ -57,7 +57,10 @@ abstract class RegisterState extends InitAuthState {}
 
 class RegisterLoading extends RegisterState {}
 
-class RegisterSuccess extends RegisterState {}
+class RegisterSuccess extends RegisterState {
+  final UserMeModel meData;
+  RegisterSuccess(this.meData);
+}
 
 class RegisterFailed extends RegisterState {
   final String? error;
