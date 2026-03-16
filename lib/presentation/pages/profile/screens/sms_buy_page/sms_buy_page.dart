@@ -14,6 +14,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:app_links/app_links.dart';
 import 'dart:async';
 
+import '../../../../../domain/common/data/user_data.dart';
+import '../../../../components/toast/toast.dart';
+
 class SMSBuyPage extends StatefulWidget {
   const SMSBuyPage({super.key});
 
@@ -339,6 +342,10 @@ class _SMSBuyPageState extends State<SMSBuyPage> with WidgetsBindingObserver {
       ),
       child: ElevatedButton(
         onPressed: () {
+          if (UserData.isWorkerMode) {
+            Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+            return;
+          }
           HapticFeedback.mediumImpact();
           _showPaymentMethodBottomSheet(package);
         },

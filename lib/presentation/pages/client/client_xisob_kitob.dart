@@ -14,6 +14,9 @@ import 'package:shimmer/shimmer.dart';
 import 'package:hisobchi/presentation/pages/client/components/history_filter_field.dart';
 import 'package:hisobchi/presentation/pages/client/components/history_transaction_card.dart';
 import 'package:hisobchi/presentation/pages/client/components/history_dialogs.dart';
+import 'package:hisobchi/infrastructure/services/permission_extension.dart';
+import 'package:hisobchi/domain/common/data/user_data.dart';
+import 'package:hisobchi/presentation/components/toast/toast.dart';
 
 import '../../assets/asset_index.dart';
 
@@ -201,6 +204,13 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
   }
 
   Future<void> _showCancelDialog(Result item) async {
+    final bool isDebt = item.type == 'debt';
+    final String permissionKey = isDebt ? 'wallets_debt.cancel' : 'wallets_credit.cancel';
+
+    if (!context.hasPermission(permissionKey)) {
+      Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+      return;
+    }
     final reason = await HistoryDialogs.showCancelDialog(context);
     if (reason != null && reason.isNotEmpty && mounted) {
       context.read<PartnerBloc>().add(CancelIncome(walletId: item.id ?? 0, description: reason));
@@ -208,6 +218,10 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
   }
 
   Future<void> _showDeleteConfirmDialog(Result item) async {
+    if (UserData.isWorkerMode) {
+      Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+      return;
+    }
     final confirmed = await HistoryDialogs.showDeleteConfirmDialog(context);
     if (confirmed == true && mounted) {
       context.read<PartnerBloc>().add(DeleteIncome(walletId: item.id ?? 0));
@@ -215,6 +229,10 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
   }
 
   Future<void> _showForceDeleteConfirmDialog(Result item) async {
+    if (!context.hasPermission('partners.delete')) {
+      Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+      return;
+    }
     final confirmed = await HistoryDialogs.showForceDeleteConfirmDialog(context);
     if (confirmed == true && mounted) {
       context.read<PartnerBloc>().add(ForceDeleteIncomeEvent(walletId: item.id ?? 0));
@@ -222,6 +240,10 @@ class _HisobKitobTarixPageState extends State<HisobKitobTarixPage> {
   }
 
   Future<void> _showRestoreConfirmDialog(Result item) async {
+    if (UserData.isWorkerMode) {
+      Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+      return;
+    }
     final confirmed = await HistoryDialogs.showRestoreConfirmDialog(context);
     if (confirmed == true && mounted) {
       context.read<PartnerBloc>().add(RestoreIncomeEvent(walletId: item.id ?? 0));

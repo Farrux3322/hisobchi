@@ -22,6 +22,7 @@ import 'package:hisobchi/presentation/pages/client/widgets/add_client_components
 import 'package:hisobchi/presentation/components/utils/emoji_filter_formatter.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:hisobchi/infrastructure/services/permission_extension.dart';
 
 class ClientEditPage extends StatefulWidget {
   final PartnerModel partnerModel;
@@ -198,7 +199,7 @@ class _ClientEditPageState extends State<ClientEditPage> {
   }
 
   void _handleSubmit() {
-    if (UserData.isWorkerMode && !UserData.activePermissions.contains('partners.edit')) {
+    if (!context.hasPermission('partners.edit')) {
       Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
       return;
     }

@@ -17,6 +17,8 @@ import 'package:hisobchi/presentation/pages/project/screens/project_income/proje
 import 'package:hisobchi/presentation/pages/project/screens/worker/worker_list_page.dart';
 import 'package:hisobchi/presentation/pages/project/screens/report/project_report_page.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
+import 'package:hisobchi/infrastructure/services/permission_extension.dart';
+import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Result object returned when navigating back from ProjectShowPage
@@ -111,6 +113,10 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                     child: SubscriptionGuard(
                       child: IconButton(
                         onPressed: () {
+                          if (!context.hasPermission('projects.edit')) {
+                            Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                            return;
+                          }
                           Navigator.push(context, MaterialPageRoute(builder: (context) => ProjectEditPage(projectModel: project))).then((v) {
                             if (!context.mounted) return;
 
@@ -347,7 +353,13 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
             borderRadius: BorderRadius.circular(12),
             child: SubscriptionGuard(
               child: InkWell(
-                onTap: () => _showStatusSelectionBottomSheet(project),
+                onTap: () {
+                  if (!context.hasPermission('projects.edit')) {
+                    Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                    return;
+                  }
+                  _showStatusSelectionBottomSheet(project);
+                },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -395,6 +407,10 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
               color: AppTheme.colors.primary,
               isLarge: true,
               onTap: () {
+                if (!context.hasPermission('report_project.view')) {
+                  Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                  return;
+                }
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => ProjectReportPage(projectId: project.id ?? 0)),

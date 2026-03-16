@@ -215,21 +215,7 @@ class _StaffOtpPageState extends State<StaffOtpPage> {
                       ],
                     )
                   else
-                    SizedBox(
-                      width: double.infinity,
-                      height: 54.h,
-                      child: ElevatedButton(
-                        onPressed: _pinController.text.length == 4 ? () => _verifyOtp(_pinController.text) : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.colors.primary,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          disabledBackgroundColor: const Color(0xFFE2E8F0),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-                        ),
-                        child: Text('Tasdiqlash', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700)),
-                      ),
-                    ),
+                   SizedBox(),
 
                   SizedBox(height: 24.h),
 

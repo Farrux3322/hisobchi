@@ -68,12 +68,25 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
         final String message0 = secondData['error']?['message'] ?? '';
         List<String> role = ((secondData['result']?['role']).cast<String>()) ?? [];
         if (message0.isEmpty) {
+          final meModel = UserMeModel.fromJson(secondData);
+          UserData.reset();
+          UserData.token = token;
           UserData.name = name;
           UserData.userId = userId;
           UserData.phone = phone;
           UserData.image = image;
           UserData.role = role;
           UserData.xZiffler = xZiffler;
+
+          // Auto-initialize for owner-only users
+          if (role.length == 1 && role.contains('user') && meModel.result.worksFor.isEmpty) {
+            UserData.isWorkerMode = false;
+            UserData.activePermissions = meModel.result.permissions;
+            UserData.activeOwnerId = userId;
+            prefs.setPermissions(meModel.result.permissions);
+            prefs.setOwnerId(userId);
+          }
+
           prefs.setUserId(userId);
           prefs.setToken(token);
           prefs.setName(name);
@@ -81,7 +94,7 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
           prefs.setImage(image);
           prefs.setRole(role);
           prefs.setXZiffler(xZiffler);
-          emit(SignInSuccess(UserMeModel.fromJson(secondData)));
+          emit(SignInSuccess(meModel));
         } else {
           emit(SignInError(message0));
         }
@@ -146,12 +159,25 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
         final String message0 = secondData['error']?['message'] ?? '';
         List<String> role = ((secondData['result']?['role']).cast<String>()) ?? [];
         if (message0.isEmpty) {
+          final meModel = UserMeModel.fromJson(secondData);
+          UserData.reset();
+          UserData.token = token;
           UserData.name = name;
           UserData.userId = userId;
           UserData.phone = phone;
           UserData.image = image;
           UserData.role = role;
           UserData.xZiffler = xZiffler;
+
+          // Auto-initialize for owner-only users
+          if (role.length == 1 && role.contains('user') && meModel.result.worksFor.isEmpty) {
+            UserData.isWorkerMode = false;
+            UserData.activePermissions = meModel.result.permissions;
+            UserData.activeOwnerId = userId;
+            prefs.setPermissions(meModel.result.permissions);
+            prefs.setOwnerId(userId);
+          }
+
           prefs.setUserId(userId);
           prefs.setToken(token);
           prefs.setName(name);
@@ -191,12 +217,25 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
           final String message0 = secondData['error']?['message'] ?? '';
           List<String> role = ((secondData['result']?['role']).cast<String>()) ?? [];
           if (message0.isEmpty) {
+            final meModel = UserMeModel.fromJson(secondData);
+            UserData.reset();
+            UserData.token = token;
             UserData.name = name;
             UserData.userId = userId;
             UserData.phone = phone;
             UserData.image = image;
             UserData.role = role;
             UserData.xZiffler = xZiffler;
+
+            // Auto-initialize for owner-only users
+            if (role.length == 1 && role.contains('user') && meModel.result.worksFor.isEmpty) {
+              UserData.isWorkerMode = false;
+              UserData.activePermissions = meModel.result.permissions;
+              UserData.activeOwnerId = userId;
+              prefs.setPermissions(meModel.result.permissions);
+              prefs.setOwnerId(userId);
+            }
+
             prefs.setUserId(userId);
             prefs.setToken(token);
             prefs.setName(name);

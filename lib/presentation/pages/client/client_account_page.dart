@@ -24,6 +24,7 @@ import 'package:hisobchi/utils/url_louncher_util.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:hisobchi/infrastructure/services/permission_extension.dart';
 
 import 'client_edit_page.dart';
 
@@ -221,6 +222,10 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                   SubscriptionGuard(
                                     child: IconButton(
                                       onPressed: () {
+                                        if (!context.hasPermission('partners.edit')) {
+                                          Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                                          return;
+                                        }
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -243,10 +248,14 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                       icon: SvgPicture.asset(AppIcons.edit),
                                     ),
                                   ),
-                                  if (widget.partnerModel.deletedAt != null && !UserData.isWorkerMode)
+                                  if (widget.partnerModel.deletedAt != null)
                                     SubscriptionGuard(
                                       child: IconButton(
                                         onPressed: () {
+                                          if (UserData.isWorkerMode) {
+                                            Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                                            return;
+                                          }
                                           showDeleteDialog(
                                             context,
                                             isDelete: false,
@@ -259,26 +268,41 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                         icon: Icon(Icons.restore, color: AppTheme.colors.color9E97FF),
                                       ),
                                     ),
-                                  if (widget.partnerModel.deletedAt == null ? (!UserData.isWorkerMode || UserData.activePermissions.contains('partners.delete')) : !UserData.isWorkerMode)
-                                    SubscriptionGuard(
-                                      child: IconButton(
-                                        onPressed: () {
-                                          showDeleteDialog(
-                                            context,
-                                            isDelete: true,
-                                            onConfirm: () {
-                                              if (widget.partnerModel.deletedAt == null) {
-                                                context.read<PartnerBloc>().add(DeleteEvent(id: widget.partnerModel.id ?? 0));
-                                              } else {
-                                                context.read<PartnerBloc>().add(ForceDeleteEvent(id: widget.partnerModel.id ?? 0));
-                                              }
-                                              _markAsChanged();
-                                            },
-                                          );
-                                        },
-                                        icon: SvgPicture.asset(AppIcons.delete),
-                                      ),
+                                  SubscriptionGuard(
+                                    child: IconButton(
+                                      onPressed: () {
+                                        final bool isSoftDelete = widget.partnerModel.deletedAt == null;
+
+                                        if (isSoftDelete) {
+                                          // Soft delete: Faqat User (Owner) qila oladi
+                                          if (UserData.isWorkerMode) {
+                                            Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                                            return;
+                                          }
+                                        } else {
+                                          // Hard delete: Permission-ga qarab
+                                          if (!context.hasPermission('partners.delete')) {
+                                            Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                                            return;
+                                          }
+                                        }
+
+                                        showDeleteDialog(
+                                          context,
+                                          isDelete: true,
+                                          onConfirm: () {
+                                            if (widget.partnerModel.deletedAt == null) {
+                                              context.read<PartnerBloc>().add(DeleteEvent(id: widget.partnerModel.id ?? 0));
+                                            } else {
+                                              context.read<PartnerBloc>().add(ForceDeleteEvent(id: widget.partnerModel.id ?? 0));
+                                            }
+                                            _markAsChanged();
+                                          },
+                                        );
+                                      },
+                                      icon: SvgPicture.asset(AppIcons.delete),
                                     ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -292,7 +316,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () {
-                                    if (!UserData.activePermissions.contains('report_partners.view') && UserData.isWorkerMode) {
+                                    if (!context.hasPermission('report_partner.view')) {
                                       Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
                                       return;
                                     }
@@ -324,10 +348,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => SmsDetailPage(
-                                        partnerId: widget.partnerModel.id ?? 0,
-                                        partnerName: widget.partnerModel.name ?? 'SMS Tarixi',
-                                      ),
+                                      builder: (context) => SmsDetailPage(partnerId: widget.partnerModel.id ?? 0, partnerName: widget.partnerModel.name ?? 'SMS Tarixi'),
                                     ),
                                   );
                                 },
@@ -740,11 +761,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                     child: SubscriptionGuard(
                       child: GestureDetector(
                         onTap: () async {
-                          if (UserData.isWorkerMode && !UserData.activePermissions.contains('wallets_debt.create')) {
+                          if (!context.hasPermission('wallets_debt.create')) {
                             Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
                             return;
                           }
-                          showKirimBottomSheet(context, widget.partnerModel.id ?? 0, true, currencySymbol,widget.partnerModel);
+                          showKirimBottomSheet(context, widget.partnerModel.id ?? 0, true, currencySymbol, widget.partnerModel);
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),
@@ -787,11 +808,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                     child: SubscriptionGuard(
                       child: GestureDetector(
                         onTap: () {
-                          if (UserData.isWorkerMode && !UserData.activePermissions.contains('wallets_credit.create')) {
+                          if (!context.hasPermission('wallets_credit.create')) {
                             Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
                             return;
                           }
-                          showKirimBottomSheet(context, widget.partnerModel.id ?? 0, false, currencySymbol,widget.partnerModel);
+                          showKirimBottomSheet(context, widget.partnerModel.id ?? 0, false, currencySymbol, widget.partnerModel);
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),

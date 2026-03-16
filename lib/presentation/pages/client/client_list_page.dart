@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
+import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
@@ -16,9 +17,10 @@ import 'package:hisobchi/presentation/pages/client/client_add_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_card_item.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/partner_report_widget.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_filter_bottom_sheet.dart';
-import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
-import 'package:hisobchi/domain/common/data/user_data.dart';
+import 'package:hisobchi/infrastructure/services/permission_extension.dart';
 import 'package:shimmer/shimmer.dart';
+
+import '../../components/subscription/subscription_guard.dart';
 
 class ClientPage extends StatefulWidget {
   const ClientPage({super.key});
@@ -111,7 +113,10 @@ class _ClientPageState extends State<ClientPage> {
                     SliverToBoxAdapter(
                       child: PartnerReportWidget(
                         onTap: () {
-                          if (UserData.isWorkerMode && !UserData.activePermissions.contains('report_partners.view')) {
+                          print('------------------------');
+                          print(UserData.activePermissions);
+                          print('------------------------');
+                          if (!context.hasPermission('report_partners.view')) {
                             Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
                             return;
                           }
@@ -135,7 +140,7 @@ class _ClientPageState extends State<ClientPage> {
                     heroTag: 'client_fab',
                     elevation: 4,
                     onPressed: () {
-                      if (UserData.isWorkerMode && !UserData.activePermissions.contains('partners.create')) {
+                      if (!context.hasPermission('partners.create')) {
                         Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
                         return;
                       }

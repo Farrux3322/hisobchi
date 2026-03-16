@@ -19,6 +19,7 @@ import 'package:hisobchi/presentation/routes/entity/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../application/notification/notification_bloc.dart';
+import '../../components/toast/toast.dart';
 import 'widgets/usage_section.dart';
 import '../staff/staff_list_page.dart';
 
@@ -94,21 +95,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       top: 4,
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration:  BoxDecoration(
-                          color: AppTheme.colors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 18,
-                          minHeight: 18,
-                        ),
+                        decoration: BoxDecoration(color: AppTheme.colors.primary, shape: BoxShape.circle),
+                        constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
                         child: Text(
                           state.unreadCount > 99 ? '99+' : '${state.unreadCount}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -132,8 +123,8 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               _buildUserCard(),
               const SizedBox(height: 16),
-             UsageSection(),
-            SizedBox(height: 24),
+              UsageSection(),
+              SizedBox(height: 24),
               _buildSectionTitle('Foydalanish qo\'llanmasi'),
               const SizedBox(height: 12),
               _buildMenuItem(
@@ -141,18 +132,23 @@ class _ProfilePageState extends State<ProfilePage> {
                 title: 'Foydalanish bo\'yicha qo\'llanma',
                 onTap: () => context.pushNamed(Routes.usageGuide.name),
               ),
-              if (!UserData.isWorkerMode) ...[
-                const SizedBox(height: 24),
-                _buildSectionTitle('Boshqaruv'),
-                const SizedBox(height: 12),
-                _buildMenuItem(
-                  icon: AppIcons.clients,
-                  title: 'Xodimlar',
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const StaffListPage()));
-                  },
-                ),
-              ],
+              const SizedBox(height: 24),
+              _buildSectionTitle('Boshqaruv'),
+              const SizedBox(height: 12),
+              _buildMenuItem(
+                icon: AppIcons.clients,
+                title: 'Xodimlar',
+                onTap: () {
+                  print('------------------------');
+                  print(UserData.activePermissions);
+                  print('------------------------');
+                  if (UserData.isWorkerMode) {
+                    Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                    return;
+                  }
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const StaffListPage()));
+                },
+              ),
               const SizedBox(height: 12),
               _buildSectionTitle('Savollaringiz bormi?'),
               const SizedBox(height: 12),
@@ -625,9 +621,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: ElevatedButton(
                     onPressed: () async {
                       final pref = await SharedPrefService.initialize();
-                      UserData.token = '';
-                      UserData.name = '';
-                      UserData.phone = '';
+                      UserData.reset();
                       pref.setName('');
                       pref.setToken('');
                       pref.setPhone('');

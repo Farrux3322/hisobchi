@@ -95,17 +95,10 @@ class _StaffAddPageState extends State<StaffAddPage> {
                     ),
                     child: isLoading
                         ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.sms_outlined, size: 20),
-                              SizedBox(width: 8.w),
-                              Text(
-                                'OTP yuborish',
-                                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
-                              ),
-                            ],
-                          ),
+                        : Text(
+                          'Saqlash',
+                          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
+                        ),
                   ),
                 ),
               ),
@@ -186,33 +179,32 @@ class _StaffAddPageState extends State<StaffAddPage> {
       keyboardType: keyboardType,
       inputFormatters: formatters,
       validator: validator,
-      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+      maxLength: 30,
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
       decoration: InputDecoration(
+        counter: SizedBox(),
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 15),
+        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w400, fontSize: 16),
         prefixIcon: Padding(
-          padding: const EdgeInsets.only(left: 16, right: 12),
-          child: Icon(icon, size: 20, color: const Color(0xFF94A3B8)),
+          padding: const EdgeInsets.only(left: 20, right: 16),
+          child: Icon(icon, size: 22, color: const Color(0xFF94A3B8)),
         ),
-        prefixIconConstraints: const BoxConstraints(minWidth: 50),
+        prefixIconConstraints: const BoxConstraints(minWidth: 58),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppTheme.colors.primary, width: 1.5),
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(color: AppTheme.colors.primary.withValues(alpha: 0.5), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: Color(0xFFEF4444)),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
         ),
       ),
@@ -221,39 +213,38 @@ class _StaffAddPageState extends State<StaffAddPage> {
 
   Widget _buildPhoneInput() {
     return TextFormField(
+      initialValue: '+998',
       keyboardType: TextInputType.phone,
       inputFormatters: [_phoneMask],
-      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
       validator: (_) {
         final digits = _phoneMask.getUnmaskedText();
         return digits.length != 9 ? 'Telefon raqam to\'liq emas' : null;
       },
       decoration: InputDecoration(
+
         hintText: '+998 (__)  ___-__-__',
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 15),
+        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w400, fontSize: 16),
         prefixIcon: const Padding(
-          padding: EdgeInsets.only(left: 16, right: 12),
-          child: Icon(Icons.phone_android_outlined, size: 20, color: Color(0xFF94A3B8)),
+          padding: EdgeInsets.only(left: 20, right: 16),
+          child: Icon(Icons.phone_android_outlined, size: 22, color: Color(0xFF94A3B8)),
         ),
-        prefixIconConstraints: const BoxConstraints(minWidth: 50),
+        prefixIconConstraints: const BoxConstraints(minWidth: 58),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppTheme.colors.primary, width: 1.5),
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(color: AppTheme.colors.primary.withValues(alpha: 0.5), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: Color(0xFFEF4444)),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
         ),
       ),
@@ -264,7 +255,7 @@ class _StaffAddPageState extends State<StaffAddPage> {
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
-      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
       validator: (v) {
         if (v == null || v.trim().isEmpty) return 'Parol kiritilmagan';
         if (v.trim().length < 8) return 'Parol kamida 8 ta belgidan iborat bo\'lishi kerak';
@@ -272,34 +263,34 @@ class _StaffAddPageState extends State<StaffAddPage> {
       },
       decoration: InputDecoration(
         hintText: 'Parol',
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 15),
+        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w400, fontSize: 16),
         prefixIcon: const Padding(
-          padding: EdgeInsets.only(left: 16, right: 12),
-          child: Icon(Icons.lock_outline_rounded, size: 20, color: Color(0xFF94A3B8)),
+          padding: EdgeInsets.only(left: 20, right: 16),
+          child: Icon(Icons.lock_outline_rounded, size: 22, color: Color(0xFF94A3B8)),
         ),
-        prefixIconConstraints: const BoxConstraints(minWidth: 50),
-        suffixIcon: IconButton(
-          icon: Icon(_obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: const Color(0xFF94A3B8), size: 20),
-          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+        prefixIconConstraints: const BoxConstraints(minWidth: 58),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: IconButton(
+            icon: Icon(_obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: const Color(0xFF94A3B8), size: 22),
+            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+          ),
         ),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppTheme.colors.primary, width: 1.5),
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(color: AppTheme.colors.primary.withValues(alpha: 0.5), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: Color(0xFFEF4444)),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
         ),
       ),
@@ -319,32 +310,25 @@ class _SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-        boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.03), blurRadius: 12, offset: const Offset(0, 4))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
-            child: Row(
-              children: [
-                Icon(icon, size: 18.sp, color: AppTheme.colors.primary),
-                SizedBox(width: 8.w),
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B), letterSpacing: 0.2),
-                ),
-              ],
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(0.w, 14.h, 0.w, 0),
+          child: Row(
+            children: [
+              Icon(icon, size: 18.sp, color: AppTheme.colors.primary),
+              SizedBox(width: 8.w),
+              Text(
+                title,
+                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B), letterSpacing: 0.2),
+              ),
+            ],
           ),
-          Padding(padding: EdgeInsets.all(14.w), child: child),
-        ],
-      ),
+        ),
+        Gap(10),
+        child,
+      ],
     );
   }
 }

@@ -7,7 +7,9 @@ import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/routes/entity/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+import 'dart:ui' as ui;
 import 'package:hisobchi/infrastructure/dto/models/subscription/subscription_info_model.dart';
+import 'package:hisobchi/infrastructure/services/permission_extension.dart';
 
 class UsageSection extends StatefulWidget {
   const UsageSection({super.key});
@@ -134,6 +136,24 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
           ],
         );
       },
+    );
+  }
+}
+
+class _PermissionBlurredWidget extends StatelessWidget {
+  final Widget child;
+  final bool hasPermission;
+
+  const _PermissionBlurredWidget({required this.child, required this.hasPermission});
+
+  @override
+  Widget build(BuildContext context) {
+    if (hasPermission) return child;
+    return ClipRect(
+      child: ImageFiltered(
+        imageFilter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: child,
+      ),
     );
   }
 }
@@ -273,14 +293,17 @@ class _SubscriptionInfoCard extends StatelessWidget {
                               ),
                               const Gap(4),
                               Expanded(
-                                child: Text(
-                                  'Amal qilish muddati: $planExpiry',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.white.withValues(alpha: 0.9),
-                                    fontWeight: FontWeight.w500,
+                                child: _PermissionBlurredWidget(
+                                  hasPermission: context.hasPermission('plan_about.view'),
+                                  child: Text(
+                                    'Amal qilish muddati: $planExpiry',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.white.withValues(alpha: 0.9),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -310,9 +333,12 @@ class _SubscriptionInfoCard extends StatelessWidget {
                             style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.9), fontWeight: FontWeight.w500),
                           ),
                           const Spacer(),
-                          Text(
-                            '${status == 'GRACE_PERIOD' ? dueDays : days} kun qoldi',
-                            style: const TextStyle(fontSize: 15, color: Colors.white, fontWeight: FontWeight.w800),
+                          _PermissionBlurredWidget(
+                            hasPermission: context.hasPermission('plan_about.view'),
+                            child: Text(
+                              '${status == 'GRACE_PERIOD' ? dueDays : days} kun qoldi',
+                              style: const TextStyle(fontSize: 15, color: Colors.white, fontWeight: FontWeight.w800),
+                            ),
                           ),
                         ],
                       ),
@@ -389,18 +415,21 @@ class _UsageProgressItem extends StatelessWidget {
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
             ),
             const Spacer(),
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: '${remaining ?? current}',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppTheme.colors.black, letterSpacing: -0.5),
-                  ),
-                  TextSpan(
-                    text: isUnlimited ? ' / ∞' : ' / $maxValue',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.colors.black.withValues(alpha: 0.5)),
-                  ),
-                ],
+            _PermissionBlurredWidget(
+              hasPermission: context.hasPermission('plan_limit.view'),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '${remaining ?? current}',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppTheme.colors.black, letterSpacing: -0.5),
+                    ),
+                    TextSpan(
+                      text: isUnlimited ? ' / ∞' : ' / $maxValue',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.colors.black.withValues(alpha: 0.5)),
+                    ),
+                  ],
+                ),
               ),
             ),
             if (onAction != null) ...[

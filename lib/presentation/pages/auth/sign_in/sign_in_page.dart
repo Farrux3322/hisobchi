@@ -138,12 +138,12 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
           }
           if (state is SignInSuccess) {
             HapticFeedback.mediumImpact();
-            final roles = state.meData.result.role;
-            // Agar role faqat ['user'] bo'lsa -> Dashboard
-            if (roles.length == 1 && roles.contains('user')) {
+            final result = state.meData.result;
+            // Agar role faqat ['user'] bo'lsa va boshqa ish joylari bo'lmasa -> Dashboard
+            if (result.role.length == 1 && result.role.contains('user') && result.worksFor.isEmpty) {
               context.goNamed(Routes.homePage.name);
             } else {
-              // Boshqa barcha holatlarda (staff hisoblar mavjud bo'lsa) -> Workspace Selection
+              // Boshqa barcha holatlarda (staff hisoblar mavjud bo'lsa yoki role 'user' bo'lmasa) -> Workspace Selection
               context.goNamed(Routes.workspaceSelection.name, extra: state.meData);
             }
           } else if (state is SignInError) {

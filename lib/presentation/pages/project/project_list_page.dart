@@ -12,6 +12,7 @@ import 'package:hisobchi/presentation/pages/project/widgets/project_filter_botto
 import 'package:hisobchi/presentation/pages/project/components/project_filter_field.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
+import 'package:hisobchi/infrastructure/services/permission_extension.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProjectListPage extends StatefulWidget {
@@ -107,6 +108,10 @@ class _ProjectListPageState extends State<ProjectListPage> {
                     heroTag: 'project_fab',
                     elevation: 4,
                     onPressed: () {
+                      if (!context.hasPermission('projects.create')) {
+                        Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                        return;
+                      }
                       context.pushNamed(Routes.projectAddPage.name);
                     },
                     backgroundColor: AppTheme.colors.primary,

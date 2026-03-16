@@ -18,6 +18,8 @@ import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/add_client_components/add_client_dialogs.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:hisobchi/domain/common/data/user_data.dart';
+import 'package:hisobchi/infrastructure/services/permission_extension.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class ProjectEditPage extends StatefulWidget {
@@ -536,6 +538,10 @@ class _ProjectEditPageState extends State<ProjectEditPage> {
   }
 
   Future<void> _showDeleteDialog() async {
+    if (UserData.isWorkerMode) {
+      Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+      return;
+    }
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -555,6 +561,10 @@ class _ProjectEditPageState extends State<ProjectEditPage> {
   }
 
   Future<void> _showRestoreDialog() async {
+    if (UserData.isWorkerMode) {
+      Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+      return;
+    }
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -572,6 +582,10 @@ class _ProjectEditPageState extends State<ProjectEditPage> {
   }
 
   Future<void> _showForceDeleteDialog() async {
+    if (!context.hasPermission('projects.delete')) {
+      Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+      return;
+    }
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,

@@ -20,6 +20,8 @@ import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/add_client_components/add_client_dialogs.dart';
 import 'package:hisobchi/presentation/components/utils/emoji_filter_formatter.dart';
 import 'package:hisobchi/presentation/pages/client/client_account_page.dart';
+import 'package:hisobchi/infrastructure/services/permission_extension.dart';
+import 'package:hisobchi/presentation/components/toast/toast.dart';
 
 class ClientAddPage extends StatefulWidget {
   const ClientAddPage({super.key});
@@ -172,6 +174,10 @@ class _ClientAddPageState extends State<ClientAddPage> {
   }
 
   void _handleSubmit() {
+    if (!context.hasPermission('partners.create')) {
+      Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+      return;
+    }
     if (_selectedCurrency == null) {
       AddClientDialogs.showErrorDialog(context, title: 'Valyuta tanlanmagan', message: 'Iltimos, asosiy valyutani tanlang', icon: Icons.currency_exchange_rounded);
       return;

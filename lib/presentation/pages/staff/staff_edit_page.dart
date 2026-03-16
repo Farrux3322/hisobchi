@@ -373,7 +373,7 @@ class StaffPermissionsSection extends StatelessWidget {
       children: [
         // ─── Section label ───────────────────────────────────
         Padding(
-          padding: EdgeInsets.only(left: 4.w, bottom: 8.h),
+          padding: EdgeInsets.only(left: 4.w, bottom: 8.h,right: 16.w),
           child: Row(
             children: [
               Icon(Icons.shield_outlined, size: 16.sp, color: AppTheme.colors.primary),
@@ -444,8 +444,6 @@ class _PermissionGroupItemState extends State<_PermissionGroupItem> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-          boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.03), blurRadius: 12, offset: const Offset(0, 4))],
         ),
         child: Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -460,7 +458,7 @@ class _PermissionGroupItemState extends State<_PermissionGroupItem> {
             tilePadding: EdgeInsets.zero,
             childrenPadding: EdgeInsets.only(bottom: 8.h),
             trailing: const SizedBox.shrink(),
-            // ─── Category header ─────────────────────────
+            // ─── Category header ────ß─────────────────────
             title: Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
               decoration: BoxDecoration(

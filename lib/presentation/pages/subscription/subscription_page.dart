@@ -11,7 +11,9 @@ import 'package:hisobchi/presentation/pages/subscription/widgets/tarif_card.dart
 import 'package:go_router/go_router.dart';
 import 'package:hisobchi/presentation/routes/entity/routes.dart';
 
+import '../../../domain/common/data/user_data.dart';
 import '../../../infrastructure/dto/models/subscription/pricing_plan_model.dart';
+import '../../components/toast/toast.dart';
 
 class TariflarScreen extends StatefulWidget {
   const TariflarScreen({super.key});
@@ -101,6 +103,13 @@ class _TariflarScreenState extends State<TariflarScreen> {
                   height: 56,
                   child: ElevatedButton(
                     onPressed: () {
+
+                      if (UserData.isWorkerMode) {
+                        Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                        return;
+                      }
+
+
                       if (state.pricingPlans.isNotEmpty && _currentIndex < state.pricingPlans.length) {
                         final selectedPlan = state.pricingPlans[_currentIndex];
 
