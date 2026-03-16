@@ -85,10 +85,10 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
             UserData.activeOwnerId = userId;
             prefs.setPermissions(meModel.result.permissions);
             prefs.setOwnerId(userId);
+            prefs.setToken(token);
           }
 
           prefs.setUserId(userId);
-          prefs.setToken(token);
           prefs.setName(name);
           prefs.setPhone(phone);
           prefs.setImage(image);
@@ -176,10 +176,10 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
             UserData.activeOwnerId = userId;
             prefs.setPermissions(meModel.result.permissions);
             prefs.setOwnerId(userId);
+            prefs.setToken(token);
           }
 
           prefs.setUserId(userId);
-          prefs.setToken(token);
           prefs.setName(name);
           prefs.setPhone(phone);
           prefs.setImage(image);
@@ -234,10 +234,10 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
               UserData.activeOwnerId = userId;
               prefs.setPermissions(meModel.result.permissions);
               prefs.setOwnerId(userId);
+              prefs.setToken(token);
             }
 
             prefs.setUserId(userId);
-            prefs.setToken(token);
             prefs.setName(name);
             prefs.setPhone(phone);
             prefs.setImage(image);
@@ -290,6 +290,9 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
         prefs.setOwnerId(event.meData.result.userId);
       }
 
+      // Finalize session persistence
+      prefs.setToken(UserData.token);
+
       emit(SignInSuccess(event.meData));
     } catch (e) {
       emit(SignInError(e.toString()));
@@ -317,6 +320,7 @@ class InitAuthBloc extends Bloc<InitAuthEvent, InitAuthState> {
           prefs.setPhone(meModel.result.phone);
           prefs.setPermissions(meModel.result.permissions);
           prefs.setOwnerId(meModel.result.userId);
+          prefs.setToken(UserData.token);
 
           emit(ActivateOwnerAccountSuccess());
           emit(SignInSuccess(meModel));

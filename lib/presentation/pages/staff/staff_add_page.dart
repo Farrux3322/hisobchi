@@ -82,6 +82,7 @@ class _StaffAddPageState extends State<StaffAddPage> {
               appBar: AppBar(title: const Text('Yangi xodim qo\'shish'), backgroundColor: Colors.white, leading: BackArrowButton()),
               bottomNavigationBar: Container(
                 color: Colors.white,
+
                 padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, MediaQuery.of(context).padding.bottom + 12.h),
                 child: SizedBox(
                   height: 54.h,

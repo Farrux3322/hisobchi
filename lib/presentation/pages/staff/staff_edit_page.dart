@@ -160,6 +160,7 @@ class _StaffEditPageState extends State<StaffEditPage> {
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
               color: Colors.white,
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(16.r), topRight: Radius.circular(16.r)),
               border: Border(top: BorderSide(color: const Color(0xFFF1F5F9), width: 1.5)),
             ),
             padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, MediaQuery.of(context).padding.bottom + 12.h),
@@ -175,21 +176,14 @@ class _StaffEditPageState extends State<StaffEditPage> {
                 ),
                 child: isSaving
                     ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.save_outlined, size: 20.sp),
-                          SizedBox(width: 8.w),
-                          Text(
-                            'Saqlash',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              color: _hasChanges ? Colors.white : const Color(0xFF94A3B8),
-                            ),
-                          ),
-                        ],
+                    : Text(
+                      'Saqlash',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        color: _hasChanges ? Colors.white : const Color(0xFF94A3B8),
                       ),
+                    ),
               ),
             ),
           ),
@@ -280,7 +274,7 @@ class _StaffEditPageState extends State<StaffEditPage> {
                           ),
                           child: Icon(
                             _isActive ? Icons.check_circle_outline_rounded : Icons.cancel_outlined,
-                            color: _isActive ? const Color(0xFF22C55E) : const Color(0xFF94A3B8),
+                            color: _isActive ? AppTheme.colors.primary : const Color(0xFF94A3B8),
                             size: 20.sp,
                           ),
                         ),
@@ -295,7 +289,7 @@ class _StaffEditPageState extends State<StaffEditPage> {
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w500,
-                                  color: _isActive ? const Color(0xFF16A34A) : const Color(0xFF64748B),
+                                  color: _isActive ? AppTheme.colors.primary : const Color(0xFF64748B),
                                 ),
                               ),
                             ],
@@ -303,8 +297,8 @@ class _StaffEditPageState extends State<StaffEditPage> {
                         ),
                         Switch.adaptive(
                           value: _isActive,
-                          activeTrackColor: const Color(0xFF22C55E).withValues(alpha: 0.5),
-                          activeThumbColor: const Color(0xFF22C55E),
+                          activeTrackColor: AppTheme.colors.primary.withValues(alpha: 0.5),
+                          activeThumbColor: AppTheme.colors.primary,
                           onChanged: (v) => setState(() => _isActive = v),
                         ),
                       ],
@@ -457,7 +451,26 @@ class _PermissionGroupItemState extends State<_PermissionGroupItem> {
             collapsedBackgroundColor: Colors.transparent,
             tilePadding: EdgeInsets.zero,
             childrenPadding: EdgeInsets.only(bottom: 8.h),
-            trailing: const SizedBox.shrink(),
+            trailing: Padding(
+              padding: EdgeInsets.only(right: 16.w,top: 8.h),
+              child: AnimatedRotation(
+                duration: const Duration(milliseconds: 200),
+                turns: _isExpanded ? 0 : -0.25, // Rotates 90 degrees
+                child: Container(
+                  width: 24.w,
+                  height: 24.w,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF1F5F9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: const Color(0xFF64748B),
+                    size: 18.sp,
+                  ),
+                ),
+              ),
+            ),
             // ─── Category header ────ß─────────────────────
             title: Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
@@ -467,10 +480,13 @@ class _PermissionGroupItemState extends State<_PermissionGroupItem> {
               ),
               child: Row(
                 children: [
-                  CupertinoCheckbox(
-                    value: allGroupSelected,
-                    activeColor: AppTheme.colors.primary,
-                    onChanged: (_) => widget.onGroupToggle(widget.group),
+                  Transform.scale(
+                    scale: 1.2,
+                    child: CupertinoCheckbox(
+                      value: allGroupSelected,
+                      activeColor: AppTheme.colors.primary,
+                      onChanged: (_) => widget.onGroupToggle(widget.group),
+                    ),
                   ),
                   SizedBox(width: 10.w),
                   Expanded(
@@ -479,7 +495,7 @@ class _PermissionGroupItemState extends State<_PermissionGroupItem> {
                       style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
                     ),
                   ),
-                  if (selectedCount > 0) ...[
+                  if (selectedCount > 0)
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                       decoration: BoxDecoration(
@@ -491,26 +507,6 @@ class _PermissionGroupItemState extends State<_PermissionGroupItem> {
                         style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.primary),
                       ),
                     ),
-                    SizedBox(width: 12.w),
-                  ],
-                  // Animated Arrow on the right
-                  AnimatedRotation(
-                    duration: const Duration(milliseconds: 200),
-                    turns: _isExpanded ? 0 : -0.25, // Rotates 90 degrees
-                    child: Container(
-                      width: 24.w,
-                      height: 24.w,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color: const Color(0xFF64748B),
-                        size: 18.sp,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -530,14 +526,7 @@ class _PermissionGroupItemState extends State<_PermissionGroupItem> {
                       child: Row(
                         children: [
                           SizedBox(width: 4.w),
-                          Container(
-                            width: 7.w,
-                            height: 7.w,
-                            decoration: BoxDecoration(
-                              color: selected ? AppTheme.colors.primary : const Color(0xFFCBD5E1),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
+                          _getPermissionIcon(perm.name, selected),
                           SizedBox(width: 12.w),
                           Expanded(
                             child: Text(
@@ -549,10 +538,13 @@ class _PermissionGroupItemState extends State<_PermissionGroupItem> {
                               ),
                             ),
                           ),
-                          CupertinoCheckbox(
-                            value: selected,
-                            activeColor: AppTheme.colors.primary,
-                            onChanged: (_) => widget.onToggle(perm.name),
+                          Transform.scale(
+                            scale: 1.2,
+                            child: CupertinoCheckbox(
+                              value: selected,
+                              activeColor: AppTheme.colors.primary,
+                              onChanged: (_) => widget.onToggle(perm.name),
+                            ),
                           ),
                         ],
                       ),
@@ -566,5 +558,54 @@ class _PermissionGroupItemState extends State<_PermissionGroupItem> {
         ),
       ),
     );
+  }
+
+  Widget _getPermissionIcon(String name, bool selected) {
+    final color = _getPermissionColor(name, selected);
+    final size = 18.w;
+
+    if (name.contains('view')) {
+      return Icon(Icons.visibility_outlined, size: size, color: color);
+    } else if (name.contains('create')) {
+      return SvgPicture.asset(
+        AppIcons.projectAdd,
+        width: size,
+        height: size,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      );
+    } else if (name.contains('edit') || name.contains('update')) {
+      return SvgPicture.asset(
+        AppIcons.edit,
+        width: size,
+        height: size,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      );
+    } else if (name.contains('cancel')) {
+      return Icon(Icons.cancel_outlined, size: size, color: color);
+    } else if (name.contains('delete')) {
+      return SvgPicture.asset(
+        AppIcons.delete,
+        width: size,
+        height: size,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      );
+    }
+
+    return Container(
+      width: 8.w,
+      height: 8.w,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+  }
+
+  Color _getPermissionColor(String name, bool selected) {
+    if (!selected) return const Color(0xFFCBD5E1);
+    final lowerName = name.toLowerCase();
+    if (lowerName.contains('view')) return const Color(0xFF3B82F6);
+    if (lowerName.contains('create')) return const Color(0xFF10B981);
+    if (lowerName.contains('edit') || lowerName.contains('update')) return const Color(0xFFF59E0B);
+    if (lowerName.contains('cancel')) return const Color(0xFF6366F1);
+    if (lowerName.contains('delete')) return const Color(0xFFEF4444);
+    return AppTheme.colors.primary;
   }
 }
