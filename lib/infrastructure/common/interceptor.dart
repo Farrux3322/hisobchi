@@ -67,7 +67,13 @@ class DioInterceptor extends Interceptor {
     options.headers.addAll({if (UserData.token.isNotEmpty) HttpHeaders.authorizationHeader: 'Bearer ${UserData.token}', "device_type": Platform.isIOS ? "IOS" : "Android"});
 
     // HAR BIR SO'ROV UCHUN UNIQUE HEADERS
-    options.headers.addAll({"x-ehisob-request-id": uniqueRequestId, "x-ehisob-request-key": uniquePublicKey});
+    final isAuthPath = options.path.startsWith('/auth/');
+    
+    options.headers.addAll({
+      "x-ehisob-request-id": uniqueRequestId,
+      "x-ehisob-request-key": uniquePublicKey,
+      if (UserData.activeOwnerId != -1 && !isAuthPath) "X-As-Owner": UserData.activeOwnerId.toString(),
+    });
 
     return super.onRequest(options, handler);
   }

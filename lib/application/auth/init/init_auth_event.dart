@@ -51,3 +51,17 @@ class ScannerLoginEvent extends InitAuthEvent {
 
 
 class ResetAuthEvent extends InitAuthEvent {}
+
+class SelectWorkspaceEvent extends InitAuthEvent {
+  final UserMeModel meData;
+  final WorksFor? workspace;
+
+  SelectWorkspaceEvent({required this.meData, this.workspace});
+}
+
+class ActivateOwnerAccountEvent extends InitAuthEvent {
+  final UserMeModel meData;
+
+  ActivateOwnerAccountEvent({required this.meData});
+}
+

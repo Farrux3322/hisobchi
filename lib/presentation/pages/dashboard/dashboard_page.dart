@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hisobchi/application/currency/currency_bloc.dart';
 import 'package:hisobchi/application/dashboard/dashboard_bloc.dart';
@@ -201,6 +200,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     );
   }
 
+
   Widget _buildBody(DashboardState state) {
     final result = state.dashboardModel?.result;
     final partners = result?.partners;
@@ -211,15 +211,14 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       _selectedCurrency = availableCurrencies.first;
     }
 
+    final currencyDetails = partners?.details?[_selectedCurrency];
+    final currencyTypeId = _selectedCurrency == 'UZS' ? 1 : 2;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        DashboardHeaderCard(
-          title: 'Hamkorlar',
-          subtitle: 'Qarz muddatlari',
-          icon: AppIcons.clients,
+        HamkorlarCard(
           totalCount: partners?.partnersCount ?? 0,
-          totalLabel: 'Hamkor',
           availableCurrencies: availableCurrencies,
           selectedCurrency: _selectedCurrency,
           onCurrencyChanged: (currency) {
@@ -227,95 +226,37 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
               _selectedCurrency = currency;
             });
           },
-          gradient: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: .9)],
-          statusPages: availableCurrencies.map((currency) {
-            final currencyDetails = partners?.details?[currency];
-            final currencyTypeId = currency == 'UZS' ? 1 : 2;
-            return [
-              StatusMiniCard(
-                label: 'Muddati o‘tgan',
-                count: currencyDetails?.qarzExpired?.count ?? 0,
-                icon: Icons.error_outline_rounded,
-                backgroundColor: const Color(0xFFFEF2F2),
-                iconColor: const Color(0xFFEF4444),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PartnerOperationsDetailPage(type: currencyDetails?.qarzExpired?.type ?? 'qarz_expired', currencyTypeId: currencyTypeId, title: 'Muddati o‘tgan'),
-                    ),
-                  );
-                },
-              ),
-              StatusMiniCard(
-                label: 'Bugun',
-                count: currencyDetails?.qarzToday?.count ?? 0,
-                icon: Icons.notifications_active_outlined,
-                backgroundColor: const Color(0xFFFFFBEB),
-                iconColor: const Color(0xFFF59E0B),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PartnerOperationsDetailPage(type: currencyDetails?.qarzToday?.type ?? 'qarz_today', currencyTypeId: currencyTypeId, title: 'Bugun'),
-                    ),
-                  );
-                },
-              ),
-              StatusMiniCard(
-                label: 'Yaqinlashmoqda',
-                count: currencyDetails?.qarz3Days?.count ?? 0,
-                icon: Icons.event_note_outlined,
-                backgroundColor: const Color(0xFFF0F9FF),
-                iconColor: const Color(0xFF0EA5E9),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PartnerOperationsDetailPage(type: currencyDetails?.qarz3Days?.type ?? 'qarz_3_days', currencyTypeId: currencyTypeId, title: 'Yaqinlashmoqda'),
-                    ),
-                  );
-                },
-              ),
-            ];
-          }).toList(),
+          expiredCount: currencyDetails?.qarzExpired?.count ?? 0,
+          todayCount: currencyDetails?.qarzToday?.count ?? 0,
+          soonCount: currencyDetails?.qarz3Days?.count ?? 0,
+          onExpiredTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => PartnerOperationsDetailPage(type: currencyDetails?.qarzExpired?.type ?? 'qarz_expired', currencyTypeId: currencyTypeId, title: 'Muddati o‘tgan')),
+            );
+          },
+          onTodayTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => PartnerOperationsDetailPage(type: currencyDetails?.qarzToday?.type ?? 'qarz_today', currencyTypeId: currencyTypeId, title: 'Bugungilar')),
+            );
+          },
+          onSoonTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => PartnerOperationsDetailPage(type: currencyDetails?.qarz3Days?.type ?? 'qarz_3_days', currencyTypeId: currencyTypeId, title: 'Tez orada')),
+            );
+          },
         ),
         SizedBox(height: 28.h),
-        DashboardHeaderCard(
-          title: 'Loyihalar',
-          subtitle: 'Statuslar bo‘yicha',
-          icon: AppIcons.project,
+        LoyihalarCard(
           totalCount: projects?.projectsCount ?? 0,
-          totalLabel: 'Loyiha',
-          gradient: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: .9)],
-          statusPages: [
-            [
-              StatusMiniCard(
-                label: 'Jarayonda',
-                count: projects?.inProgress ?? 0,
-                icon: Icons.play_arrow_rounded,
-                backgroundColor: const Color(0xFFEEF3FF),
-                iconColor: Colors.blue,
-                onTap: () => _navigateToProjects(status: 'in_progress'),
-              ),
-              StatusMiniCard(
-                label: 'Muzlatilgan',
-                count: projects?.frozen ?? 0,
-                icon: Icons.pause_rounded,
-                backgroundColor: const Color(0xFFFFF3E0),
-                iconColor: Colors.orange,
-                onTap: () => _navigateToProjects(status: 'frozen'),
-              ),
-              StatusMiniCard(
-                label: 'Yakunlangan',
-                count: projects?.completed ?? 0,
-                icon: Icons.check_circle_outline_rounded,
-                backgroundColor: const Color(0xFFE8F5E9),
-                iconColor: Colors.green,
-                onTap: () => _navigateToProjects(status: 'completed'),
-              ),
-            ],
-          ],
+          inProgressCount: projects?.inProgress ?? 0,
+          frozenCount: projects?.frozen ?? 0,
+          completedCount: projects?.completed ?? 0,
+          onInProgressTap: () => _navigateToProjects(status: 'in_progress'),
+          onFrozenTap: () => _navigateToProjects(status: 'frozen'),
+          onCompletedTap: () => _navigateToProjects(status: 'completed'),
         ),
         SizedBox(height: 32.h),
       ],
@@ -323,296 +264,649 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
   }
 }
 
-class DashboardHeaderCard extends StatefulWidget {
-  final String title;
-  final String subtitle;
-  final String icon;
+class HamkorlarCard extends StatelessWidget {
   final int totalCount;
-  final String totalLabel;
-  final List<Color> gradient;
-  final List<List<StatusMiniCard>> statusPages;
-  final List<String>? availableCurrencies;
-  final String? selectedCurrency;
-  final ValueChanged<String>? onCurrencyChanged;
+  final List<String> availableCurrencies;
+  final String selectedCurrency;
+  final ValueChanged<String> onCurrencyChanged;
+  final int expiredCount;
+  final int todayCount;
+  final int soonCount;
+  final VoidCallback onExpiredTap;
+  final VoidCallback onTodayTap;
+  final VoidCallback onSoonTap;
 
-  const DashboardHeaderCard({
+  const HamkorlarCard({
     super.key,
-    required this.title,
-    required this.subtitle,
-    required this.icon,
     required this.totalCount,
-    required this.totalLabel,
-    required this.gradient,
-    required this.statusPages,
-    this.availableCurrencies,
-    this.selectedCurrency,
-    this.onCurrencyChanged,
+    required this.availableCurrencies,
+    required this.selectedCurrency,
+    required this.onCurrencyChanged,
+    required this.expiredCount,
+    required this.todayCount,
+    required this.soonCount,
+    required this.onExpiredTap,
+    required this.onTodayTap,
+    required this.onSoonTap,
   });
-
-  @override
-  State<DashboardHeaderCard> createState() => _DashboardHeaderCardState();
-}
-
-class _DashboardHeaderCardState extends State<DashboardHeaderCard> {
-  late PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    int initialPage = 0;
-    if (widget.availableCurrencies != null && widget.selectedCurrency != null) {
-      initialPage = widget.availableCurrencies!.indexOf(widget.selectedCurrency!);
-    }
-    _pageController = PageController(initialPage: initialPage >= 0 ? initialPage : 0);
-  }
-
-  @override
-  void didUpdateWidget(covariant DashboardHeaderCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.selectedCurrency != oldWidget.selectedCurrency && widget.availableCurrencies != null) {
-      int targetPage = widget.availableCurrencies!.indexOf(widget.selectedCurrency!);
-      if (targetPage >= 0 && _pageController.hasClients && _pageController.page?.round() != targetPage) {
-        _pageController.animateToPage(targetPage, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [BoxShadow(color: widget.gradient.first.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 8))],
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.04), // Soft dark-blue tint shadow
+            blurRadius: 24,
+            spreadRadius: 0,
+            offset: const Offset(0, 8),
+          )
+        ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(16.r), topRight: Radius.circular(16.r)),
-              gradient: LinearGradient(colors: widget.gradient, begin: Alignment.topLeft, end: Alignment.bottomRight, stops: const [0.0, 1.0]),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(10.w),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-                            ),
-                            child: SvgPicture.asset(widget.icon, height: 22.sp, width: 22.sp, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-                          ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.title,
-                                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.2),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  widget.subtitle,
-                                  style: TextStyle(fontSize: 10.sp, color: Colors.white.withValues(alpha: 0.7), fontWeight: FontWeight.w500),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.people_alt, color: const Color(0xFF1E293B), size: 22.sp),
+                  SizedBox(width: 10.w),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hamkorlar hisoboti',
+                        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B), letterSpacing: -0.2),
                       ),
-                    ),
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: AnimatedCounter(
-                              value: widget.totalCount,
-                              style: TextStyle(fontSize: 26.sp, fontWeight: FontWeight.w900, color: Colors.white, height: 1.1),
-                            ),
-                          ),
-                          Text(
-                            widget.totalLabel.toUpperCase(),
-                            style: TextStyle(fontSize: 10.sp, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w700, letterSpacing: 0.5),
-                          ),
-                        ],
+                      Text(
+                        'Qarz muddatlari',
+                        style: TextStyle(fontSize: 11.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
                       ),
-                    ),
-                  ],
-                ),
-                if (widget.availableCurrencies != null && widget.availableCurrencies!.length > 1) ...[
-                  SizedBox(height: 8.h),
-                  Container(
-                    height: 36.h,
-                    padding: EdgeInsets.all(3.w),
-                    decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10.r)),
-                    child: Row(
-                      children: widget.availableCurrencies!.map((currency) {
-                        final isSelected = widget.selectedCurrency == currency;
-                        return Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              widget.onCurrencyChanged?.call(currency);
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              curve: Curves.easeInOut,
-                              decoration: BoxDecoration(
-                                color: isSelected ? Colors.white : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8.r),
-                                boxShadow: isSelected ? [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))] : [],
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                currency,
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                                  color: isSelected ? widget.gradient.first : Colors.white.withValues(alpha: 0.8),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                    ],
                   ),
                 ],
+              ),
+              AnimatedCounter(
+                value: totalCount,
+                style: TextStyle(fontSize: 26.sp, fontWeight: FontWeight.w500, color: const Color(0xFF0F172A), height: 1.1),
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
+          if (availableCurrencies.isNotEmpty)
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final double padding = 4.w;
+                final double totalWidth = constraints.maxWidth;
+                final double itemWidth = (totalWidth - padding * 2) / availableCurrencies.length;
+                final int selectedIndex = availableCurrencies.indexOf(selectedCurrency).clamp(0, availableCurrencies.length - 1);
+
+                return Container(
+                  height: 42.h,
+                  padding: EdgeInsets.all(padding),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF4F4F5), // Light gray background
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // The sliding thumb removed per user request
+                      AnimatedPositioned(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOutCubic,
+                        left: selectedIndex * itemWidth,
+                        top: 0,
+                        bottom: 0,
+                        width: itemWidth,
+                        child: const SizedBox(),
+                      ),
+                      // Text overlays and dividers
+                      Row(
+                        children: availableCurrencies.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final currency = entry.value;
+                          final isSelected = selectedIndex == index;
+                          return Expanded(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                onCurrencyChanged(currency);
+                              },
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  AnimatedDefaultTextStyle(
+                                    duration: const Duration(milliseconds: 150),
+                                    style: TextStyle(
+                                      fontSize: 13.sp,
+                                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                      color: isSelected ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                                      letterSpacing: -0.2,
+                                    ),
+                                    child: Text('$currency Hisob'),
+                                  ),
+                                  // Right divider (visible between tabs, mimicking `||`)
+                                  if (index < availableCurrencies.length - 1)
+                                    Positioned(
+                                      right: 0,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(width: 2.w, height: 10.h, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2))),
+                                          SizedBox(width: 2.w),
+                                          Container(width: 2.w, height: 10.h, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2))),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          SizedBox(height: 20.h),
+          SizedBox(
+            height: 264.h,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Left side: Donut Chart
+                Expanded(
+                  flex: 5,
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final availableHeight = constraints.maxHeight;
+                        final double strokeWidth = availableHeight * 0.13; // Restored thickness
+                        // Calculate width needed to properly bound the semi-circle
+                        final double requiredWidth = (availableHeight / 2) + (strokeWidth / 2);
+
+                        return Stack(
+                          alignment: Alignment.centerLeft,
+                          children: [
+                            SizedBox(
+                              height: availableHeight,
+                              width: requiredWidth,
+                              child: TweenAnimationBuilder<double>(
+                                key: ValueKey('donut_anim_$selectedCurrency'), // Key forces rebuild on tab switch
+                                tween: Tween<double>(begin: 0.0, end: 1.0),
+                                duration: const Duration(milliseconds: 1400),
+                                curve: Curves.easeOutCubic,
+                                builder: (context, value, child) {
+                                  return CustomPaint(
+                                    painter: HamkorlarHalfDonutPainter(
+                                      expiredCount: expiredCount,
+                                      todayCount: todayCount,
+                                      soonCount: soonCount,
+                                      animationValue: value,
+                                      strokeWidth: strokeWidth,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            // The semi-pill button inside the donut
+                            Positioned(
+                              left: 0,
+                              child: Container(
+                                width: availableHeight * 0.23, // proportional width
+                                height: availableHeight * 0.45, // proportional height
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(100.r),
+                                    bottomRight: Radius.circular(100.r),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF151515).withValues(alpha: 0.06),
+                                      blurRadius: 15,
+                                      spreadRadius: 0,
+                                      offset: const Offset(4, 0),
+                                    )
+                                  ],
+                                ),
+                                alignment: Alignment.center,
+                                child: Container(
+                                  margin: EdgeInsets.only(right: 4.w, left: 4.w),
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFF8FAFC),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(Icons.arrow_forward_ios_rounded, color: const Color(0xFF0F172A), size: 16.sp),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                Spacer(),
+                // SizedBox(width: 18.w),
+                // Right side: Mini cards
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: _buildMiniCard(
+                          label: 'Muddati o\'tgan',
+                          count: expiredCount,
+                          colorTheme: const Color(0xFFEF4444),
+                          bgColor: const Color(0xFFFFF0ED),
+                          icon: Icons.report_problem_rounded,
+                          onTap: onExpiredTap,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Expanded(
+                        child: _buildMiniCard(
+                          label: 'Bugungilar',
+                          count: todayCount,
+                          colorTheme: const Color(0xFFF59E0B),
+                          bgColor: const Color(0xFFFFFBEB),
+                          icon: Icons.notifications_active_rounded,
+                          onTap: onTodayTap,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Expanded(
+                        child: _buildMiniCard(
+                          label: 'Tez orada',
+                          count: soonCount,
+                          colorTheme: const Color(0xFF3B82F6),
+                          bgColor: const Color(0xFFEFF6FF),
+                          icon: Icons.hourglass_top_rounded,
+                          onTap: onSoonTap,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-          SizedBox(height: 12.h),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: 160.h, minHeight: 130.h),
-            child: SizedBox(
-              height: 0.16.sh,
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: widget.statusPages.length,
-                onPageChanged: (index) {
-                  if (widget.availableCurrencies != null && index < widget.availableCurrencies!.length) {
-                    widget.onCurrencyChanged?.call(widget.availableCurrencies![index]);
-                  }
-                },
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w),
-                    child: Row(
-                      children: widget.statusPages[index]
-                          .map(
-                            (card) => Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 4.w),
-                                child: card,
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          SizedBox(height: 12.h),
         ],
       ),
     );
   }
-}
 
-class StatusMiniCard extends StatefulWidget {
-  final String label;
-  final int count;
-  final IconData icon;
-  final Color backgroundColor;
-  final Color iconColor;
-  final VoidCallback onTap;
-
-  const StatusMiniCard({super.key, required this.label, required this.count, required this.icon, required this.backgroundColor, required this.iconColor, required this.onTap});
-
-  @override
-  State<StatusMiniCard> createState() => _StatusMiniCardState();
-}
-
-class _StatusMiniCardState extends State<StatusMiniCard> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildMiniCard({required String label, required int count, required Color colorTheme, required Color bgColor, required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) => setState(() => _isPressed = false),
-      onTapCancel: () => setState(() => _isPressed = false),
       onTap: () {
         HapticFeedback.lightImpact();
-        widget.onTap();
+        onTap();
       },
-      child: AnimatedScale(
-        scale: _isPressed ? 0.95 : 1.0,
-        duration: const Duration(milliseconds: 100),
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 8.w),
-          decoration: BoxDecoration(
-            color: widget.backgroundColor,
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(color: widget.iconColor.withValues(alpha: 0.1), width: 1.5),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8.w),
-                decoration: BoxDecoration(color: widget.iconColor.withValues(alpha: 0.12), shape: BoxShape.circle),
-                child: Icon(widget.icon, color: widget.iconColor, size: 24.sp),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+        child: Stack(
+          children: [
+            // Decorative shapes (simplified version of the SVG gloss)
+            Positioned(
+              right: -10.w,
+              top: -10.h,
+              child: Container(
+                width: 40.w,
+                height: 40.w,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
               ),
-              SizedBox(height: 10.h),
-              Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: AnimatedCounter(
-                    value: widget.count,
-                    style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B), letterSpacing: -0.5),
+            ),
+            Positioned.fill(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, color: colorTheme, size: 18.sp),
+                  SizedBox(height: 4.h),
+                  Text(
+                    label,
+                    style: TextStyle(fontSize: 10.sp, color: const Color(0xFF475569), fontWeight: FontWeight.w600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
+                  SizedBox(height: 2.h),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 5.w,
+                        height: 5.w,
+                        decoration: BoxDecoration(color: colorTheme, shape: BoxShape.circle),
+                      ),
+                      SizedBox(width: 4.w),
+                      AnimatedCounter(
+                        value: count,
+                        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B)),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              SizedBox(height: 2.h),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  widget.label,
-                  style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: const Color(0xFF64748B), letterSpacing: 0.2),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+class HamkorlarHalfDonutPainter extends CustomPainter {
+  final int expiredCount;
+  final int todayCount;
+  final int soonCount;
+  final double animationValue;
+  final double strokeWidth;
+
+  HamkorlarHalfDonutPainter({required this.expiredCount, required this.todayCount, required this.soonCount, required this.animationValue, required this.strokeWidth});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Perfectly bounded coordinates
+    final height = size.height;
+    final radius = (height - strokeWidth) / 2;
+    // Pushed slightly right by strokeWidth/2 so the arc hits exactly at x=0 smoothly.
+    final center = Offset(strokeWidth / 2, height / 2);
+
+    int total = expiredCount + todayCount + soonCount;
+
+    // Background track
+    final bgPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..color = const Color(0xFFF1F5F9)
+      ..strokeCap = StrokeCap.round;
+
+    final startAngleBg = -3.14159265 / 2;
+    final sweepAngleBg = 3.14159265;
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      startAngleBg,
+      sweepAngleBg,
+      false,
+      bgPaint,
+    );
+
+    if (total == 0) return;
+
+    final double gap = 0.035;
+
+    List<Map<String, dynamic>> segments = [];
+    if (expiredCount > 0) segments.add({'count': expiredCount, 'color': const Color(0xFFEF4444)}); // Deep Red
+    if (todayCount > 0) segments.add({'count': todayCount, 'color': const Color(0xFFF59E0B)}); // Deep Amber
+    if (soonCount > 0) segments.add({'count': soonCount, 'color': const Color(0xFF3B82F6)}); // Deep Blue
+
+    int activeSegments = segments.length;
+    double drawableSweep = sweepAngleBg - ((activeSegments > 1 ? activeSegments - 1 : 0) * gap);
+
+    if (drawableSweep <= 0) {
+      drawableSweep = sweepAngleBg;
+    }
+
+    double currentAngle = startAngleBg;
+
+    for (var segment in segments) {
+      double targetSweep = (segment['count'] / total) * drawableSweep;
+      double actualSweep = targetSweep * animationValue;
+
+      if (actualSweep > 0) {
+        final shadowPaint = Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth
+          ..color = segment['color'].withValues(alpha: 0.25)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6)
+          ..strokeCap = StrokeCap.round;
+
+        canvas.drawArc(
+          Rect.fromCircle(center: center, radius: radius),
+          currentAngle,
+          actualSweep,
+          false,
+          shadowPaint,
+        );
+
+        final paint = Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth
+          ..color = segment['color']
+          ..strokeCap = StrokeCap.round;
+
+        canvas.drawArc(
+          Rect.fromCircle(center: center, radius: radius),
+          currentAngle,
+          actualSweep,
+          false,
+          paint,
+        );
+      }
+
+      currentAngle += targetSweep + gap;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant HamkorlarHalfDonutPainter oldDelegate) {
+    return oldDelegate.expiredCount != expiredCount || oldDelegate.todayCount != todayCount || oldDelegate.soonCount != soonCount || oldDelegate.animationValue != animationValue || oldDelegate.strokeWidth != strokeWidth;
+  }
+}
+
+class LoyihalarCard extends StatelessWidget {
+  final int totalCount;
+  final int inProgressCount;
+  final int frozenCount;
+  final int completedCount;
+  final VoidCallback onInProgressTap;
+  final VoidCallback onFrozenTap;
+  final VoidCallback onCompletedTap;
+
+  const LoyihalarCard({
+    super.key,
+    required this.totalCount,
+    required this.inProgressCount,
+    required this.frozenCount,
+    required this.completedCount,
+    required this.onInProgressTap,
+    required this.onFrozenTap,
+    required this.onCompletedTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.04), // Soft dark-blue tint shadow
+            blurRadius: 24,
+            spreadRadius: 0,
+            offset: const Offset(0, 8),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.collections_bookmark_rounded, color: const Color(0xFF1E293B), size: 22.sp),
+                  SizedBox(width: 10.w),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Loyihalar',
+                        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B), letterSpacing: -0.2),
+                      ),
+                      Text(
+                        'Statuslar bo‘yicha',
+                        style: TextStyle(fontSize: 11.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              AnimatedCounter(
+                value: totalCount,
+                style: TextStyle(fontSize: 26.sp, fontWeight: FontWeight.w500, color: const Color(0xFF0F172A), height: 1.1),
+              ),
+            ],
+          ),
+          SizedBox(height: 20.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildLoyihaCard(
+                  label: 'Jarayonda',
+                  count: inProgressCount,
+                  colorTheme: const Color(0xFF60A5FA), // Blue
+                  bgColor: const Color(0xFFF8FAFC),
+                  icon: Icons.play_arrow_rounded,
+                  onTap: onInProgressTap,
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: _buildLoyihaCard(
+                  label: 'Muzlatilgan',
+                  count: frozenCount,
+                  colorTheme: const Color(0xFFFBBF24), // Orange/Yellow
+                  bgColor: const Color(0xFFF8FAFC),
+                  icon: Icons.pause_rounded,
+                  onTap: onFrozenTap,
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: _buildLoyihaCard(
+                  label: 'Yakunlangan',
+                  count: completedCount,
+                  colorTheme: const Color(0xFF34D399), // Green
+                  bgColor: const Color(0xFFF8FAFC),
+                  icon: Icons.check_rounded,
+                  onTap: onCompletedTap,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoyihaCard({required String label, required int count, required Color colorTheme, required Color bgColor, required IconData icon, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        height: 100.h,
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          children: [
+            // Top Right decorative intersecting circles
+            Positioned(
+              right: -10.w,
+              top: -15.h,
+              child: CustomPaint(
+                size: Size(50.w, 50.h),
+                painter: CircleDecorationPainter(color: colorTheme.withValues(alpha: 0.8)),
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(4.w),
+                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                  child: Icon(icon, color: colorTheme, size: 16.sp),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        label,
+                        style: TextStyle(fontSize: 10.sp, color: const Color(0xFF475569), fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    AnimatedCounter(
+                      value: count,
+                      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CircleDecorationPainter extends CustomPainter {
+  final Color color;
+  CircleDecorationPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    // Draw two intersecting thin circles
+    canvas.drawCircle(Offset(size.width * 0.3, size.height * 0.4), 16.w, paint);
+    canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.6), 16.w, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class AnimatedCounter extends StatelessWidget {

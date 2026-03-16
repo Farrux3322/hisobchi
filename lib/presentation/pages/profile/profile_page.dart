@@ -20,6 +20,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../application/notification/notification_bloc.dart';
 import 'widgets/usage_section.dart';
+import '../staff/staff_list_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -131,8 +132,8 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               _buildUserCard(),
               const SizedBox(height: 16),
-              if (UserData.xZiffler) UsageSection(),
-              if (UserData.xZiffler) SizedBox(height: 24),
+             UsageSection(),
+            SizedBox(height: 24),
               _buildSectionTitle('Foydalanish qo\'llanmasi'),
               const SizedBox(height: 12),
               _buildMenuItem(
@@ -140,6 +141,18 @@ class _ProfilePageState extends State<ProfilePage> {
                 title: 'Foydalanish bo\'yicha qo\'llanma',
                 onTap: () => context.pushNamed(Routes.usageGuide.name),
               ),
+              if (!UserData.isWorkerMode) ...[
+                const SizedBox(height: 24),
+                _buildSectionTitle('Boshqaruv'),
+                const SizedBox(height: 12),
+                _buildMenuItem(
+                  icon: AppIcons.clients,
+                  title: 'Xodimlar',
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const StaffListPage()));
+                  },
+                ),
+              ],
               const SizedBox(height: 12),
               _buildSectionTitle('Savollaringiz bormi?'),
               const SizedBox(height: 12),

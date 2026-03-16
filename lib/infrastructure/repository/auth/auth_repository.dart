@@ -103,6 +103,11 @@ class AuthRepository {
     return response.data;
   }
 
+  Future<Map<String, dynamic>> activateOwnAccount({required String token}) async {
+    final response = await dio.post('/auth/activate-own-account', data: {'token': token});
+    return response.data;
+  }
+
   Future<Map<String, dynamic>> getDeviceInfo() async {
     final deviceInfoPlugin = DeviceInfoPlugin();
     final FirebaseMessaging messaging = FirebaseMessaging.instance;

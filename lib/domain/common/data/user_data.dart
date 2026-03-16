@@ -21,6 +21,10 @@ class UserData {
   static Map<String, dynamic> deviceInfo = {};
   static Map<String?, List<String?>?>? permissions = {};
 
+  static bool isWorkerMode = false;
+  static List<String> activePermissions = [];
+  static int activeOwnerId = -1;
+
   static void reset() {
     branchId = 0;
     workerId = 0;
@@ -43,5 +47,8 @@ class UserData {
     responsibleWorker = "";
     deviceInfo = {};
     permissions = {};
+    isWorkerMode = false;
+    activePermissions = [];
+    activeOwnerId = -1;
   }
 }

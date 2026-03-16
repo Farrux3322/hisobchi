@@ -20,6 +20,9 @@ import 'package:hisobchi/presentation/pages/subscription/payment_success_page.da
 import 'package:hisobchi/presentation/pages/profile/screens/sms_buy_page/sms_buy_page.dart';
 import 'package:hisobchi/presentation/pages/profile/screens/usage_guide_page.dart';
 import 'package:hisobchi/presentation/pages/profile/screens/youtube_full_screen_player_page.dart';
+import 'package:hisobchi/infrastructure/models/user_me_model.dart';
+import 'package:hisobchi/presentation/pages/auth/workspace_selection_page.dart';
+
 import 'entity/pages.dart';
 import 'entity/routes.dart';
 import 'widgets/liquid_glass_shell.dart';
@@ -105,6 +108,14 @@ final router = GoRouter(
       pageBuilder: (context, state) => MaterialPage<void>(
         key: state.pageKey,
         child: PaymentSuccessPage(isTarif: state.extra as bool? ?? false),
+      ),
+    ),
+    GoRoute(
+      name: Routes.workspaceSelection.name,
+      path: Routes.workspaceSelection.path,
+      pageBuilder: (context, state) => MaterialPage<void>(
+        key: state.pageKey,
+        child: WorkspaceSelectionPage(meData: state.extra as UserMeModel),
       ),
     ),
     GoRoute(

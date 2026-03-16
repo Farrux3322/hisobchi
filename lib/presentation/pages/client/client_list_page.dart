@@ -17,6 +17,7 @@ import 'package:hisobchi/presentation/pages/client/widgets/client_card_item.dart
 import 'package:hisobchi/presentation/pages/client/widgets/partner_report_widget.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_filter_bottom_sheet.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
+import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ClientPage extends StatefulWidget {
@@ -110,6 +111,10 @@ class _ClientPageState extends State<ClientPage> {
                     SliverToBoxAdapter(
                       child: PartnerReportWidget(
                         onTap: () {
+                          if (UserData.isWorkerMode && !UserData.activePermissions.contains('report_partners.view')) {
+                            Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                            return;
+                          }
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportClientMainPage()));
                         },
                       ),
@@ -130,6 +135,10 @@ class _ClientPageState extends State<ClientPage> {
                     heroTag: 'client_fab',
                     elevation: 4,
                     onPressed: () {
+                      if (UserData.isWorkerMode && !UserData.activePermissions.contains('partners.create')) {
+                        Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                        return;
+                      }
                       Navigator.push(
                         context,
                         MaterialPageRoute(

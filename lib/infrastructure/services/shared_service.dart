@@ -20,6 +20,8 @@ class SharedPrefService {
   static const String _biometricEnabled = 'biometric_enabled';
   static const String _onboardingCompleted = 'onboarding_completed';
   static const String _xZiffler = 'x_ziffler';
+  static const String _activePermissions = 'active_permissions';
+  static const String _activeOwnerId = 'active_owner_id';
 
   static late SharedPreferences _preference;
 
@@ -106,6 +108,14 @@ class SharedPrefService {
   void setOnboardingCompleted(bool value) => _preference.setBool(_onboardingCompleted, value);
 
   bool get hasCompletedOnboarding => _preference.getBool(_onboardingCompleted) ?? false;
+
+  void setPermissions(List<String> permissions) => _preference.setStringList(_activePermissions, permissions);
+
+  List<String> get getPermissions => _preference.getStringList(_activePermissions) ?? [];
+
+  void setOwnerId(int ownerId) => _preference.setInt(_activeOwnerId, ownerId);
+
+  int get getOwnerId => _preference.getInt(_activeOwnerId) ?? -1;
 
   void clear() => _preference.clear();
 }

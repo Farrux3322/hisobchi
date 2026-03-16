@@ -75,6 +75,16 @@ class SignInError extends SignInState {
 }
 
 class SignInSuccess extends SignInState {
-
-  SignInSuccess();
+  final UserMeModel meData;
+  SignInSuccess(this.meData);
 }
+
+class ActivateOwnerAccountLoading extends InitAuthState {}
+
+class ActivateOwnerAccountSuccess extends InitAuthState {}
+
+class ActivateOwnerAccountFailed extends InitAuthState {
+  final String error;
+  ActivateOwnerAccountFailed({required this.error});
+}
+
