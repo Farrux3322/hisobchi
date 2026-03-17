@@ -2,9 +2,6 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:hisobchi/domain/common/data/user_data.dart';
-import 'package:hisobchi/presentation/routes/coordinator.dart';
-import 'package:hisobchi/presentation/routes/index_routes.dart';
 
 Bloc? lastBloc;
 Object? lastEvent;
@@ -38,8 +35,8 @@ class DioExceptionX extends DioException {
   String _getServerError() {
     try {
       if (checkUnauthorized && statusCode == 401) {
-        UserData.token = "";
-        parentKey.currentContext?.go(Routes.signIn.path);
+        // Redirection is now handled centrally in DioInterceptor
+        // to prevent context-related race conditions and white screens.
         return '';
       } else if (statusCode == 309 || errorType == DioExceptionType.cancel) {
         return '';
@@ -67,7 +64,16 @@ class DioExceptionX extends DioException {
             if (serverError['error'] != null) {
               final dynamic errorData = serverError['error'];
               if (errorData is Map && errorData.isNotEmpty) {
-                return errorData[errorData.keys.first][0].toString();
+                // Handle complex error objects like { "error": { "message": "..." } }
+                if (errorData.containsKey('message')) {
+                  return errorData['message'].toString();
+                }
+                // Handle validation maps like { "error": { "field": ["msg1", "msg2"] } }
+                final dynamic firstValue = errorData[errorData.keys.first];
+                if (firstValue is List && firstValue.isNotEmpty) {
+                  return firstValue[0].toString();
+                }
+                return errorData.toString();
               }
               return errorData.toString();
             } else if (serverError['message'] != null) {

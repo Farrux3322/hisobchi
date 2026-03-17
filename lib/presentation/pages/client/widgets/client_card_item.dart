@@ -163,11 +163,7 @@ class ClientCardItem extends StatelessWidget {
                                   Flexible(
                                     child: Text(
                                       partnerModel?.activity ?? '',
-                                      style: TextStyle(
-                                        fontSize: 10.sp,
-                                        color: isDeleted ? const Color(0xFF94A3B8) : AppTheme.colors.primary,
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                                      style: TextStyle(fontSize: 11.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),

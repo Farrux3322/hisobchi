@@ -12,7 +12,6 @@ import 'package:hisobchi/presentation/components/connectivity_listener.dart';
 import 'package:hisobchi/presentation/components/dialog/update_dialog.dart';
 import 'package:hisobchi/presentation/routes/coordinator.dart';
 import 'package:oktoast/oktoast.dart';
-
 import '../components/basic_widgets.dart';
 
 class AppWidget extends StatefulWidget {

@@ -42,8 +42,15 @@ class StaffBloc extends Bloc<StaffEvent, StaffState> {
   ) async {
     emit(state.copyWith(statusAction: Status.loading, errorMessage: '', clearVerifyToken: true, lastAction: StaffActionType.sendOtp));
     try {
-      await repository.sendOtp(phone: event.phone);
-      emit(state.copyWith(statusAction: Status.success));
+      final response = await repository.sendOtp(phone: event.phone);
+      if (response['status'] == true) {
+        emit(state.copyWith(statusAction: Status.success));
+      } else {
+        emit(state.copyWith(
+          statusAction: Status.error,
+          errorMessage: response['error']?['message'] ?? 'OTP yuborishda xatolik yuz berdi',
+        ));
+      }
     } catch (e) {
       emit(state.copyWith(
         statusAction: Status.error,

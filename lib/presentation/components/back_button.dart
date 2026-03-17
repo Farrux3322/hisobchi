@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 class BackArrowButton extends StatelessWidget {
-  const BackArrowButton({super.key});
+  final VoidCallback? onTap;
+  const BackArrowButton({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: InkWell(
-        onTap: () => Navigator.pop(context),
+        onTap: onTap ?? () => Navigator.pop(context),
         borderRadius: BorderRadius.circular(12),
         child: Container(
           width: 40,

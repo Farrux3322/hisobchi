@@ -140,11 +140,12 @@ class _StaffOtpPageState extends State<StaffOtpPage> {
             leading: BackArrowButton(),
           ),
           body: SafeArea(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Column(
                 children: [
                   SizedBox(height: 48.h),
+                  // ... (rest of the code)
 
                   // Icon
                   Container(

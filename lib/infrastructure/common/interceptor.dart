@@ -22,14 +22,36 @@ class DioInterceptor extends Interceptor {
     final checkUnauthorized = !err.requestOptions.headers.containsKey('check_token');
     if (err.response?.statusCode == 401) {
       final pref = await SharedPrefService.initialize();
+      
+      // Clear all relevant UserData fields centrally
       UserData.token = '';
       UserData.name = '';
       UserData.phone = '';
+      UserData.branchName = '';
+      UserData.image = '';
+      UserData.isAdmin = false;
+      UserData.authorGuid = '';
+      UserData.passCode = '';
+      UserData.passCodeStatus = false;
+      UserData.activeOwnerId = -1;
+      
       pref.setName('');
       pref.setToken('');
       pref.setPhone('');
+      pref.setIsAdmin(false);
+      pref.setAuthorGuid('');
+      pref.setOwnerId(-1);
+      
       setPasscodeVerified(false);
-      parentKey.currentContext?.go(Routes.signIn.path);
+      
+      // Safety check: Only navigate if context exists and we aren't already on sign_in
+      final context = parentKey.currentContext;
+      if (context != null && context.mounted) {
+        final location = GoRouterState.of(context).uri.toString();
+        if (location != Routes.signIn.path) {
+          context.go(Routes.signIn.path);
+        }
+      }
     }
     return handler.reject(
       DioExceptionX(

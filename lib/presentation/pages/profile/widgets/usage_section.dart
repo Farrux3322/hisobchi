@@ -8,7 +8,6 @@ import 'package:hisobchi/presentation/routes/entity/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:ui' as ui;
-import 'package:hisobchi/infrastructure/dto/models/subscription/subscription_info_model.dart';
 import 'package:hisobchi/infrastructure/services/permission_extension.dart';
 
 class UsageSection extends StatefulWidget {
@@ -116,11 +115,18 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
                                 ),
                                 const Gap(24),
                                 _UsageProgressItem(
+                                  title: 'Xodimlar',
+                                  icon: AppIcons.employee,
+                                  current: usage?.users?.current ?? 0,
+                                  max: usage?.users?.max,
+                                  color: const Color(0xFF78EC1A), // Violet
+                                ),
+                                const Gap(24),
+                                _UsageProgressItem(
                                   title: 'SMS Xabarlar',
                                   icon: AppIcons.sms,
                                   current: usage?.sms?.current ?? 0,
                                   max: usage?.sms?.max,
-                                  remaining: usage?.sms?.remaining ?? 0,
                                   color: const Color(0xFFF59E0B),
                                   // Amber
                                   onAction: () => context.pushNamed(Routes.smsBuyPage.name),
@@ -150,10 +156,7 @@ class _PermissionBlurredWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (hasPermission) return child;
     return ClipRect(
-      child: ImageFiltered(
-        imageFilter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: child,
-      ),
+      child: ImageFiltered(imageFilter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5), child: child),
     );
   }
 }
@@ -195,15 +198,9 @@ class _SubscriptionInfoCard extends StatelessWidget {
                     Container(
                       width: 56,
                       height: 56,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
                       padding: const EdgeInsets.all(14),
-                      child: SvgPicture.asset(
-                        AppIcons.crown,
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
+                      child: SvgPicture.asset(AppIcons.crown, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
                     ),
                     const Gap(16),
                     Expanded(
@@ -225,19 +222,11 @@ class _SubscriptionInfoCard extends StatelessWidget {
                                           children: [
                                             TextSpan(
                                               text: 'Tarif: ',
-                                              style: TextStyle(
-                                                fontSize: 15,
-                                                color: Colors.white.withValues(alpha: 0.7),
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                              style: TextStyle(fontSize: 15, color: Colors.white.withValues(alpha: 0.7), fontWeight: FontWeight.w600),
                                             ),
                                             TextSpan(
                                               text: planType,
-                                              style: const TextStyle(
-                                                fontSize: 18,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w900,
-                                              ),
+                                              style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w900),
                                             ),
                                           ],
                                         ),
@@ -247,17 +236,10 @@ class _SubscriptionInfoCard extends StatelessWidget {
                                       const Gap(8),
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
+                                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
                                         child: Text(
                                           statusLabel!,
-                                          style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ],
@@ -273,11 +255,7 @@ class _SubscriptionInfoCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(10),
                                   child: Container(
                                     padding: const EdgeInsets.all(6),
-                                    child: const Icon(
-                                      Icons.add_rounded,
-                                      color: Colors.black,
-                                      size: 24,
-                                    ),
+                                    child: const Icon(Icons.add_rounded, color: Colors.black, size: 24),
                                   ),
                                 ),
                               ),
@@ -286,22 +264,14 @@ class _SubscriptionInfoCard extends StatelessWidget {
                           const Gap(6),
                           Row(
                             children: [
-                              Icon(
-                                Icons.access_time_filled_rounded,
-                                size: 14,
-                                color: Colors.white.withValues(alpha: 0.7),
-                              ),
+                              Icon(Icons.access_time_filled_rounded, size: 14, color: Colors.white.withValues(alpha: 0.7)),
                               const Gap(4),
                               Expanded(
                                 child: _PermissionBlurredWidget(
                                   hasPermission: context.hasPermission('plan_about.view'),
                                   child: Text(
                                     'Amal qilish muddati: $planExpiry',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.white.withValues(alpha: 0.9),
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.9), fontWeight: FontWeight.w500),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -363,14 +333,9 @@ class _SubscriptionInfoCard extends StatelessWidget {
                             status == 'READ_ONLY'
                                 ? 'Hisobingiz "Faqat ko\'rish" rejimida. Hamkorlar va loyihalar qo\'shish cheklangan.'
                                 : status == 'ARCHIVED'
-                                    ? 'Sizning hisobingiz arxivlangan.'
-                                    : 'Sizning hisobingiz o\'chirilgan.',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.white.withValues(alpha: 0.95),
-                              fontWeight: FontWeight.w600,
-                              height: 1.3,
-                            ),
+                                ? 'Sizning hisobingiz arxivlangan.'
+                                : 'Sizning hisobingiz o\'chirilgan.',
+                            style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.95), fontWeight: FontWeight.w600, height: 1.3),
                           ),
                         ),
                       ],

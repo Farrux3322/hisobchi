@@ -125,6 +125,20 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 16),
               UsageSection(),
               SizedBox(height: 24),
+              _buildSectionTitle('Foydalanuvchilar'),
+              const SizedBox(height: 12),
+              _buildMenuItem(
+                icon: AppIcons.clients,
+                title: 'Xodimlar',
+                onTap: () {
+                  if (UserData.isWorkerMode) {
+                    Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                    return;
+                  }
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const StaffListPage()));
+                },
+              ),
+              const SizedBox(height: 24),
               _buildSectionTitle('Foydalanish qo\'llanmasi'),
               const SizedBox(height: 12),
               _buildMenuItem(
@@ -133,23 +147,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTap: () => context.pushNamed(Routes.usageGuide.name),
               ),
               const SizedBox(height: 24),
-              _buildSectionTitle('Boshqaruv'),
-              const SizedBox(height: 12),
-              _buildMenuItem(
-                icon: AppIcons.clients,
-                title: 'Xodimlar',
-                onTap: () {
-                  print('------------------------');
-                  print(UserData.activePermissions);
-                  print('------------------------');
-                  if (UserData.isWorkerMode) {
-                    Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
-                    return;
-                  }
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const StaffListPage()));
-                },
-              ),
-              const SizedBox(height: 12),
               _buildSectionTitle('Savollaringiz bormi?'),
               const SizedBox(height: 12),
               _buildMenuItem(icon: AppIcons.telegram, title: 'Telegram bot', onTap: () {}, isEnabled: false),

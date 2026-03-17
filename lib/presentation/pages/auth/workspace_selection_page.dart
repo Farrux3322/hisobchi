@@ -151,11 +151,11 @@ class _WorkspaceSelectionPageState extends State<WorkspaceSelectionPage> with Ti
                 physics: const BouncingScrollPhysics(),
                 children: [
                   if (hasWorkspaces) ...[
-                    _buildSectionTitle('HAMKORLIKDAGI LOYIHALAR'),
+                    _buildSectionTitle('Xodim sifatida qo\'shilgan hisobingiz'),
                     _buildStaffGallery(cardColor, textColor),
                     const Gap(32),
                   ],
-                  _buildSectionTitle('HISOB BOSHQARUVI'),
+                  _buildSectionTitle('Yangi hisob'),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24.w),
                     child: hasOwnerRole
@@ -387,10 +387,10 @@ class _WorkspaceSelectionPageState extends State<WorkspaceSelectionPage> with Ti
       onTap: () => _showLiteActivationSheet(context),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(28),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: cardColor,
-          borderRadius: BorderRadius.circular(32.r),
+          borderRadius: BorderRadius.circular(24.r),
           border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.15), width: 2),
           boxShadow: [
             BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 15, offset: const Offset(0, 8)),
@@ -403,22 +403,14 @@ class _WorkspaceSelectionPageState extends State<WorkspaceSelectionPage> with Ti
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'YANGI HISOB',
-                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w900, color: AppTheme.colors.primary, letterSpacing: 1.5),
+                    'Shaxsiy hisob ochish',
+                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: textColor),
                   ),
-                  const Gap(8),
-                  Text(
-                    'Biznesni Boshlash',
-                    style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: textColor),
-                  ),
-                  Text(
-                    'Shaxsiy moliyaviy nazoratni oching',
-                    style: TextStyle(fontSize: 13.sp, color: const Color(0xFF64748B)),
-                  ),
+
                 ],
               ),
             ),
-            Icon(Icons.add_task_rounded, color: AppTheme.colors.primary, size: 40),
+            Icon(Icons.add_task_rounded, color: AppTheme.colors.primary, size: 30),
           ],
         ),
       ),
@@ -469,7 +461,7 @@ class _WorkspaceSelectionPageState extends State<WorkspaceSelectionPage> with Ti
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
                   elevation: 0,
                 ),
-                child: Text('Faollashtirish', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900)),
+                child: Text('Yangi hisob ochish', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900)),
               ),
             ),
           ],

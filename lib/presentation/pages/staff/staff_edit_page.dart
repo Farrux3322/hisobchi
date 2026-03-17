@@ -9,6 +9,7 @@ import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/permission_model.dart';
 import 'package:hisobchi/infrastructure/models/staff_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 
 import '../../components/back_button.dart';
@@ -135,208 +136,230 @@ class _StaffEditPageState extends State<StaffEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<StaffBloc, StaffState>(
-      listener: (context, state) {
-        if (state.lastAction == StaffActionType.updateStaff && state.statusAction == Status.success) {
-          Toast.showSuccessToast(message: 'Xodim muvaffaqiyatli yangilandi');
-          Navigator.pop(context);
-        }
-        if (state.lastAction == StaffActionType.deleteStaff && state.statusAction == Status.success) {
-          Toast.showSuccessToast(message: 'Xodim muvaffaqiyatli o\'chirildi');
-          Navigator.pop(context);
-        }
-        if ((state.lastAction == StaffActionType.updateStaff || state.lastAction == StaffActionType.deleteStaff) &&
-            state.statusAction == Status.error) {
-          Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
-        }
-      },
-      builder: (context, state) {
-        final isSaving = state.statusAction == Status.loading &&
-            (state.lastAction == StaffActionType.updateStaff || state.lastAction == StaffActionType.deleteStaff);
-        final isLoadingPerms = state.status == Status.loading;
-        final initials = widget.staff.name.isNotEmpty ? widget.staff.name[0].toUpperCase() : '?';
-
-        return Scaffold(
-          bottomNavigationBar: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(16.r), topRight: Radius.circular(16.r)),
-              border: Border(top: BorderSide(color: const Color(0xFFF1F5F9), width: 1.5)),
-            ),
-            padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, MediaQuery.of(context).padding.bottom + 12.h),
-            child: SizedBox(
-              height: 54.h,
-              child: ElevatedButton(
-                onPressed: isSaving ? null : _onSave,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _hasChanges ? AppTheme.colors.primary : const Color(0xFFE2E8F0),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-                ),
-                child: isSaving
-                    ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Text(
-                      'Saqlash',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
-                        color: _hasChanges ? Colors.white : const Color(0xFF94A3B8),
+    return DeFocus(
+      child: BlocConsumer<StaffBloc, StaffState>(
+        listener: (context, state) {
+          if (state.lastAction == StaffActionType.updateStaff && state.statusAction == Status.success) {
+            Toast.showSuccessToast(message: 'Xodim muvaffaqiyatli yangilandi');
+            Navigator.pop(context);
+          }
+          if (state.lastAction == StaffActionType.deleteStaff && state.statusAction == Status.success) {
+            Toast.showSuccessToast(message: 'Xodim muvaffaqiyatli o\'chirildi');
+            Navigator.pop(context);
+          }
+          if ((state.lastAction == StaffActionType.updateStaff || state.lastAction == StaffActionType.deleteStaff) &&
+              state.statusAction == Status.error) {
+            Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+          }
+        },
+        builder: (context, state) {
+          final isSaving = state.statusAction == Status.loading &&
+              (state.lastAction == StaffActionType.updateStaff || state.lastAction == StaffActionType.deleteStaff);
+          final isLoadingPerms = state.status == Status.loading;
+          final initials = widget.staff.name.isNotEmpty ? widget.staff.name[0].toUpperCase() : '?';
+      
+          return Scaffold(
+            bottomNavigationBar: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(16.r), topRight: Radius.circular(16.r)),
+                border: Border(top: BorderSide(color: const Color(0xFFF1F5F9), width: 1.5)),
+              ),
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, MediaQuery.of(context).padding.bottom + 12.h),
+              child: SizedBox(
+                height: 54.h,
+                child: ElevatedButton(
+                  onPressed: isSaving ? null : _onSave,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _hasChanges ? AppTheme.colors.primary : const Color(0xFFE2E8F0),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+                  ),
+                  child: isSaving
+                      ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : Text(
+                        'Saqlash',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          color: _hasChanges ? Colors.white : const Color(0xFF94A3B8),
+                        ),
                       ),
+                ),
+              ),
+            ),
+            appBar: AppBar(
+              title: const Text('Xodimni tahrirlash'),
+              backgroundColor: Colors.white,
+              leading: BackArrowButton(),
+      
+              actions: [
+                Padding(
+                  padding: EdgeInsets.only(right: 12.w),
+                  child: IconButton(onPressed: isSaving ? null : _showDeleteDialog,icon: SvgPicture.asset(AppIcons.delete),)
+                ),
+              ],
+            ),
+            body: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+              child: Column(
+                children: [
+                  // ─── Staff info header ──────────────────────────
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+                      boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.03), blurRadius: 12, offset: const Offset(0, 4))],
                     ),
-              ),
-            ),
-          ),
-          appBar: AppBar(
-            title: const Text('Xodimni tahrirlash'),
-            backgroundColor: Colors.white,
-            leading: BackArrowButton(),
-
-            actions: [
-              Padding(
-                padding: EdgeInsets.only(right: 12.w),
-                child: IconButton(onPressed: isSaving ? null : _showDeleteDialog,icon: SvgPicture.asset(AppIcons.delete),)
-              ),
-            ],
-          ),
-          body: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-            child: Column(
-              children: [
-                // ─── Staff info header ──────────────────────────
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-                    boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.03), blurRadius: 12, offset: const Offset(0, 4))],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 56.w,
-                        height: 56.w,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: 0.8)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(initials, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.w700)),
-                      ),
-                      SizedBox(width: 14.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.staff.name,
-                              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              formatStaffPhone(widget.staff.phone),
-                              style: TextStyle(fontSize: 13.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w500),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 12.h),
-
-                // ─── Active toggle ─────────────────────────────
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-                    boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.03), blurRadius: 12, offset: const Offset(0, 4))],
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
                     child: Row(
                       children: [
                         Container(
-                          padding: EdgeInsets.all(8.w),
+                          width: 56.w,
+                          height: 56.w,
                           decoration: BoxDecoration(
-                            color: (_isActive ? const Color(0xFF22C55E) : const Color(0xFF94A3B8)).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10.r),
+                            gradient: LinearGradient(
+                              colors: [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: 0.8)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
                           ),
-                          child: Icon(
-                            _isActive ? Icons.check_circle_outline_rounded : Icons.cancel_outlined,
-                            color: _isActive ? AppTheme.colors.primary : const Color(0xFF94A3B8),
-                            size: 20.sp,
-                          ),
+                          alignment: Alignment.center,
+                          child: Text(initials, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.w700)),
                         ),
-                        SizedBox(width: 12.w),
+                        SizedBox(width: 14.w),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Holat', style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B))),
                               Text(
-                                _isActive ? 'Faol' : 'Faol emas',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w500,
-                                  color: _isActive ? AppTheme.colors.primary : const Color(0xFF64748B),
-                                ),
+                                widget.staff.name,
+                                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(
+                                formatStaffPhone(widget.staff.phone),
+                                style: TextStyle(fontSize: 13.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
                         ),
-                        Switch.adaptive(
-                          value: _isActive,
-                          activeTrackColor: AppTheme.colors.primary.withValues(alpha: 0.5),
-                          activeThumbColor: AppTheme.colors.primary,
-                          onChanged: (v) => setState(() => _isActive = v),
-                        ),
                       ],
                     ),
                   ),
-                ),
-
-                SizedBox(height: 12.h),
-
-                // ─── Permissions ───────────────────────────────
-                StaffPermissionsSection(
-                  groups: state.permissions,
-                  isLoading: isLoadingPerms,
-                  selectedPermissions: _selectedPermissions,
-                  onToggle: (key) => setState(() {
-                    if (_selectedPermissions.contains(key)) {
-                      _selectedPermissions.remove(key);
-                    } else {
-                      _selectedPermissions.add(key);
-                    }
-                  }),
-                  onGroupToggle: (group) => setState(() {
-                    final keys = group.permissions.map((p) => p.name).toSet();
-                    final allSelected = keys.every(_selectedPermissions.contains);
-                    if (allSelected) {
-                      _selectedPermissions.removeAll(keys);
-                    } else {
-                      _selectedPermissions.addAll(keys);
-                    }
-                  }),
-                ),
-
-                SizedBox(height: 12.h),
-              ],
+      
+                  SizedBox(height: 12.h),
+      
+                  // ─── Active toggle ─────────────────────────────
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+                      boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.03), blurRadius: 12, offset: const Offset(0, 4))],
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(8.w),
+                            decoration: BoxDecoration(
+                              color: (_isActive ? const Color(0xFF22C55E) : const Color(0xFF94A3B8)).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            child: Icon(
+                              _isActive ? Icons.check_circle_outline_rounded : Icons.cancel_outlined,
+                              color: _isActive ? AppTheme.colors.primary : const Color(0xFF94A3B8),
+                              size: 20.sp,
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Holat', style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B))),
+                                Text(
+                                  _isActive ? 'Faol' : 'Faol emas',
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: _isActive ? AppTheme.colors.primary : const Color(0xFF64748B),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch.adaptive(
+                            value: _isActive,
+                            activeTrackColor: AppTheme.colors.primary.withValues(alpha: 0.5),
+                            activeThumbColor: AppTheme.colors.primary,
+                            onChanged: (v) => setState(() => _isActive = v),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+      
+                  SizedBox(height: 12.h),
+      
+                  // ─── Permissions ───────────────────────────────
+                  StaffPermissionsSection(
+                    groups: state.permissions,
+                    isLoading: isLoadingPerms,
+                    selectedPermissions: _selectedPermissions,
+                    onToggle: (key) => setState(() {
+                      if (_selectedPermissions.contains(key)) {
+                        _selectedPermissions.remove(key);
+                        // Deselection logic
+                        if (key == 'partners.view') {
+                          _selectedPermissions.removeAll(['partners.create', 'partners.edit', 'partners.delete']);
+                        } else if (key == 'projects.view') {
+                          _selectedPermissions.removeAll(['projects.create', 'projects.edit', 'projects.delete']);
+                        } else if (key == 'wallets_credit.create') {
+                          _selectedPermissions.remove('wallets_credit.cancel');
+                        } else if (key == 'wallets_debt.create') {
+                          _selectedPermissions.remove('wallets_debt.cancel');
+                        }
+                      } else {
+                        _selectedPermissions.add(key);
+                        // Selection logic
+                        if (key == 'partners.create' || key == 'partners.edit' || key == 'partners.delete') {
+                          _selectedPermissions.add('partners.view');
+                        } else if (key == 'projects.create' || key == 'projects.edit' || key == 'projects.delete') {
+                          _selectedPermissions.add('projects.view');
+                        } else if (key == 'wallets_credit.cancel') {
+                          _selectedPermissions.add('wallets_credit.create');
+                        } else if (key == 'wallets_debt.cancel') {
+                          _selectedPermissions.add('wallets_debt.create');
+                        }
+                      }
+                    }),
+                    onGroupToggle: (group) => setState(() {
+                      final keys = group.permissions.map((p) => p.name).toSet();
+                      final allSelected = keys.every(_selectedPermissions.contains);
+                      if (allSelected) {
+                        _selectedPermissions.removeAll(keys);
+                      } else {
+                        _selectedPermissions.addAll(keys);
+                      }
+                    }),
+                  ),
+      
+                  SizedBox(height: 12.h),
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

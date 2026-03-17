@@ -139,9 +139,10 @@ class CurrentPeriod {
 class Usage {
   UsageDetail? customers;
   UsageDetail? projects;
+  UsageDetail? users;
   SmsUsage? sms;
 
-  Usage({this.customers, this.projects, this.sms});
+  Usage({this.customers, this.projects, this.users, this.sms});
 
   Usage.fromJson(Map<String, dynamic> json) {
     customers = json['customers'] != null
@@ -149,6 +150,7 @@ class Usage {
         : null;
     projects =
         json['projects'] != null ? UsageDetail.fromJson(json['projects']) : null;
+    users = json['users'] != null ? UsageDetail.fromJson(json['users']) : null;
     sms = json['sms'] != null ? SmsUsage.fromJson(json['sms']) : null;
   }
 
@@ -159,6 +161,9 @@ class Usage {
     }
     if (projects != null) {
       data['projects'] = projects!.toJson();
+    }
+    if (users != null) {
+      data['users'] = users!.toJson();
     }
     if (sms != null) {
       data['sms'] = sms!.toJson();

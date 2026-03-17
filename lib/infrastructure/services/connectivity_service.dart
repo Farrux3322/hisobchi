@@ -103,42 +103,42 @@ class ConnectivityService {
 
   /// Check current connection status with retry logic
   /// Returns true if device has actual internet access
-  Future<bool> checkConnection({int maxRetries = 3}) async {
+  Future<bool> checkConnection({int maxRetries = 2}) async {
     int attempt = 0;
     while (attempt < maxRetries) {
       try {
-        final List<ConnectivityResult> connectivityResults = await _connectivity.checkConnectivity();
+        final List<ConnectivityResult> connectivityResults = await _connectivity.checkConnectivity()
+            .timeout(const Duration(seconds: 2));
 
         // If no network interfaces at all, we can't have internet
         if (connectivityResults.contains(ConnectivityResult.none) || connectivityResults.isEmpty) {
           if (attempt < maxRetries - 1) {
             attempt++;
-            await Future.delayed(Duration(milliseconds: 600 * attempt));
+            await Future.delayed(Duration(milliseconds: 400 * attempt));
             continue;
           }
           return false;
         }
 
         // Network exists, check actual internet access via library
-        final bool hasInternet = await _internetConnection.hasInternetAccess;
+        final bool hasInternet = await _internetConnection.hasInternetAccess
+            .timeout(const Duration(seconds: 3));
         if (hasInternet) return true;
         
-        // Fallback: Manual HTTP check if the library thinks there's no internet
-        // Sometimes the library's socket check is blocked or fails while HTTP works
+        // Fallback: Manual HTTP check
         final bool manualCheck = await _manualHttpCheck();
         if (manualCheck) return true;
         
-        // If still no internet but we have network, retry a few times as DNS/routing might be settling
         if (attempt < maxRetries - 1) {
           attempt++;
-          await Future.delayed(Duration(milliseconds: 600 * attempt));
+          await Future.delayed(Duration(milliseconds: 400 * attempt));
           continue;
         }
         return false;
       } catch (e) {
         if (attempt < maxRetries - 1) {
           attempt++;
-          await Future.delayed(Duration(milliseconds: 600 * attempt));
+          await Future.delayed(Duration(milliseconds: 400 * attempt));
           continue;
         }
         return false;
