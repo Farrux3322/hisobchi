@@ -7,7 +7,6 @@ import 'package:hisobchi/application/auth/init/init_auth_bloc.dart';
 import 'package:hisobchi/infrastructure/models/user_me_model.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 
-import '../../assets/theme/base_colors.dart';
 import '../../components/loading/premium_loading.dart';
 import '../../components/toast/toast.dart';
 import '../../routes/index_routes.dart';
@@ -448,13 +447,13 @@ class _WorkspaceSelectionPageState extends State<WorkspaceSelectionPage> with Ti
               child: Icon(Icons.auto_awesome_rounded, color: AppTheme.colors.primary, size: 40),
             ),
             const Gap(24),
-            Text('Shaxsiy Boshqaruv', style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w900, color: const Color(0xFF0F172A))),
+            Text('Sifatli Biznes Boshqaruvi', style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w900, color: const Color(0xFF0F172A))),
             const Gap(12),
-            Text('O\'z biznesingiz va shaxsiy mablag\'laringizni to\'liq nazorat qiling.', textAlign: TextAlign.center, style: TextStyle(fontSize: 15.sp, color: const Color(0xFF64748B), height: 1.5)),
+            Text('E-Hisob tizimi orqali biznesingizni yangi darajaga olib chiqing va barcha jarayonlarni nazorat qiling.', textAlign: TextAlign.center, style: TextStyle(fontSize: 15.sp, color: const Color(0xFF64748B), height: 1.5)),
             const Gap(40),
-            _LiteFeatureItem(icon: Icons.bolt_rounded, title: 'Tezkorlik', desc: 'Barcha operatsiyalar bir lahzada'),
+            _LiteFeatureItem(icon: Icons.people_alt_rounded, title: 'Hamkorlar Nazorati', desc: 'Mijozlar va hamkorlar bilan barcha hisob-kitoblarni tizimli va shaffof holatda yuriting.'),
             const Gap(24),
-            _LiteFeatureItem(icon: Icons.shield_moon_rounded, title: 'Xavfsizlik', desc: 'Ma\'lumotlar to\'liq himoyasi'),
+            _LiteFeatureItem(icon: Icons.assignment_rounded, title: 'Loyihalar Boshqaruvi', desc: 'Loyiha doirasidagi xarajatlar, daromadlar va ishchilar hisobini aniq yuriting.'),
             const Gap(40),
             SizedBox(
               width: double.infinity,

@@ -9,6 +9,7 @@ class WorkerModel {
   final String? description;
   final String? createdAt;
   final String? deletedAt;
+  final String? activity;
 
   WorkerModel({
     this.id,
@@ -21,6 +22,7 @@ class WorkerModel {
     this.description,
     this.createdAt,
     this.deletedAt,
+    this.activity,
   });
 
   bool get isDeleted => deletedAt != null && deletedAt!.isNotEmpty;
@@ -37,6 +39,7 @@ class WorkerModel {
       description: json['description'] as String?,
       createdAt: json['created_at'] as String?,
       deletedAt: json['deleted_at'] as String?,
+      activity: json['activity'] as String?,
     );
   }
 
@@ -52,6 +55,7 @@ class WorkerModel {
       'description': description,
       'created_at': createdAt,
       'deleted_at': deletedAt,
+      'activity': activity,
     };
   }
 
@@ -66,6 +70,7 @@ class WorkerModel {
     String? description,
     String? createdAt,
     String? deletedAt,
+    String? activity,
   }) {
     return WorkerModel(
       id: id ?? this.id,
@@ -78,6 +83,7 @@ class WorkerModel {
       description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      activity: activity ?? this.activity,
     );
   }
 }
@@ -88,6 +94,7 @@ class WorkerPositionModel {
   final String? description;
   final String? createdAt;
   final String? deletedAt;
+  final String? activity;
 
   WorkerPositionModel({
     this.id,
@@ -95,6 +102,7 @@ class WorkerPositionModel {
     this.description,
     this.createdAt,
     this.deletedAt,
+    this.activity,
   });
 
   bool get isDeleted => deletedAt != null && deletedAt!.isNotEmpty;
@@ -106,6 +114,7 @@ class WorkerPositionModel {
       description: json['description'] as String?,
       createdAt: json['created_at'] as String?,
       deletedAt: json['deleted_at'] as String?,
+      activity: json['activity'] as String?,
     );
   }
 
@@ -116,6 +125,7 @@ class WorkerPositionModel {
       'description': description,
       'created_at': createdAt,
       'deleted_at': deletedAt,
+      'activity': activity,
     };
   }
 
@@ -125,6 +135,7 @@ class WorkerPositionModel {
     String? description,
     String? createdAt,
     String? deletedAt,
+    String? activity,
   }) {
     return WorkerPositionModel(
       id: id ?? this.id,
@@ -132,6 +143,7 @@ class WorkerPositionModel {
       description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      activity: activity ?? this.activity,
     );
   }
 }

@@ -188,6 +188,10 @@ class TransactionDetailBottomSheet extends StatelessWidget {
           SizedBox(height: 12.h),
           _buildLongInfoRow(label: 'Qaytarish sanasi', value: _formatDate(transaction.returnDate), icon: Icons.history_rounded, color: const Color(0xFF10B981)),
         ],
+        if (transaction.activity != null && transaction.activity!.isNotEmpty) ...[
+          SizedBox(height: 12.h),
+          _buildLongInfoRow(label: 'Yaratuvchi', value: transaction.activity!, icon: Icons.person_outline, color: AppTheme.colors.primary),
+        ],
       ],
     );
   }

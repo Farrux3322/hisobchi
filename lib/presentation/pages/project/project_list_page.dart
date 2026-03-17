@@ -147,6 +147,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
         context.read<ProjectBloc>().add(const GetAllProjectEvent());
       },
       child: ListView.builder(
+        physics: AlwaysScrollableScrollPhysics(),
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: state.hasReachedMax ? projects.length : projects.length + 1,

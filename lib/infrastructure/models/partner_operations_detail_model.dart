@@ -107,6 +107,7 @@ class PartnerOperation {
   final int? daysLeft;
   final String? status;
   final String createdAt;
+  final String? activity;
 
   PartnerOperation({
     required this.id,
@@ -126,6 +127,7 @@ class PartnerOperation {
     this.daysLeft,
     this.status,
     required this.createdAt,
+    this.activity,
   });
 
   factory PartnerOperation.fromJson(Map<String, dynamic> json) {
@@ -149,6 +151,7 @@ class PartnerOperation {
       daysLeft: json['days_left'],
       status: json['status'],
       createdAt: json['created_at'] ?? '',
+      activity: json['activity'],
     );
   }
 
@@ -171,6 +174,7 @@ class PartnerOperation {
       'days_left': daysLeft,
       'status': status,
       'created_at': createdAt,
+      'activity': activity,
     };
   }
 

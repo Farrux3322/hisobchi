@@ -87,7 +87,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                         child: SlideTransition(
                           position: _slideAnimation,
                           child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                            padding: EdgeInsets.symmetric(horizontal: 20.w),
                             child: _buildBody(state),
                           ),
                         ),
@@ -129,13 +129,13 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
 
   Widget _buildHeader() {
     return Container(
-      padding: EdgeInsets.fromLTRB(20.w, 12.h, 10.w, 20.h),
+      padding: EdgeInsets.fromLTRB(20.w, 12.h, 10.w, 10.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              Image.asset(AppIcons.appLogo, width: 44.w, height: 44.h),
+              Image.asset(AppIcons.appLogo, width: 32.w, height: 32.h),
               SizedBox(width: 10.w),
               Text(
                 'E-Hisob',
@@ -252,7 +252,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             );
           },
         ),
-        SizedBox(height: 28.h),
+        SizedBox(height: 10.h),
         LoyihalarCard(
           totalCount: projects?.projectsCount ?? 0,
           inProgressCount: projects?.inProgress ?? 0,
@@ -423,9 +423,9 @@ class HamkorlarCard extends StatelessWidget {
                 );
               },
             ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 10.h),
           SizedBox(
-            height: 270.h,
+            height: 280.h,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -477,10 +477,10 @@ class HamkorlarCard extends StatelessWidget {
                                   Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportClientMainPage()));
                                 },
                                 child: Container(
-                                  width: availableHeight * 0.23, // proportional width
-                                  height: availableHeight * 0.45, // proportional height
+                                  width: availableHeight * 0.33, // proportional width
+                                  height: availableHeight * 0.55, // proportional height
                                   decoration: BoxDecoration(
-                                    color: AppTheme.colors.white,
+                                    color: AppTheme.colors.gray.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.only(
                                       topRight: Radius.circular(100.r),
                                       bottomRight: Radius.circular(100.r),
@@ -495,7 +495,7 @@ class HamkorlarCard extends StatelessWidget {
                                     ],
                                   ),
                                   alignment: Alignment.center,
-                                  child: Icon(Icons.arrow_forward_ios_rounded, color: const Color(0xFF0F172A), size: 32.sp),
+                                  child: Icon(Icons.arrow_forward_ios_rounded, color: AppTheme.colors.primary, size: 48.sp),
                                 ),
                               ),
                             ),
@@ -588,37 +588,35 @@ class HamkorlarCard extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-              child: Positioned.fill(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(icon, color: colorTheme, size: 24.sp),
-                    SizedBox(height: 4.h),
-                    Text(
-                      label,
-                      style: TextStyle(fontSize: 10.sp, color: const Color(0xFF475569), fontWeight: FontWeight.w600),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 2.h),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 5.w,
-                          height: 5.w,
-                          decoration: BoxDecoration(color: colorTheme, shape: BoxShape.circle),
-                        ),
-                        SizedBox(width: 4.w),
-                        AnimatedCounter(
-                          value: count,
-                          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B)),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, color: colorTheme, size: 24.sp),
+                  SizedBox(height: 4.h),
+                  Text(
+                    label,
+                    style: TextStyle(fontSize: 11.sp, color: const Color(0xFF475569), fontWeight: FontWeight.w700),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 2.h),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 5.w,
+                        height: 5.w,
+                        decoration: BoxDecoration(color: colorTheme, shape: BoxShape.circle),
+                      ),
+                      SizedBox(width: 4.w),
+                      AnimatedCounter(
+                        value: count,
+                        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B)),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],

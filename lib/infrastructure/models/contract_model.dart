@@ -8,6 +8,7 @@ class ContractModel {
   int? projectId;
   String? createdAt;
   String? deletedAt;
+  String? activity;
 
   ContractModel({
     this.id,
@@ -19,6 +20,7 @@ class ContractModel {
     this.projectId,
     this.createdAt,
     this.deletedAt,
+    this.activity,
   });
 
   ContractModel.fromJson(Map<String, dynamic> json) {
@@ -36,6 +38,7 @@ class ContractModel {
     projectId = json['project_id'];
     createdAt = json['created_at'];
     deletedAt = json['deleted_at'];
+    activity = json['activity'];
   }
 
   Map<String, dynamic> toJson() {
@@ -51,6 +54,7 @@ class ContractModel {
     data['project_id'] = projectId;
     data['created_at'] = createdAt;
     data['deleted_at'] = deletedAt;
+    data['activity'] = activity;
     return data;
   }
 

@@ -27,8 +27,12 @@ class DarkModeColors extends BaseColors {
   Color get divider => const Color.fromRGBO(255, 255, 255, 0.12);
 
   // Qo'shimcha ranglar
+  @override
   Color get searchBackground => const Color(0xFF2C2C2C);
+  @override
   Color get cardBackground => const Color(0xFF1E1E1E);
+  @override
   Color get textSecondary => const Color(0xFFB0B0B0);
+  @override
   Color get iconColor => const Color(0xFF9E9E9E);
 }

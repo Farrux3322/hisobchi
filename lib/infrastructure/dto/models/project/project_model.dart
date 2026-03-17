@@ -9,6 +9,7 @@ class ProjectModel {
   String? status;
   String? createdAt;
   String? deletedAt;
+  String? activity;
   ProjectAccounts? accounts;
 
   ProjectModel({
@@ -22,6 +23,7 @@ class ProjectModel {
     this.status,
     this.createdAt,
     this.deletedAt,
+    this.activity,
     this.accounts,
   });
 
@@ -43,6 +45,7 @@ class ProjectModel {
     status = json['status'];
     createdAt = json['created_at'];
     deletedAt = json['deleted_at'];
+    activity = json['activity'];
     accounts = json['accounts'] != null ? ProjectAccounts.fromJson(json['accounts']) : null;
   }
 
@@ -60,6 +63,7 @@ class ProjectModel {
     data['status'] = status;
     data['created_at'] = createdAt;
     data['deleted_at'] = deletedAt;
+    data['activity'] = activity;
     if (accounts != null) {
       data['accounts'] = accounts!.toJson();
     }

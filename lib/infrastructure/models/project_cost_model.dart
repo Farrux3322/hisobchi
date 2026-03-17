@@ -14,6 +14,7 @@ class ProjectCostModel {
   final int? projectId;
   final String? createdAt;
   final String? deletedAt;
+  final String? activity;
 
   ProjectCostModel({
     this.id,
@@ -29,6 +30,7 @@ class ProjectCostModel {
     this.projectId,
     this.createdAt,
     this.deletedAt,
+    this.activity,
   });
 
   bool get isDeleted => deletedAt != null && deletedAt!.isNotEmpty;
@@ -50,6 +52,7 @@ class ProjectCostModel {
       projectId: json['project_id'] as int?,
       createdAt: json['created_at'] as String?,
       deletedAt: json['deleted_at'] as String?,
+      activity: json['activity'] as String?,
     );
   }
 
@@ -68,6 +71,7 @@ class ProjectCostModel {
       'project_id': projectId,
       'created_at': createdAt,
       'deleted_at': deletedAt,
+      'activity': activity,
     };
   }
 
@@ -100,6 +104,7 @@ class ProjectCostModel {
       projectId: projectId ?? this.projectId,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      activity: activity ?? this.activity,
     );
   }
 }

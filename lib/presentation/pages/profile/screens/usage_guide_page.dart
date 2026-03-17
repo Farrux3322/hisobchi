@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hisobchi/application/tutorial/tutorial_bloc.dart';
 import 'package:hisobchi/application/tutorial/tutorial_event.dart';
 import 'package:hisobchi/application/tutorial/tutorial_state.dart';
@@ -12,7 +11,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-import '../../../routes/entity/routes.dart';
 
 class UsageGuidePage extends StatefulWidget {
   const UsageGuidePage({super.key});

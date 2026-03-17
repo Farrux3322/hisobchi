@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
@@ -79,9 +78,10 @@ class _ClientPageState extends State<ClientPage> {
     return partners.where((partner) {
       final name = partner.name?.toLowerCase() ?? '';
       final phone = partner.phone ?? '';
+      final activity = partner.activity?.toLowerCase() ?? '';
       final query = _searchController.text.toLowerCase();
 
-      return name.contains(query) || phone.contains(query);
+      return name.contains(query) || phone.contains(query) || activity.contains(query);
     }).toList();
   }
 

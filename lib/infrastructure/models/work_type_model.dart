@@ -4,6 +4,7 @@ class WorkTypeModel {
   String? description;
   String? createdAt;
   String? deletedAt;
+  String? activity;
 
   WorkTypeModel({
     this.id,
@@ -11,6 +12,7 @@ class WorkTypeModel {
     this.description,
     this.createdAt,
     this.deletedAt,
+    this.activity,
   });
 
   WorkTypeModel.fromJson(Map<String, dynamic> json) {
@@ -19,6 +21,7 @@ class WorkTypeModel {
     description = json['description'];
     createdAt = json['created_at'];
     deletedAt = json['deleted_at'];
+    activity = json['activity'];
   }
 
   Map<String, dynamic> toJson() {
@@ -28,6 +31,7 @@ class WorkTypeModel {
     data['description'] = description;
     data['created_at'] = createdAt;
     data['deleted_at'] = deletedAt;
+    data['activity'] = activity;
     return data;
   }
 

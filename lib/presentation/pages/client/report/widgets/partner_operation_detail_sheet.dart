@@ -549,6 +549,13 @@ class PartnerOperationDetailSheet extends StatelessWidget {
               ),
             ),
           ],
+          SizedBox(height: 12.h),
+          _buildMinimalInfo(
+            label: 'Yaratuvchi',
+            value: operation.activity ?? 'Noma\'lum',
+            color: AppTheme.colors.primary,
+            icon: Icons.person_outline,
+          ),
         ],
       ),
     );

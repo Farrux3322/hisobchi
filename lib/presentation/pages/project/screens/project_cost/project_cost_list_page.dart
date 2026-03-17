@@ -1126,6 +1126,23 @@ class _ProjectCostListPageState extends State<ProjectCostListPage> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
+                        if (cost.activity != null && cost.activity!.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Icon(Icons.person_outline_rounded, size: 12.sp, color: AppTheme.colors.primary.withValues(alpha: 0.6)),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  cost.activity!,
+                                  style: TextStyle(fontSize: 11.sp, color: AppTheme.colors.primary, fontWeight: FontWeight.w600),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),

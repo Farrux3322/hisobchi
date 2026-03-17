@@ -10,6 +10,7 @@ class ProjectIncomeModel {
   final int? projectId;
   final String? createdAt;
   final String? deletedAt;
+  final String? activity;
 
   ProjectIncomeModel({
     this.id,
@@ -21,6 +22,7 @@ class ProjectIncomeModel {
     this.projectId,
     this.createdAt,
     this.deletedAt,
+    this.activity,
   });
 
   bool get isDeleted => deletedAt != null && deletedAt!.isNotEmpty;
@@ -38,6 +40,7 @@ class ProjectIncomeModel {
       projectId: json['project_id'],
       createdAt: json['created_at'],
       deletedAt: json['deleted_at'],
+      activity: json['activity'],
     );
   }
 
@@ -52,6 +55,7 @@ class ProjectIncomeModel {
       'project_id': projectId,
       'created_at': createdAt,
       'deleted_at': deletedAt,
+      'activity': activity,
     };
   }
 
@@ -65,6 +69,7 @@ class ProjectIncomeModel {
     int? projectId,
     String? createdAt,
     String? deletedAt,
+    String? activity,
   }) {
     return ProjectIncomeModel(
       id: id ?? this.id,
@@ -76,6 +81,7 @@ class ProjectIncomeModel {
       projectId: projectId ?? this.projectId,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      activity: activity ?? this.activity,
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hisobchi/infrastructure/models/worker_model.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 
 class DeletePositionConfirmSheet extends StatelessWidget {
   final WorkerPositionModel position;

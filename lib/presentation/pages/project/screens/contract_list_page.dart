@@ -19,6 +19,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../assets/asset_index.dart';
+
 class ContractListPage extends StatefulWidget {
   final int projectId;
 
@@ -909,6 +911,27 @@ class _ContractListPageState extends State<ContractListPage> {
                   ),
                 ],
               ),
+              if (contract.activity != null && contract.activity!.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(Icons.person_outline_rounded, size: 14.sp, color: AppTheme.colors.primary.withValues(alpha: 0.7)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        contract.activity!,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: AppTheme.colors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               if (isDeleted) ...[
                 const SizedBox(height: 8),
                 Align(

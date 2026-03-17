@@ -19,7 +19,6 @@ import 'package:hisobchi/infrastructure/dto/models/currency/currency_model.dart'
 import 'package:hisobchi/presentation/components/basic_widgets.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/add_client_components/add_client_dialogs.dart';
 import 'package:hisobchi/presentation/components/utils/emoji_filter_formatter.dart';
-import 'package:hisobchi/presentation/pages/client/client_account_page.dart';
 import 'package:hisobchi/infrastructure/services/permission_extension.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 

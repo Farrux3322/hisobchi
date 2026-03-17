@@ -119,11 +119,10 @@ class ClientCardItem extends StatelessWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  SizedBox(height: 4.h),
-                                  Text(
-                                    PhoneFormatter.formatPhoneNumber(partnerModel?.phone ?? ''),
-                                    style: TextStyle(fontSize: 10.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w600, letterSpacing: 0.3),
-                                  ),
+                                    Text(
+                                      PhoneFormatter.formatPhoneNumber(partnerModel?.phone ?? ''),
+                                      style: TextStyle(fontSize: 10.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w600, letterSpacing: 0.3),
+                                    ),
                                 ],
                               ),
                             ),
@@ -157,14 +156,25 @@ class ClientCardItem extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            Row(
-                              children: [
-                                Text(
-                                  'Batafsil',
-                                  style: TextStyle(fontSize: 13.sp, color: isDeleted ? const Color(0xFF94A3B8) : AppTheme.colors.primary, fontWeight: FontWeight.w600),
-                                ),
-                                Icon(Icons.chevron_right_rounded, size: 16.sp, color: isDeleted ? const Color(0xFF94A3B8) : AppTheme.colors.primary),
-                              ],
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      partnerModel?.activity ?? '',
+                                      style: TextStyle(
+                                        fontSize: 10.sp,
+                                        color: isDeleted ? const Color(0xFF94A3B8) : AppTheme.colors.primary,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+
+                                ],
+                              ),
                             ),
                           ],
                         ),

@@ -350,7 +350,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
     String? subtitle,
   }) {
     return Container(
-      height: 0.15.sh,
+      height: 0.16.sh,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -364,14 +364,16 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
                 child: SvgPicture.asset(icon, colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn), width: 24, height: 24),
               ),
               Gap(10.w),
-              Text(
-                title,
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: iconColor.withOpacity(0.9)),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: iconColor.withOpacity(0.9)),
+                ),
               ),
             ],
           ),

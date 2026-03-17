@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/income_history_model.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/loading/loading.dart';
 import 'package:collection/collection.dart';

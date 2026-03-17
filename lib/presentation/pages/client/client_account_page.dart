@@ -271,9 +271,10 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                   SubscriptionGuard(
                                     child: IconButton(
                                       onPressed: () {
-                                        final bool isSoftDelete = widget.partnerModel.deletedAt == null;
+                                        final bool isSoftDelete = widget.partnerModel.deletedAt != null;
 
                                         if (isSoftDelete) {
+                                          print('77777');
                                           // Soft delete: Faqat User (Owner) qila oladi
                                           if (UserData.isWorkerMode) {
                                             Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');

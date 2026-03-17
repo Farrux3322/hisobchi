@@ -285,6 +285,13 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                 _buildInfoRow(icon: Icons.phone_android_rounded, iconColor: const Color(0xFF10B981), label: 'Tel raqami', value: PhoneFormatter.formatPhoneNumber(project.phone ?? '')),
                 const Gap(12),
                 _buildInfoRow(icon: Icons.location_on_outlined, iconColor: const Color(0xFFEF4444), label: 'Manzil', value: project.address ?? '-'),
+                const Gap(12),
+                _buildInfoRow(
+                  icon: Icons.person_outline_rounded,
+                  iconColor: AppTheme.colors.primary,
+                  label: 'Yaratuvchi',
+                  value: project.activity ?? 'Noma\'lum',
+                ),
                 if (project.location != null && project.location!.isNotEmpty) ...[
                   const Gap(12),
                   _buildInfoRow(

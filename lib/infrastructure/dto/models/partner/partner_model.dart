@@ -10,6 +10,7 @@ class PartnerModel {
   String? mainCurrencyTypeName;
   String? createdAt;
   String? deletedAt;
+  String? activity;
   PartnerBalance? balance;
 
   PartnerModel({
@@ -24,6 +25,7 @@ class PartnerModel {
     this.deletedAt,
     this.sendOnChiqim,
     this.sendOnKirim,
+    this.activity,
     this.balance,
   });
 
@@ -44,6 +46,7 @@ class PartnerModel {
     deletedAt = json['deleted_at'];
     sendOnKirim = json['send_on_kirim'];
     sendOnChiqim = json['send_on_chiqim'];
+    activity = json['activity'];
     balance = json['balance'] != null ? PartnerBalance.fromJson(json['balance']) : null;
   }
 
@@ -62,6 +65,7 @@ class PartnerModel {
     data['deleted_at'] = deletedAt;
     data['send_on_kirim'] = sendOnKirim;
     data['send_on_chiqim'] = sendOnChiqim;
+    data['activity'] = activity;
     if (balance != null) {
       data['balance'] = balance!.toJson();
     }

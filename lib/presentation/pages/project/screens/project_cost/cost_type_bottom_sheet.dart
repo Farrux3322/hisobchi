@@ -325,6 +325,27 @@ class _CostTypeBottomSheetState extends State<CostTypeBottomSheet> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
+                    if (costType.activity != null && costType.activity!.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(Icons.person_outline_rounded, size: 12, color: AppTheme.colors.primary.withValues(alpha: 0.6)),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              costType.activity!,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppTheme.colors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),

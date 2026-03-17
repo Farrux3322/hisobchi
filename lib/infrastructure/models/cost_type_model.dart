@@ -6,6 +6,7 @@ class CostTypeModel {
   final String? description;
   final String? createdAt;
   final String? deletedAt;
+  final String? activity;
 
   CostTypeModel({
     this.id,
@@ -15,6 +16,7 @@ class CostTypeModel {
     this.deletedAt,
     this.isWorkerJoin,
     this.isUpdateAndDelete,
+    this.activity,
   });
 
   bool get isDeleted => deletedAt != null && deletedAt!.isNotEmpty;
@@ -28,6 +30,7 @@ class CostTypeModel {
       description: json['description'] as String?,
       createdAt: json['created_at'] as String?,
       deletedAt: json['deleted_at'] as String?,
+      activity: json['activity'] as String?,
     );
   }
 
@@ -40,6 +43,7 @@ class CostTypeModel {
       'description': description,
       'created_at': createdAt,
       'deleted_at': deletedAt,
+      'activity': activity,
     };
   }
 

@@ -40,6 +40,7 @@ class Result {
   String? partnerPhone;
   String? createdAt;
   String? deletedAt;
+  String? activity;
 
   Result({
     this.id,
@@ -57,6 +58,7 @@ class Result {
     this.createdAt,
     this.canselReason,
     this.deletedAt,
+    this.activity,
   });
 
   Result.fromJson(Map<String, dynamic> json) {
@@ -80,6 +82,7 @@ class Result {
     partnerPhone = json['partner_phone'];
     createdAt = json['created_at'];
     deletedAt = json['deleted_at'];
+    activity = json['activity'];
   }
 
   Map<String, dynamic> toJson() {
@@ -101,6 +104,7 @@ class Result {
     data['partner_phone'] = partnerPhone;
     data['created_at'] = createdAt;
     data['deleted_at'] = deletedAt;
+    data['activity'] = activity;
     return data;
   }
 }
