@@ -73,14 +73,14 @@ class LiquidBottomBar extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.95),
                       width: 0.5,
                     ),
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white.withValues(alpha: 0.45),
-                        Colors.white.withValues(alpha: 0.15),
-                      ],
-                    ),
+                    // gradient: LinearGradient(
+                    //   begin: Alignment.topLeft,
+                    //   end: Alignment.bottomRight,
+                    //   colors: [
+                    //     Colors.white.withValues(alpha: 0.45),
+                    //     Colors.white.withValues(alpha: 0.15),
+                    //   ],
+                    // ),
                   ),
                   child: const Stack(
                     children: [

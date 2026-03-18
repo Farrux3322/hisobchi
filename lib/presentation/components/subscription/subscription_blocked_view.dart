@@ -7,6 +7,8 @@ class SubscriptionBlockedView extends StatelessWidget {
   final String message;
   final VoidCallback? onAction;
   final String? actionLabel;
+  final VoidCallback? onSecondaryAction;
+  final String? secondaryActionLabel;
 
   const SubscriptionBlockedView({
     super.key,
@@ -14,6 +16,8 @@ class SubscriptionBlockedView extends StatelessWidget {
     required this.message,
     this.onAction,
     this.actionLabel,
+    this.onSecondaryAction,
+    this.secondaryActionLabel,
   });
 
   @override
@@ -80,6 +84,30 @@ class SubscriptionBlockedView extends StatelessWidget {
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            if (onSecondaryAction != null && secondaryActionLabel != null) ...[
+              SizedBox(height: 12.h),
+              SizedBox(
+                width: double.infinity,
+                height: 56.h,
+                child: OutlinedButton(
+                  onPressed: onSecondaryAction,
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: const Color(0xFFEF4444).withValues(alpha: 0.5)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                  ),
+                  child: Text(
+                    secondaryActionLabel!,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFFEF4444),
                     ),
                   ),
                 ),

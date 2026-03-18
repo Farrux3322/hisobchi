@@ -44,13 +44,10 @@ class DioInterceptor extends Interceptor {
       
       setPasscodeVerified(false);
       
-      // Safety check: Only navigate if context exists and we aren't already on sign_in
-      final context = parentKey.currentContext;
-      if (context != null && context.mounted) {
-        final location = GoRouterState.of(context).uri.toString();
-        if (location != Routes.signIn.path) {
-          context.go(Routes.signIn.path);
-        }
+      // Safety check: Only navigate if we aren't already on sign_in
+      final location = router.routerDelegate.currentConfiguration.uri.path;
+      if (location != Routes.signIn.path) {
+        router.go(Routes.signIn.path);
       }
     }
     return handler.reject(

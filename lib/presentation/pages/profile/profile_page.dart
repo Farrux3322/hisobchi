@@ -123,8 +123,8 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               _buildUserCard(),
               const SizedBox(height: 16),
-              UsageSection(),
-              SizedBox(height: 24),
+              if (UserData.xZiffler) UsageSection(),
+              if (UserData.xZiffler) SizedBox(height: 24),
               _buildSectionTitle('Foydalanuvchilar'),
               const SizedBox(height: 12),
               _buildMenuItem(
@@ -332,12 +332,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         Flexible(
                           child: Text(
                             UserData.positionName.isNotEmpty ? UserData.positionName : 'Xodim',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.colors.primary,
-                              letterSpacing: 0.3,
-                            ),
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.colors.primary, letterSpacing: 0.3),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),

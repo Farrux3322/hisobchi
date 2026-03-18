@@ -29,6 +29,10 @@ import 'widgets/liquid_glass_shell.dart';
 import 'widgets/liquid_bottom_bar.dart';
 
 final parentKey = GlobalKey<NavigatorState>();
+final shellNavigatorHomeKey = GlobalKey<NavigatorState>(debugLabel: 'home');
+final shellNavigatorClientsKey = GlobalKey<NavigatorState>(debugLabel: 'clients');
+final shellNavigatorProjectsKey = GlobalKey<NavigatorState>(debugLabel: 'projects');
+final shellNavigatorProfileKey = GlobalKey<NavigatorState>(debugLabel: 'profile');
 
 // Global variable to track passcode verification status in current session
 bool _isPasscodeVerifiedInSession = false;
@@ -184,6 +188,12 @@ final router = GoRouter(
                 },
                 child: LiquidGlassShell(
                   navigationShell: navigatorShell,
+                  navigatorKeys: [
+                    shellNavigatorHomeKey,
+                    shellNavigatorClientsKey,
+                    shellNavigatorProjectsKey,
+                    shellNavigatorProfileKey,
+                  ],
                   items: [
                     LiquidTabItem(icon: AppIcons.home, label: 'Asosiy'),
                     LiquidTabItem(icon: AppIcons.clients, label: 'Hamkorlar'),
@@ -205,7 +215,7 @@ final router = GoRouter(
 final branches = [
   ///Home
   StatefulShellBranch(
-    // navigatorKey: _shellKey,
+    navigatorKey: shellNavigatorHomeKey,
     routes: [
       GoRoute(
         name: Routes.homePage.name,
@@ -220,7 +230,7 @@ final branches = [
 
   ///Client
   StatefulShellBranch(
-    // navigatorKey: _shellKey,
+    navigatorKey: shellNavigatorClientsKey,
     routes: [
       GoRoute(
         name: Routes.clientPage.name,
@@ -235,7 +245,7 @@ final branches = [
 
   ///Project
   StatefulShellBranch(
-    // navigatorKey: _shellKey,
+    navigatorKey: shellNavigatorProjectsKey,
     routes: [
       // Document
       GoRoute(
@@ -258,7 +268,7 @@ final branches = [
 
   ///Profile
   StatefulShellBranch(
-    // navigatorKey: _shellKey,
+    navigatorKey: shellNavigatorProfileKey,
     routes: [
       GoRoute(
         name: Routes.profilePage.name,

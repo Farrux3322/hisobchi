@@ -116,7 +116,7 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
                                 const Gap(24),
                                 _UsageProgressItem(
                                   title: 'Xodimlar',
-                                  icon: AppIcons.employee,
+                                  icon: AppIcons.clients,
                                   current: usage?.users?.current ?? 0,
                                   max: usage?.users?.max,
                                   color: const Color(0xFF78EC1A), // Violet

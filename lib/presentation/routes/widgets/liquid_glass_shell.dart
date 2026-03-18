@@ -6,15 +6,20 @@ import 'package:hisobchi/domain/common/enums/subscription_status.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_blocked_view.dart';
 import 'package:hisobchi/presentation/routes/index_routes.dart';
+import 'package:hisobchi/infrastructure/services/shared_service.dart';
+import 'package:hisobchi/domain/common/data/user_data.dart';
+import 'package:hisobchi/presentation/routes/coordinator.dart';
 
 class LiquidGlassShell extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
   final List<LiquidTabItem> items;
+  final List<GlobalKey<NavigatorState>>? navigatorKeys;
 
   const LiquidGlassShell({
     super.key,
     required this.navigationShell,
     required this.items,
+    this.navigatorKeys,
   });
 
   @override
@@ -96,6 +101,18 @@ class _LiquidGlassShellState extends State<LiquidGlassShell> with SingleTickerPr
     }
   }
 
+  Future<void> _handleLogout() async {
+    final pref = await SharedPrefService.initialize();
+    UserData.reset();
+    pref.setName('');
+    pref.setToken('');
+    pref.setPhone('');
+    setPasscodeVerified(false);
+    if (mounted) {
+      GoRouter.of(context).go(Routes.signIn.path);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SubscriptionStatusCubit, SubscriptionStatus>(
@@ -104,6 +121,8 @@ class _LiquidGlassShellState extends State<LiquidGlassShell> with SingleTickerPr
           return SubscriptionBlockedView(
             title: 'Hisobingiz o‘chirildi',
             message: 'Afsuski, sizning hisobingiz o‘chirilgan. Iltimos, ma’lumot olish uchun qo‘llab-quvvatlash xizmati bilan bog‘laning.',
+            secondaryActionLabel: 'Chiqish',
+            onSecondaryAction: _handleLogout,
           );
         }
 
@@ -123,6 +142,8 @@ class _LiquidGlassShellState extends State<LiquidGlassShell> with SingleTickerPr
                       onAction: () {
                         context.push(Routes.subscription.path);
                       },
+                      secondaryActionLabel: 'Chiqish',
+                      onSecondaryAction: _handleLogout,
                     ),
                   ),
                 ),
@@ -136,7 +157,26 @@ class _LiquidGlassShellState extends State<LiquidGlassShell> with SingleTickerPr
                 // Show archive message or do nothing
                 return;
               }
-              widget.navigationShell.goBranch(index);
+
+              if (index == widget.navigationShell.currentIndex) {
+                // If same tab is tapped, try to pop all overlays
+                
+                // 1. Pop from the specific branch navigator if manual pushes were used
+                if (widget.navigatorKeys != null && index < widget.navigatorKeys!.length) {
+                  final branchNav = widget.navigatorKeys![index].currentState;
+                  if (branchNav != null && branchNav.canPop()) {
+                    branchNav.popUntil((route) => route.isFirst);
+                  }
+                }
+                
+                // 2. Clear GoRouter's branch internal stack (reset to initialLocation)
+                widget.navigationShell.goBranch(
+                  index,
+                  initialLocation: true,
+                );
+              } else {
+                widget.navigationShell.goBranch(index);
+              }
             },
             onHorizontalDragStart: (details) {
               if (status.isArchived) return;
