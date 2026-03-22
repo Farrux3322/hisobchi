@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,8 +20,15 @@ import 'package:hisobchi/presentation/pages/client/report/widgets/summary_grid.d
 import 'package:hisobchi/presentation/pages/client/report/partner_debt_detail_page.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'package:hisobchi/application/partner_report/export_excel/export_single_partner_excel_bloc.dart';
+import 'package:hisobchi/application/partner_report/export_excel/export_single_partner_excel_event.dart';
+import 'package:hisobchi/application/partner_report/export_excel/export_single_partner_excel_state.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:hisobchi/presentation/components/toast/toast.dart';
+
 class ReportClientShowPage extends StatefulWidget {
   final PartnerModel partnerModel;
+
   const ReportClientShowPage({super.key, required this.partnerModel});
 
   @override
@@ -36,7 +44,6 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
   final Color backgroundColor = AppTheme.colors.background;
   final Color textPrimary = const Color(0xFF0F172A);
   final Color textSecondary = const Color(0xFF64748B);
-
 
   @override
   void initState() {
@@ -60,15 +67,82 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => PartnerDetailsReportCubit(PartnerReportRepository())
-        ..getPartnerDetailsReport(widget.partnerModel.id ?? 0),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => PartnerDetailsReportCubit(PartnerReportRepository())..getPartnerDetailsReport(widget.partnerModel.id ?? 0)),
+        BlocProvider(create: (context) => ExportSinglePartnerExcelBloc(repository: PartnerReportRepository())),
+      ],
       child: Scaffold(
         backgroundColor: backgroundColor,
         appBar: AppBar(
           backgroundColor: Colors.white,
           title: Text(widget.partnerModel.name ?? 'Hisob-kitob'),
           leading: BackArrowButton(),
+          actions: [
+            BlocConsumer<ExportSinglePartnerExcelBloc, ExportSinglePartnerExcelState>(
+              listener: (context, state) {
+                if (state is ExportSinglePartnerExcelSuccess) {
+                  SharePlus.instance.share(ShareParams(files: [XFile(state.filePath)], text: 'Hamkor Hisoboti'));
+                } else if (state is ExportSinglePartnerExcelFailure) {
+                  Toast.showErrorToast(message: state.error);
+                }
+              },
+              builder: (context, state) {
+                final isLoading = state is ExportSinglePartnerExcelLoading;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: PopupMenuButton<int>(
+                  offset: const Offset(0, 48),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 8,
+                  color: Colors.white,
+                  icon: isLoading
+                      ? SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CupertinoActivityIndicator(color: AppTheme.colors.primary, radius: 10),
+                        )
+                      : Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            // color: Colors.grey[100],
+                          ),
+                          child: Icon(CupertinoIcons.ellipsis_vertical,color: Colors.black,)
+                        ),
+                  onSelected: (value) {
+                    if (value == 1 && !isLoading) {
+                      context.read<ExportSinglePartnerExcelBloc>().add(DownloadSinglePartnerExcelRequested(widget.partnerModel.id ?? 0));
+                    }
+                  },
+                  constraints: const BoxConstraints(minWidth: 10, maxWidth: 180),
+                  itemBuilder: (context) => [
+                    PopupMenuItem<int>(
+                      value: 1,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      height: 40,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.file_download_outlined, color: AppTheme.colors.primary, size: 22),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Excel Hisobot',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+              },
+            ),
+          ],
         ),
         body: BlocBuilder<PartnerDetailsReportCubit, PartnerDetailsReportState>(
           builder: (context, state) {
@@ -86,22 +160,13 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
                     SliverPersistentHeader(
                       pinned: true,
                       delegate: _SliverTabBarDelegate(
-                        child: Container(
-                          color: backgroundColor,
-                          child: _buildCurrencyTabBar(),
-                        ),
+                        child: Container(color: backgroundColor, child: _buildCurrencyTabBar()),
                         height: 70.h,
                       ),
                     ),
                   ];
                 },
-                body: TabBarView(
-                  controller: _currencyTabController,
-                  children: [
-                    _buildDashboardContent('UZS', result.uzs),
-                    _buildDashboardContent('USD', result.usd),
-                  ],
-                ),
+                body: TabBarView(controller: _currencyTabController, children: [_buildDashboardContent('UZS', result.uzs), _buildDashboardContent('USD', result.usd)]),
               );
             }
             return const SizedBox.shrink();
@@ -120,11 +185,7 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
             children: [
               _buildAnimatedItem(
                 index: 0,
-                child: BalanceCard(
-                  balance: report.balanceAmount,
-                  currency: currency,
-                  operationsCount: report.operationsCount,
-                ),
+                child: BalanceCard(balance: report.balanceAmount, currency: currency, operationsCount: report.operationsCount),
               ),
               _buildAnimatedItem(
                 index: 2,
@@ -151,9 +212,7 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
               _buildAnimatedItem(
                 index: 5,
                 child: MonthlyBarChart(
-                  stats: report.monthlyStatistics
-                      .map((e) => MonthlyStat(month: e.month, income: e.income, expense: e.expense))
-                      .toList(),
+                  stats: report.monthlyStatistics.map((e) => MonthlyStat(month: e.month, income: e.income, expense: e.expense)).toList(),
                   currency: currency,
                 ),
               ),
@@ -168,7 +227,7 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
             ],
           ),
         ),
-        SliverToBoxAdapter(child: SizedBox(height: MediaQuery.of(context).padding.bottom)),
+        SliverToBoxAdapter(child: SizedBox(height: MediaQuery.of(context).padding.bottom + 90)),
       ],
     );
   }
@@ -288,11 +347,7 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
       MaterialPageRoute(
         builder: (_) => BlocProvider.value(
           value: context.read<PartnerBloc>(),
-          child: HisobKitobTarixPage(
-            id: widget.partnerModel.id ?? 0,
-            initialType: type,
-            initialCurrencyId: currencyId,partnerPhone: widget.partnerModel.phone,
-          ),
+          child: HisobKitobTarixPage(id: widget.partnerModel.id ?? 0, initialType: type, initialCurrencyId: currencyId, partnerPhone: widget.partnerModel.phone),
         ),
       ),
     );
@@ -317,15 +372,11 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PartnerDebtDetailPage(
-          type: type,
-          currencyTypeId: currencyId,
-          title: title,
-          partnerId: widget.partnerModel.id!,
-        ),
+        builder: (context) => PartnerDebtDetailPage(type: type, currencyTypeId: currencyId, title: title, partnerId: widget.partnerModel.id!),
       ),
     );
   }
+
   Widget _buildShimmerLoading() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
@@ -373,11 +424,11 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
   final double height;
 
-  _SliverTabBarDelegate({required this.child, required double height})
-      : height = height.roundToDouble();
+  _SliverTabBarDelegate({required this.child, required double height}) : height = height.roundToDouble();
 
   @override
   double get minExtent => height;
+
   @override
   double get maxExtent => height;
 

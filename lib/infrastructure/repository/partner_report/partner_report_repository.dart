@@ -95,6 +95,32 @@ class PartnerReportRepository {
     }
   }
 
+  /// Download partner report as Excel file
+  /// Endpoint: GET /partners/partners/export/excel
+  Future<List<int>> downloadPartnerExcel() async {
+    try {
+      final response = await dio.get(
+        '/partners/partners/export/excel',
+        options: Options(
+          responseType: ResponseType.bytes,
+          headers: {
+            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data as List<int>;
+      } else {
+        throw Exception('Failed to download Excel file');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
   /// Get sent SMS report for a partner
   /// Endpoint: GET /reports/partners/sended-sms/{partnerId}
   Future<SentSmsResponse> getSentSms({
@@ -113,6 +139,32 @@ class PartnerReportRepository {
         return SentSmsResponse.fromJson(response.data);
       } else {
         throw Exception('Failed to load sent SMS report');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  /// Download single partner report as Excel file
+  /// Endpoint: GET /partners/partner/{partnerId}/wallets/export/excel
+  Future<List<int>> downloadSinglePartnerExcel(int partnerId) async {
+    try {
+      final response = await dio.get(
+        '/partners/partner/$partnerId/wallets/export/excel',
+        options: Options(
+          responseType: ResponseType.bytes,
+          headers: {
+            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data as List<int>;
+      } else {
+        throw Exception('Failed to download Excel file');
       }
     } on DioException catch (e) {
       throw Exception(_getErrorMessage(e));

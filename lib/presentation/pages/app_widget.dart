@@ -62,53 +62,51 @@ class _AppWidgetState extends State<AppWidget> with WidgetsBindingObserver {
                     statusBarColor:  Color(0xFFF5F6F8),
                     systemNavigationBarColor: Color(0xFFF5F6F8),
                   ),
-                  child: ConnectivityListener(
-                    child: MaterialApp.router(
-                      title: 'Hisobchi',
-                      theme: AppTheme.data,
-                      darkTheme: AppTheme.darkData,
-                      themeMode: themeState.themeMode,
-                      debugShowCheckedModeBanner: false,
-                      locale: context.locale,
-                      localizationsDelegates: context.localizationDelegates,
-                      supportedLocales: context.supportedLocales,
-                      routeInformationParser: router.routeInformationParser,
-                      routeInformationProvider: router.routeInformationProvider,
-                      routerDelegate: router.routerDelegate,
-                      builder: EasyLoading.init(
-                        builder: (context, child) {
-                          return MediaQuery(
-                            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1)),
-                            child: BlocBuilder<UpdateCheckerBloc, UpdateCheckerState>(
-                              builder: (context, updateState) {
-                                return Stack(
-                                  children: [
-                                    child ?? const Material(color: Colors.white, child: SizedBox()),
-                                    if (updateState.hasUpdate && !updateState.isDismissed) ...[
-                                      // Modal Barrier
-                                      Positioned.fill(
-                                        child: ListenableBuilder(
-                                          listenable: Listenable.merge([]),
-                                          builder: (context, _) => GestureDetector(
-                                            onTap: null,
-                                            child: Container(
-                                              color: Colors.black54,
-                                            ),
+                  child: MaterialApp.router(
+                    title: 'E-Hisob',
+                    theme: AppTheme.data,
+                    darkTheme: AppTheme.darkData,
+                    themeMode: themeState.themeMode,
+                    debugShowCheckedModeBanner: false,
+                    locale: context.locale,
+                    localizationsDelegates: context.localizationDelegates,
+                    supportedLocales: context.supportedLocales,
+                    routeInformationParser: router.routeInformationParser,
+                    routeInformationProvider: router.routeInformationProvider,
+                    routerDelegate: router.routerDelegate,
+                    builder: EasyLoading.init(
+                      builder: (context, child) {
+                        return MediaQuery(
+                          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1)),
+                          child: BlocBuilder<UpdateCheckerBloc, UpdateCheckerState>(
+                            builder: (context, updateState) {
+                              return Stack(
+                                children: [
+                                  child ?? const Material(color: Colors.white, child: SizedBox()),
+                                  if (updateState.hasUpdate && !updateState.isDismissed) ...[
+                                    // Modal Barrier
+                                    Positioned.fill(
+                                      child: ListenableBuilder(
+                                        listenable: Listenable.merge([]),
+                                        builder: (context, _) => GestureDetector(
+                                          onTap: null,
+                                          child: Container(
+                                            color: Colors.black54,
                                           ),
                                         ),
                                       ),
-                                      // Dialog
-                                      Center(
-                                        child: UpdateAppDialog(status: updateState.updateStatus),
-                                      ),
-                                    ],
+                                    ),
+                                    // Dialog
+                                    Center(
+                                      child: UpdateAppDialog(status: updateState.updateStatus),
+                                    ),
                                   ],
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
+                                ],
+                              );
+                            },
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),

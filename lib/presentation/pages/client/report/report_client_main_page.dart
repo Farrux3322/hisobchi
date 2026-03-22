@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisobchi/application/partner_report/partner_report_bloc.dart';
@@ -8,9 +9,15 @@ import 'package:hisobchi/infrastructure/models/partner_report_model.dart';
 import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
+import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/client/report/partner_operations_detail_page.dart';
 import 'package:hisobchi/presentation/pages/client/report/partner_summary_list_page.dart';
 import 'package:shimmer/shimmer.dart';
+
+import 'package:hisobchi/application/partner_report/export_excel/export_partner_excel_bloc.dart';
+import 'package:hisobchi/application/partner_report/export_excel/export_partner_excel_event.dart';
+import 'package:hisobchi/application/partner_report/export_excel/export_partner_excel_state.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../components/basic_widgets.dart';
 
@@ -19,8 +26,11 @@ class ReportClientMainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => PartnerReportBloc(repository: PartnerReportRepository())..add(const LoadPartnerReportEvent()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => PartnerReportBloc(repository: PartnerReportRepository())..add(const LoadPartnerReportEvent())),
+        BlocProvider(create: (context) => ExportPartnerExcelBloc(repository: PartnerReportRepository())),
+      ],
       child: const _ReportClientMainPageContent(),
     );
   }
@@ -88,6 +98,71 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
             ),
           ),
         ),
+        actions: [
+          BlocConsumer<ExportPartnerExcelBloc, ExportPartnerExcelState>(
+            listener: (context, state) {
+              if (state is ExportPartnerExcelSuccess) {
+                SharePlus.instance.share(ShareParams(files: [XFile(state.filePath)], text: 'Hamkorlar Hisoboti'));
+              } else if (state is ExportPartnerExcelFailure) {
+                Toast.showErrorToast(message: state.error);
+              }
+            },
+            builder: (context, state) {
+              final isLoading = state is ExportPartnerExcelLoading;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: PopupMenuButton<int>(
+                  offset: const Offset(0, 48),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 8,
+                  color: Colors.white,
+                  icon: isLoading
+                      ? SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CupertinoActivityIndicator(color: AppTheme.colors.primary, radius: 10),
+                        )
+                      : Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            // color: Colors.grey[100],
+                          ),
+                          child:Icon(CupertinoIcons.ellipsis_vertical),
+                        ),
+                  onSelected: (value) {
+                    if (value == 1 && !isLoading) {
+                      context.read<ExportPartnerExcelBloc>().add(DownloadPartnerExcelRequested());
+                    }
+                  },
+                  constraints: const BoxConstraints(minWidth: 10, maxWidth: 180),
+                  itemBuilder: (context) => [
+                    PopupMenuItem<int>(
+                      value: 1,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      height: 40,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.file_download_outlined, color: AppTheme.colors.primary, size: 22),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Excel Hisobot',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: BlocBuilder<PartnerReportBloc, PartnerReportState>(
         builder: (context, state) {
@@ -123,6 +198,38 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           return TabBarView(controller: _tabController, children: [_buildReportContent(state.uzsReport!, true), _buildReportContent(state.usdReport!, false)]);
         },
       ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+      // floatingActionButton: Padding(
+      //   padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      //   child: BlocConsumer<ExportPartnerExcelBloc, ExportPartnerExcelState>(
+      //     listener: (context, state) {
+      //       if (state is ExportPartnerExcelSuccess) {
+      //         SharePlus.instance.share(ShareParams(files: [XFile(state.filePath)], text: 'Hamkorlar Hisoboti'));
+      //       } else if (state is ExportPartnerExcelFailure) {
+      //         Toast.showErrorToast(message: state.error);
+      //       }
+      //     },
+      //     builder: (context, state) {
+      //       final isLoading = state is ExportPartnerExcelLoading;
+      //       return FloatingActionButton(
+      //         onPressed: isLoading
+      //             ? null
+      //             : () => context.read<ExportPartnerExcelBloc>().add(DownloadPartnerExcelRequested()),
+      //         backgroundColor: AppTheme.colors.primary,
+      //         foregroundColor: Colors.white,
+      //         elevation: 4,
+      //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      //         child: isLoading
+      //             ? const SizedBox(
+      //                 width: 24,
+      //                 height: 24,
+      //                 child: CupertinoActivityIndicator(color: Colors.white, radius: 12),
+      //               )
+      //             : const Icon(Icons.file_download_outlined, size: 32),
+      //       );
+      //     },
+      //   ),
+      // ),
     );
   }
 
@@ -380,7 +487,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           if (subtitle != null)
             Row(
               children: [
-                Icon(Icons.fiber_manual_record,size: 10.sp,color: Colors.white),
+                Icon(Icons.fiber_manual_record, size: 10.sp, color: Colors.white),
                 Gap(6.w),
                 Text(
                   subtitle,
