@@ -23,7 +23,7 @@ Future<void> showDeleteDialog(BuildContext context, {
                   size: 48, color: Colors.redAccent),
               const SizedBox(height: 12),
                Text(
-                 "Hamkorni ${isDelete ? 'o‘chimoqchimisiz' : 'qayta tiklamoqchimisiz'}",
+                 "Mijozni ${isDelete ? 'o‘chimoqchimisiz' : 'qayta tiklamoqchimisiz'}",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
@@ -32,7 +32,7 @@ Future<void> showDeleteDialog(BuildContext context, {
               ),
               const SizedBox(height: 8),
                Text(
-                isDelete ?"Agar hamkorni o'chirmoqchi bo'lsangiz, u haqida barcha ma'lumotlar o'chadi!":"Agar hamkorni tiklamoqchi bo'lsangiz, u haqida barcha ma'lumotlar tiklanadi!",
+                isDelete ?"Agar mijozni o'chirmoqchi bo'lsangiz, u haqida barcha ma'lumotlar o'chadi!":"Agar mijozni tiklamoqchi bo'lsangiz, u haqida barcha ma'lumotlar tiklanadi!",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black54,

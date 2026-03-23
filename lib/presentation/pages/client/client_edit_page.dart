@@ -365,7 +365,7 @@ class _ClientEditPageState extends State<ClientEditPage> {
                           const SizedBox(height: 40),
                           _buildMinimalInput(
                             controller: _nameController,
-                            hint: 'Hamkor ismi',
+                            hint: 'Mijoz ismi',
                             icon: Icons.person_outline_rounded,
                             formatters: [EmojiFilterFormatter()],
                             validator: (v) => (v == null || v.isEmpty) ? 'Ism kiritilmagan' : null,

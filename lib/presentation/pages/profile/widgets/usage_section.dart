@@ -99,7 +99,7 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
                             child: Column(
                               children: [
                                 _UsageProgressItem(
-                                  title: 'Hamkorlar',
+                                  title: 'Mijozlar',
                                   icon: AppIcons.clients,
                                   current: usage?.customers?.current ?? 0,
                                   max: usage?.customers?.max,
@@ -331,7 +331,7 @@ class _SubscriptionInfoCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             status == 'READ_ONLY'
-                                ? 'Hisobingiz "Faqat ko\'rish" rejimida. Hamkorlar va loyihalar qo\'shish cheklangan.'
+                                ? 'Hisobingiz "Faqat ko\'rish" rejimida. Mijozlar va loyihalar qo\'shish cheklangan.'
                                 : status == 'ARCHIVED'
                                 ? 'Sizning hisobingiz arxivlangan.'
                                 : 'Sizning hisobingiz o\'chirilgan.',

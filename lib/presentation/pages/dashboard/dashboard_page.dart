@@ -327,7 +327,7 @@ class HamkorlarCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Hamkorlar hisoboti',
+                        'Mijozlar hisoboti',
                         style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B), letterSpacing: -0.2),
                       ),
                       Text(

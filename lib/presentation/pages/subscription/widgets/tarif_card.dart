@@ -159,7 +159,7 @@ class TarifCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-                _buildFeatureItem('Hamkorlar:', _formatValue(tarif.maxCustomers)),
+                _buildFeatureItem('Mijozlar:', _formatValue(tarif.maxCustomers)),
                 _buildFeatureItem('Loyihalar:', _formatValue(tarif.maxProjects)),
                 _buildFeatureItem('Xodimlar soni:', _formatValue(tarif.maxUsers)),
                 _buildFeatureItem('SMS Limit (har oyda):', _formatValue(tarif.smsPerMonth)),

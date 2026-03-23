@@ -99,7 +99,7 @@ class ClientFilterField extends StatelessWidget {
                     focusedBorder: InputBorder.none,
                     focusedErrorBorder: InputBorder.none,
                     errorBorder: InputBorder.none,
-                    hintText: "Hamkorni qidirish...",
+                    hintText: "Mijozni qidirish...",
                     hintStyle: TextStyle(fontSize: 15, color: Color(0xFF94A3B8), fontWeight: FontWeight.w400),
                     border: InputBorder.none,
                     isDense: true,

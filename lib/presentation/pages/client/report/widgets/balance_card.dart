@@ -79,7 +79,7 @@ class BalanceCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               (() {
-                final String? subtitle = balance < 0 ? 'Hamkor qarzi' : (balance > 0 ? 'Hamkor haqqi' : null);
+                final String? subtitle = balance < 0 ? 'Mijoz qarzi' : (balance > 0 ? 'Mijoz haqqi' : null);
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [

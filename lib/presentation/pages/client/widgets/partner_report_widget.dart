@@ -73,7 +73,7 @@ class PartnerReportWidget extends StatelessWidget {
                     SizedBox(width: 16.w),
                     Expanded(
                       child: Text(
-                        'Hamkorlar hisoboti',
+                        'Mijozlar hisoboti',
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.bold,

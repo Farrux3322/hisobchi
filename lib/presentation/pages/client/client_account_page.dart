@@ -672,7 +672,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           // Senior approach: Conditional colors based on balance
           (() {
             final Color balanceColor = balance < 0 ? AppTheme.colors.colorDE5050 : (balance == 0 ? Colors.black : AppTheme.colors.color3CC293);
-            final String? subtitle = balance < 0 ? 'Hamkor qarzi' : (balance > 0 ? 'Hamkor haqqi' : null);
+            final String? subtitle = balance < 0 ? 'Mijoz qarzi' : (balance > 0 ? 'Mijoz haqqi' : null);
             final String sign = balance < 0 ? '-' : (balance > 0 ? '+' : '');
             return Container(
               padding: EdgeInsets.all(cardPadding.clamp(12, 18)),

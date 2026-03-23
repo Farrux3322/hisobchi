@@ -64,7 +64,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
-          'Hamkorlar hisoboti',
+          'Mijozlar hisoboti',
           style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w700),
         ),
         elevation: 0,
@@ -102,7 +102,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           BlocConsumer<ExportPartnerExcelBloc, ExportPartnerExcelState>(
             listener: (context, state) {
               if (state is ExportPartnerExcelSuccess) {
-                SharePlus.instance.share(ShareParams(files: [XFile(state.filePath)], text: 'Hamkorlar Hisoboti'));
+                SharePlus.instance.share(ShareParams(files: [XFile(state.filePath)], text: 'Mijozlar Hisoboti'));
               } else if (state is ExportPartnerExcelFailure) {
                 Toast.showErrorToast(message: state.error);
               }
@@ -284,7 +284,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       iconColor: Colors.white,
                       backgroundColor: const Color(0xFF2196F3),
                       isUZS: isUZS,
-                      subtitle: correctedBalance < 0 ? '(Sizning qarzingiz)' : (correctedBalance > 0 ? '(Hamkorlar qarzi)' : null),
+                      subtitle: correctedBalance < 0 ? '(Sizning qarzingiz)' : (correctedBalance > 0 ? '(Mijozlar qarzi)' : null),
                     );
                   },
                 ),
@@ -292,7 +292,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
               const SizedBox(width: 12),
               Expanded(
                 child: _buildMainStatCard(
-                  title: 'Hamkorlar',
+                  title: 'Mijzolar',
                   value: '${data.partnersCount}',
                   icon: AppIcons.clients,
                   iconColor: Colors.white,

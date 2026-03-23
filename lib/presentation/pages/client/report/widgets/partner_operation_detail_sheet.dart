@@ -158,7 +158,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildMinimalInfo(
-                  label: 'Hamkor',
+                  label: 'Mijoz',
                   value: operation.partnerName,
                   color: const Color(0xFF6366F1), // Indigo
                   icon: Icons.person_rounded,

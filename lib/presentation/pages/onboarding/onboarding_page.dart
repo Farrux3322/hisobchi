@@ -38,10 +38,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
     const OnboardingModel(
       title: 'Biznesingizni\nBoshqaring',
       description:
-          'Loyihalar, hamkorlar va moliyaviy oqimlarni bir joyda nazorat qiling',
+          'Loyihalar, mijozlar va moliyaviy oqimlarni bir joyda nazorat qiling',
       features: [
         'Loyihalarni professional kuzatish',
-        'Hamkorlar bilan aniq hisob-kitob',
+        'Mijozlar bilan aniq hisob-kitob',
         'Real-time balans va hisobotlar',
       ],
       iconAsset: '',

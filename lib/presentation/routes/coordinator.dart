@@ -196,7 +196,7 @@ final router = GoRouter(
                   ],
                   items: [
                     LiquidTabItem(icon: AppIcons.home, label: 'Asosiy'),
-                    LiquidTabItem(icon: AppIcons.clients, label: 'Hamkorlar'),
+                    LiquidTabItem(icon: AppIcons.clients, label: 'Mijozlar'),
                     LiquidTabItem(icon: AppIcons.project, label: 'Loyihalar'),
                     LiquidTabItem(icon: AppIcons.profile, label: 'Profile'),
                   ],

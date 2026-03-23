@@ -109,7 +109,7 @@ class _ClientPageState extends State<ClientPage> {
               body: NestedScrollView(
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
-                    SliverAppBar(title: const Text('Hamkorlar'), elevation: 0, centerTitle: false, pinned: true),
+                    SliverAppBar(title: const Text('Mijozlar'), elevation: 0, centerTitle: false, pinned: true),
                     SliverToBoxAdapter(
                       child: PartnerReportWidget(
                         onTap: () {
@@ -352,7 +352,7 @@ class _ClientPageState extends State<ClientPage> {
             ),
             Gap(24.h),
             Text(
-              'Hamkorlar topilmadi',
+              'Mijozlar topilmadi',
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
@@ -362,7 +362,7 @@ class _ClientPageState extends State<ClientPage> {
             ),
             Gap(8.h),
             Text(
-              'Hali hech qanday hamkor qo\'shilmagan\nyoki ma\'lumotlar yuklanmadi',
+              'Hali hech qanday mijoz qo\'shilmagan\nyoki ma\'lumotlar yuklanmadi',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14.sp,

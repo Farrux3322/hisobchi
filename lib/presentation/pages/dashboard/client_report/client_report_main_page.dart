@@ -157,7 +157,7 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> with Single
         icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.black54),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text('Hamkorlar hisoboti', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+      title: const Text('Mijozlar hisoboti', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
       centerTitle: true,
     );
   }
@@ -264,7 +264,7 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> with Single
             Icon(Icons.people_outline, size: 48.sp, color: const Color(0xFF94A3B8)),
             SizedBox(height: 12.h),
             Text(
-              'Hamkor topilmadi',
+              'Mijoz topilmadi',
               style: TextStyle(fontSize: 16.sp, color: const Color(0xFF64748B)),
             ),
           ],

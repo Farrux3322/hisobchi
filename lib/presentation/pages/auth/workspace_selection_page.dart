@@ -443,7 +443,7 @@ class _WorkspaceSelectionPageState extends State<WorkspaceSelectionPage> with Ti
             const Gap(12),
             Text('E-Hisob tizimi orqali biznesingizni yangi darajaga olib chiqing va barcha jarayonlarni nazorat qiling.', textAlign: TextAlign.center, style: TextStyle(fontSize: 15.sp, color: const Color(0xFF64748B), height: 1.5)),
             const Gap(40),
-            _LiteFeatureItem(icon: Icons.people_alt_rounded, title: 'Hamkorlar Nazorati', desc: 'Mijozlar va hamkorlar bilan barcha hisob-kitoblarni tizimli va shaffof holatda yuriting.'),
+            _LiteFeatureItem(icon: Icons.people_alt_rounded, title: 'Mijozlar Nazorati', desc: 'Mijozlar va hamkorlar bilan barcha hisob-kitoblarni tizimli va shaffof holatda yuriting.'),
             const Gap(24),
             _LiteFeatureItem(icon: Icons.assignment_rounded, title: 'Loyihalar Boshqaruvi', desc: 'Loyiha doirasidagi xarajatlar, daromadlar va ishchilar hisobini aniq yuriting.'),
             const Gap(40),

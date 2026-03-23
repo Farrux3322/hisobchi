@@ -225,7 +225,7 @@ class _TariflarScreenState extends State<TariflarScreen> {
                                     style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.black),
                                   ),
                                   TextSpan(
-                                    text: "hamkorlar va loyihalar",
+                                    text: "mijozlar va loyihalar",
                                     style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w800, color: Colors.black),
                                   ),
                                   TextSpan(
@@ -331,7 +331,7 @@ class _TariflarScreenState extends State<TariflarScreen> {
     if (field == null) return 'CHEKLOV';
     switch (field.toLowerCase()) {
       case 'customers':
-        return 'HAMKORLAR';
+        return 'MIJOZLAR';
       case 'projects':
         return 'LOYIHALAR';
       case 'users':

@@ -145,7 +145,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
   Widget _buildSecondaryInfo() {
     return Column(
       children: [
-        _buildLongInfoRow(label: 'Hamkor', value: transaction.partnerName ?? 'Noma\'lum', icon: Icons.person_rounded, color: const Color(0xFF8B5CF6)),
+        _buildLongInfoRow(label: 'Mijoz', value: transaction.partnerName ?? 'Noma\'lum', icon: Icons.person_rounded, color: const Color(0xFF8B5CF6)),
         if (partnerPhone != null && partnerPhone!.isNotEmpty) ...[
           SizedBox(height: 12.h),
           _buildLongInfoRow(
@@ -159,7 +159,7 @@ class TransactionDetailBottomSheet extends StatelessWidget {
                 GestureDetector(
                   onTap: () => _sendSms(
                     phoneNumber: partnerPhone!,
-                    partnerName: transaction.partnerName ?? 'Hamkor',
+                    partnerName: transaction.partnerName ?? 'Mijoz',
                     amount: _formatAmount(transaction.summa ?? '0'),
                     currency: transaction.currencyTypeName ?? '',
                     isIncoming: isKirim,

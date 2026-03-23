@@ -18,6 +18,7 @@ import 'package:hisobchi/presentation/pages/profile/screens/profile_update_page.
 import 'package:hisobchi/presentation/routes/entity/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../application/notification/notification_bloc.dart';
 import '../../components/toast/toast.dart';
 import 'widgets/usage_section.dart';
@@ -147,23 +148,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTap: () => context.pushNamed(Routes.usageGuide.name),
               ),
               const SizedBox(height: 24),
-              _buildSectionTitle('Savollaringiz bormi?'),
+              _buildSectionTitle('Biz bilan aloqa'),
               const SizedBox(height: 12),
-              _buildMenuItem(icon: AppIcons.telegram, title: 'Telegram bot', onTap: () {}, isEnabled: false),
-              const SizedBox(height: 8),
               _buildMenuItem(
-                icon: AppIcons.telegram,
-                title: 'Telegram guruh',
-                onTap: () async {
-                  final Uri telegramApp = Uri.parse("tg://resolve?domain=eHisob_uz");
-                  final Uri telegramWeb = Uri.parse("https://t.me/eHisob_uz");
-
-                  if (await canLaunchUrl(telegramApp)) {
-                    await launchUrl(telegramApp, mode: LaunchMode.externalApplication);
-                  } else {
-                    await launchUrl(telegramWeb, mode: LaunchMode.externalApplication);
-                  }
-                },
+                iconData: Icons.headset_mic_rounded,
+                iconColor: Color(0xFF3813FF),
+                title: 'Biz bilan aloqa',
+                subtitle: 'Telegram, Instagram va boshqalar',
+                onTap: _showContactBottomSheet,
               ),
               const SizedBox(height: 24),
               _buildSectionTitle('Tashqi ko\'rinishi'),
@@ -413,7 +405,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildMenuItem({required String icon, required String title, String? subtitle, Color? titleColor, bool showArrow = true, required VoidCallback onTap, bool isEnabled = true}) {
+  Widget _buildMenuItem({String? icon, IconData? iconData, Color? iconColor, required String title, String? subtitle, Color? titleColor, bool showArrow = true, required VoidCallback onTap, bool isEnabled = true}) {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.colors.white,
@@ -431,7 +423,15 @@ class _ProfilePageState extends State<ProfilePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(
                 children: [
-                  SvgPicture.asset(icon),
+                  if (iconData != null)
+                    Container(
+                      width: 24,
+                      height: 24,
+                      alignment: Alignment.center,
+                      child: Icon(iconData, color: iconColor ?? AppTheme.colors.primary, size: 22),
+                    )
+                  else if (icon != null)
+                    SvgPicture.asset(icon),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -592,6 +592,150 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         );
       },
+    );
+  }
+
+  void _showContactBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: AppTheme.colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppTheme.colors.gray.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Biz bilan aloqa',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
+              ),
+              const SizedBox(height: 24),
+              _buildContactOption(
+                iconData: FontAwesomeIcons.telegram,
+                iconColor: const Color(0xFF0088cc),
+                title: 'Telegram admin',
+                subtitle: '@ehisob_admin',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final Uri telegramApp = Uri.parse("tg://resolve?domain=ehisob_admin");
+                  final Uri telegramWeb = Uri.parse("https://t.me/ehisob_admin");
+                  if (await canLaunchUrl(telegramApp)) {
+                    await launchUrl(telegramApp, mode: LaunchMode.externalApplication);
+                  } else {
+                    await launchUrl(telegramWeb, mode: LaunchMode.externalApplication);
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildContactOption(
+                iconData: FontAwesomeIcons.bullhorn,
+                iconColor: const Color(0xFF0088cc),
+                title: 'Telegram kanal',
+                subtitle: '@E_Hisob',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final Uri telegramApp = Uri.parse("tg://resolve?domain=E_Hisob");
+                  final Uri telegramWeb = Uri.parse("https://t.me/E_Hisob");
+                  if (await canLaunchUrl(telegramApp)) {
+                    await launchUrl(telegramApp, mode: LaunchMode.externalApplication);
+                  } else {
+                    await launchUrl(telegramWeb, mode: LaunchMode.externalApplication);
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildContactOption(
+                iconData: FontAwesomeIcons.instagram,
+                iconColor: const Color(0xFFE1306C),
+                title: 'Instagram',
+                subtitle: '@ehisob_uz',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final Uri instagramApp = Uri.parse("instagram://user?username=ehisob_uz");
+                  final Uri instagramWeb = Uri.parse("https://www.instagram.com/ehisob_uz?igsh=MTRwOHR3cmdydDRveQ==");
+                  if (await canLaunchUrl(instagramApp)) {
+                    await launchUrl(instagramApp, mode: LaunchMode.externalApplication);
+                  } else {
+                    await launchUrl(instagramWeb, mode: LaunchMode.externalApplication);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactOption({
+    required IconData iconData,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    bool isEnabled = true,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isEnabled ? onTap : null,
+        borderRadius: BorderRadius.circular(16),
+        child: Opacity(
+          opacity: isEnabled ? 1.0 : 0.5,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppTheme.colors.divider),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: iconColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(iconData, color: iconColor, size: 24),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: TextStyle(fontSize: 13, color: AppTheme.colors.gray, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, color: AppTheme.colors.gray, size: 24),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

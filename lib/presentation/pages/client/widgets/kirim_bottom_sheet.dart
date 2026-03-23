@@ -365,7 +365,7 @@ class _KirimBottomSheetContentState extends State<_KirimBottomSheetContent> {
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
-                                  widget.isKirim ? (widget.partnerModel.sendOnKirim==true ? "Kirim qo‘shilishi bilan hamkorga avtomatik SMS xabarnoma yuboriladi.":'SMS xabarnomalar o‘chirilgan. Kirim qo‘shilganda hamkorga SMS yuborilmaydi.') : (widget.partnerModel.sendOnChiqim==true ? "Chiqim qo‘shilishi bilan hamkorga avtomatik SMS xabarnoma yuboriladi.":'SMS xabarnomalar o‘chirilgan. Chiqim qo‘shilganda hamkorga SMS yuborilmaydi.'),
+                                  widget.isKirim ? (widget.partnerModel.sendOnKirim==true ? "Kirim qo‘shilishi bilan mijozga avtomatik SMS xabarnoma yuboriladi.":'SMS xabarnomalar o‘chirilgan. Kirim qo‘shilganda mijozga SMS yuborilmaydi.') : (widget.partnerModel.sendOnChiqim==true ? "Chiqim qo‘shilishi bilan mijozga avtomatik SMS xabarnoma yuboriladi.":'SMS xabarnomalar o‘chirilgan. Chiqim qo‘shilganda mijozga SMS yuborilmaydi.'),
                                   style:  TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.grey),
                                 ),
                                 const SizedBox(height: 12),

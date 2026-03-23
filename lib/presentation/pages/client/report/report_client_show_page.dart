@@ -82,7 +82,7 @@ class _ReportClientShowPageState extends State<ReportClientShowPage> with Single
             BlocConsumer<ExportSinglePartnerExcelBloc, ExportSinglePartnerExcelState>(
               listener: (context, state) {
                 if (state is ExportSinglePartnerExcelSuccess) {
-                  SharePlus.instance.share(ShareParams(files: [XFile(state.filePath)], text: 'Hamkor Hisoboti'));
+                  SharePlus.instance.share(ShareParams(files: [XFile(state.filePath)], text: 'Mijoz Hisoboti'));
                 } else if (state is ExportSinglePartnerExcelFailure) {
                   Toast.showErrorToast(message: state.error);
                 }

@@ -352,7 +352,7 @@ class _SmsSettingPageState extends State<SmsSettingPage> {
       key: const ValueKey('enabled'),
       children: [
         _buildToggleCard2(
-          title: 'Hamkordan pul olinganda sms yuborilsinmi (Kirim)',
+          title: 'Mijozdan pul olinganda sms yuborilsinmi (Kirim)',
           subtitle: 'Kirim qilingan zaxoti SMS yuboriladi',
           icon: AppIcons.income,
           iconColor: const Color(0xFF10B981),
@@ -364,7 +364,7 @@ class _SmsSettingPageState extends State<SmsSettingPage> {
         ),
         const Gap(10),
         _buildToggleCard2(
-          title: 'Hamkorga qarz berilganda sms yuborilsinmi (Chiqim)',
+          title: 'Mijozga qarz berilganda sms yuborilsinmi (Chiqim)',
           subtitle: 'Chiqim qilingan zaxoti SMS yuboriladi',
           icon: AppIcons.chiqim,
           iconColor: const Color(0xFFF43F5E),

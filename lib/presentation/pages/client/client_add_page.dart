@@ -303,7 +303,7 @@ class _ClientAddPageState extends State<ClientAddPage> {
           leading: BackArrowButton(),
           centerTitle: true,
           title: const Text(
-            'Yangi hamkor',
+            'Yangi mijoz',
           ),
         ),
         body: _buildBody(),
@@ -335,7 +335,7 @@ class _ClientAddPageState extends State<ClientAddPage> {
                           const SizedBox(height: 40),
                           _buildMinimalInput(
                             controller: _nameController,
-                            hint: 'Hamkor ismi',
+                            hint: 'Mijoz ismi',
                             icon: Icons.person_outline_rounded,
                             formatters: [EmojiFilterFormatter()],
                             validator: (v) => (v == null || v.isEmpty) ? 'Ism kiritilmagan' : null,

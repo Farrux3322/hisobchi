@@ -29,7 +29,7 @@ class ExportPartnerExcelBloc
       
       // Create a file in temporary directory
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final file = File('${tempDir.path}/Hamkorlar_Hisoboti_$timestamp.xlsx');
+      final file = File('${tempDir.path}/Mijozlar$timestamp.xlsx');
       
       // Write the bytes to the file
       await file.writeAsBytes(bytes);
