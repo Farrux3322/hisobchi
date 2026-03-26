@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bounce/flutter_bounce.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,6 +31,7 @@ class ClientPage extends StatefulWidget {
 
 class _ClientPageState extends State<ClientPage> {
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
   DateTime? filterStartDate;
   DateTime? filterEndDate;
   String? filterSort;
@@ -44,6 +46,7 @@ class _ClientPageState extends State<ClientPage> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -295,9 +298,12 @@ class _ClientPageState extends State<ClientPage> {
         },
         onSearchChanged: () {
           setState(() {});
-          if (_searchController.text.isEmpty || _searchController.text.length >= 2) {
-            _fetchPartners();
-          }
+          if (_debounce?.isActive ?? false) _debounce!.cancel();
+          _debounce = Timer(const Duration(milliseconds: 500), () {
+            if (_searchController.text.isEmpty || _searchController.text.length >= 2) {
+              _fetchPartners();
+            }
+          });
         },
         onClearSearch: () {
           _searchController.clear();
