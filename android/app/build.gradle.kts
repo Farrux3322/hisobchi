@@ -44,12 +44,26 @@ android {
     // 🔑 Release signing
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
+            // Use the Elvis operator (?:) to provide a fallback or handle nulls
+            keyAlias = keystoreProperties["keyAlias"]?.toString() ?: ""
+            keyPassword = keystoreProperties["keyPassword"]?.toString() ?: ""
+
+            val storePath = keystoreProperties["storeFile"]?.toString()
+            if (storePath != null) {
+                storeFile = file(storePath)
+            }
+
+            storePassword = keystoreProperties["storePassword"]?.toString() ?: ""
         }
     }
+//    signingConfigs {
+//        create("release") {
+//            keyAlias = keystoreProperties["keyAlias"] as String
+//            keyPassword = keystoreProperties["keyPassword"] as String
+//            storeFile = file(keystoreProperties["storeFile"] as String)
+//            storePassword = keystoreProperties["storePassword"] as String
+//        }
+//    }
 
     buildTypes {
         getByName("release") {
