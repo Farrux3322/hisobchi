@@ -262,7 +262,8 @@ class _SubscriptionInfoCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      _buildProgressIndicator(displayDays, progress),
+                      _PermissionBlurredWidget(hasPermission: context.hasPermission('plan_about.view'),
+                      child: _buildProgressIndicator(displayDays, progress)),
                     ],
                   ),
                   Gap(8.h),
@@ -525,11 +526,14 @@ class _UsageProgressItemState extends State<_UsageProgressItem> with SingleTicke
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Flexible(child: Text(widget.title, maxLines: 1, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: const Color(0xFF4B5563)))),
-                    RichText(
-                      text: TextSpan(children: [
-                        TextSpan(text: '${widget.current}', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: const Color(0xFF111827))),
-                        TextSpan(text: isUnlimited ? ' / ∞' : ' / $maxValue', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.grey.withValues(alpha: 0.6))),
-                      ]),
+                    _PermissionBlurredWidget(
+                      hasPermission: context.hasPermission('usage.view'),
+                      child: RichText(
+                        text: TextSpan(children: [
+                          TextSpan(text: '${widget.current}', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: const Color(0xFF111827))),
+                          TextSpan(text: isUnlimited ? ' / ∞' : ' / $maxValue', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.grey.withValues(alpha: 0.6))),
+                        ]),
+                      ),
                     ),
                   ],
                 ),
