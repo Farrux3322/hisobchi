@@ -129,7 +129,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
 
   Widget _buildHeader() {
     return Container(
-      padding: EdgeInsets.fromLTRB(20.w, 12.h, 10.w, 10.h),
+      padding: EdgeInsets.fromLTRB(16.w, 12.h, 10.w, 10.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

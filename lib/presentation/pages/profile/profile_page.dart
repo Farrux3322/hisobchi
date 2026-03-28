@@ -150,13 +150,7 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 24),
               _buildSectionTitle('Biz bilan aloqa'),
               const SizedBox(height: 12),
-              _buildMenuItem(
-                iconData: Icons.headset_mic_rounded,
-                iconColor: Color(0xFF3813FF),
-                title: 'Biz bilan aloqa',
-                subtitle: 'Telegram, Instagram va boshqalar',
-                onTap: _showContactBottomSheet,
-              ),
+              _buildMenuItem(iconData: Icons.headset_mic_rounded, iconColor: Color(0xFF3813FF), title: 'Biz bilan aloqa', subtitle: 'Telegram, Instagram va boshqalar', onTap: _showContactBottomSheet),
               const SizedBox(height: 24),
               _buildSectionTitle('Tashqi ko\'rinishi'),
               const SizedBox(height: 12),
@@ -405,7 +399,17 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildMenuItem({String? icon, IconData? iconData, Color? iconColor, required String title, String? subtitle, Color? titleColor, bool showArrow = true, required VoidCallback onTap, bool isEnabled = true}) {
+  Widget _buildMenuItem({
+    String? icon,
+    IconData? iconData,
+    Color? iconColor,
+    required String title,
+    String? subtitle,
+    Color? titleColor,
+    bool showArrow = true,
+    required VoidCallback onTap,
+    bool isEnabled = true,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.colors.white,
@@ -613,10 +617,7 @@ class _ProfilePageState extends State<ProfilePage> {
               Container(
                 width: 40,
                 height: 4,
-                decoration: BoxDecoration(
-                  color: AppTheme.colors.gray.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
+                decoration: BoxDecoration(color: AppTheme.colors.gray.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2)),
               ),
               const SizedBox(height: 24),
               Text(
@@ -681,14 +682,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildContactOption({
-    required IconData iconData,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    bool isEnabled = true,
-  }) {
+  Widget _buildContactOption({required IconData iconData, required Color iconColor, required String title, required String subtitle, required VoidCallback onTap, bool isEnabled = true}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -707,10 +701,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Container(
                   width: 48,
                   height: 48,
-                  decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
+                  decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), shape: BoxShape.circle),
                   child: Icon(iconData, color: iconColor, size: 24),
                 ),
                 const SizedBox(width: 16),

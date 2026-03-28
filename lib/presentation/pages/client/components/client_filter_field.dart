@@ -14,12 +14,10 @@ class ClientFilterField extends StatelessWidget {
   final DateTime? startDate;
   final DateTime? endDate;
   final String? selectedSort;
-  final String? selectedStatusFilter;
 
   // Callbacks for removing filters
   final VoidCallback onRemoveDate;
   final VoidCallback onRemoveSort;
-  final VoidCallback onRemoveStatusFilter;
 
   const ClientFilterField({
     super.key,
@@ -31,10 +29,8 @@ class ClientFilterField extends StatelessWidget {
     this.startDate,
     this.endDate,
     this.selectedSort,
-    this.selectedStatusFilter,
     required this.onRemoveDate,
     required this.onRemoveSort,
-    required this.onRemoveStatusFilter,
   });
 
   String _getSortLabel(String value) {
@@ -47,19 +43,6 @@ class ClientFilterField extends StatelessWidget {
         return 'Qarzdor (USD)';
       case 'qarzdor_uzs':
         return 'Qarzdor (UZS)';
-      default:
-        return value;
-    }
-  }
-
-  String _getStatusLabel(String value) {
-    switch (value) {
-      case 'xaqdor':
-        return 'Haqdor';
-      case 'qarzdor':
-        return 'Qarzdor';
-      case 'muddati_otgan_qarzdor':
-        return 'Muddati o\'tgan qarzdor';
       default:
         return value;
     }
@@ -164,9 +147,9 @@ class ClientFilterField extends StatelessWidget {
 
         // Active Filters Chips
         if (hasActiveFilters) ...[
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           SizedBox(
-            height: 32,
+            height: 32.h,
             child: ListView(
               scrollDirection: Axis.horizontal,
               clipBehavior: Clip.none,
@@ -177,13 +160,6 @@ class ClientFilterField extends StatelessWidget {
                     icon: Icons.calendar_today_rounded,
                     color: AppTheme.colors.primary,
                     onRemove: onRemoveDate,
-                  ),
-                if (selectedStatusFilter != null)
-                  _buildFilterChip(
-                    label: _getStatusLabel(selectedStatusFilter!),
-                    icon: Icons.person_outline_rounded,
-                    color: const Color(0xFF10B981),
-                    onRemove: onRemoveStatusFilter,
                   ),
                 if (selectedSort != null)
                   _buildFilterChip(
