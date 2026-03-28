@@ -150,13 +150,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverList(
                     delegate: SliverChildListDelegate([
-                      const Gap(10),
+                      // const Gap(10),
                       _buildUserCard(),
-                      const Gap(24),
+                      const Gap(12),
 
                       if (UserData.xZiffler) ...[
                         UsageSection(),
-                        const Gap(24),
+                        const Gap(12),
                       ],
 
                       _buildSectionTitle('Asosiy sozlamalar'),
@@ -209,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.75),
         borderRadius: BorderRadius.circular(30),
@@ -258,8 +258,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 const Gap(4),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(Icons.phone_android_rounded, color: AppTheme.colors.gray.withValues(alpha: 0.6), size: 14),
+                    SvgPicture.asset(AppIcons.phone),
+                    // Icon(Icons.phone_android_rounded, color: AppTheme.colors.gray.withValues(alpha: 0.6), size: 14),
                     const Gap(4),
                     Text(
                       userPhone,
@@ -355,14 +357,12 @@ class _ProfilePageState extends State<ProfilePage> {
         final bool isPremium = subscription?.status == 'ACTIVE';
 
         final String planInternalName = subscription?.plan?.name ?? 'STANDARD';
-
         final String planDisplayName = subscription?.plan?.displayName ?? 'STANDART';
 
         final style = PlanStyle.fromName(planInternalName);
 
         final initials = name.isNotEmpty ? name[0].toUpperCase() : '?';
-        final int colorIndex = name.isNotEmpty ? name.codeUnitAt(0) % AvatarColors.gradients.length : 0;
-        final List<Color> selectedGradient = AvatarColors.gradients[colorIndex];
+
 
         return GestureDetector(
           onTap: onTap,
@@ -399,7 +399,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   borderRadius: BorderRadius.circular(35.r),
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: selectedGradient),
+                      gradient: LinearGradient(
+                        colors: style.outerGradient,
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
                     child: imageUrl != null && imageUrl.isNotEmpty
                         ? CachedNetworkImage(
@@ -453,21 +457,20 @@ class _ProfilePageState extends State<ProfilePage> {
       },
     );
   }
-
   Widget _buildInitialsWidget(String initials) {
     return Center(
       child: Text(
         initials,
-        style: const TextStyle(
-          fontSize: 24,
+        style: TextStyle(
+          fontSize: 32.sp,
           fontWeight: FontWeight.bold,
           color: Colors.white,
           letterSpacing: 1,
           shadows: [
             Shadow(
-              color: Colors.black12,
+              color: Colors.black54,
               blurRadius: 2,
-              offset: Offset(0, 1),
+              offset: Offset(0, 2),
             ),
           ],
         ),
@@ -1214,19 +1217,5 @@ class PlanStyle {
           icon: Icons.star_border_rounded,
         );
     }
-  }
-}
-class AvatarColors {
-  static const List<List<Color>> gradients = [
-    [Color(0xFF80D0C7), Color(0xFF0093E9)],
-    [Color(0xFFFFA726), Color(0xFFFB8C00)],
-    [Color(0xFFAED581), Color(0xFF8BC34A)],
-    [Color(0xFFBA68C8), Color(0xFFAB47BC)],
-    [Color(0xFFFFD54F), Color(0xFFFFC107)],
-    [Color(0xFFF06292), Color(0xFFEC407A)],
-  ];
-
-  static Color getShadowColor(Color topColor) {
-    return topColor.withValues(alpha: 0.25);
   }
 }

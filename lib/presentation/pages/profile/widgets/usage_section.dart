@@ -63,7 +63,7 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
               daysPastDue: subscription?.daysPastDue,
               waveController: _waveController,
             ),
-            Gap(20.h),
+            Gap(12.h),
 
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
@@ -86,7 +86,7 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
                   GestureDetector(
                     onTap: () => setState(() => _isExpanded = !_isExpanded),
                     child: Padding(
-                      padding: EdgeInsets.all(24.w),
+                      padding: EdgeInsets.symmetric(horizontal:  20.w,vertical: 16.h),
                       child: Row(
                         children: [
                           Container(
