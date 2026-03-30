@@ -12,8 +12,10 @@ import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/presentation/pages/client/report/partner_operations_detail_page.dart';
 import 'package:hisobchi/presentation/pages/client/report/partner_summary_list_page.dart';
+import 'package:hisobchi/presentation/pages/client/report/debt_report_detail_page.dart';
+import 'package:hisobchi/presentation/pages/client/report/staff_report_page.dart';
+import 'package:hisobchi/presentation/pages/client/report/time_report_page.dart';
 import 'package:shimmer/shimmer.dart';
-
 import 'package:hisobchi/application/partner_report/export_excel/export_partner_excel_bloc.dart';
 import 'package:hisobchi/application/partner_report/export_excel/export_partner_excel_event.dart';
 import 'package:hisobchi/application/partner_report/export_excel/export_partner_excel_state.dart';
@@ -77,7 +79,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))],
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -117,18 +119,14 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                   elevation: 8,
                   color: Colors.white,
                   icon: isLoading
-                      ? SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CupertinoActivityIndicator(color: AppTheme.colors.primary, radius: 10),
-                        )
+                      ? SizedBox(width: 24, height: 24, child: CupertinoActivityIndicator(color: AppTheme.colors.primary, radius: 10))
                       : Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             // color: Colors.grey[100],
                           ),
-                          child:Icon(CupertinoIcons.ellipsis_vertical),
+                          child: Icon(CupertinoIcons.ellipsis_vertical),
                         ),
                   onSelected: (value) {
                     if (value == 1 && !isLoading) {
@@ -148,11 +146,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                           const SizedBox(width: 8),
                           const Text(
                             'Excel Hisobot',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1E293B),
-                            ),
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                           ),
                         ],
                       ),
@@ -194,42 +188,9 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           if (!state.hasData) {
             return const Center(child: Text('Ma\'lumot topilmadi'));
           }
-
           return TabBarView(controller: _tabController, children: [_buildReportContent(state.uzsReport!, true), _buildReportContent(state.usdReport!, false)]);
         },
       ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      // floatingActionButton: Padding(
-      //   padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      //   child: BlocConsumer<ExportPartnerExcelBloc, ExportPartnerExcelState>(
-      //     listener: (context, state) {
-      //       if (state is ExportPartnerExcelSuccess) {
-      //         SharePlus.instance.share(ShareParams(files: [XFile(state.filePath)], text: 'Hamkorlar Hisoboti'));
-      //       } else if (state is ExportPartnerExcelFailure) {
-      //         Toast.showErrorToast(message: state.error);
-      //       }
-      //     },
-      //     builder: (context, state) {
-      //       final isLoading = state is ExportPartnerExcelLoading;
-      //       return FloatingActionButton(
-      //         onPressed: isLoading
-      //             ? null
-      //             : () => context.read<ExportPartnerExcelBloc>().add(DownloadPartnerExcelRequested()),
-      //         backgroundColor: AppTheme.colors.primary,
-      //         foregroundColor: Colors.white,
-      //         elevation: 4,
-      //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      //         child: isLoading
-      //             ? const SizedBox(
-      //                 width: 24,
-      //                 height: 24,
-      //                 child: CupertinoActivityIndicator(color: Colors.white, radius: 12),
-      //               )
-      //             : const Icon(Icons.file_download_outlined, size: 32),
-      //       );
-      //     },
-      //   ),
-      // ),
     );
   }
 
@@ -240,68 +201,37 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
         await Future.delayed(const Duration(milliseconds: 500));
       },
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16).copyWith(bottom: MediaQuery.of(context).padding.bottom),
         children: [
           // Jami kirim va chiqim - Row
           Row(
             children: [
               Expanded(
-                child: _buildMainStatCard(
-                  title: 'Kirim',
-                  value: _formatCurrency(data.debt, isUZS),
-                  icon: AppIcons.income,
-                  iconColor: Colors.white,
-                  backgroundColor: const Color(0xFF4CAF50),
-                  isUZS: isUZS,
-                ),
+                child: _buildMetricCard(title: 'Kirim', value: data.debt, icon: AppIcons.income, color: const Color(0xFF10B981), isUZS: isUZS),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _buildMainStatCard(
-                  title: 'Chiqim',
-                  value: _formatCurrency(data.credit, isUZS),
-                  icon: AppIcons.chiqim,
-                  iconColor: Colors.white,
-                  backgroundColor: const Color(0xFFEF5350),
-                  isUZS: isUZS,
-                ),
+                child: _buildMetricCard(title: 'Chiqim', value: data.credit, icon: AppIcons.chiqim, color: const Color(0xFFEF4444), isUZS: isUZS),
               ),
             ],
           ),
           const SizedBox(height: 12),
 
-          // Qoldiq va Hamkorlar soni - Row
-          Row(
-            children: [
-              Expanded(
-                child: Builder(
-                  builder: (context) {
-                    final correctedBalance = -data.balanceAmount;
-                    return _buildMainStatCard(
-                      title: 'Qoldiq',
-                      value: _formatCurrency(correctedBalance.toString(), isUZS),
-                      icon: AppIcons.balance,
-                      iconColor: Colors.white,
-                      backgroundColor: const Color(0xFF2196F3),
-                      isUZS: isUZS,
-                      subtitle: correctedBalance < 0 ? '(Sizning qarzingiz)' : (correctedBalance > 0 ? '(Mijozlar qarzi)' : null),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildMainStatCard(
-                  title: 'Mijzolar',
-                  value: '${data.partnersCount}',
-                  icon: AppIcons.clients,
-                  iconColor: Colors.white,
-                  backgroundColor: const Color(0xFF9C27B0),
-                  isUZS: isUZS,
-                  showCurrency: false,
-                ),
-              ),
-            ],
+          // Qoldiq (Large) with Partners count badge
+          Builder(
+            builder: (context) {
+              final correctedBalance = -data.balanceAmount;
+              return _buildMetricCard(
+                title: 'Qoldiq',
+                value: correctedBalance.toString(),
+                icon: AppIcons.balance,
+                color: const Color(0xFF3B82F6),
+                isUZS: isUZS,
+                isLarge: true,
+                partnersCount: data.partnersCount,
+                subtitle: correctedBalance < 0 ? '• Sizning qarzingiz' : (correctedBalance > 0 ? '• Mijozlar qarzi' : null),
+              );
+            },
           ),
           const SizedBox(height: 16),
 
@@ -362,159 +292,296 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           ),
           const SizedBox(height: 20),
 
-          // Qarz muddatlari xisoboti title
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(10)),
-                  child: Icon(Icons.access_time, color: Colors.amber.shade900, size: 20),
-                ),
-                const SizedBox(width: 10),
-                const Text(
-                  'Qarz muddatlari xisoboti',
-                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: Colors.black87),
-                ),
-              ],
-            ),
-          ),
+          // Qarz muddatlari hisoboti Entry Card
+          _buildDebtReportEntryCard(context, data, isUZS),
+          const SizedBox(height: 12),
 
-          // Qarz muddatlari - Row (uchta ham)
-          Row(
-            children: [
-              Expanded(
-                child: _buildDeadlineCard(
-                  subtitle: '',
-                  title: "Muddati o'tgan",
-                  count: data.qarzExpired.count,
-                  icon: Icons.error_outline,
-                  color: const Color(0xFFD32F2F),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PartnerOperationsDetailPage(type: 'qarz_expired', currencyTypeId: isUZS ? 1 : 2, title: "Muddati o'tgan qarzlar"),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _buildDeadlineCard(
-                  title: 'Bugun',
-                  subtitle: '',
-                  count: data.qarz3Days.count,
-                  icon: Icons.warning_amber_sharp,
-                  color: const Color(0xFFFF9800),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PartnerOperationsDetailPage(type: data.qarz3Days.type, currencyTypeId: isUZS ? 1 : 2, title: 'Bugun qarzlar'),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _buildDeadlineCard(
-                  title: 'Yaqinlashmoqda',
-                  subtitle: '(3 kun)',
-                  count: data.qarz7Days.count,
-                  icon: Icons.schedule,
-                  color: const Color(0xFFFFA726),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PartnerOperationsDetailPage(type: data.qarz7Days.type, currencyTypeId: isUZS ? 1 : 2, title: '3 kun ichida qarzlar'),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+          // Xodimlar hisoboti Entry Card
+          _buildStaffReportEntryCard(context),
+          const SizedBox(height: 12),
+
+          // Muddat hisoboti Entry Card
+          _buildTimeReportEntryCard(context),
+          const SizedBox(height: 12),
         ],
       ),
     );
   }
 
-  // Asosiy katta statistika kartlari
-  Widget _buildMainStatCard({
-    required String title,
-    required String value,
-    required String icon,
-    required Color iconColor,
-    required Color backgroundColor,
-    bool isUZS = true,
-    bool showCurrency = true,
-    String? subtitle,
-  }) {
+  // Xodimlar hisoboti Entry Card
+  Widget _buildTimeReportEntryCard(BuildContext context) {
     return Container(
-      height: 0.16.sh,
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: backgroundColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.blue.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.2), width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
-                child: SvgPicture.asset(icon, colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn), width: 24, height: 24),
-              ),
-              Gap(10.w),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: iconColor.withOpacity(0.9)),
-                ),
-              ),
-            ],
-          ),
-          if (subtitle != null)
-            Row(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const TimeReportPage()));
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            child: Row(
               children: [
-                Icon(Icons.fiber_manual_record, size: 10.sp, color: Colors.white),
-                Gap(6.w),
-                Text(
-                  subtitle,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: iconColor.withOpacity(0.9)),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: Colors.blue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                  child: const Icon(Icons.access_time_rounded, color: Colors.blue, size: 28),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Muddat hisoboti',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                      ),
+                      SizedBox(height: 4),
+                      Text('Sana bo\'yicha kirim / chiqim', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Icon(Icons.chevron_right, color: Colors.grey[400]),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Xodimlar hisoboti Entry Card
+  Widget _buildStaffReportEntryCard(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.blue.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.2), width: 1),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const StaffReportPage()));
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: Colors.blue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                  child: const Icon(Icons.people_alt_outlined, color: Colors.blue, size: 28),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Xodimlar hisoboti',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                      ),
+                      SizedBox(height: 4),
+                      Text('Xodimlar bo\'yicha barcha hisobotlar', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Icon(Icons.chevron_right, color: Colors.grey[400]),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Qarz muddatlari hisoboti Entry Card
+  Widget _buildDebtReportEntryCard(BuildContext context, CurrencyReport data, bool isUZS) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.amber.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.2), width: 1),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DebtReportDetailPage(data: data, isUZS: isUZS),
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: Colors.amber.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                  child: Icon(Icons.access_time_rounded, color: Colors.amber.shade900, size: 28),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Qarz muddatlari hisoboti',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                      ),
+                      SizedBox(height: 4),
+                      Text('Muddati o\'tgan, bugun va kelgusi qarzlar', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Icon(Icons.chevron_right, color: Colors.grey[400]),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Premium Metric Card (Senior Level Design)
+  Widget _buildMetricCard({required String title, required String value, required String icon, required Color color, required bool isUZS, bool isLarge = false, int? partnersCount, String? subtitle}) {
+    final currencyLabel = isUZS ? 'UZS' : 'USD';
+    final displayValue = _formatCurrency(value, isUZS);
+
+    return Container(
+      width: isLarge ? double.infinity : null,
+      height: isLarge ? null : 0.11.sh,
+      padding: EdgeInsets.all(isLarge ? 18 : 14),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: isLarge
+          ? Stack(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
+                          child: SvgPicture.asset(icon, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn), width: 20, height: 20),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          title,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    if (subtitle != null) ...[
+                      Text(
+                        subtitle,
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.85)),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          displayValue,
+                          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.5),
+                        ),
+                        const SizedBox(width: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            currencyLabel,
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.8)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                if (partnersCount != null)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.people_alt_outlined, color: Colors.white, size: 14),
+                          const SizedBox(width: 6),
+                          Text(
+                            '$partnersCount ta',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
+                      child: SvgPicture.asset(icon, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn), width: 14, height: 14),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      title,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        displayValue,
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        currencyLabel,
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.7)),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                value,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: iconColor, letterSpacing: 0.5),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (showCurrency) ...[
-                const SizedBox(height: 2),
-                Text(
-                  _getCurrency(isUZS),
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: iconColor.withOpacity(0.8)),
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
     );
   }
 
@@ -524,8 +591,8 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withOpacity(0.2), width: 1.5),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8, offset: const Offset(0, 2))],
+        border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Material(
         color: Colors.transparent,
@@ -552,70 +619,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: color.withOpacity(.1)),
-                      child: Icon(icon, color: color, size: 16),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '$count',
-                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: color, height: 1),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Qarz muddatlari kartlari - Minimalist Design
-  Widget _buildDeadlineCard({required String title, String? subtitle, required int count, required IconData icon, required Color color, VoidCallback? onTap}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withOpacity(0.2), width: 1.5),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 2))],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title and subtitle
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.grey[500]),
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 10),
-                // Icon and Count Row
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: .1)),
                       child: Icon(icon, color: color, size: 16),
                     ),
                     const SizedBox(width: 8),
@@ -648,10 +652,6 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
     return formatted;
   }
 
-  String _getCurrency(bool isUZS) {
-    return isUZS ? 'UZS' : 'USD';
-  }
-
   // Shimmer loading skeleton
   Widget _buildShimmerLoading() {
     return ListView(
@@ -660,19 +660,13 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
         // Main stat cards shimmer
         Row(
           children: [
-            Expanded(child: _buildShimmerCard(height: 110.h)),
+            Expanded(child: _buildShimmerCard(height: 100)),
             const SizedBox(width: 12),
-            Expanded(child: _buildShimmerCard(height: 110.h)),
+            Expanded(child: _buildShimmerCard(height: 100)),
           ],
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(child: _buildShimmerCard(height: 110.h)),
-            const SizedBox(width: 12),
-            Expanded(child: _buildShimmerCard(height: 110.h)),
-          ],
-        ),
+        _buildShimmerCard(height: 140),
         const SizedBox(height: 16),
 
         // Small stat cards shimmer
@@ -687,27 +681,13 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
         ),
         const SizedBox(height: 20),
 
-        // Title shimmer
-        Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 20),
 
-        // Deadline cards shimmer
-        Row(
-          children: [
-            Expanded(child: _buildShimmerCard(height: 100)),
-            const SizedBox(width: 10),
-            Expanded(child: _buildShimmerCard(height: 100)),
-            const SizedBox(width: 10),
-            Expanded(child: _buildShimmerCard(height: 100)),
-          ],
-        ),
+        // Debt and Staff Report Shimmers
+        _buildShimmerCard(height: 80),
+        const SizedBox(height: 12),
+        _buildShimmerCard(height: 80),
+        const SizedBox(height: 12),
       ],
     );
   }

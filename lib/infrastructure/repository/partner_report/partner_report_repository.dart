@@ -4,6 +4,8 @@ import 'package:hisobchi/infrastructure/models/partner_details_report_model.dart
 import 'package:hisobchi/infrastructure/models/partner_report_model.dart';
 import 'package:hisobchi/infrastructure/models/partner_summary_model.dart';
 import 'package:hisobchi/infrastructure/models/sent_sms_model.dart';
+import 'package:hisobchi/infrastructure/models/time_report_summary_model.dart';
+import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
 
 class PartnerReportRepository {
   /// Get partner details report (UZS and USD statistics)
@@ -57,7 +59,7 @@ class PartnerReportRepository {
   /// Endpoint: GET /reports/partners/main
   Future<PartnerReportMainResponse> getPartnerMainReport() async {
     try {
-      final response = await dio.get('/reports/partners-v2/summary');
+      final response = await dio.get('/reports/partners-v3/summary');
 
       if (response.statusCode == 200) {
         return PartnerReportMainResponse.fromJson(response.data);
@@ -75,7 +77,7 @@ class PartnerReportRepository {
   Future<PartnerReportMainResponse> refreshPartnerMainReport() async {
     try {
       final response = await dio.get(
-        '/reports/partners-v2/summary',
+        '/reports/partners-v3/summary',
         options: Options(
           headers: {
             'Cache-Control': 'no-cache',
@@ -87,6 +89,74 @@ class PartnerReportRepository {
         return PartnerReportMainResponse.fromJson(response.data);
       } else {
         throw Exception('Failed to refresh partner main report');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  /// Get Time Report Summary (Sana hisoboti: Jami Kirim, Jami Chiqim)
+  /// Endpoint: POST /reports/partners-v3/periods
+  Future<TimeReportSummaryResponse> getTimeReportSummary({List<String>? date}) async {
+    try {
+      final Map<String, dynamic> body = {};
+      if (date != null && date.isNotEmpty) {
+        body['date'] = date;
+      }
+      else{
+        body['date'] = null;
+      }
+
+      final response = await dio.get(
+        '/reports/partners-v3/periods',
+        data: body,
+      );
+
+      if (response.statusCode == 200) {
+        return TimeReportSummaryResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load time report summary');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  /// Get Periods Operations for Time Report (Sana hisoboti operatsiyalari)
+  /// Endpoint: GET /reports/partners-v3/periods-operations
+  Future<PartnerOperationsDetailResponse> getPeriodsOperations({
+    List<String>? date,
+    required int currencyTypeId,
+    String? type,
+    int page = 1,
+  }) async {
+    try {
+      final Map<String, dynamic> queryParams = {
+        'currency_type_id': currencyTypeId,
+        'page': page,
+      };
+
+      if (date != null && date.isNotEmpty) {
+        queryParams['date[]'] = date;
+      }
+      
+      if (type != null && type.isNotEmpty && type != 'all') {
+        queryParams['type'] = type;
+      }
+
+      final response = await dio.get(
+        '/reports/partners-v3/periods-operations',
+        queryParameters: queryParams,
+      );
+
+      if (response.statusCode == 200) {
+        return PartnerOperationsDetailResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load periods operations');
       }
     } on DioException catch (e) {
       throw Exception(_getErrorMessage(e));

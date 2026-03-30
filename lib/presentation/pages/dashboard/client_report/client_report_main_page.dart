@@ -22,6 +22,7 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> with Single
   List<ClientReportPartner> _filteredPartners = [];
   String _selectedFilter = 'all';
   late TabController _tabController;
+  String _selectedCurrency = 'UZS'; // 'UZS' or 'USD'
 
   @override
   void initState() {
@@ -134,6 +135,7 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> with Single
             color: AppTheme.colors.primary,
             child: Column(
               children: [
+                _buildCurrencySwitcher(),
                 _buildStats(state),
                 // _buildSearchBar(),
                 _buildFilters(),
@@ -162,46 +164,232 @@ class _ClientReportMainPageState extends State<ClientReportMainPage> with Single
     );
   }
 
-  Widget _buildStats(ClientReportState state) {
-    if (state.partners.isEmpty) return const SizedBox.shrink();
-
-    final total = state.partners.length;
-    final debt = state.partners.where((p) => p.balance.hasDebt()).length;
-    final credit = state.partners.where((p) => !p.balance.hasDebt() && (p.balance.uzs > 0 || p.balance.usd > 0)).length;
-
+  Widget _buildCurrencySwitcher() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w).copyWith(top: 10.h),
-      padding: EdgeInsets.all(16.w),
+      margin: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
+      padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Row(
         children: [
-          Expanded(child: _buildStatItem('Jami', total.toString(), AppTheme.colors.primary)),
-          Container(width: 1, height: 30.h, color: const Color(0xFFE2E8F0)),
-          Expanded(child: _buildStatItem('Qarzdor', debt.toString(), const Color(0xFFEF4444))),
-          Container(width: 1, height: 30.h, color: const Color(0xFFE2E8F0)),
-          Expanded(child: _buildStatItem('Haqdor', credit.toString(), const Color(0xFF10B981))),
+          _buildCurrencyTab('UZS Hisob', _selectedCurrency == 'UZS'),
+          _buildCurrencyTab('USD Hisob', _selectedCurrency == 'USD'),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, Color color) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w800, color: color),
+  Widget _buildCurrencyTab(String label, bool isSelected) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedCurrency = label.contains('UZS') ? 'UZS' : 'USD'),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.symmetric(vertical: 8.h),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF1E293B) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10.r),
+            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))] : [],
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w700,
+              color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+            ),
+          ),
         ),
-        SizedBox(height: 2.h),
-        Text(
-          label,
-          style: TextStyle(fontSize: 11.sp, color: const Color(0xFF64748B)),
-        ),
-      ],
+      ),
+    );
+  }
+
+  Widget _buildStats(ClientReportState state) {
+    if (state.partners.isEmpty) return const SizedBox.shrink();
+
+    final isUzs = _selectedCurrency == 'UZS';
+    double totalKirim = 0;
+    double totalChiqim = 0;
+
+    for (var p in state.partners) {
+      final balance = isUzs ? p.balance.uzs : p.balance.usd;
+      if (balance > 0) {
+        totalKirim += balance;
+      } else if (balance < 0) {
+        totalChiqim += balance.abs();
+      }
+    }
+
+    final double totalQoldiq = totalKirim - totalChiqim;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              _buildMetricCard(
+                title: 'Kirim',
+                value: totalKirim,
+                color: const Color(0xFF10B981),
+                icon: Icons.add_circle_outline,
+              ),
+              SizedBox(width: 12.w),
+              _buildMetricCard(
+                title: 'Chiqim',
+                value: totalChiqim,
+                color: const Color(0xFFEF4444),
+                icon: Icons.remove_circle_outline,
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          _buildMetricCard(
+            title: 'Qoldiq',
+            value: totalQoldiq,
+            color: const Color(0xFF3B82F6),
+            icon: Icons.account_balance_wallet_outlined,
+            isBalance: true,
+            isLarge: true,
+            partnersCount: state.partners.length,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetricCard({
+    required String title,
+    required double value,
+    required Color color,
+    required IconData icon,
+    bool isBalance = false,
+    bool isLarge = false,
+    int? partnersCount,
+  }) {
+    final currencyLabel = _selectedCurrency;
+    final displayValue = _formatCurrency(value);
+
+    return Container(
+      width: isLarge ? double.infinity : null,
+      height: isLarge ? null : 100.h,
+      padding: EdgeInsets.all(isLarge ? 18.w : 14.w),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: isLarge
+          ? Stack(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(icon, color: Colors.white, size: 18.sp),
+                        SizedBox(width: 8.w),
+                        Text(
+                          title,
+                          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      value < 0 ? '• Sizning qarzingiz' : '• Sizning haqdorligingiz',
+                      style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.8)),
+                    ),
+                    SizedBox(height: 4.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          displayValue,
+                          style: TextStyle(fontSize: 26.sp, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                        SizedBox(width: 6.w),
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 4.h),
+                          child: Text(
+                            currencyLabel,
+                            style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.7)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                if (partnersCount != null)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.people_alt_outlined, color: Colors.white, size: 12.sp),
+                          SizedBox(width: 4.w),
+                          Text(
+                            '$partnersCount ta',
+                            style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(icon, color: Colors.white, size: 14.sp),
+                    SizedBox(width: 6.w),
+                    Text(
+                      title,
+                      style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12.h),
+                const Spacer(),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        displayValue,
+                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.white),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        currencyLabel,
+                        style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.7)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
     );
   }
 
