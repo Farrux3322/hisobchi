@@ -347,11 +347,7 @@ class _StaffReportViewState extends State<_StaffReportView> with SingleTickerPro
             SizedBox(width: 10.w),
             Text(
               '$fromStr — $toStr',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w700,
-                color: isSelected ? AppTheme.colors.primary : const Color(0xFF1E293B),
-              ),
+              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: isSelected ? AppTheme.colors.primary : const Color(0xFF1E293B)),
             ),
             const Spacer(),
             Icon(Icons.arrow_forward_ios_rounded, size: 14.r, color: const Color(0xFF94A3B8)),
