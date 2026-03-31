@@ -22,6 +22,7 @@ import 'package:hisobchi/presentation/pages/profile/screens/usage_guide_page.dar
 import 'package:hisobchi/presentation/pages/profile/screens/youtube_full_screen_player_page.dart';
 import 'package:hisobchi/infrastructure/models/user_me_model.dart';
 import 'package:hisobchi/presentation/pages/auth/workspace_selection_page.dart';
+import 'package:hisobchi/features/payment_schedule/presentation/pages/payment_schedule_page.dart';
 
 import 'entity/pages.dart';
 import 'entity/routes.dart';
@@ -166,6 +167,14 @@ final router = GoRouter(
           child: YouTubeFullScreenPlayerPage(videoId: videoId, startAt: startAt),
         );
       },
+    ),
+    GoRoute(
+      name: Routes.paymentSchedule.name,
+      path: Routes.paymentSchedule.path,
+      pageBuilder: (context, state) => MaterialPage<void>(
+        key: state.pageKey,
+        child: const PaymentSchedulePage(),
+      ),
     ),
 
     GoRoute(
