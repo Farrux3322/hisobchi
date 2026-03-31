@@ -6,6 +6,9 @@ import 'package:hisobchi/infrastructure/models/partner_summary_model.dart';
 import 'package:hisobchi/infrastructure/models/sent_sms_model.dart';
 import 'package:hisobchi/infrastructure/models/time_report_summary_model.dart';
 import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
+import 'package:hisobchi/infrastructure/models/warranty_periods_model.dart';
+
+import '../../models/staff_worker_model.dart';
 
 class PartnerReportRepository {
   /// Get partner details report (UZS and USD statistics)
@@ -118,6 +121,172 @@ class PartnerReportRepository {
         return TimeReportSummaryResponse.fromJson(response.data);
       } else {
         throw Exception('Failed to load time report summary');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  /// Get Time Report Summary for Workers (Xodimlar hisoboti - Jami kirim/chiqim)
+  /// Endpoint: GET /reports/partners-v3/workers
+  Future<TimeReportSummaryResponse> getWorkersSummary({List<String>? date}) async {
+    try {
+      final Map<String, dynamic> queryParams = {};
+      
+      if (date != null && date.isNotEmpty) {
+        queryParams['date[]'] = date;
+      }
+      
+      final response = await dio.get('/reports/partners-v3/workers', queryParameters: queryParams);
+
+      if (response.statusCode == 200) {
+        return TimeReportSummaryResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load workers summary');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  /// Get Worker lists based on currency
+  /// Endpoint: GET /reports/partners-v3/workers-lists
+  Future<StaffWorkerResponse> getWorkersList({
+    required int currencyTypeId,
+    List<String>? date,
+  }) async {
+    try {
+      final Map<String, dynamic> queryParams = {
+        'currency_type_id': currencyTypeId,
+      };
+      
+      if (date != null && date.isNotEmpty) {
+        queryParams['date[]'] = date;
+      }
+
+      final response = await dio.get('/reports/partners-v3/workers-lists', queryParameters: queryParams);
+
+      if (response.statusCode == 200) {
+        return StaffWorkerResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load workers list');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  /// Get Time Report Summary for a specific worker
+  /// Endpoint: GET /reports/partners-v3/workers-details->summary
+  Future<TimeReportSummaryResponse> getWorkerDetailsSummary({
+    required int workerId,
+    List<String>? date,
+  }) async {
+    try {
+      final Map<String, dynamic> queryParams = {
+        'worker_id': workerId,
+      };
+      
+      if (date != null && date.isNotEmpty) {
+        queryParams['date[]'] = date;
+      }
+
+      final response = await dio.get('/reports/partners-v3/workers-details->summary', queryParameters: queryParams);
+
+      if (response.statusCode == 200) {
+        return TimeReportSummaryResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load worker details summary');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  /// Get Worker Details Operations (xodimning operatsiyalar tarixi)
+  /// Endpoint: GET /reports/partners-v3/workers-details->operations
+  Future<PartnerOperationsDetailResponse> getWorkerDetailsOperations({
+    required int workerId,
+    required int currencyTypeId,
+    List<String>? date,
+    String? type,
+    int page = 1,
+  }) async {
+    try {
+      final Map<String, dynamic> queryParams = {
+        'worker_id': workerId,
+        'currency_type_id': currencyTypeId,
+        'page': page,
+      };
+
+      if (date != null && date.isNotEmpty) {
+        queryParams['date[]'] = date;
+      }
+      
+      if (type != null && type.isNotEmpty && type != 'all') {
+        queryParams['type'] = type;
+      }
+
+      final response = await dio.get('/reports/partners-v3/workers-details->operations', queryParameters: queryParams);
+
+      if (response.statusCode == 200) {
+        return PartnerOperationsDetailResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load worker details operations');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  /// Get Warranty Periods Summary (Qarz muddatlari stats)
+  /// Endpoint: GET /reports/partners-v3/warranty-periods
+  Future<WarrantyPeriodsResponse> getWarrantyPeriods() async {
+    try {
+      final response = await dio.get('/reports/partners-v3/warranty-periods');
+
+      if (response.statusCode == 200) {
+        return WarrantyPeriodsResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load warranty periods');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  /// Get Warranty Period Details (Paginated list of expired, today, 3_days debts)
+  /// Endpoint: GET /reports/partners-v3/warranty-periods-details
+  Future<PartnerOperationsDetailResponse> getWarrantyPeriodDetails({
+    required String type,
+    required int currencyTypeId,
+    int page = 1,
+  }) async {
+    try {
+      final Map<String, dynamic> queryParams = {
+        'type': type,
+        'currency_type_id': currencyTypeId,
+        'page': page,
+      };
+
+      final response = await dio.get('/reports/partners-v3/warranty-periods-details', queryParameters: queryParams);
+
+      if (response.statusCode == 200) {
+        return PartnerOperationsDetailResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load warranty period details');
       }
     } on DioException catch (e) {
       throw Exception(_getErrorMessage(e));

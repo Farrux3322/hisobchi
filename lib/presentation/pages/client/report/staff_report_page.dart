@@ -1,61 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hisobchi/application/staff_report/staff_report_summary_bloc.dart';
+import 'package:hisobchi/application/staff_report/staff_report_summary_event.dart';
+import 'package:hisobchi/application/staff_report/staff_report_summary_state.dart';
+import 'package:hisobchi/application/staff_report/staff_report_workers_bloc.dart';
+import 'package:hisobchi/application/staff_report/staff_report_workers_event.dart';
+import 'package:hisobchi/application/staff_report/staff_report_workers_state.dart';
+import 'package:hisobchi/infrastructure/models/staff_worker_model.dart';
+import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
+import 'package:shimmer/shimmer.dart';
 
-class StaffReportPage extends StatefulWidget {
+import '../../../assets/asset_index.dart';
+import 'worker_report_page.dart';
+
+class StaffReportPage extends StatelessWidget {
   const StaffReportPage({super.key});
 
   @override
-  State<StaffReportPage> createState() => _StaffReportPageState();
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => StaffReportSummaryBloc(repository: PartnerReportRepository())),
+        BlocProvider(create: (_) => StaffReportWorkersBloc(repository: PartnerReportRepository())),
+      ],
+      child: const _StaffReportView(),
+    );
+  }
 }
 
-class _StaffReportPageState extends State<StaffReportPage> with SingleTickerProviderStateMixin {
+class _StaffReportView extends StatefulWidget {
+  const _StaffReportView();
+
+  @override
+  State<_StaffReportView> createState() => _StaffReportViewState();
+}
+
+class _StaffReportViewState extends State<_StaffReportView> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   // Period filter
-  int _selectedPeriod = 0; // 0: Barchasi, 1: Bugun, 2: Bu hafta, 3: Bu oy, 4: Boshqa
-  final List<String> _periods = ['Barchasi', 'Bugun', 'Bu hafta', 'Bu oy', 'Boshqa'];
+  int _selectedPeriod = 0; // -1 means custom date range
+  final List<String> _periods = ['Barchasi', 'Bugun', 'Bu hafta', 'Bu oy'];
 
-  // Date range (shown when "Boshqa" selected)
+  // Operation Type filter
+  int _selectedOperationType = 0; // 0: All, 1: Income, 2: Expense
+
+  // Date range (shown when custom corresponds to -1)
   DateTime _fromDate = DateTime.now().subtract(const Duration(days: 7));
   DateTime _toDate = DateTime.now();
 
-  // Mock data – replace with real model later
-  final List<Map<String, dynamic>> _staffList = [
-    {
-      'name': 'Akbar Karimov',
-      'role': 'Menejer',
-      'initials': 'AK',
-      'color': const Color(0xFF6366F1),
-      'income': 1450000,
-      'expense': 990000,
-      'operations': 5,
-    },
-    {
-      'name': 'Sarvinoz Nazarova',
-      'role': 'Operator',
-      'initials': 'SN',
-      'color': const Color(0xFF10B981),
-      'income': 1000000,
-      'expense': 900000,
-      'operations': 3,
-    },
-    {
-      'name': 'Jasur Toshmatov',
-      'role': 'Kassir',
-      'initials': 'JT',
-      'color': const Color(0xFFF59E0B),
-      'income': 780000,
-      'expense': 650000,
-      'operations': 7,
-    },
-  ];
+  final _fmt = DateFormat('dd.MM.yyyy');
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {}); // Tab o'zgarganda UZS/USD ko'rinishni yangilash
+        _loadSummary();
+      }
+    });
+
+    // Initial fetch
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadSummary();
+    });
+  }
+
+  void _loadSummary() {
+    List<String>? dateRange;
+
+    switch (_selectedPeriod) {
+      case 0: // Barchasi
+        dateRange = null;
+        break;
+      case 1: // Bugun
+        final today = _fmt.format(DateTime.now());
+        dateRange = [today, today];
+        break;
+      case 2: // Bu hafta
+        final now = DateTime.now();
+        final start = now.subtract(Duration(days: now.weekday - 1));
+        dateRange = [_fmt.format(start), _fmt.format(now)];
+        break;
+      case 3: // Bu oy
+        final now = DateTime.now();
+        final start = DateTime(now.year, now.month, 1);
+        dateRange = [_fmt.format(start), _fmt.format(now)];
+        break;
+      case -1: // Custom range
+        dateRange = [_fmt.format(_fromDate), _fmt.format(_toDate)];
+        break;
+    }
+
+    final currentCurrency = _tabController.index == 0 ? 1 : 2;
+
+    context.read<StaffReportSummaryBloc>().add(LoadStaffReportSummaryEvent(date: dateRange));
+    context.read<StaffReportWorkersBloc>().add(LoadStaffReportWorkersEvent(date: dateRange, currencyTypeId: currentCurrency));
   }
 
   @override
@@ -66,25 +109,13 @@ class _StaffReportPageState extends State<StaffReportPage> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    final int totalIncome = _staffList.fold(0, (sum, s) => sum + (s['income'] as int));
-    final int totalExpense = _staffList.fold(0, (sum, s) => sum + (s['expense'] as int));
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
       appBar: _buildAppBar(),
       body: Column(
         children: [
           // UZS / USD tab bar
           _buildTabBar(),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildContent(totalIncome, totalExpense, 'UZS'),
-                _buildContent(totalIncome ~/ 12, totalExpense ~/ 12, 'USD'),
-              ],
-            ),
-          ),
+          Expanded(child: _buildContent(isUZS: _tabController.index == 0)),
         ],
       ),
     );
@@ -101,15 +132,6 @@ class _StaffReportPageState extends State<StaffReportPage> with SingleTickerProv
         'Xodimlar hisoboti',
         style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w700),
       ),
-      actions: [
-        PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert, color: Color(0xFF1E293B)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          itemBuilder: (_) => [
-            const PopupMenuItem(value: 'excel', child: Row(children: [Icon(Icons.file_download_outlined, size: 18), SizedBox(width: 8), Text('Excel yuklash')])),
-          ],
-        ),
-      ],
     );
   }
 
@@ -119,190 +141,386 @@ class _StaffReportPageState extends State<StaffReportPage> with SingleTickerProv
       color: Colors.white,
       padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 12.h),
       child: Container(
-        decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12.r)),
-        child: TabBar(
-          controller: _tabController,
-          onTap: (_) => setState(() {}),
-          indicator: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(12.r)),
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.grey[700],
-          labelStyle: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
-          tabs: const [Tab(text: 'UZS'), Tab(text: 'USD')],
+        height: 48.h,
+        decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(16.r)),
+        child: Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () => _tabController.animateTo(0),
+                child: Container(
+                  color: Colors.transparent,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'UZS Hisob',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: _tabController.index == 0 ? FontWeight.w700 : FontWeight.w600,
+                      color: _tabController.index == 0 ? const Color(0xFF1E293B) : const Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Text(
+              '||',
+              style: TextStyle(color: const Color(0xFFCBD5E1), fontSize: 12.sp, fontWeight: FontWeight.w800, letterSpacing: 1.5),
+            ),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => _tabController.animateTo(1),
+                child: Container(
+                  color: Colors.transparent,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'USD Hisob',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: _tabController.index == 1 ? FontWeight.w700 : FontWeight.w600,
+                      color: _tabController.index == 1 ? const Color(0xFF1E293B) : const Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   // ─── Main scroll content ──────────────────────────────────────────────────
-  Widget _buildContent(int totalIncome, int totalExpense, String currency) {
-    return ListView(
-      padding: EdgeInsets.all(16.w),
+  Widget _buildContent({required bool isUZS}) {
+    return Column(
       children: [
-        // Period filter chips
-        _buildPeriodFilter(),
-        SizedBox(height: 14.h),
+        Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildPeriodFilter(),
+              SizedBox(height: 14.h),
+              _buildDateRangeRow(),
+              SizedBox(height: 14.h),
 
-        // Date range row (visible only when "Boshqa" selected)
-        if (_selectedPeriod == 4) ...[
-          _buildDateRangeRow(),
-          SizedBox(height: 14.h),
-        ],
+              // Summary stat cards linked via BLoC
+              BlocBuilder<StaffReportSummaryBloc, StaffReportSummaryState>(
+                builder: (context, state) {
+                  if (state.isLoading || state.isInitial) {
+                    return _buildStatCardsShimmer();
+                  }
+                  if (state.isError) {
+                    return _buildStatCardsError(state.errorMessage ?? 'Xatolik yuz berdi');
+                  }
+                  final currency = isUZS ? state.uzs : state.usd;
+                  // Parse from string (API returns string)
+                  final debt = double.tryParse(currency?.debt ?? '0') ?? 0.0;
+                  final credit = double.tryParse(currency?.credit ?? '0') ?? 0.0;
+                  final label = isUZS ? 'UZS' : 'USD';
 
-        // Summary stat cards
-        _buildStatCards(totalIncome, totalExpense, currency),
-        SizedBox(height: 20.h),
+                  return _buildStatCards(debt, credit, label);
+                },
+              ),
+              SizedBox(height: 20.h),
 
-        // Section header
-        _buildSectionHeader(),
-        SizedBox(height: 12.h),
+              // Section header
+              _buildSectionHeader(),
+              SizedBox(height: 12.h),
+            ],
+          ),
+        ),
 
-        // Staff list
-        ..._staffList.map((s) => _buildStaffCard(s, currency)),
-        SizedBox(height: 16.h),
+        Expanded(
+          child: BlocBuilder<StaffReportWorkersBloc, StaffReportWorkersState>(
+            builder: (context, state) {
+              if (state.isLoading || state.isInitial) {
+                return ListView(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  children: List.generate(3, (index) => _buildStaffCardShimmer()),
+                );
+              }
+
+              if (state.isError) {
+                return Center(
+                  child: Text(
+                    state.errorMessage ?? 'Internet xatosi yuz berdi',
+                    style: TextStyle(color: Colors.red[400], fontSize: 13.sp),
+                  ),
+                );
+              }
+
+              if (state.workers.isEmpty) {
+                return Center(
+                  child: Text(
+                    'Xodimlar topilmadi',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 14.sp),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h + MediaQuery.of(context).padding.bottom),
+                itemCount: state.workers.length,
+                itemBuilder: (context, index) {
+                  return _buildStaffCard(state.workers[index], isUZS ? 'UZS' : 'USD');
+                },
+              );
+            },
+          ),
+        ),
       ],
     );
   }
 
   // ─── Period filter chips ──────────────────────────────────────────────────
   Widget _buildPeriodFilter() {
-    return Wrap(
-      spacing: 8.w,
-      runSpacing: 8.h,
-      children: List.generate(_periods.length, (i) {
-        final selected = _selectedPeriod == i;
-        return GestureDetector(
-          onTap: () => setState(() => _selectedPeriod = i),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
-            decoration: BoxDecoration(
-              color: selected ? AppTheme.colors.primary : Colors.white,
-              borderRadius: BorderRadius.circular(10.r),
-              border: Border.all(color: selected ? AppTheme.colors.primary : const Color(0xFFE2E8F0)),
-              boxShadow: selected
-                  ? [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.25), blurRadius: 8, offset: const Offset(0, 3))]
-                  : [],
-            ),
-            child: Text(
-              _periods[i],
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: selected ? Colors.white : const Color(0xFF64748B),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: List.generate(_periods.length, (i) {
+          final selected = _selectedPeriod == i;
+          return Padding(
+            padding: EdgeInsets.only(right: 8.w),
+            child: GestureDetector(
+              onTap: () {
+                setState(() => _selectedPeriod = i);
+                _loadSummary(); // Call API on filter change
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
+                decoration: BoxDecoration(
+                  color: selected ? AppTheme.colors.primary : Colors.white,
+                  borderRadius: BorderRadius.circular(10.r),
+                  border: Border.all(color: selected ? AppTheme.colors.primary : const Color(0xFFE2E8F0)),
+                  boxShadow: selected ? [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.25), blurRadius: 8, offset: const Offset(0, 3))] : [],
+                ),
+                child: Text(
+                  _periods[i],
+                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: selected ? Colors.white : const Color(0xFF64748B)),
+                ),
               ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 
-  // ─── Date range picker row ─────────────────────────────────────────────────
+  // ─── Date range picker row ────────────────────────────────────────────────
   Widget _buildDateRangeRow() {
+    final bool isSelected = _selectedPeriod == -1;
+    String fromStr = '${_fromDate.day.toString().padLeft(2, '0')}.${_fromDate.month.toString().padLeft(2, '0')}.${_fromDate.year}';
+    String toStr = '${_toDate.day.toString().padLeft(2, '0')}.${_toDate.month.toString().padLeft(2, '0')}.${_toDate.year}';
+
     return GestureDetector(
       onTap: () async {
         final picked = await showDateRangePicker(
           context: context,
           firstDate: DateTime(2020),
-          lastDate: DateTime(2030),
+          lastDate: DateTime.now(),
           initialDateRange: DateTimeRange(start: _fromDate, end: _toDate),
-          builder: (ctx, child) => Theme(
-            data: ThemeData.light().copyWith(colorScheme: ColorScheme.light(primary: AppTheme.colors.primary)),
-            child: child!,
-          ),
         );
         if (picked != null) {
           setState(() {
             _fromDate = picked.start;
             _toDate = picked.end;
+            _selectedPeriod = -1; // Deselect predefined periods
           });
-        }
+          _loadSummary();
+        } else {}
       },
-      child: Row(
-        children: [
-          Expanded(child: _buildDateChip(_fromDate)),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
-            child: const Icon(Icons.arrow_forward, color: Color(0xFF94A3B8), size: 18),
-          ),
-          Expanded(child: _buildDateChip(_toDate)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDateChip(DateTime date) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.calendar_today_rounded, size: 15.r, color: AppTheme.colors.primary),
-          SizedBox(width: 6.w),
-          Text(
-            '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}',
-            style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: const Color(0xFF1E293B)),
-          ),
-        ],
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.colors.primary.withValues(alpha: 0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(color: isSelected ? AppTheme.colors.primary : const Color(0xFFE2E8F0)),
+          boxShadow: isSelected ? [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))] : [],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.calendar_month_rounded, size: 20.r, color: isSelected ? AppTheme.colors.primary : const Color(0xFF94A3B8)),
+            SizedBox(width: 10.w),
+            Text(
+              '$fromStr — $toStr',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: isSelected ? AppTheme.colors.primary : const Color(0xFF1E293B),
+              ),
+            ),
+            const Spacer(),
+            Icon(Icons.arrow_forward_ios_rounded, size: 14.r, color: const Color(0xFF94A3B8)),
+          ],
+        ),
       ),
     );
   }
 
   // ─── Summary stat cards (Jami kirim / Jami chiqim) ───────────────────────
-  Widget _buildStatCards(int income, int expense, String currency) {
+  Widget _buildStatCards(double income, double expense, String currency) {
     return Row(
       children: [
-        Expanded(child: _buildStatCard('Jami kirim', income, currency, const Color(0xFF16A34A), Icons.arrow_upward_rounded)),
+        Expanded(
+          child: _buildStatCard(
+            label: 'Jami kirim',
+            amount: income,
+            currency: currency,
+            color: const Color(0xFF16A34A),
+            icon: Icons.south_west_rounded,
+            isSelected: _selectedOperationType == 1,
+            isOtherSelected: _selectedOperationType == 2,
+            onTap: () {
+              setState(() {
+                _selectedOperationType = _selectedOperationType == 1 ? 0 : 1;
+              });
+            },
+          ),
+        ),
         SizedBox(width: 12.w),
-        Expanded(child: _buildStatCard('Jami chiqim', expense, currency, const Color(0xFFDC2626), Icons.arrow_downward_rounded)),
+        Expanded(
+          child: _buildStatCard(
+            label: 'Jami chiqim',
+            amount: expense,
+            currency: currency,
+            color: const Color(0xFFDC2626),
+            icon: Icons.north_east_rounded,
+            isSelected: _selectedOperationType == 2,
+            isOtherSelected: _selectedOperationType == 1,
+            onTap: () {
+              setState(() {
+                _selectedOperationType = _selectedOperationType == 2 ? 0 : 2;
+              });
+            },
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildStatCard(String label, int amount, String currency, Color color, IconData icon) {
-    return Container(
-      padding: EdgeInsets.all(16.r),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+  Widget _buildStatCard({
+    required String label,
+    required double amount,
+    required String currency,
+    required Color color,
+    required IconData icon,
+    required bool isSelected,
+    required bool isOtherSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        opacity: isOtherSelected ? 0.5 : 1.0,
+        child: Container(
+          padding: EdgeInsets.all(16.r),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(16.r),
+            border: isSelected ? Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2) : null,
+            boxShadow: [if (!isOtherSelected) BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: Colors.white.withValues(alpha: 0.85), size: 16.r),
-              SizedBox(width: 6.w),
-              Text(label, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.9))),
+              Row(
+                children: [
+                  Icon(icon, color: Colors.white.withValues(alpha: 0.85), size: 16.r),
+                  SizedBox(width: 6.w),
+                  Text(
+                    label,
+                    style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.9)),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: Text(
+                      _formatAmount(amount),
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.3),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  SizedBox(width: 4.w),
+                  // Padding(
+                  //   padding: EdgeInsets.only(bottom: 2.h),
+                  //   child: Text(currency, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.75))),
+                  // ),
+                ],
+              ),
             ],
           ),
-          SizedBox(height: 10.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Flexible(
-                child: Text(
-                  _formatAmount(amount),
-                  style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.3),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              SizedBox(width: 4.w),
-              Padding(
-                padding: EdgeInsets.only(bottom: 2.h),
-                child: Text(currency, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.75))),
-              ),
-            ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Shimmers and Errors ─────────────────────────────────────────────────
+  Widget _buildStatCardsShimmer() {
+    return Shimmer.fromColors(
+      baseColor: const Color(0xFFE2E8F0),
+      highlightColor: const Color(0xFFF8FAFC),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 104.h,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Container(
+              height: 104.h,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)),
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStatCardsError(String message) {
+    return Container(
+      width: double.infinity,
+      height: 104.h,
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFFECDD3)),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline_rounded, color: const Color(0xFFEF4444), size: 24.sp),
+          SizedBox(height: 8.h),
+          Text(
+            'Xatolik yuz berdi',
+            style: TextStyle(color: const Color(0xFF991B1B), fontSize: 13.sp, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStaffCardShimmer() {
+    return Shimmer.fromColors(
+      baseColor: const Color(0xFFE2E8F0),
+      highlightColor: const Color(0xFFF8FAFC),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 12.h),
+        height: 140.h,
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)),
       ),
     );
   }
@@ -312,13 +530,8 @@ class _StaffReportPageState extends State<StaffReportPage> with SingleTickerProv
     return Row(
       children: [
         Text(
-          "XODIMLAR BO'YICHA",
-          style: TextStyle(
-            fontSize: 11.sp,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF94A3B8),
-            letterSpacing: 1.2,
-          ),
+          "Xodimlar bo'yicha",
+          style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: const Color(0xFF94A3B8), letterSpacing: 1.2),
         ),
         SizedBox(width: 10.w),
         Expanded(child: Container(height: 1, color: const Color(0xFFE2E8F0))),
@@ -327,7 +540,15 @@ class _StaffReportPageState extends State<StaffReportPage> with SingleTickerProv
   }
 
   // ─── Staff card ───────────────────────────────────────────────────────────
-  Widget _buildStaffCard(Map<String, dynamic> staff, String currency) {
+  Widget _buildStaffCard(StaffWorkerModel staff, String currency) {
+    // Generate simple initials and deterministic color based on ID
+    final initials = staff.name.isNotEmpty ? staff.name.substring(0, 1).toUpperCase() : '?';
+    final colors = [const Color(0xFF6366F1), const Color(0xFF10B981), const Color(0xFFF59E0B), const Color(0xFFEC4899), const Color(0xFF3B82F6)];
+    final color = colors[staff.id % colors.length];
+
+    final debtValue = double.tryParse(staff.debt) ?? 0.0;
+    final creditValue = double.tryParse(staff.credit) ?? 0.0;
+
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
@@ -339,7 +560,7 @@ class _StaffReportPageState extends State<StaffReportPage> with SingleTickerProv
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            // Keyinchalik — xodim tafsilotlariga o'tish
+            Navigator.push(context, MaterialPageRoute(builder: (_) => WorkerReportPage(worker: staff)));
           },
           borderRadius: BorderRadius.circular(16.r),
           child: Padding(
@@ -353,18 +574,11 @@ class _StaffReportPageState extends State<StaffReportPage> with SingleTickerProv
                     Container(
                       width: 44.r,
                       height: 44.r,
-                      decoration: BoxDecoration(
-                        color: (staff['color'] as Color).withValues(alpha: 0.12),
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
                       child: Center(
                         child: Text(
-                          staff['initials'] as String,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                            color: staff['color'] as Color,
-                          ),
+                          initials,
+                          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: color),
                         ),
                       ),
                     ),
@@ -374,14 +588,15 @@ class _StaffReportPageState extends State<StaffReportPage> with SingleTickerProv
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            staff['name'] as String,
+                            staff.name,
                             style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
                           ),
-                          SizedBox(height: 2.h),
-                          Text(
-                            staff['role'] as String,
-                            style: TextStyle(fontSize: 12.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
-                          ),
+                          if (staff.role == 'staff') SizedBox(height: 2.h),
+                          if (staff.role == 'staff')
+                            Text(
+                              staff.role == 'staff' ? 'Xodim' : '',
+                              style: TextStyle(fontSize: 12.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+                            ),
                         ],
                       ),
                     ),
@@ -394,29 +609,14 @@ class _StaffReportPageState extends State<StaffReportPage> with SingleTickerProv
                 // Metrics row
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 10.h),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
+                  decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(10.r)),
                   child: Row(
                     children: [
-                      _buildMetric(
-                        label: 'Kirim',
-                        value: '+${_formatAmount(staff['income'] as int)} K',
-                        color: const Color(0xFF16A34A),
-                      ),
+                      _buildMetric(label: 'Kirim', value: '+${_formatAmount(debtValue)}', color: const Color(0xFF16A34A)),
                       _buildVerticalDivider(),
-                      _buildMetric(
-                        label: 'Chiqim',
-                        value: '-${_formatAmount(staff['expense'] as int)} K',
-                        color: const Color(0xFFDC2626),
-                      ),
+                      _buildMetric(label: 'Chiqim', value: '-${_formatAmount(creditValue)}', color: const Color(0xFFDC2626)),
                       _buildVerticalDivider(),
-                      _buildMetric(
-                        label: 'Operatsiya',
-                        value: '${staff['operations']} ta',
-                        color: AppTheme.colors.primary,
-                      ),
+                      _buildMetric(label: 'Operatsiya', value: '${staff.operationsCount} ta', color: AppTheme.colors.primary),
                     ],
                   ),
                 ),
@@ -432,9 +632,15 @@ class _StaffReportPageState extends State<StaffReportPage> with SingleTickerProv
     return Expanded(
       child: Column(
         children: [
-          Text(value, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.bold, color: color)),
+          Text(
+            value,
+            style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.bold, color: color),
+          ),
           SizedBox(height: 3.h),
-          Text(label, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w500, color: const Color(0xFF94A3B8))),
+          Text(
+            label,
+            style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w500, color: const Color(0xFF94A3B8)),
+          ),
         ],
       ),
     );
@@ -445,7 +651,15 @@ class _StaffReportPageState extends State<StaffReportPage> with SingleTickerProv
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
-  String _formatAmount(int amount) {
-    return amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ');
+  String _formatAmount(dynamic amount) {
+    if (amount == null) return "0";
+    if (amount is double) {
+      if (amount == 0) return '0';
+      final formatter = NumberFormat('#,###', 'en_US');
+      return formatter.format(amount.abs()).replaceAll(',', ' ');
+    } else if (amount is int) {
+      return amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ');
+    }
+    return '0';
   }
 }

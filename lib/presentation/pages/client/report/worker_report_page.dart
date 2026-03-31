@@ -1,49 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/time_report/time_report_operations_bloc.dart';
-import 'package:hisobchi/application/time_report/time_report_operations_event.dart';
-import 'package:hisobchi/application/time_report/time_report_operations_state.dart';
-import 'package:hisobchi/application/time_report/time_report_summary_bloc.dart';
-import 'package:hisobchi/application/time_report/time_report_summary_event.dart';
-import 'package:hisobchi/application/time_report/time_report_summary_state.dart';
+import 'package:hisobchi/application/staff_report/worker_details_operations_bloc.dart';
+import 'package:hisobchi/application/staff_report/worker_details_operations_event.dart';
+import 'package:hisobchi/application/staff_report/worker_details_operations_state.dart';
+import 'package:hisobchi/application/staff_report/worker_details_summary_bloc.dart';
+import 'package:hisobchi/application/staff_report/worker_details_summary_event.dart';
+import 'package:hisobchi/application/staff_report/worker_details_summary_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
+import 'package:hisobchi/infrastructure/models/staff_worker_model.dart';
 import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/pages/client/report/widgets/partner_operation_detail_sheet.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../../../assets/asset_index.dart';
 
-class TimeReportPage extends StatelessWidget {
-  const TimeReportPage({super.key});
+class WorkerReportPage extends StatelessWidget {
+  final StaffWorkerModel worker;
+
+  const WorkerReportPage({super.key, required this.worker});
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => TimeReportSummaryBloc(repository: PartnerReportRepository())
-            ..add(const LoadTimeReportSummaryEvent()),
+          create: (_) => WorkerDetailsSummaryBloc(repository: PartnerReportRepository())..add(LoadWorkerDetailsSummaryEvent(workerId: worker.id)),
         ),
         BlocProvider(
-          create: (_) => TimeReportOperationsBloc(repository: PartnerReportRepository())
-            ..add(const LoadTimeReportOperationsEvent(currencyTypeId: 1)),
+          create: (_) => WorkerDetailsOperationsBloc(repository: PartnerReportRepository())..add(LoadWorkerDetailsOperationsEvent(workerId: worker.id, currencyTypeId: 1)),
         ),
       ],
-      child: const _TimeReportView(),
+      child: _WorkerReportView(worker: worker),
     );
   }
 }
 
-class _TimeReportView extends StatefulWidget {
-  const _TimeReportView();
+class _WorkerReportView extends StatefulWidget {
+  final StaffWorkerModel worker;
+
+  const _WorkerReportView({required this.worker});
 
   @override
-  State<_TimeReportView> createState() => _TimeReportViewState();
+  State<_WorkerReportView> createState() => _WorkerReportViewState();
 }
 
-class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProviderStateMixin {
+class _WorkerReportViewState extends State<_WorkerReportView> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   int _selectedPeriod = 0; // -1 means custom date range
@@ -77,7 +79,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
   bool _onScrollNotification(ScrollNotification notification) {
     if (notification is ScrollEndNotification) {
       if (notification.metrics.pixels >= notification.metrics.maxScrollExtent * 0.9) {
-        context.read<TimeReportOperationsBloc>().add(const LoadMoreTimeReportOperationsEvent());
+        context.read<WorkerDetailsOperationsBloc>().add(LoadMoreWorkerDetailsOperationsEvent());
       }
     }
     return false;
@@ -111,7 +113,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
     }
 
     // 1. Load Summary Data
-    context.read<TimeReportSummaryBloc>().add(LoadTimeReportSummaryEvent(date: dateRange));
+    context.read<WorkerDetailsSummaryBloc>().add(LoadWorkerDetailsSummaryEvent(workerId: widget.worker.id, date: dateRange));
 
     // 2. Load Operations History
     final currentCurrency = _tabController.index == 0 ? 1 : 2; // 1 = UZS, 2 = USD
@@ -119,11 +121,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
     if (_selectedOperationType == 1) opType = 'debt'; // Kirim
     if (_selectedOperationType == 2) opType = 'credit'; // Chiqim
 
-    context.read<TimeReportOperationsBloc>().add(LoadTimeReportOperationsEvent(
-      date: dateRange,
-      currencyTypeId: currentCurrency,
-      type: opType,
-    ));
+    context.read<WorkerDetailsOperationsBloc>().add(LoadWorkerDetailsOperationsEvent(workerId: widget.worker.id, date: dateRange, currencyTypeId: currentCurrency, type: opType));
   }
 
   @override
@@ -134,13 +132,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
         children: [
           _buildTabBar(),
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildContent(isUZS: true),
-                _buildContent(isUZS: false),
-              ],
-            ),
+            child: TabBarView(controller: _tabController, children: [_buildContent(isUZS: true), _buildContent(isUZS: false)]),
           ),
         ],
       ),
@@ -154,7 +146,10 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
       elevation: 0,
       leading: const BackArrowButton(),
       centerTitle: true,
-      title: const Text('Muddat hisoboti', style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w700)),
+      title: Text(
+        widget.worker.name,
+        style: const TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w700),
+      ),
     );
   }
 
@@ -165,10 +160,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
       padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 12.h),
       child: Container(
         height: 48.h,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9), 
-          borderRadius: BorderRadius.circular(16.r)
-        ),
+        decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(16.r)),
         child: Row(
           children: [
             Expanded(
@@ -235,7 +227,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
               SizedBox(height: 14.h),
 
               // Jami Kirim va Chiqim — BlocBuilder bilan
-              BlocBuilder<TimeReportSummaryBloc, TimeReportSummaryState>(
+              BlocBuilder<WorkerDetailsSummaryBloc, WorkerDetailsSummaryState>(
                 builder: (context, state) {
                   if (state.isLoading || state.isInitial) {
                     return _buildStatCardsShimmer();
@@ -244,8 +236,9 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
                     return _buildStatCardsError(state.errorMessage ?? 'Xatolik yuz berdi');
                   }
                   final currency = isUZS ? state.uzs : state.usd;
-                  final debt = currency?.debtAmount ?? 0.0;
-                  final credit = currency?.creditAmount ?? 0.0;
+                  // Parsing debt/credit as they come as Strings from API based on the example
+                  final debt = double.tryParse(currency?.debt ?? '0') ?? 0.0;
+                  final credit = double.tryParse(currency?.credit ?? '0') ?? 0.0;
                   final label = isUZS ? 'UZS' : 'USD';
                   return _buildStatCards(debt, credit, label);
                 },
@@ -257,18 +250,16 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
             ],
           ),
         ),
-        
+
         Expanded(
           child: NotificationListener<ScrollNotification>(
             onNotification: _onScrollNotification,
-            child: BlocBuilder<TimeReportOperationsBloc, TimeReportOperationsState>(
+            child: BlocBuilder<WorkerDetailsOperationsBloc, WorkerDetailsOperationsState>(
               builder: (context, state) {
-                if (state.isLoading && state.operations.isEmpty) {
+                if (state.status == Status.loading && state.operations.isEmpty) {
                   return ListView(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    children: [
-                       _buildOperationsShimmer(),
-                    ],
+                    children: [_buildOperationsShimmer()],
                   );
                 }
                 if (state.operations.isEmpty) {
@@ -279,7 +270,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
                     ),
                   );
                 }
-                
+
                 return ListView.builder(
                   padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h + MediaQuery.of(context).padding.bottom),
                   itemCount: state.operations.length + (state.statusMore == Status.loading ? 1 : 0),
@@ -326,11 +317,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
                 ),
                 child: Text(
                   _periods[i],
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: selected ? Colors.white : const Color(0xFF64748B),
-                  ),
+                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: selected ? Colors.white : const Color(0xFF64748B)),
                 ),
               ),
             ),
@@ -393,7 +380,6 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
       ),
     );
   }
-
 
   // ─── Stat Cards ──────────────────────────────────────────────────────────
   Widget _buildStatCards(double income, double expense, String currency) {
@@ -459,10 +445,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
             color: color,
             borderRadius: BorderRadius.circular(16.r),
             border: isSelected ? Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2) : null,
-            boxShadow: [
-              if (!isOtherSelected)
-                BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))
-            ],
+            boxShadow: [if (!isOtherSelected) BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,7 +454,10 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
                 children: [
                   Icon(icon, color: Colors.white.withValues(alpha: 0.85), size: 16.r),
                   SizedBox(width: 6.w),
-                  Text(label, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.9))),
+                  Text(
+                    label,
+                    style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.9)),
+                  ),
                 ],
               ),
               SizedBox(height: 10.h),
@@ -482,7 +468,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
                   Flexible(
                     child: Text(
                       _formatDouble(amount),
-                      style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.3),
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.3),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -535,7 +521,10 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
           const Icon(Icons.error_outline, color: Color(0xFFDC2626)),
           SizedBox(width: 10.w),
           Expanded(
-            child: Text(message, style: TextStyle(fontSize: 13.sp, color: const Color(0xFFDC2626))),
+            child: Text(
+              message,
+              style: TextStyle(fontSize: 13.sp, color: const Color(0xFFDC2626)),
+            ),
           ),
           GestureDetector(
             onTap: _loadSummary,
@@ -572,10 +561,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
             highlightColor: const Color(0xFFF8FAFC),
             child: Container(
               height: 80.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.r),
-              ),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)),
             ),
           ),
         ),
@@ -617,10 +603,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
                 // Icon
                 Container(
                   padding: EdgeInsets.all(10.r),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
+                  decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12.r)),
                   child: Icon(icon, color: color, size: 22.r),
                 ),
                 SizedBox(width: 14.w),
@@ -648,7 +631,7 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                     Text(
+                    Text(
                       '$prefix${_formatDouble(op.amount)}',
                       style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold, color: color),
                     ),
@@ -674,5 +657,3 @@ class _TimeReportViewSTATE extends State<_TimeReportView> with SingleTickerProvi
     return formatter.format(amount.abs()).replaceAll(',', ' ');
   }
 }
-
-class _TimeReportViewState extends _TimeReportViewSTATE {}

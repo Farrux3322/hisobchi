@@ -75,29 +75,81 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Container(
-                decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
-                child: TabBar(
-                  controller: _tabController,
-                  indicator: BoxDecoration(color: AppTheme.colors.primary, borderRadius: BorderRadius.circular(12)),
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.grey[700],
-                  labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  tabs: const [
-                    Tab(text: 'UZS Hisob'),
-                    Tab(text: 'USD Hisob'),
-                  ],
+          preferredSize: const Size.fromHeight(66),
+          child: AnimatedBuilder(
+            animation: _tabController,
+            builder: (context, _) {
+              return Container(
+                color: Colors.white,
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: Container(
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9), // Very light gray from the screenshot
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => _tabController.animateTo(0),
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'UZS Hisob',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: _tabController.index == 0 ? FontWeight.w800 : FontWeight.w500,
+                                color: _tabController.index == 0 ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // The || divider
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 2,
+                            height: 12,
+                            decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2)),
+                          ),
+                          const SizedBox(width: 2),
+                          Container(
+                            width: 2,
+                            height: 12,
+                            decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2)),
+                          ),
+                        ],
+                      ),
+
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => _tabController.animateTo(1),
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'USD Hisob',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: _tabController.index == 1 ? FontWeight.w800 : FontWeight.w500,
+                                color: _tabController.index == 1 ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
         actions: [
@@ -207,11 +259,11 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           Row(
             children: [
               Expanded(
-                child: _buildMetricCard(title: 'Kirim', value: data.debt, icon: AppIcons.income, color: const Color(0xFF10B981), isUZS: isUZS),
+                child: _buildMetricCard(title: 'Kirim', value: data.debt, icon: AppIcons.income, color: const Color(0xFF16A34A), isUZS: isUZS),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _buildMetricCard(title: 'Chiqim', value: data.credit, icon: AppIcons.chiqim, color: const Color(0xFFEF4444), isUZS: isUZS),
+                child: _buildMetricCard(title: 'Chiqim', value: data.credit, icon: AppIcons.chiqim, color:  const Color(0xFFDC2626), isUZS: isUZS),
               ),
             ],
           ),
@@ -221,11 +273,17 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           Builder(
             builder: (context) {
               final correctedBalance = -data.balanceAmount;
+              final Color qoldiqColor = correctedBalance > 0
+                  ? const Color(0xFF4C8CE4) // Mijozlar qarzi (Green)
+                  : (correctedBalance < 0
+                        ? const Color(0xFF4C8CE4) // Sizning qarzingiz (Red)
+                        : const Color(0xFF4C8CE4)); // 0 (Blue)
+
               return _buildMetricCard(
                 title: 'Qoldiq',
                 value: correctedBalance.toString(),
                 icon: AppIcons.balance,
-                color: const Color(0xFF3B82F6),
+                color: qoldiqColor,
                 isUZS: isUZS,
                 isLarge: true,
                 partnersCount: data.partnersCount,
@@ -290,8 +348,9 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
               ),
             ],
           ),
-          const SizedBox(height: 20),
-
+          const SizedBox(height: 12),
+          Text(' Hisobot turlari', style: TextStyle(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 6),
           // Qarz muddatlari hisoboti Entry Card
           _buildDebtReportEntryCard(context, data, isUZS),
           const SizedBox(height: 12),
@@ -314,8 +373,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.blue.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
-        border: Border.all(color: Colors.blue.withValues(alpha: 0.2), width: 1),
+        border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.2), width: 1),
       ),
       child: Material(
         color: Colors.transparent,
@@ -325,7 +383,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           },
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Row(
               children: [
                 Container(
@@ -334,16 +392,17 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                   child: const Icon(Icons.access_time_rounded, color: Colors.blue, size: 28),
                 ),
                 const SizedBox(width: 16),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Muddat hisoboti',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
                       ),
                       SizedBox(height: 4),
-                      Text('Sana bo\'yicha kirim / chiqim', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                      Text('Sana bo\'yicha kirim / chiqim', style: TextStyle(fontSize: 11, color: Colors.grey)),
                     ],
                   ),
                 ),
@@ -363,7 +422,6 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.blue.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
         border: Border.all(color: Colors.blue.withValues(alpha: 0.2), width: 1),
       ),
       child: Material(
@@ -374,7 +432,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           },
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Row(
               children: [
                 Container(
@@ -383,16 +441,17 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                   child: const Icon(Icons.people_alt_outlined, color: Colors.blue, size: 28),
                 ),
                 const SizedBox(width: 16),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Xodimlar hisoboti',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
                       ),
                       SizedBox(height: 4),
-                      Text('Xodimlar bo\'yicha barcha hisobotlar', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                      Text('Xodimlar bo\'yicha barcha hisobotlar', style: TextStyle(fontSize: 11, color: Colors.grey)),
                     ],
                   ),
                 ),
@@ -412,23 +471,17 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.amber.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.2), width: 1),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.5), width: 1),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DebtReportDetailPage(data: data, isUZS: isUZS),
-              ),
-            );
+            Navigator.push(context, MaterialPageRoute(builder: (context) => DebtReportDetailPage(isUZS: isUZS)));
           },
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Row(
               children: [
                 Container(
@@ -437,16 +490,17 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                   child: Icon(Icons.access_time_rounded, color: Colors.amber.shade900, size: 28),
                 ),
                 const SizedBox(width: 16),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Qarz muddatlari hisoboti',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
                       ),
                       SizedBox(height: 4),
-                      Text('Muddati o\'tgan, bugun va kelgusi qarzlar', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                      Text('Muddati o\'tgan, bugun va kelgusi qarzlar', style: TextStyle(fontSize: 11, color: Colors.grey)),
                     ],
                   ),
                 ),
@@ -461,18 +515,36 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
   }
 
   // Premium Metric Card (Senior Level Design)
-  Widget _buildMetricCard({required String title, required String value, required String icon, required Color color, required bool isUZS, bool isLarge = false, int? partnersCount, String? subtitle}) {
+  Widget _buildMetricCard({
+    required String title,
+    required String value,
+    required String icon,
+    required Color color,
+    required bool isUZS,
+    bool isLarge = false,
+    int? partnersCount,
+    String? subtitle,
+    bool isBordered = false,
+  }) {
     final currencyLabel = isUZS ? 'UZS' : 'USD';
     final displayValue = _formatCurrency(value, isUZS);
+    final contentColor = isBordered ? color : Colors.white;
 
     return Container(
       width: isLarge ? double.infinity : null,
       height: isLarge ? null : 0.11.sh,
       padding: EdgeInsets.all(isLarge ? 18 : 14),
       decoration: BoxDecoration(
-        color: color,
+        color: isBordered ? Colors.white : color,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))],
+        border: isBordered ? Border.all(color: color.withValues(alpha: 0.5), width: 2) : null,
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: isBordered ? 0.1 : 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: isLarge
           ? Stack(
@@ -484,38 +556,41 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       children: [
                         Container(
                           padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
-                          child: SvgPicture.asset(icon, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn), width: 20, height: 20),
+                          decoration: BoxDecoration(color: isBordered ? color.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
+                          child: SvgPicture.asset(icon, colorFilter: ColorFilter.mode(contentColor, BlendMode.srcIn), width: 20, height: 20),
                         ),
                         const SizedBox(width: 10),
-                        Text(
-                          title,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                        Row(
+                          children: [
+                            Text(
+                              title,
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: contentColor),
+                            ),
+                            if (subtitle != null) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                subtitle,
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: contentColor.withValues(alpha: 0.85)),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    if (subtitle != null) ...[
-                      Text(
-                        subtitle,
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.85)),
-                      ),
-                      const SizedBox(height: 4),
-                    ],
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           displayValue,
-                          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.5),
+                          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: contentColor, letterSpacing: 0.5),
                         ),
                         const SizedBox(width: 8),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Text(
                             currencyLabel,
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.8)),
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: contentColor.withValues(alpha: 0.8)),
                           ),
                         ),
                       ],
@@ -528,15 +603,15 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                     right: 0,
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
+                      decoration: BoxDecoration(color: isBordered ? color.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.people_alt_outlined, color: Colors.white, size: 14),
+                          Icon(Icons.people_alt_outlined, color: contentColor, size: 14),
                           const SizedBox(width: 6),
                           Text(
                             '$partnersCount ta',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: contentColor),
                           ),
                         ],
                       ),
@@ -551,13 +626,13 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                   children: [
                     Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
-                      child: SvgPicture.asset(icon, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn), width: 14, height: 14),
+                      decoration: BoxDecoration(color: isBordered ? color.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
+                      child: SvgPicture.asset(icon, colorFilter: ColorFilter.mode(contentColor, BlendMode.srcIn), width: 14, height: 14),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       title,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: contentColor),
                     ),
                   ],
                 ),
@@ -569,13 +644,13 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                     children: [
                       Text(
                         displayValue,
-                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: contentColor),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         currencyLabel,
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.7)),
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: contentColor.withValues(alpha: 0.7)),
                       ),
                     ],
                   ),
@@ -600,7 +675,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           onTap: onTap,
           borderRadius: BorderRadius.circular(14),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
