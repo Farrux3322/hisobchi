@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../../../../presentation/assets/theme/app_theme.dart';
 
 class PSSectionCard extends StatelessWidget {
   final String? label;
@@ -25,13 +28,14 @@ class PSSectionCard extends StatelessWidget {
       children: [
         if (label != null) ...[
           Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            padding: EdgeInsets.only(left: 4.w, bottom: 8.h),
             child: Text(
               label!,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF64748B),
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.colors.gray,
+                letterSpacing: 0.5,
               ),
             ),
           ),
@@ -40,23 +44,24 @@ class PSSectionCard extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: padding ?? const EdgeInsets.all(16),
+            borderRadius: BorderRadius.circular(16.r),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: padding ?? EdgeInsets.all(16.r),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                color: AppTheme.colors.white,
+                borderRadius: BorderRadius.circular(16.r),
                 border: Border.all(
                   color: highlighted
-                      ? (highlightColor ?? const Color(0xFF006FE5))
-                      : const Color(0xFFE1E0EE),
-                  width: highlighted ? 2 : 1,
+                      ? (highlightColor ?? AppTheme.colors.primary)
+                      : AppTheme.colors.divider,
+                  width: highlighted ? 1.5.w : 1.w,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),

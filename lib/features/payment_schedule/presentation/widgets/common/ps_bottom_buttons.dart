@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../../presentation/assets/theme/app_theme.dart';
 
 class PSBottomButtons extends StatelessWidget {
   final bool showBack;
-  final String continueLabel;
   final VoidCallback? onBack;
   final VoidCallback? onContinue;
+  final String continueLabel;
   final Color? continueColor;
   final bool isLoading;
 
   const PSBottomButtons({
     super.key,
     this.showBack = true,
-    this.continueLabel = 'Davom etish',
     this.onBack,
     this.onContinue,
+    this.continueLabel = 'Davom etish',
     this.continueColor,
     this.isLoading = false,
   });
@@ -21,84 +23,71 @@ class PSBottomButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, (24.h + MediaQuery.of(context).padding.bottom)),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 16,
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
             offset: const Offset(0, -4),
           ),
         ],
       ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: [
-            if (showBack) ...[
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: onBack,
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(
-                      color: Color(0xFFE1E0EE),
-                      width: 1,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Orqaga',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF64748B),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-            ],
+      child: Row(
+        children: [
+          if (showBack) ...[
             Expanded(
-              flex: showBack ? 1 : 2,
-              child: ElevatedButton(
-                onPressed: isLoading ? null : onContinue,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor:
-                      continueColor ?? const Color(0xFF006FE5),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  disabledBackgroundColor:
-                      const Color(0xFFE1E0EE),
+              flex: 2,
+              child: OutlinedButton(
+                onPressed: onBack,
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                  side: BorderSide(color: AppTheme.colors.divider),
                 ),
-                child: isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : Text(
-                        continueLabel,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                child: Text(
+                  'Orqaga',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.colors.gray,
+                  ),
+                ),
               ),
             ),
+            SizedBox(width: 12.w),
           ],
-        ),
+          Expanded(
+            flex: 3,
+            child: ElevatedButton(
+              onPressed: isLoading ? null : onContinue,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: continueColor ?? AppTheme.colors.primary,
+                padding: EdgeInsets.symmetric(vertical: 14.h),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                elevation: 0,
+              ),
+              child: isLoading
+                  ? SizedBox(
+                      height: 20.r,
+                      width: 20.r,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.white),
+                      ),
+                    )
+                  : Text(
+                      continueLabel,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.colors.white,
+                      ),
+                    ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import '../../../../presentation/assets/asset_index.dart';
+import '../../data/models/enums.dart';
 import '../../data/models/payment_partner_model.dart';
 import '../bloc/payment_schedule_bloc.dart';
 import '../bloc/payment_schedule_event.dart';
@@ -19,193 +20,209 @@ class Step1BasicInfoPage extends StatelessWidget {
     return BlocBuilder<PaymentScheduleBloc, PaymentScheduleState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: const Color(0xFFF5F6F8),
+          backgroundColor: AppTheme.colors.background,
           body: Column(
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const PSStepIndicator(currentStep: 0),
-                      const SizedBox(height: 24),
-                      const Text(
-                        '1-bosqich · Asosiy ma\'lumotlar',
+                       SizedBox(height: 6.h),
+                      Text(
+                        '1-bosqich • Asosiy ma\'lumotlar',
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF202020),
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.colors.black,
+                          letterSpacing: -0.5,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 12.h),
 
-                      // Partner selection
+                      // Partner selection chip-style
                       PSSectionCard(
-                        label: 'Hamkor',
                         highlighted: state.selectedPartner != null,
                         onTap: () => _showPartnerBottomSheet(context, state),
                         child: Row(
                           children: [
+                            Container(
+                              width: 44.r,
+                              height: 44.r,
+                              decoration: BoxDecoration(
+                                color: (state.selectedPartner != null ? AppTheme.colors.primary : AppTheme.colors.divider).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Center(
+                                child: state.selectedPartner != null
+                                    ? Text(
+                                        state.selectedPartner!.name[0].toUpperCase(),
+                                        style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.primaryText),
+                                      )
+                                    : Icon(Icons.person_search_rounded, color: AppTheme.colors.iconColor, size: 22.r),
+                              ),
+                            ),
+                            SizedBox(width: 14.w),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    state.selectedPartner?.name ?? 'Hamkorni tanlang',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: state.selectedPartner != null
-                                          ? const Color(0xFF202020)
-                                          : const Color(0xFF64748B),
-                                    ),
+                                    'Mijoz',
+                                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.gray, letterSpacing: 0.5),
                                   ),
-                                  if (state.selectedPartner?.phone != null) ...[
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      state.selectedPartner!.phone!,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Color(0xFF64748B),
-                                      ),
+                                  SizedBox(height: 2.h),
+                                  Text(
+                                    state.selectedPartner?.name ?? 'Mijoz tanlash',
+                                    style: TextStyle(
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.w700,
+                                      color: state.selectedPartner != null ? AppTheme.colors.black : AppTheme.colors.gray,
                                     ),
-                                  ],
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ],
                               ),
                             ),
                             Icon(
-                              Icons.chevron_right,
-                              color: state.selectedPartner != null
-                                  ? const Color(0xFF006FE5)
-                                  : const Color(0xFF64748B),
+                              Icons.unfold_more_rounded,
+                              size: 20.r,
+                              color: state.selectedPartner != null ? AppTheme.colors.primary : AppTheme.colors.divider,
                             ),
                           ],
                         ),
                       ),
                       if (state.validationErrors.containsKey('partner'))
                         Padding(
-                          padding: const EdgeInsets.only(left: 4, top: 4),
+                          padding: EdgeInsets.only(left: 4.w, top: 6.h),
                           child: Text(
                             state.validationErrors['partner']!,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFFDE5050),
-                            ),
+                            style: TextStyle(fontSize: 12.sp, color: AppTheme.colors.red, fontWeight: FontWeight.w600),
                           ),
                         ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 12.h),
 
-                      // Total amount
+                      // Financial Bento Card (Amount + Currency)
                       PSSectionCard(
-                        label: 'Jami summa',
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            _ThousandsSeparatorInputFormatter(),
+                        padding: EdgeInsets.zero,
+                        highlighted: true,
+                        highlightColor: AppTheme.colors.primary.withValues(alpha: 0.1),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(16.r, 16.r, 16.r, 0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Miqdor va valyuta',
+                                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.gray, letterSpacing: 0.5),
+                                  ),
+                                  SizedBox(height: 4.h),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.account_balance_wallet_rounded, size: 20.r, color: AppTheme.colors.primary),
+                                      SizedBox(width: 12.w),
+                                      Expanded(
+                                        child: TextField(
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter.digitsOnly,
+                                            _ThousandsSeparatorInputFormatter(),
+                                          ],
+                                          cursorColor: AppTheme.colors.primary,
+                                          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.black),
+                                          decoration: InputDecoration(
+                                            hintText: '0',
+                                            hintStyle: TextStyle(color: AppTheme.colors.divider),
+                                            border: InputBorder.none,
+                                            enabledBorder: InputBorder.none,
+                                            focusedBorder: InputBorder.none,
+                                            isDense: true,
+                                            contentPadding: EdgeInsets.zero,
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                          ),
+                                          onChanged: (value) {
+                                            final amount = double.tryParse(value.replaceAll(' ', '')) ?? 0;
+                                            context.read<PaymentScheduleBloc>().add(PaymentTotalAmountChanged(amount));
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Divider(height: 32.h, thickness: 1.h, color: AppTheme.colors.divider.withValues(alpha: 0.5)),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(16.r, 0, 16.r, 16.r),
+                              child: Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Valyuta turi',
+                                        style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.gray, letterSpacing: 0.5),
+                                      ),
+                                      SizedBox(height: 4.h),
+                                      Text(
+                                        state.currency == PaymentCurrency.uzs ? 'O\'zbek so\'mi' : 'AQSH Dollari',
+                                        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  PSCurrencySelector(
+                                    selectedCurrency: state.currency,
+                                    onChanged: (currency) {
+                                      context.read<PaymentScheduleBloc>().add(PaymentCurrencyChanged(currency));
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
-                          decoration: InputDecoration(
-                            hintText: '1 000 000',
-                            hintStyle: const TextStyle(
-                              color: Color(0xFF64748B),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE1E0EE),
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE1E0EE),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                color: Color(0xFF006FE5),
-                                width: 2,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.all(16),
-                          ),
-                          onChanged: (value) {
-                            final amount = double.tryParse(
-                              value.replaceAll(' ', ''),
-                            ) ?? 0;
-                            context.read<PaymentScheduleBloc>().add(
-                              PaymentTotalAmountChanged(amount),
-                            );
-                          },
                         ),
                       ),
                       if (state.validationErrors.containsKey('amount'))
                         Padding(
-                          padding: const EdgeInsets.only(left: 4, top: 4),
+                          padding: EdgeInsets.only(left: 4.w, top: 6.h),
                           child: Text(
                             state.validationErrors['amount']!,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFFDE5050),
-                            ),
+                            style: TextStyle(fontSize: 12.sp, color: AppTheme.colors.red, fontWeight: FontWeight.w600),
                           ),
                         ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 12.h),
 
-                      // Currency selector
-                      PSSectionCard(
-                        label: 'Valyuta',
-                        child: PSCurrencySelector(
-                          selectedCurrency: state.currency,
-                          onChanged: (currency) {
-                            context.read<PaymentScheduleBloc>().add(
-                              PaymentCurrencyChanged(currency),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Note
+                      // Note field
                       PSSectionCard(
                         label: 'Izoh (ixtiyoriy)',
                         child: TextField(
                           maxLines: 3,
+                          cursorColor: AppTheme.colors.primary,
+                          style: TextStyle(fontSize: 15.sp, color: AppTheme.colors.black, fontWeight: FontWeight.w600),
                           decoration: InputDecoration(
-                            hintText: 'Qurilish materiallari...',
-                            hintStyle: const TextStyle(
-                              color: Color(0xFF64748B),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE1E0EE),
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE1E0EE),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                color: Color(0xFF006FE5),
-                                width: 2,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.all(16),
+                            hintText: 'Tafsilotlarni yozishingiz mumkun...',
+                            hintStyle: TextStyle(color: AppTheme.colors.gray, fontSize: 13.sp),
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                            filled: true,
+                            fillColor: Colors.white,
                           ),
                           onChanged: (value) {
-                            context.read<PaymentScheduleBloc>().add(
-                              PaymentNoteChanged(value),
-                            );
+                            context.read<PaymentScheduleBloc>().add(PaymentNoteChanged(value));
                           },
                         ),
                       ),
+                      SizedBox(height: 24.h),
                     ],
                   ),
                 ),
@@ -213,9 +230,7 @@ class Step1BasicInfoPage extends StatelessWidget {
               PSBottomButtons(
                 showBack: false,
                 onContinue: () {
-                  context.read<PaymentScheduleBloc>().add(
-                    const PaymentStepChanged(1),
-                  );
+                  context.read<PaymentScheduleBloc>().add(const PaymentStepChanged(1));
                 },
               ),
             ],
@@ -225,126 +240,103 @@ class Step1BasicInfoPage extends StatelessWidget {
     );
   }
 
-  void _showPartnerBottomSheet(
-    BuildContext context,
-    PaymentScheduleState state,
-  ) {
+  void _showPartnerBottomSheet(BuildContext context, PaymentScheduleState state) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (bottomSheetContext) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        height: 0.85.sh,
+        decoration: BoxDecoration(
+          color: AppTheme.colors.background,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
         ),
         child: Column(
           children: [
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE1E0EE),
-                borderRadius: BorderRadius.circular(2),
-              ),
+              width: 48.w,
+              height: 5.h,
+              decoration: BoxDecoration(color: AppTheme.colors.divider, borderRadius: BorderRadius.circular(10.r)),
             ),
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
+            SizedBox(height: 16.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Text(
                 'Hamkorni tanlang',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF202020),
-                ),
+                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.black),
               ),
             ),
-            const SizedBox(height: 16),
-            const Divider(height: 1),
+            SizedBox(height: 16.h),
+            Divider(height: 1.h, thickness: 1.h, color: AppTheme.colors.divider),
             Expanded(
               child: ListView.separated(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(20.r),
                 itemCount: PaymentPartnerModel.mockList.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (_, __) => SizedBox(height: 12.h),
                 itemBuilder: (_, index) {
                   final partner = PaymentPartnerModel.mockList[index];
                   final isSelected = state.selectedPartner?.id == partner.id;
 
                   return GestureDetector(
                     onTap: () {
-                      context.read<PaymentScheduleBloc>().add(
-                        PaymentPartnerSelected(partner),
-                      );
+                      context.read<PaymentScheduleBloc>().add(PaymentPartnerSelected(partner));
                       Navigator.pop(bottomSheetContext);
                     },
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: EdgeInsets.all(16.r),
                       decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xFF006FE5).withOpacity(0.1)
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        color: AppTheme.colors.white,
+                        borderRadius: BorderRadius.circular(18.r),
                         border: Border.all(
-                          color: isSelected
-                              ? const Color(0xFF006FE5)
-                              : const Color(0xFFE1E0EE),
-                          width: isSelected ? 2 : 1,
+                          color: isSelected ? AppTheme.colors.primary : AppTheme.colors.divider,
+                          width: isSelected ? 2.w : 1.w,
                         ),
+                        boxShadow: isSelected
+                            ? [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.1), blurRadius: 12, offset: const Offset(0, 5))]
+                            : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 3))],
                       ),
                       child: Row(
                         children: [
                           Container(
-                            width: 48,
-                            height: 48,
+                            width: 52.r,
+                            height: 52.r,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF006FE5).withOpacity(0.1),
-                              shape: BoxShape.circle,
+                              color: (isSelected ? AppTheme.colors.primaryText : AppTheme.colors.divider).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Center(
                               child: Text(
                                 partner.name[0].toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF006FE5),
+                                style: TextStyle(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: isSelected ? AppTheme.colors.primaryText : AppTheme.colors.gray,
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 14.w),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   partner.name,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF202020),
-                                  ),
+                                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
                                 ),
                                 if (partner.phone != null) ...[
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: 2.h),
                                   Text(
                                     partner.phone!,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Color(0xFF64748B),
-                                    ),
+                                    style: TextStyle(fontSize: 13.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w500),
                                   ),
                                 ],
                               ],
                             ),
                           ),
-                          if (isSelected)
-                            const Icon(
-                              Icons.check_circle,
-                              color: Color(0xFF006FE5),
-                            ),
+                          if (isSelected) Icon(Icons.check_circle_rounded, color: AppTheme.colors.primary, size: 24.r),
                         ],
                       ),
                     ),
@@ -363,19 +355,10 @@ class _ThousandsSeparatorInputFormatter extends TextInputFormatter {
   final NumberFormat _formatter = NumberFormat('#,###', 'en_US');
 
   @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.text.isEmpty) {
-      return newValue;
-    }
-
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.isEmpty) return newValue;
     final number = int.tryParse(newValue.text.replaceAll(RegExp(r'[^0-9]'), ''));
-    if (number == null) {
-      return oldValue;
-    }
-
+    if (number == null) return oldValue;
     final formatted = _formatter.format(number).replaceAll(',', ' ');
     return TextEditingValue(
       text: formatted,

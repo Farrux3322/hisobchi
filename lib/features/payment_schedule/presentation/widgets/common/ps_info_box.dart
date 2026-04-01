@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../../../../presentation/assets/theme/app_theme.dart';
 
 enum InfoBoxType { info, success, warning }
 
@@ -18,25 +21,33 @@ class PSInfoBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = _getColors();
 
-    return Container(
-      padding: const EdgeInsets.all(16),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: colors.background,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: colors.border,
-          width: 1,
+          width: 1.w,
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            _getIcon(),
-            color: colors.icon,
-            size: 20,
+          Container(
+            padding: EdgeInsets.all(8.r),
+            decoration: BoxDecoration(
+              color: colors.iconBackground,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              _getIcon(),
+              color: colors.icon,
+              size: 20.r,
+            ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,18 +55,20 @@ class PSInfoBox extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
                     color: colors.text,
+                    letterSpacing: 0.3,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   description,
                   style: TextStyle(
-                    fontSize: 13,
-                    color: colors.text.withOpacity(0.8),
-                    height: 1.4,
+                    fontSize: 13.sp,
+                    color: colors.text.withValues(alpha: 0.8),
+                    height: 1.5,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -70,24 +83,27 @@ class PSInfoBox extends StatelessWidget {
     switch (type) {
       case InfoBoxType.info:
         return _InfoBoxColors(
-          background: const Color(0xFF006FE5).withOpacity(0.1),
-          border: const Color(0xFF006FE5).withOpacity(0.2),
-          icon: const Color(0xFF006FE5),
-          text: const Color(0xFF006FE5),
+          background: AppTheme.colors.primary.withValues(alpha: 0.05),
+          border: AppTheme.colors.primary.withValues(alpha: 0.1),
+          icon: AppTheme.colors.primary,
+          iconBackground: AppTheme.colors.primary.withValues(alpha: 0.1),
+          text: AppTheme.colors.primary,
         );
       case InfoBoxType.success:
         return _InfoBoxColors(
-          background: const Color(0xFF00D856).withOpacity(0.1),
-          border: const Color(0xFF00D856).withOpacity(0.2),
-          icon: const Color(0xFF00D856),
-          text: const Color(0xFF00A844),
+          background: AppTheme.colors.green.withValues(alpha: 0.05),
+          border: AppTheme.colors.green.withValues(alpha: 0.1),
+          icon: AppTheme.colors.green,
+          iconBackground: AppTheme.colors.green.withValues(alpha: 0.1),
+          text: const Color(0xFF166534), // Darker green for text readability
         );
       case InfoBoxType.warning:
         return _InfoBoxColors(
-          background: const Color(0xFFFF9500).withOpacity(0.1),
-          border: const Color(0xFFFF9500).withOpacity(0.2),
-          icon: const Color(0xFFFF9500),
-          text: const Color(0xFFCC7700),
+          background: const Color(0xFFFFF7ED),
+          border: const Color(0xFFFFEDD5),
+          icon: const Color(0xFFF97316),
+          iconBackground: const Color(0xFFFFEDD5),
+          text: const Color(0xFF9A3412), // Darker orange for text readability
         );
     }
   }
@@ -95,11 +111,11 @@ class PSInfoBox extends StatelessWidget {
   IconData _getIcon() {
     switch (type) {
       case InfoBoxType.info:
-        return Icons.info_outline;
+        return Icons.info_rounded;
       case InfoBoxType.success:
-        return Icons.check_circle_outline;
+        return Icons.check_circle_rounded;
       case InfoBoxType.warning:
-        return Icons.warning_amber_outlined;
+        return Icons.warning_rounded;
     }
   }
 }
@@ -108,12 +124,14 @@ class _InfoBoxColors {
   final Color background;
   final Color border;
   final Color icon;
+  final Color iconBackground;
   final Color text;
 
   const _InfoBoxColors({
     required this.background,
     required this.border,
     required this.icon,
+    required this.iconBackground,
     required this.text,
   });
 }
