@@ -11,7 +11,12 @@ abstract class PaymentScheduleEvent extends Equatable {
 }
 
 class PaymentScheduleStarted extends PaymentScheduleEvent {
-  const PaymentScheduleStarted();
+  final PaymentPartnerModel? initialPartner;
+
+  const PaymentScheduleStarted({this.initialPartner});
+
+  @override
+  List<Object?> get props => [initialPartner];
 }
 
 class PaymentPartnerSelected extends PaymentScheduleEvent {

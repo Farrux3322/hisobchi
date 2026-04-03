@@ -26,6 +26,7 @@ class PaymentScheduleState extends Equatable {
   final List<InstallmentItemModel> calculatedInstallments;
   final String? errorMessage;
   final Map<String, String> validationErrors;
+  final bool isPartnerLocked;
 
   PaymentScheduleState({
     this.status = PaymentScheduleStatus.initial,
@@ -43,6 +44,7 @@ class PaymentScheduleState extends Equatable {
     this.calculatedInstallments = const [],
     this.errorMessage,
     this.validationErrors = const {},
+    this.isPartnerLocked = false,
   }) : startDate = startDate ?? DateTime.now();
 
   PaymentScheduleState copyWith({
@@ -61,6 +63,7 @@ class PaymentScheduleState extends Equatable {
     List<InstallmentItemModel>? calculatedInstallments,
     String? errorMessage,
     Map<String, String>? validationErrors,
+    bool? isPartnerLocked,
   }) {
     return PaymentScheduleState(
       status: status ?? this.status,
@@ -78,6 +81,7 @@ class PaymentScheduleState extends Equatable {
       calculatedInstallments: calculatedInstallments ?? this.calculatedInstallments,
       errorMessage: errorMessage,
       validationErrors: validationErrors ?? this.validationErrors,
+      isPartnerLocked: isPartnerLocked ?? this.isPartnerLocked,
     );
   }
 
@@ -98,5 +102,6 @@ class PaymentScheduleState extends Equatable {
         calculatedInstallments,
         errorMessage,
         validationErrors,
+        isPartnerLocked,
       ];
 }

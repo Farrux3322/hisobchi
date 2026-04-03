@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/enums.dart';
+import '../../data/models/payment_partner_model.dart';
 import '../bloc/payment_schedule_bloc.dart';
 import '../bloc/payment_schedule_event.dart';
 import '../bloc/payment_schedule_state.dart';
@@ -10,13 +11,15 @@ import 'step3_equal_schedule_page.dart';
 import 'step3_free_schedule_page.dart';
 
 class PaymentSchedulePage extends StatelessWidget {
-  const PaymentSchedulePage({super.key});
+  final PaymentPartnerModel? initialPartner;
+
+  const PaymentSchedulePage({super.key, this.initialPartner});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => PaymentScheduleBloc()
-        ..add(const PaymentScheduleStarted()),
+        ..add(PaymentScheduleStarted(initialPartner: initialPartner)),
       child: BlocConsumer<PaymentScheduleBloc, PaymentScheduleState>(
         listener: (context, state) {
           if (state.status == PaymentScheduleStatus.success) {

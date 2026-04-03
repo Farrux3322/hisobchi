@@ -16,11 +16,11 @@ import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:hisobchi/presentation/pages/client/client_xisob_kitob.dart';
 import 'package:hisobchi/presentation/pages/client/report/report_client_show_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_delete_dialog.dart';
-import 'package:hisobchi/presentation/pages/client/sms_setting_page.dart';
-import 'package:hisobchi/presentation/pages/client/sms_detail_page.dart';
+import 'package:hisobchi/presentation/pages/client/sms_menu_page.dart';
+import 'package:hisobchi/features/payment_schedule/data/models/payment_partner_model.dart';
+import 'package:hisobchi/features/payment_schedule/presentation/pages/payment_schedule_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/kirim_bottom_sheet.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
-import 'package:hisobchi/utils/url_louncher_util.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
@@ -53,6 +53,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     // main_currency_type_id: 1 = UZS (index 0), 2 = USD (index 1)
     final int initialIndex = (widget.partnerModel.mainCurrencyTypeId == 1) ? 0 : 1;
     _tabController = TabController(length: 2, vsync: this, initialIndex: initialIndex);
+    _tabController.addListener(() => setState(() {}));
     context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
   }
 
@@ -60,23 +61,6 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   void dispose() {
     _tabController.dispose();
     super.dispose();
-  }
-
-  Widget _iconButton(String icon, {VoidCallback? onTap}) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(10),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: AppTheme.colors.white,
-          border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: SvgPicture.asset(icon, height: 24, width: 24, colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)),
-      ),
-    );
   }
 
   @override
@@ -120,20 +104,6 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 ),
               ),
               actions: [
-                // IconButton(
-                //   icon: SvgPicture.asset(AppIcons.smsHistory),
-                //   onPressed: () {
-                //     Navigator.push(
-                //       context,
-                //       MaterialPageRoute(
-                //         builder: (context) => SmsDetailPage(
-                //           partnerId: widget.partnerModel.id ?? 0,
-                //           partnerName: widget.partnerModel.name ?? 'SMS Tarixi',
-                //         ),
-                //       ),
-                //     );
-                //   },
-                // ),
                 IconButton(
                   icon: Icon(Icons.settings, color: AppTheme.colors.primary),
                   onPressed: () {
@@ -141,7 +111,15 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                       Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
                       return;
                     }
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => SmsSettingPage(partnerId: widget.partnerModel.id ?? 0))).then((v) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SmsMenuPage(
+                          partnerId: widget.partnerModel.id ?? 0,
+                          partnerName: widget.partnerModel.name ?? '',
+                        ),
+                      ),
+                    ).then((v) {
                       if (v == true && context.mounted) {
                         _markAsChanged();
                       }
@@ -274,7 +252,6 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                         final bool isSoftDelete = widget.partnerModel.deletedAt != null;
 
                                         if (isSoftDelete) {
-                                          print('77777');
                                           // Soft delete: Faqat User (Owner) qila oladi
                                           if (UserData.isWorkerMode) {
                                             Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
@@ -343,38 +320,39 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              _iconButton(
-                                AppIcons.smsHistory,
-                                onTap: () async {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => SmsDetailPage(partnerId: widget.partnerModel.id ?? 0, partnerName: widget.partnerModel.name ?? 'SMS Tarixi'),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    final partner = PaymentPartnerModel(
+                                      id: widget.partnerModel.id?.toString() ?? '',
+                                      name: widget.partnerModel.name ?? '',
+                                      phone: widget.partnerModel.phone,
+                                    );
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => PaymentSchedulePage(initialPartner: partner),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.colors.white,
+                                      border: Border.all(color: AppTheme.colors.primary.withValues(alpha: 0.5)),
+                                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                  );
-                                },
-                              ),
-                              const SizedBox(width: 8),
-                              _iconButton(
-                                AppIcons.phoneSms,
-                                onTap: () async {
-                                  try {
-                                    await launchSms(widget.partnerModel.phone ?? '');
-                                  } catch (e) {
-                                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xato: $e')));
-                                  }
-                                },
-                              ),
-                              const SizedBox(width: 8),
-                              _iconButton(
-                                AppIcons.phone,
-                                onTap: () async {
-                                  try {
-                                    await launchPhone(widget.partnerModel.phone ?? '');
-                                  } catch (e) {
-                                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xato: $e')));
-                                  }
-                                },
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.calendar_month_outlined, size: 20, color: AppTheme.colors.primary),
+                                        const SizedBox(width: 6),
+                                        Text('Bo\'lib to\'lash', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15)),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -384,33 +362,53 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
 
                     const SizedBox(height: 12),
 
-                    // Currency TabBar - Professional Design
+                    // Currency TabBar - Modern Toggle Design
                     Container(
-                      padding: EdgeInsets.all(4),
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
-
-                        borderRadius: BorderRadius.circular(10.r),
+                        borderRadius: BorderRadius.circular(16.r),
                       ),
-
-                      child: TabBar(
-                        controller: _tabController,
-                        indicator: BoxDecoration(
-                          color: AppTheme.colors.primary,
-                          borderRadius: BorderRadius.circular(12.r),
-                          boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
-                        ),
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        dividerColor: Colors.transparent,
-                        labelColor: AppTheme.colors.white,
-                        unselectedLabelColor: const Color(0xFF64748B),
-                        labelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
-                        unselectedLabelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500),
-                        indicatorPadding: EdgeInsets.all(4.w),
-                        tabs: const [
-                          Tab(child: Text('UZS Hisob')),
-                          Tab(child: Text('USD Hisob')),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () => _tabController.animateTo(0),
+                              child: Center(
+                                child: Text(
+                                  'UZS Hisob',
+                                  style: TextStyle(
+                                    color: _tabController.index == 0 ? const Color(0xFF1E293B) : const Color(0xFF94A3B8),
+                                    fontSize: 14.sp,
+                                    fontWeight: _tabController.index == 0 ? FontWeight.w800 : FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(width: 1.5, height: 18.h, color: const Color(0xFFCBD5E1).withValues(alpha: 0.6)),
+                              SizedBox(width: 2.5.w),
+                              Container(width: 1.5, height: 18.h, color: const Color(0xFFCBD5E1).withValues(alpha: 0.6)),
+                            ],
+                          ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () => _tabController.animateTo(1),
+                              child: Center(
+                                child: Text(
+                                  'USD Hisob',
+                                  style: TextStyle(
+                                    color: _tabController.index == 1 ? const Color(0xFF1E293B) : const Color(0xFF94A3B8),
+                                    fontSize: 14.sp,
+                                    fontWeight: _tabController.index == 1 ? FontWeight.w800 : FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),

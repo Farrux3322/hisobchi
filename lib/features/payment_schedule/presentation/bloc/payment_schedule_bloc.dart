@@ -34,6 +34,8 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
     emit(state.copyWith(
       status: PaymentScheduleStatus.initial,
       currentStep: 0,
+      selectedPartner: event.initialPartner,
+      isPartnerLocked: event.initialPartner != null,
     ));
   }
 

@@ -297,7 +297,7 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
         },
         child: ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          padding: EdgeInsets.symmetric(horizontal: 12.w),
           itemCount: state.hasReachedMax ? filteredPartners.length : filteredPartners.length + 1,
           itemBuilder: (context, index) {
             if (index >= filteredPartners.length) {

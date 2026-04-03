@@ -149,7 +149,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
       child: ListView.builder(
         physics: AlwaysScrollableScrollPhysics(),
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding:  EdgeInsets.symmetric(horizontal: 12.w),
         itemCount: state.hasReachedMax ? projects.length : projects.length + 1,
         itemBuilder: (context, index) {
           if (index >= projects.length) {

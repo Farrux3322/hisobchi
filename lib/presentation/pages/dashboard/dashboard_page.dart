@@ -87,7 +87,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                         child: SlideTransition(
                           position: _slideAnimation,
                           child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20.w),
+                            padding: EdgeInsets.symmetric(horizontal: 12.w),
                             child: _buildBody(state),
                           ),
                         ),

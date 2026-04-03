@@ -45,7 +45,7 @@ class Step1BasicInfoPage extends StatelessWidget {
                       // Partner selection chip-style
                       PSSectionCard(
                         highlighted: state.selectedPartner != null,
-                        onTap: () => _showPartnerBottomSheet(context, state),
+                        onTap: state.isPartnerLocked ? null : () => _showPartnerBottomSheet(context, state),
                         child: Row(
                           children: [
                             Container(
@@ -87,11 +87,14 @@ class Step1BasicInfoPage extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            Icon(
-                              Icons.unfold_more_rounded,
-                              size: 20.r,
-                              color: state.selectedPartner != null ? AppTheme.colors.primary : AppTheme.colors.divider,
-                            ),
+                            if (state.isPartnerLocked)
+                              Icon(Icons.lock_rounded, size: 18.r, color: AppTheme.colors.gray)
+                            else
+                              Icon(
+                                Icons.unfold_more_rounded,
+                                size: 20.r,
+                                color: state.selectedPartner != null ? AppTheme.colors.primary : AppTheme.colors.divider,
+                              ),
                           ],
                         ),
                       ),
