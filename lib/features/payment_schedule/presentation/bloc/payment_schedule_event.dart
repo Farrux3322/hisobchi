@@ -12,7 +12,6 @@ abstract class PaymentScheduleEvent extends Equatable {
 
 class PaymentScheduleStarted extends PaymentScheduleEvent {
   final PaymentPartnerModel? initialPartner;
-
   const PaymentScheduleStarted({this.initialPartner});
 
   @override
@@ -21,7 +20,6 @@ class PaymentScheduleStarted extends PaymentScheduleEvent {
 
 class PaymentPartnerSelected extends PaymentScheduleEvent {
   final PaymentPartnerModel partner;
-
   const PaymentPartnerSelected(this.partner);
 
   @override
@@ -30,7 +28,6 @@ class PaymentPartnerSelected extends PaymentScheduleEvent {
 
 class PaymentTotalAmountChanged extends PaymentScheduleEvent {
   final double amount;
-
   const PaymentTotalAmountChanged(this.amount);
 
   @override
@@ -39,7 +36,6 @@ class PaymentTotalAmountChanged extends PaymentScheduleEvent {
 
 class PaymentCurrencyChanged extends PaymentScheduleEvent {
   final PaymentCurrency currency;
-
   const PaymentCurrencyChanged(this.currency);
 
   @override
@@ -48,16 +44,15 @@ class PaymentCurrencyChanged extends PaymentScheduleEvent {
 
 class PaymentNoteChanged extends PaymentScheduleEvent {
   final String note;
-
   const PaymentNoteChanged(this.note);
 
   @override
   List<Object?> get props => [note];
 }
 
+/// scheduleType: PaymentScheduleType.equal | PaymentScheduleType.custom
 class PaymentScheduleTypeSelected extends PaymentScheduleEvent {
   final PaymentScheduleType type;
-
   const PaymentScheduleTypeSelected(this.type);
 
   @override
@@ -66,7 +61,6 @@ class PaymentScheduleTypeSelected extends PaymentScheduleEvent {
 
 class PaymentStartDateChanged extends PaymentScheduleEvent {
   final DateTime date;
-
   const PaymentStartDateChanged(this.date);
 
   @override
@@ -75,7 +69,6 @@ class PaymentStartDateChanged extends PaymentScheduleEvent {
 
 class PaymentInstallmentCountChanged extends PaymentScheduleEvent {
   final int count;
-
   const PaymentInstallmentCountChanged(this.count);
 
   @override
@@ -84,7 +77,6 @@ class PaymentInstallmentCountChanged extends PaymentScheduleEvent {
 
 class PaymentAdvanceToggled extends PaymentScheduleEvent {
   final bool isEnabled;
-
   const PaymentAdvanceToggled(this.isEnabled);
 
   @override
@@ -93,7 +85,6 @@ class PaymentAdvanceToggled extends PaymentScheduleEvent {
 
 class PaymentAdvanceAmountChanged extends PaymentScheduleEvent {
   final double amount;
-
   const PaymentAdvanceAmountChanged(this.amount);
 
   @override
@@ -105,8 +96,7 @@ class PaymentFreeInstallmentAdded extends PaymentScheduleEvent {
 }
 
 class PaymentFreeInstallmentRemoved extends PaymentScheduleEvent {
-  final String id;
-
+  final int id;
   const PaymentFreeInstallmentRemoved(this.id);
 
   @override
@@ -115,7 +105,6 @@ class PaymentFreeInstallmentRemoved extends PaymentScheduleEvent {
 
 class PaymentFreeInstallmentUpdated extends PaymentScheduleEvent {
   final InstallmentItemModel item;
-
   const PaymentFreeInstallmentUpdated(this.item);
 
   @override
@@ -128,7 +117,6 @@ class PaymentScheduleSubmitted extends PaymentScheduleEvent {
 
 class PaymentStepChanged extends PaymentScheduleEvent {
   final int step;
-
   const PaymentStepChanged(this.step);
 
   @override

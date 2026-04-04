@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../presentation/assets/asset_index.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/payment_partner_model.dart';
 import '../bloc/payment_schedule_bloc.dart';
@@ -18,25 +20,26 @@ class PaymentSchedulePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PaymentScheduleBloc()
+      create: (_) => PaymentScheduleBloc()
         ..add(PaymentScheduleStarted(initialPartner: initialPartner)),
       child: BlocConsumer<PaymentScheduleBloc, PaymentScheduleState>(
         listener: (context, state) {
           if (state.status == PaymentScheduleStatus.success) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Grafik saqlandi va SMS yuborildi'),
-                backgroundColor: Color(0xFF00D856),
+              SnackBar(
+                content: const Text("Grafik saqlandi"),
+                backgroundColor: AppTheme.colors.green,
                 behavior: SnackBarBehavior.floating,
-                duration: Duration(seconds: 3),
+                duration: const Duration(seconds: 2),
               ),
             );
-            Navigator.pop(context);
+            // true = yangi reja yaratildi, ListPage refresh qilsin
+            Navigator.pop(context, true);
           } else if (state.status == PaymentScheduleStatus.failure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage ?? 'Xatolik yuz berdi'),
-                backgroundColor: const Color(0xFFDE5050),
+                backgroundColor: AppTheme.colors.red,
                 behavior: SnackBarBehavior.floating,
                 duration: const Duration(seconds: 3),
               ),
@@ -46,61 +49,43 @@ class PaymentSchedulePage extends StatelessWidget {
         builder: (context, state) {
           return PopScope(
             canPop: state.currentStep == 0,
-            onPopInvokedWithResult: (didPop, result) {
+            onPopInvokedWithResult: (didPop, _) {
               if (!didPop && state.currentStep > 0) {
-                context.read<PaymentScheduleBloc>().add(
-                      const PaymentStepBack(),
-                    );
+                context.read<PaymentScheduleBloc>().add(const PaymentStepBack());
               }
             },
             child: Scaffold(
+              backgroundColor: AppTheme.colors.background,
               appBar: AppBar(
-                backgroundColor: Colors.white,
+                backgroundColor: AppTheme.colors.white,
                 elevation: 0,
                 leading: IconButton(
-                  icon: const Icon(
-                    Icons.close,
-                    color: Color(0xFF202020),
-                  ),
+                  icon: Icon(Icons.close_rounded, color: AppTheme.colors.black, size: 22),
                   onPressed: () {
                     if (state.currentStep == 0) {
                       Navigator.pop(context);
                     } else {
-                      context.read<PaymentScheduleBloc>().add(
-                            const PaymentStepBack(),
-                          );
+                      context.read<PaymentScheduleBloc>().add(const PaymentStepBack());
                     }
                   },
                 ),
-                title: const Text(
-                  'Bo\'lib to\'lash',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF202020),
-                  ),
+                title: Text(
+                  "Bo'lib to'lash",
+                  style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
                 ),
                 centerTitle: true,
               ),
               body: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 280),
                 transitionBuilder: (child, animation) {
-                  final offsetAnimation = Tween<Offset>(
-                    begin: const Offset(1.0, 0.0),
-                    end: Offset.zero,
-                  ).animate(
-                    CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeInOut,
-                    ),
-                  );
-
                   return SlideTransition(
-                    position: offsetAnimation,
-                    child: child,
+                    position: Tween<Offset>(begin: const Offset(0.08, 0), end: Offset.zero).animate(
+                      CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                    ),
+                    child: FadeTransition(opacity: animation, child: child),
                   );
                 },
-                child: _buildCurrentStep(state),
+                child: _buildStep(state),
               ),
             ),
           );
@@ -109,27 +94,22 @@ class PaymentSchedulePage extends StatelessWidget {
     );
   }
 
-  Widget _buildCurrentStep(PaymentScheduleState state) {
-    // Step 0: Basic info
-    if (state.currentStep == 0) {
-      return const Step1BasicInfoPage(key: ValueKey(0));
+  Widget _buildStep(PaymentScheduleState state) {
+    switch (state.currentStep) {
+      case 0:
+        return const Step1BasicInfoPage(key: ValueKey(0));
+      case 1:
+        return const Step2ScheduleTypePage(key: ValueKey(1));
+      case 2:
+        if (state.scheduleType == PaymentScheduleType.equal) {
+          return const Step3EqualSchedulePage(key: ValueKey(2));
+        }
+        if (state.scheduleType == PaymentScheduleType.custom) {
+          return const Step3FreeSchedulePage(key: ValueKey(3));
+        }
+        return const Step1BasicInfoPage(key: ValueKey(0));
+      default:
+        return const Step1BasicInfoPage(key: ValueKey(0));
     }
-
-    // Step 1: Schedule type
-    if (state.currentStep == 1) {
-      return const Step2ScheduleTypePage(key: ValueKey(1));
-    }
-
-    // Step 2: Details based on schedule type
-    if (state.currentStep == 2) {
-      if (state.scheduleType == PaymentScheduleType.equal) {
-        return const Step3EqualSchedulePage(key: ValueKey(2));
-      } else if (state.scheduleType == PaymentScheduleType.free) {
-        return const Step3FreeSchedulePage(key: ValueKey(3));
-      }
-    }
-
-    // Fallback to step 0
-    return const Step1BasicInfoPage(key: ValueKey(0));
   }
 }

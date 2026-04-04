@@ -1,73 +1,113 @@
 import 'package:equatable/equatable.dart';
 import 'enums.dart';
 
+/// Preview item-lar uchun unique id generatori (manfiy, server id-lari musbat)
+int _previewIdCounter = -1;
+int _nextPreviewId() => _previewIdCounter--;
+
+/// copyWith da null ni ifodalash uchun sentinel (nullable fieldlar uchun)
+const Object _sentinel = Object();
+
 class InstallmentItemModel extends Equatable {
-  final String id;
-  final int index;
-  final String label;
-  final double amount;
-  final DateTime dueDate;
+  final int id;
+  final int itemNumber;
   final bool isAdvance;
+  final double amount;
+  final double paidAmount;
+  final double remaining;
+  final String dueDate; // "2026-05-01" formatida
+  final String? paidAt; // "02.05.2026 09:15" yoki null
   final InstallmentStatus status;
+  final String statusLabel;
+  final String? note;
 
   const InstallmentItemModel({
     required this.id,
-    required this.index,
-    required this.label,
+    required this.itemNumber,
+    required this.isAdvance,
     required this.amount,
+    required this.paidAmount,
+    required this.remaining,
     required this.dueDate,
-    this.isAdvance = false,
-    this.status = InstallmentStatus.pending,
+    this.paidAt,
+    required this.status,
+    required this.statusLabel,
+    this.note,
   });
 
   factory InstallmentItemModel.fromJson(Map<String, dynamic> json) {
     return InstallmentItemModel(
-      id: json['id']?.toString() ?? '',
-      index: json['index'] as int? ?? 0,
-      label: json['label']?.toString() ?? '',
-      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
-      dueDate: json['dueDate'] != null
-          ? DateTime.parse(json['dueDate'].toString())
-          : DateTime.now(),
-      isAdvance: json['isAdvance'] as bool? ?? false,
-      status: json['status'] != null
-          ? InstallmentStatus.fromString(json['status'].toString())
-          : InstallmentStatus.pending,
+      id: json['id'] as int? ?? 0,
+      itemNumber: json['item_number'] as int? ?? 0,
+      isAdvance: json['is_advance'] as bool? ?? false,
+      amount: double.tryParse(json['amount']?.toString() ?? '0') ?? 0.0,
+      paidAmount: double.tryParse(json['paid_amount']?.toString() ?? '0') ?? 0.0,
+      remaining: double.tryParse(json['remaining']?.toString() ?? '0') ?? 0.0,
+      dueDate: json['due_date']?.toString() ?? '',
+      paidAt: json['paid_at']?.toString(),
+      status: InstallmentStatus.fromString(json['status']?.toString() ?? 'pending'),
+      statusLabel: json['status_label']?.toString() ?? '',
+      note: json['note']?.toString(),
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'index': index,
-      'label': label,
-      'amount': amount,
-      'dueDate': dueDate.toIso8601String(),
-      'isAdvance': isAdvance,
-      'status': status.value,
-    };
+  /// Preview uchun (BLoC ichida qo'lda yaratiladi).
+  /// Har bir item unique negative id oladi (server id-lari musbat bo'ladi).
+  factory InstallmentItemModel.preview({
+    required int itemNumber,
+    required bool isAdvance,
+    required double amount,
+    required String dueDate,
+  }) {
+    return InstallmentItemModel(
+      id: _nextPreviewId(),
+      itemNumber: itemNumber,
+      isAdvance: isAdvance,
+      amount: amount,
+      paidAmount: 0,
+      remaining: amount,
+      dueDate: dueDate,
+      status: InstallmentStatus.pending,
+      statusLabel: 'Kutilmoqda',
+    );
   }
 
+  String get label {
+    if (isAdvance) return 'Avans';
+    return '$itemNumber-qism';
+  }
+
+  bool get isPaid => status == InstallmentStatus.paid;
+  bool get isPartial => status == InstallmentStatus.partial;
+
   InstallmentItemModel copyWith({
-    String? id,
-    int? index,
-    String? label,
-    double? amount,
-    DateTime? dueDate,
+    int? id,
+    int? itemNumber,
     bool? isAdvance,
+    double? amount,
+    double? paidAmount,
+    double? remaining,
+    String? dueDate,
+    String? paidAt,
     InstallmentStatus? status,
+    String? statusLabel,
+    Object? note = _sentinel,
   }) {
     return InstallmentItemModel(
       id: id ?? this.id,
-      index: index ?? this.index,
-      label: label ?? this.label,
-      amount: amount ?? this.amount,
-      dueDate: dueDate ?? this.dueDate,
+      itemNumber: itemNumber ?? this.itemNumber,
       isAdvance: isAdvance ?? this.isAdvance,
+      amount: amount ?? this.amount,
+      paidAmount: paidAmount ?? this.paidAmount,
+      remaining: remaining ?? this.remaining,
+      dueDate: dueDate ?? this.dueDate,
+      paidAt: paidAt ?? this.paidAt,
       status: status ?? this.status,
+      statusLabel: statusLabel ?? this.statusLabel,
+      note: note == _sentinel ? this.note : note as String?,
     );
   }
 
   @override
-  List<Object?> get props => [id, index, label, amount, dueDate, isAdvance, status];
+  List<Object?> get props => [id, itemNumber, isAdvance, amount, paidAmount, remaining, dueDate, paidAt, status, statusLabel, note];
 }

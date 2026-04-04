@@ -56,18 +56,18 @@ class Step2ScheduleTypePage extends StatelessWidget {
                       ),
                       SizedBox(height: 12.h),
 
-                      // Free schedule card
+                      // Custom (erkin) schedule card
                       _ScheduleTypeCard(
-                        type: PaymentScheduleType.free,
-                        isSelected: state.scheduleType == PaymentScheduleType.free,
+                        type: PaymentScheduleType.custom,
+                        isSelected: state.scheduleType == PaymentScheduleType.custom,
                         title: 'Erkin grafik',
                         description:
-                            'Har bir qism uchun summa va sanani alohida belgilang. To\'liq moslashuvchanlik va nazorat.',
+                            "Har bir qism uchun summa va sanani alohida belgilang. To'liq moslashuvchanlik va nazorat.",
                         icon: Icons.edit_calendar_rounded,
                         color: AppTheme.colors.primary,
                         onTap: () {
                           context.read<PaymentScheduleBloc>().add(
-                                const PaymentScheduleTypeSelected(PaymentScheduleType.free),
+                                const PaymentScheduleTypeSelected(PaymentScheduleType.custom),
                               );
                         },
                       ),

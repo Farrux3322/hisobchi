@@ -132,7 +132,9 @@ class PSInstallmentCard extends StatelessWidget {
               Expanded(
                 child: _buildField(
                   label: 'To\'lov sanasi',
-                  value: dateFormat.format(item.dueDate),
+                  value: item.dueDate.isNotEmpty
+                      ? dateFormat.format(DateTime.tryParse(item.dueDate) ?? DateTime.now())
+                      : '-',
                   isEditable: isEditable,
                   onTap: isEditable && onDateEdit != null
                       ? () => _showDatePicker(context)
@@ -283,11 +285,15 @@ class PSInstallmentCard extends StatelessWidget {
   }
 
   void _showDatePicker(BuildContext context) async {
+    final parsed = item.dueDate.isNotEmpty ? DateTime.tryParse(item.dueDate) : null;
+    final initial = (parsed != null && parsed.isAfter(DateTime.now().subtract(const Duration(days: 1))))
+        ? parsed
+        : DateTime.now().add(const Duration(days: 1));
     final date = await showDatePicker(
       context: context,
-      initialDate: item.dueDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
+      initialDate: initial,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2035),
     );
     if (date != null) {
       onDateEdit?.call(date);

@@ -1,14 +1,10 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
+import '../../data/models/installment_plan_model.dart';
 import '../../data/models/payment_partner_model.dart';
 
-enum PaymentScheduleStatus {
-  initial,
-  loading,
-  success,
-  failure,
-}
+enum PaymentScheduleStatus { initial, loading, success, failure }
 
 class PaymentScheduleState extends Equatable {
   final PaymentScheduleStatus status;
@@ -22,11 +18,15 @@ class PaymentScheduleState extends Equatable {
   final int installmentCount;
   final bool isAdvanceEnabled;
   final double advanceAmount;
+  // Free/custom jadval uchun — preview items (id = itemNumber int, sana = String 'yyyy-MM-dd')
   final List<InstallmentItemModel> freeInstallments;
+  // Equal jadval uchun — preview items
   final List<InstallmentItemModel> calculatedInstallments;
   final String? errorMessage;
   final Map<String, String> validationErrors;
   final bool isPartnerLocked;
+  // Muvaffaqiyatli yaratilgan reja (list page refresh uchun)
+  final InstallmentPlanModel? createdPlan;
 
   PaymentScheduleState({
     this.status = PaymentScheduleStatus.initial,
@@ -45,7 +45,8 @@ class PaymentScheduleState extends Equatable {
     this.errorMessage,
     this.validationErrors = const {},
     this.isPartnerLocked = false,
-  }) : startDate = startDate ?? DateTime.now();
+    this.createdPlan,
+  }) : startDate = startDate ?? DateTime.now().add(const Duration(days: 1));
 
   PaymentScheduleState copyWith({
     PaymentScheduleStatus? status,
@@ -64,6 +65,7 @@ class PaymentScheduleState extends Equatable {
     String? errorMessage,
     Map<String, String>? validationErrors,
     bool? isPartnerLocked,
+    InstallmentPlanModel? createdPlan,
   }) {
     return PaymentScheduleState(
       status: status ?? this.status,
@@ -82,6 +84,7 @@ class PaymentScheduleState extends Equatable {
       errorMessage: errorMessage,
       validationErrors: validationErrors ?? this.validationErrors,
       isPartnerLocked: isPartnerLocked ?? this.isPartnerLocked,
+      createdPlan: createdPlan ?? this.createdPlan,
     );
   }
 
@@ -103,5 +106,6 @@ class PaymentScheduleState extends Equatable {
         errorMessage,
         validationErrors,
         isPartnerLocked,
+        createdPlan,
       ];
 }

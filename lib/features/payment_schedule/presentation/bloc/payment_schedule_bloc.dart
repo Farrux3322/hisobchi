@@ -1,14 +1,19 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart' show DateFormat;
+
 import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
+import '../../data/models/installment_plan_model.dart';
+import '../../data/repositories/installment_repository.dart';
 import 'payment_schedule_event.dart';
 import 'payment_schedule_state.dart';
 
 class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleState> {
-  final _uuid = const Uuid();
+  final InstallmentRepository _repository;
 
-  PaymentScheduleBloc() : super(PaymentScheduleState()) {
+  PaymentScheduleBloc({InstallmentRepository? repository})
+      : _repository = repository ?? InstallmentRepository(),
+        super(PaymentScheduleState()) {
     on<PaymentScheduleStarted>(_onStarted);
     on<PaymentPartnerSelected>(_onPartnerSelected);
     on<PaymentTotalAmountChanged>(_onTotalAmountChanged);
@@ -27,10 +32,9 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
     on<PaymentStepBack>(_onStepBack);
   }
 
-  void _onStarted(
-    PaymentScheduleStarted event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
+  // ─── Start ────────────────────────────────────────────────────────────────
+
+  void _onStarted(PaymentScheduleStarted event, Emitter<PaymentScheduleState> emit) {
     emit(state.copyWith(
       status: PaymentScheduleStatus.initial,
       currentStep: 0,
@@ -39,346 +43,377 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
     ));
   }
 
-  void _onPartnerSelected(
-    PaymentPartnerSelected event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
-    emit(state.copyWith(
-      selectedPartner: event.partner,
-      validationErrors: {},
-    ));
+  // ─── Step 1 ───────────────────────────────────────────────────────────────
+
+  void _onPartnerSelected(PaymentPartnerSelected event, Emitter<PaymentScheduleState> emit) {
+    emit(state.copyWith(selectedPartner: event.partner, validationErrors: {}));
   }
 
-  void _onTotalAmountChanged(
-    PaymentTotalAmountChanged event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
-    emit(state.copyWith(
-      totalAmount: event.amount,
-      validationErrors: {},
-    ));
-
-    // Recalculate if on equal schedule
+  void _onTotalAmountChanged(PaymentTotalAmountChanged event, Emitter<PaymentScheduleState> emit) {
+    emit(state.copyWith(totalAmount: event.amount, validationErrors: {}));
     if (state.scheduleType == PaymentScheduleType.equal) {
-      final calculated = _calculateInstallments(
+      emit(state.copyWith(
         totalAmount: event.amount,
-        startDate: state.startDate,
-        count: state.installmentCount,
-        isAdvanceEnabled: state.isAdvanceEnabled,
-        advanceAmount: state.advanceAmount,
-      );
-      emit(state.copyWith(calculatedInstallments: calculated));
+        calculatedInstallments: _calculateEqual(
+          total: event.amount,
+          startDate: state.startDate,
+          count: state.installmentCount,
+          hasAdvance: state.isAdvanceEnabled,
+          advance: state.advanceAmount,
+        ),
+      ));
     }
   }
 
-  void _onCurrencyChanged(
-    PaymentCurrencyChanged event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
+  void _onCurrencyChanged(PaymentCurrencyChanged event, Emitter<PaymentScheduleState> emit) {
     emit(state.copyWith(currency: event.currency));
   }
 
-  void _onNoteChanged(
-    PaymentNoteChanged event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
+  void _onNoteChanged(PaymentNoteChanged event, Emitter<PaymentScheduleState> emit) {
     emit(state.copyWith(note: event.note));
   }
 
-  void _onScheduleTypeSelected(
-    PaymentScheduleTypeSelected event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
+  // ─── Step 2 ───────────────────────────────────────────────────────────────
+
+  void _onScheduleTypeSelected(PaymentScheduleTypeSelected event, Emitter<PaymentScheduleState> emit) {
+    // Type o'zgarganda avans holatini reset qilamiz
     emit(state.copyWith(
       scheduleType: event.type,
       validationErrors: {},
+      isAdvanceEnabled: false,
+      advanceAmount: 0.0,
     ));
 
-    // Initialize free installments with advance if free type
-    if (event.type == PaymentScheduleType.free) {
-      final advanceItem = InstallmentItemModel(
-        id: _uuid.v4(),
-        index: 0,
-        label: 'Avans',
-        amount: 0.0,
-        dueDate: DateTime.now(),
-        isAdvance: true,
-        status: InstallmentStatus.pending,
-      );
-      emit(state.copyWith(freeInstallments: [advanceItem]));
+    if (event.type == PaymentScheduleType.custom) {
+      // Erkin grafik: avans toggle off — faqat 2 ta bo'sh qism bilan boshlaymiz
+      final today = DateTime.now();
+      final items = <InstallmentItemModel>[
+        InstallmentItemModel.preview(
+          itemNumber: 1,
+          isAdvance: false,
+          amount: 0,
+          dueDate: DateFormat('yyyy-MM-dd').format(DateTime(today.year, today.month + 1, today.day)),
+        ),
+        InstallmentItemModel.preview(
+          itemNumber: 2,
+          isAdvance: false,
+          amount: 0,
+          dueDate: DateFormat('yyyy-MM-dd').format(DateTime(today.year, today.month + 2, today.day)),
+        ),
+      ];
+      emit(state.copyWith(freeInstallments: items));
     }
   }
 
-  void _onStartDateChanged(
-    PaymentStartDateChanged event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
-    emit(state.copyWith(startDate: event.date));
+  // ─── Step 3 (equal) ──────────────────────────────────────────────────────
 
-    // Recalculate installments
-    final calculated = _calculateInstallments(
-      totalAmount: state.totalAmount,
+  void _onStartDateChanged(PaymentStartDateChanged event, Emitter<PaymentScheduleState> emit) {
+    emit(state.copyWith(
       startDate: event.date,
-      count: state.installmentCount,
-      isAdvanceEnabled: state.isAdvanceEnabled,
-      advanceAmount: state.advanceAmount,
-    );
-    emit(state.copyWith(calculatedInstallments: calculated));
-  }
-
-  void _onInstallmentCountChanged(
-    PaymentInstallmentCountChanged event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
-    emit(state.copyWith(installmentCount: event.count));
-
-    // Recalculate installments
-    final calculated = _calculateInstallments(
-      totalAmount: state.totalAmount,
-      startDate: state.startDate,
-      count: event.count,
-      isAdvanceEnabled: state.isAdvanceEnabled,
-      advanceAmount: state.advanceAmount,
-    );
-    emit(state.copyWith(calculatedInstallments: calculated));
-  }
-
-  void _onAdvanceToggled(
-    PaymentAdvanceToggled event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
-    emit(state.copyWith(
-      isAdvanceEnabled: event.isEnabled,
-      advanceAmount: event.isEnabled ? state.advanceAmount : 0.0,
-    ));
-
-    // Recalculate installments
-    final calculated = _calculateInstallments(
-      totalAmount: state.totalAmount,
-      startDate: state.startDate,
-      count: state.installmentCount,
-      isAdvanceEnabled: event.isEnabled,
-      advanceAmount: event.isEnabled ? state.advanceAmount : 0.0,
-    );
-    emit(state.copyWith(calculatedInstallments: calculated));
-  }
-
-  void _onAdvanceAmountChanged(
-    PaymentAdvanceAmountChanged event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
-    emit(state.copyWith(advanceAmount: event.amount));
-
-    // Recalculate installments
-    final calculated = _calculateInstallments(
-      totalAmount: state.totalAmount,
-      startDate: state.startDate,
-      count: state.installmentCount,
-      isAdvanceEnabled: state.isAdvanceEnabled,
-      advanceAmount: event.amount,
-    );
-    emit(state.copyWith(calculatedInstallments: calculated));
-  }
-
-  void _onFreeInstallmentAdded(
-    PaymentFreeInstallmentAdded event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
-    final newItem = InstallmentItemModel(
-      id: _uuid.v4(),
-      index: state.freeInstallments.length,
-      label: '${state.freeInstallments.length}-qism',
-      amount: 0.0,
-      dueDate: DateTime.now(),
-      isAdvance: false,
-      status: InstallmentStatus.pending,
-    );
-
-    emit(state.copyWith(
-      freeInstallments: [...state.freeInstallments, newItem],
+      calculatedInstallments: _calculateEqual(
+        total: state.totalAmount,
+        startDate: event.date,
+        count: state.installmentCount,
+        hasAdvance: state.isAdvanceEnabled,
+        advance: state.advanceAmount,
+      ),
     ));
   }
 
-  void _onFreeInstallmentRemoved(
-    PaymentFreeInstallmentRemoved event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
-    final updated = state.freeInstallments
-        .where((item) => item.id != event.id)
-        .toList();
-
-    emit(state.copyWith(freeInstallments: updated));
+  void _onInstallmentCountChanged(PaymentInstallmentCountChanged event, Emitter<PaymentScheduleState> emit) {
+    emit(state.copyWith(
+      installmentCount: event.count,
+      calculatedInstallments: _calculateEqual(
+        total: state.totalAmount,
+        startDate: state.startDate,
+        count: event.count,
+        hasAdvance: state.isAdvanceEnabled,
+        advance: state.advanceAmount,
+      ),
+    ));
   }
 
-  void _onFreeInstallmentUpdated(
-    PaymentFreeInstallmentUpdated event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
-    final updated = state.freeInstallments.map((item) {
-      return item.id == event.item.id ? event.item : item;
-    }).toList();
+  void _onAdvanceToggled(PaymentAdvanceToggled event, Emitter<PaymentScheduleState> emit) {
+    final advance = event.isEnabled ? state.advanceAmount : 0.0;
 
-    emit(state.copyWith(freeInstallments: updated));
-  }
-
-  void _onScheduleSubmitted(
-    PaymentScheduleSubmitted event,
-    Emitter<PaymentScheduleState> emit,
-  ) async {
-    // Validate based on schedule type
-    if (state.scheduleType == PaymentScheduleType.equal) {
-      if (state.calculatedInstallments.isEmpty) {
-        emit(state.copyWith(
-          status: PaymentScheduleStatus.failure,
-          errorMessage: 'Hisoblangan qismlar topilmadi',
-        ));
-        return;
+    if (state.scheduleType == PaymentScheduleType.custom) {
+      // ── Erkin grafik: avans item ni qo'shish / olib tashlash ──────────────
+      List<InstallmentItemModel> updatedFree;
+      if (event.isEnabled) {
+        // Avans item birinchiga qo'shamiz (agar yo'q bo'lsa)
+        final alreadyHas = state.freeInstallments.any((i) => i.isAdvance);
+        if (!alreadyHas) {
+          final today = DateTime.now();
+          final advanceItem = InstallmentItemModel.preview(
+            itemNumber: 0,
+            isAdvance: true,
+            amount: 0,
+            dueDate: DateFormat('yyyy-MM-dd').format(today),
+          );
+          updatedFree = [advanceItem, ...state.freeInstallments];
+        } else {
+          updatedFree = state.freeInstallments;
+        }
+      } else {
+        // Avans itemni olib tashlaymiz
+        updatedFree = state.freeInstallments.where((i) => !i.isAdvance).toList();
       }
-    } else if (state.scheduleType == PaymentScheduleType.free) {
-      final totalFree = state.freeInstallments.fold<double>(
-        0.0,
-        (sum, item) => sum + item.amount,
-      );
-
-      if ((totalFree - state.totalAmount).abs() > 0.01) {
-        emit(state.copyWith(
-          status: PaymentScheduleStatus.failure,
-          errorMessage: 'Qismlar yig\'indisi jami summaga teng emas',
-        ));
-        return;
-      }
+      emit(state.copyWith(
+        isAdvanceEnabled: event.isEnabled,
+        advanceAmount: advance,
+        freeInstallments: updatedFree,
+      ));
+    } else {
+      // ── Teng jadval: calculated installments ni qayta hisoblaymiz ─────────
+      emit(state.copyWith(
+        isAdvanceEnabled: event.isEnabled,
+        advanceAmount: advance,
+        calculatedInstallments: _calculateEqual(
+          total: state.totalAmount,
+          startDate: state.startDate,
+          count: state.installmentCount,
+          hasAdvance: event.isEnabled,
+          advance: advance,
+        ),
+      ));
     }
+  }
 
-    emit(state.copyWith(status: PaymentScheduleStatus.loading));
-
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-
+  void _onAdvanceAmountChanged(PaymentAdvanceAmountChanged event, Emitter<PaymentScheduleState> emit) {
     emit(state.copyWith(
-      status: PaymentScheduleStatus.success,
-      errorMessage: null,
+      advanceAmount: event.amount,
+      calculatedInstallments: _calculateEqual(
+        total: state.totalAmount,
+        startDate: state.startDate,
+        count: state.installmentCount,
+        hasAdvance: state.isAdvanceEnabled,
+        advance: event.amount,
+      ),
     ));
   }
 
-  void _onStepChanged(
-    PaymentStepChanged event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
-    // Validate current step before proceeding
-    final errors = _validateCurrentStep();
+  // ─── Step 3 (custom / free) ───────────────────────────────────────────────
 
+  void _onFreeInstallmentAdded(PaymentFreeInstallmentAdded event, Emitter<PaymentScheduleState> emit) {
+    final nonAdvance = state.freeInstallments.where((i) => !i.isAdvance).length;
+    final today = DateTime.now();
+    final newDate = DateTime(today.year, today.month + nonAdvance + 1, today.day);
+
+    final newItem = InstallmentItemModel.preview(
+      itemNumber: nonAdvance + 1,
+      isAdvance: false,
+      amount: 0,
+      dueDate: DateFormat('yyyy-MM-dd').format(newDate),
+    );
+    emit(state.copyWith(freeInstallments: [...state.freeInstallments, newItem]));
+  }
+
+  void _onFreeInstallmentRemoved(PaymentFreeInstallmentRemoved event, Emitter<PaymentScheduleState> emit) {
+    final updated = state.freeInstallments.where((i) => i.id != event.id).toList();
+    emit(state.copyWith(freeInstallments: updated));
+  }
+
+  void _onFreeInstallmentUpdated(PaymentFreeInstallmentUpdated event, Emitter<PaymentScheduleState> emit) {
+    final updated = state.freeInstallments.map((i) => i.id == event.item.id ? event.item : i).toList();
+    emit(state.copyWith(freeInstallments: updated));
+  }
+
+  // ─── Navigation ────────────────────────────────��─────────────────────────
+
+  void _onStepChanged(PaymentStepChanged event, Emitter<PaymentScheduleState> emit) {
+    final errors = _validateStep(state.currentStep);
     if (errors.isNotEmpty) {
       emit(state.copyWith(validationErrors: errors));
       return;
     }
 
-    // Calculate installments if moving to step 2 with equal type
     if (event.step == 2 && state.scheduleType == PaymentScheduleType.equal) {
-      final calculated = _calculateInstallments(
-        totalAmount: state.totalAmount,
-        startDate: state.startDate,
-        count: state.installmentCount,
-        isAdvanceEnabled: state.isAdvanceEnabled,
-        advanceAmount: state.advanceAmount,
-      );
       emit(state.copyWith(
         currentStep: event.step,
-        calculatedInstallments: calculated,
         validationErrors: {},
+        calculatedInstallments: _calculateEqual(
+          total: state.totalAmount,
+          startDate: state.startDate,
+          count: state.installmentCount,
+          hasAdvance: state.isAdvanceEnabled,
+          advance: state.advanceAmount,
+        ),
       ));
     } else {
-      emit(state.copyWith(
-        currentStep: event.step,
-        validationErrors: {},
-      ));
+      emit(state.copyWith(currentStep: event.step, validationErrors: {}));
     }
   }
 
-  void _onStepBack(
-    PaymentStepBack event,
-    Emitter<PaymentScheduleState> emit,
-  ) {
+  void _onStepBack(PaymentStepBack event, Emitter<PaymentScheduleState> emit) {
     if (state.currentStep > 0) {
+      emit(state.copyWith(currentStep: state.currentStep - 1, validationErrors: {}));
+    }
+  }
+
+  // ─── Submit (real API) ────────────────────────────────────────────────────
+
+  Future<void> _onScheduleSubmitted(PaymentScheduleSubmitted event, Emitter<PaymentScheduleState> emit) async {
+    if (state.selectedPartner == null) return;
+
+    emit(state.copyWith(status: PaymentScheduleStatus.loading));
+
+    try {
+      final partnerId = int.tryParse(state.selectedPartner!.id) ?? 0;
+      final currencyTypeId = state.currency == PaymentCurrency.uzs ? 1 : 2;
+      final globalNote = state.note.isNotEmpty ? state.note : null;
+
+      InstallmentPlanModel result;
+
+      if (state.scheduleType == PaymentScheduleType.equal) {
+        // Equal: backend items ni o'zi hisoblaydi.
+        // Agar avans bo'lsa — advance_amount beriladi + items[0] sifatida ham avans qo'shiladi.
+        final hasAdvance = state.isAdvanceEnabled && state.advanceAmount > 0;
+
+        // Equal uchun items: avans (agar bor bo'lsa) + calculatedInstallments dan oddiy qismlar
+        final equalItems = <Map<String, dynamic>>[];
+        if (hasAdvance) {
+          equalItems.add({
+            'amount': state.advanceAmount,
+            'due_date': state.startDate.toIso8601String(),
+          });
+        }
+        for (final item in state.calculatedInstallments.where((i) => !i.isAdvance)) {
+          equalItems.add({
+            'amount': item.amount,
+            'due_date': _toIso(item.dueDate),
+          });
+        }
+
+        result = await _repository.createInstallment(
+          partnerId: partnerId,
+          currencyTypeId: currencyTypeId,
+          totalAmount: state.totalAmount,
+          scheduleType: 'equal',
+          hasAdvance: hasAdvance,
+          advanceAmount: hasAdvance ? state.advanceAmount : null,
+          startDate: state.startDate.toIso8601String(),
+          installmentCount: state.installmentCount,
+          items: equalItems.isNotEmpty ? equalItems : null,
+          note: globalNote,
+        );
+      } else {
+        // Custom (erkin grafik):
+        // Avans item ham items[0] sifatida yuboriladi + advance_amount alohida beriladi.
+        final advanceItem = state.freeInstallments.where((i) => i.isAdvance).firstOrNull;
+        final regularItems = state.freeInstallments.where((i) => !i.isAdvance).toList();
+
+        final hasAdvance = advanceItem != null;
+        final advanceAmount = hasAdvance ? advanceItem.amount : null;
+
+        // items: avans birinchi, keyin oddiy qismlar
+        final items = <Map<String, dynamic>>[
+          if (hasAdvance)
+            {
+              'amount': advanceItem.amount,
+              'due_date': _toIso(advanceItem.dueDate),
+              if (advanceItem.note != null && advanceItem.note!.isNotEmpty)
+                'note': advanceItem.note,
+            },
+          ...regularItems.map((item) => <String, dynamic>{
+                'amount': item.amount,
+                'due_date': _toIso(item.dueDate),
+                if (item.note != null && item.note!.isNotEmpty) 'note': item.note,
+              }),
+        ];
+
+        result = await _repository.createInstallment(
+          partnerId: partnerId,
+          currencyTypeId: currencyTypeId,
+          totalAmount: state.totalAmount,
+          scheduleType: 'custom',
+          hasAdvance: hasAdvance,
+          advanceAmount: advanceAmount,
+          items: items,
+          note: globalNote,
+        );
+      }
+
       emit(state.copyWith(
-        currentStep: state.currentStep - 1,
-        validationErrors: {},
+        status: PaymentScheduleStatus.success,
+        createdPlan: result,
+        errorMessage: null,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: PaymentScheduleStatus.failure,
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
       ));
     }
   }
 
-  Map<String, String> _validateCurrentStep() {
-    final errors = <String, String>{};
+  /// "yyyy-MM-dd" → ISO 8601 ("yyyy-MM-ddT00:00:00.000Z")
+  String _toIso(String dateStr) {
+    final d = DateTime.tryParse(dateStr);
+    return (d ?? DateTime.now()).toIso8601String();
+  }
 
-    switch (state.currentStep) {
-      case 0: // Step 1: Basic info
-        if (state.selectedPartner == null) {
-          errors['partner'] = 'Hamkorni tanlang';
-        }
-        if (state.totalAmount <= 0) {
-          errors['amount'] = 'Summani kiriting';
-        }
+  // ─── Validation ──────────────────────────────────────────────────────────
+
+  Map<String, String> _validateStep(int step) {
+    final errors = <String, String>{};
+    switch (step) {
+      case 0:
+        if (state.selectedPartner == null) errors['partner'] = 'Hamkorni tanlang';
+        if (state.totalAmount <= 0) errors['amount'] = 'Summani kiriting';
         break;
-      case 1: // Step 2: Schedule type
-        if (state.scheduleType == null) {
-          errors['type'] = 'Grafik turini tanlang';
-        }
-        break;
-      case 2: // Step 3: Details (validated on submit)
+      case 1:
+        if (state.scheduleType == null) errors['type'] = 'Grafik turini tanlang';
         break;
     }
-
     return errors;
   }
 
-  List<InstallmentItemModel> _calculateInstallments({
-    required double totalAmount,
+  // ─── Equal schedule calculator (API algoritmi bilan mos) ─────────────────
+
+  List<InstallmentItemModel> _calculateEqual({
+    required double total,
     required DateTime startDate,
     required int count,
-    required bool isAdvanceEnabled,
-    required double advanceAmount,
+    required bool hasAdvance,
+    required double advance,
   }) {
-    if (totalAmount <= 0) return [];
+    if (total <= 0 || count <= 0) return [];
 
-    final installments = <InstallmentItemModel>[];
-    final remaining = totalAmount - (isAdvanceEnabled ? advanceAmount : 0.0);
-    final installmentAmount = remaining / (isAdvanceEnabled ? count : count);
+    final items = <InstallmentItemModel>[];
+    final fmt = DateFormat('yyyy-MM-dd');
+    int itemNum = 1;
 
-    // Add advance if enabled
-    if (isAdvanceEnabled && advanceAmount > 0) {
-      installments.add(
-        InstallmentItemModel(
-          id: _uuid.v4(),
-          index: 0,
-          label: 'Avans',
-          amount: advanceAmount,
-          dueDate: startDate,
-          isAdvance: true,
-          status: InstallmentStatus.pending,
-        ),
-      );
+    if (hasAdvance && advance > 0) {
+      items.add(InstallmentItemModel.preview(
+        itemNumber: 0,
+        isAdvance: true,
+        amount: _round2(advance),
+        dueDate: fmt.format(startDate),
+      ));
     }
 
-    // Add regular installments
+    final remaining = hasAdvance ? _round2(total - advance) : total;
+    if (remaining <= 0 || count <= 0) return items;
+
+    final perItem = _round2(remaining / count);
+    final distributed = _round2(perItem * (count - 1));
+    final lastAmount = _round2(remaining - distributed);
+
     for (int i = 0; i < count; i++) {
-      final dueDate = DateTime(
-        startDate.year,
-        startDate.month + i + (isAdvanceEnabled ? 1 : 0),
-        startDate.day,
-      );
+      final monthOffset = i + (hasAdvance ? 1 : 0);
+      final dueDate = DateTime(startDate.year, startDate.month + monthOffset, startDate.day);
+      final amount = (i == count - 1) ? lastAmount : perItem;
 
-      installments.add(
-        InstallmentItemModel(
-          id: _uuid.v4(),
-          index: isAdvanceEnabled ? i + 1 : i,
-          label: '${i + 1}-qism',
-          amount: installmentAmount,
-          dueDate: dueDate,
-          isAdvance: false,
-          status: InstallmentStatus.pending,
-        ),
-      );
+      items.add(InstallmentItemModel.preview(
+        itemNumber: itemNum++,
+        isAdvance: false,
+        amount: amount,
+        dueDate: fmt.format(dueDate),
+      ));
     }
 
-    return installments;
+    return items;
   }
+
+  double _round2(double v) => double.parse(v.toStringAsFixed(2));
 }

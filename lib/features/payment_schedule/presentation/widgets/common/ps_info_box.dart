@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../presentation/assets/theme/app_theme.dart';
 
-enum InfoBoxType { info, success, warning }
+enum InfoBoxType { info, success, warning, error }
 
 class PSInfoBox extends StatelessWidget {
   final InfoBoxType type;
@@ -103,7 +103,15 @@ class PSInfoBox extends StatelessWidget {
           border: const Color(0xFFFFEDD5),
           icon: const Color(0xFFF97316),
           iconBackground: const Color(0xFFFFEDD5),
-          text: const Color(0xFF9A3412), // Darker orange for text readability
+          text: const Color(0xFF9A3412),
+        );
+      case InfoBoxType.error:
+        return _InfoBoxColors(
+          background: const Color(0xFFFFF1F2),
+          border: const Color(0xFFFFCDD2),
+          icon: AppTheme.colors.red,
+          iconBackground: AppTheme.colors.red.withValues(alpha: 0.12),
+          text: const Color(0xFF9B1C1C),
         );
     }
   }
@@ -116,6 +124,8 @@ class PSInfoBox extends StatelessWidget {
         return Icons.check_circle_rounded;
       case InfoBoxType.warning:
         return Icons.warning_rounded;
+      case InfoBoxType.error:
+        return Icons.error_rounded;
     }
   }
 }

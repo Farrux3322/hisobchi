@@ -18,9 +18,10 @@ import 'package:hisobchi/presentation/pages/client/report/report_client_show_pag
 import 'package:hisobchi/presentation/pages/client/widgets/client_delete_dialog.dart';
 import 'package:hisobchi/presentation/pages/client/sms_menu_page.dart';
 import 'package:hisobchi/features/payment_schedule/data/models/payment_partner_model.dart';
-import 'package:hisobchi/features/payment_schedule/presentation/pages/payment_schedule_page.dart';
+import 'package:hisobchi/features/payment_schedule/presentation/pages/installment_list_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/kirim_bottom_sheet.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
@@ -328,12 +329,13 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                       name: widget.partnerModel.name ?? '',
                                       phone: widget.partnerModel.phone,
                                     );
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => PaymentSchedulePage(initialPartner: partner),
-                                      ),
-                                    );
+                                    pushScreen(context, screen: InstallmentListPage(partner: partner));
+                                    // Navigator.push(
+                                    //   context,
+                                    //   MaterialPageRoute(
+                                    //     builder: (_) => InstallmentListPage(partner: partner),
+                                    //   ),
+                                    // );
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
@@ -348,7 +350,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                       children: [
                                         Icon(Icons.calendar_month_outlined, size: 20, color: AppTheme.colors.primary),
                                         const SizedBox(width: 6),
-                                        Text('Bo\'lib to\'lash', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15)),
+                                        Text("Bo'lib to'lash", style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15)),
                                       ],
                                     ),
                                   ),
