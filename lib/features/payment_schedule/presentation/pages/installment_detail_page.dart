@@ -43,11 +43,10 @@ class _DetailViewState extends State<_DetailView> {
       },
       builder: (context, state) {
         return PopScope(
-          canPop: true,
-          onPopInvokedWithResult: (didPop, _) {
-            if (didPop && _hasChanges) {
-              Navigator.pop(context, true);
-            }
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            Navigator.pop(context, _hasChanges);
           },
           child: Scaffold(
             backgroundColor: AppTheme.colors.background,
@@ -175,7 +174,7 @@ class _DetailViewState extends State<_DetailView> {
                 style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.colors.green,
+                backgroundColor: AppTheme.colors.primary,
                 foregroundColor: Colors.white,
                 minimumSize: Size(double.infinity, 50.h),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
@@ -924,7 +923,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           ElevatedButton(
             onPressed: _isLoading ? null : _submit,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.colors.green,
+              backgroundColor: AppTheme.colors.primary,
               disabledBackgroundColor: AppTheme.colors.green.withValues(alpha: 0.6),
               foregroundColor: Colors.white,
               minimumSize: Size(double.infinity, 52.h),

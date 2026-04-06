@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import '../../../../presentation/assets/asset_index.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
@@ -76,7 +76,7 @@ class _InstallmentListView extends StatelessWidget {
           Expanded(
             child: BlocBuilder<InstallmentListCubit, InstallmentListState>(
               builder: (context, state) {
-                if (state.status == InstallmentListStatus.loading) {
+                if (state.status == InstallmentListStatus.loading && state.plans.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (state.status == InstallmentListStatus.failure) {
@@ -95,9 +95,9 @@ class _InstallmentListView extends StatelessWidget {
                     padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 100.h),
                     itemCount: state.plans.length,
                     separatorBuilder: (_, __) => SizedBox(height: 10.h),
-                    itemBuilder: (itemCtx, i) => _PlanCard(
+                    itemBuilder: (_, i) => _PlanCard(
                       plan: state.plans[i],
-                      onTap: () => _openDetail(itemCtx, state.plans[i]),
+                      onTap: () => _openDetail(context, state.plans[i]),
                     ),
                   ),
                 );
@@ -110,30 +110,18 @@ class _InstallmentListView extends StatelessWidget {
   }
 
   void _openCreate(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!context.mounted) return;
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => PaymentSchedulePage(initialPartner: partner),
-      )).then((created) {
-        if (created == true && context.mounted) {
-          context.read<InstallmentListCubit>().refresh();
-        }
-      });
+    pushScreen(context, screen: PaymentSchedulePage(initialPartner: partner)).then((created) {
+      if (created == true && context.mounted) {
+        context.read<InstallmentListCubit>().refresh();
+      }
     });
   }
 
   void _openDetail(BuildContext context, InstallmentPlanModel plan) {
-    // SchedulerBinding orqali push qilamiz — build/layout fazasida
-    // navigator lock bo'lmasligini kafolatlaydi.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!context.mounted) return;
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => InstallmentDetailPage(installmentId: plan.id),
-      )).then((changed) {
-        if (changed == true && context.mounted) {
-          context.read<InstallmentListCubit>().refresh();
-        }
-      });
+    pushScreen(context, screen: InstallmentDetailPage(installmentId: plan.id)).then((changed) {
+      if (changed == true && context.mounted) {
+        context.read<InstallmentListCubit>().refresh();
+      }
     });
   }
 }

@@ -344,55 +344,9 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Payment Schedule Button
-          Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
-            child: Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => context.push(Routes.paymentSchedule.path),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF006FE5), Color(0xFF0056B3)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF006FE5).withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.calendar_month, color: Colors.white, size: 20.sp),
-                          SizedBox(width: 8.w),
-                          Text(
-                            'Bo\'lib to\'lash grafigi',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           // Search + filter
           Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
+            padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
             child: ClientFilterField(
               searchController: _searchController,
               hasActiveFilters: hasActiveFilters,
@@ -638,11 +592,10 @@ class _ClientHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => _height;
 
   double get _height {
-    // Payment Schedule button: 44.h + top: 8.h + bottom: 12.h = 64.h
-    // Search row: 54.h = 54.h
+    // Search row: 12.h (top padding) + 54.h (field) = 66.h
     // TabBar row (Segmented style): 46.h + 8.h + 12.h = 66.h
     // Filter chips (if active): 12.h gap + 32.h = 44.h
-    final base = 64.h + 54.h + 66.h; // 184.h
+    final base = 66.h + 66.h; // 132.h
     return hasActiveFilters ? base + 44.h : base;
   }
 
