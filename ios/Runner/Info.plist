@@ -50,6 +50,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Ushbu ilova shaxsni tasdiqlash (MyID) va hujjatlar uchun rasmga olish maqsadida kameradan foydalanadi.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Ushbu ilova mijoz ma'lumotlarini tezroq to'ldirish uchun kontaktlaringizdan foydalanadi.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Ilovaga tezkor kirish uchun Face ID dan foydalaning</string>
 	<key>NSPhotoLibraryUsageDescription</key>

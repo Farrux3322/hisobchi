@@ -21,6 +21,7 @@ import 'package:hisobchi/presentation/pages/client/widgets/add_client_components
 import 'package:hisobchi/presentation/components/utils/emoji_filter_formatter.dart';
 import 'package:hisobchi/infrastructure/services/permission_extension.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 
 class ClientAddPage extends StatefulWidget {
   const ClientAddPage({super.key});
@@ -36,8 +37,8 @@ class _ClientAddPageState extends State<ClientAddPage> {
   final _additionalPhoneController = TextEditingController(text: "+998 ");
   final ImagePicker _picker = ImagePicker();
 
-  final _maskFormatter1 = MaskTextInputFormatter(mask: '+998 (##) ###-##-##', filter: {"#": RegExp(r'[0-9]')}, type: MaskAutoCompletionType.lazy);
-  final _maskFormatter2 = MaskTextInputFormatter(mask: '+998 (##) ###-##-##', filter: {"#": RegExp(r'[0-9]')}, type: MaskAutoCompletionType.lazy);
+  final _maskFormatter1 = MaskTextInputFormatter(mask: '+998 ## ### ## ##', filter: {"#": RegExp(r'[0-9]')}, type: MaskAutoCompletionType.lazy);
+  final _maskFormatter2 = MaskTextInputFormatter(mask: '+998 ## ### ## ##', filter: {"#": RegExp(r'[0-9]')}, type: MaskAutoCompletionType.lazy);
 
   File? _selectedImage;
   int? _uploadedImageId;
@@ -146,6 +147,48 @@ class _ClientAddPageState extends State<ClientAddPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _pickContact() async {
+    try {
+      final status = await FlutterContacts.permissions.request(PermissionType.readWrite);
+      if (status == PermissionStatus.granted || status == PermissionStatus.limited) {
+        final contactId = await FlutterContacts.native.showPicker();
+        if (contactId != null) {
+          // Fetch full contact details to get phone numbers
+          final fullContact = await FlutterContacts.get(contactId, properties: {ContactProperty.phone});
+          if (fullContact != null) {
+            setState(() {
+              _nameController.text = fullContact.displayName ?? '';
+              if (fullContact.phones.isNotEmpty) {
+                // Get the first phone number and remove all non-digit characters
+                String phone = fullContact.phones.first.number.replaceAll(RegExp(r'[^0-9]'), '');
+                // Handle common formats
+                if (phone.length == 12 && phone.startsWith('998')) {
+                  // If it starts with 998 and has 12 digits, take the last 9 for the mask
+                  String digits = phone.substring(3);
+                  _phoneController.text = _maskFormatter1.maskText(digits);
+                } else if (phone.length == 9) {
+                  // If it's just 9 digits (e.g., 901234567), use it directly for the mask
+                  _phoneController.text = _maskFormatter1.maskText(phone);
+                } else {
+                  // Fallback for other formats: just put the original number
+                  _phoneController.text = fullContact.phones.first.number;
+                }
+              }
+            });
+          }
+        }
+      } else {
+        if (mounted) {
+          Toast.showWarningToast(message: 'Kontaktlarga ruxsat berilmadi');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Toast.showErrorToast(message: 'Kontaktlarni yuklashda xatolik yuz berdi');
+      }
+    }
   }
 
   Widget _buildSourceItem(IconData icon, String title, Color color, VoidCallback onTap) {
@@ -339,6 +382,14 @@ class _ClientAddPageState extends State<ClientAddPage> {
                             icon: Icons.person_outline_rounded,
                             formatters: [EmojiFilterFormatter()],
                             validator: (v) => (v == null || v.isEmpty) ? 'Ism kiritilmagan' : null,
+                            suffixIcon: Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: IconButton(
+                                onPressed: _pickContact,
+                                icon: Icon(Icons.contact_page_outlined, color: AppTheme.colors.primary, size: 24),
+                                tooltip: 'Kontaktlardan tanlash',
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 12),
                           _buildMinimalInput(
@@ -446,6 +497,7 @@ class _ClientAddPageState extends State<ClientAddPage> {
     TextInputType keyboardType = TextInputType.text,
     List<TextInputFormatter>? formatters,
     String? Function(String?)? validator,
+    Widget? suffixIcon,
   }) {
     return TextFormField(
       controller: controller,
@@ -463,6 +515,7 @@ class _ClientAddPageState extends State<ClientAddPage> {
           child: Icon(icon, size: 22, color: const Color(0xFF94A3B8)),
         ),
         prefixIconConstraints: const BoxConstraints(minWidth: 58),
+        suffixIcon: suffixIcon,
         filled: true,
         fillColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
