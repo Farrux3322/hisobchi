@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import '../../../../presentation/assets/asset_index.dart';
+import '../../../../presentation/components/subscription/subscription_guard.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
 import '../../data/models/installment_plan_model.dart';
@@ -62,12 +64,103 @@ class _InstallmentListView extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-        child: FloatingActionButton(
-          onPressed: () => _openCreate(context),
-          backgroundColor: AppTheme.colors.primary,
-          child: const Icon(Icons.add_rounded, color: Colors.white),
+      // floatingActionButton: SubscriptionGuard(
+      //   child: Column(
+      //     mainAxisSize: MainAxisSize.min,
+      //     children: [
+      //       SizedBox(
+      //         width: 56.w,
+      //         height: 56.w,
+      //         child: ClipRRect(
+      //           borderRadius: BorderRadius.circular(18.r),
+      //           child: FloatingActionButton(
+      //             tooltip: "Mijozlar hisoboti",
+      //             heroTag: 'client_report_fab',
+      //             elevation: 0,
+      //             focusElevation: 0,
+      //             hoverElevation: 0,
+      //             highlightElevation: 0,
+      //             onPressed: () {
+      //               if (!context.hasPermission('report_partners.view')) {
+      //                 Toast.showWarningToast(message: "Sizda bunday huquq yo'q");
+      //                 return;
+      //               }
+      //               Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportClientMainPage()));
+      //             },
+      //             backgroundColor: AppTheme.colors.primary,
+      //             shape: RoundedRectangleBorder(
+      //               borderRadius: BorderRadius.circular(18.r),
+      //               side: BorderSide(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
+      //             ),
+      //             child: Icon(Icons.analytics_rounded, color: AppTheme.colors.white, size: 28.sp),
+      //           ),
+      //         ),
+      //       ),
+      //       SizedBox(height: 16.h),
+      //       SizedBox(
+      //         width: 56.w,
+      //         height: 56.w,
+      //         child: ClipRRect(
+      //           borderRadius: BorderRadius.circular(18.r),
+      //           child: BackdropFilter(
+      //             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+      //             child: FloatingActionButton(
+      //               heroTag: 'client_fab',
+      //               elevation: 0,
+      //               focusElevation: 0,
+      //               hoverElevation: 0,
+      //               highlightElevation: 0,
+      //               onPressed: () {
+      //                 if (!context.hasPermission('partners.create')) {
+      //                   Toast.showWarningToast(message: "Sizda bunday huquq yo'q");
+      //                   return;
+      //                 }
+      //                 Navigator.push(
+      //                   context,
+      //                   MaterialPageRoute(
+      //                     builder: (context) => BlocProvider(
+      //                       create: (context) => FileUploadBloc(repository: FileUploadRepository()),
+      //                       child: const ClientAddPage(),
+      //                     ),
+      //                   ),
+      //                 ).then((v) {
+      //                   if (v is PartnerModel && context.mounted) {
+      //                     Navigator.push(context, MaterialPageRoute(builder: (_) => AccountPage(partnerModel: v))).then((_) {
+      //                       if (context.mounted) {
+      //                         context.read<PartnerBloc>().add(const GetAllEvent());
+      //                       }
+      //                     });
+      //                   } else if (v == true && context.mounted) {
+      //                     context.read<PartnerBloc>().add(const GetAllEvent());
+      //                   }
+      //                 });
+      //               },
+      //               backgroundColor: AppTheme.colors.primary,
+      //               shape: RoundedRectangleBorder(
+      //                 borderRadius: BorderRadius.circular(18.r),
+      //                 side: BorderSide(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
+      //               ),
+      //               child: Icon(Icons.add, color: Colors.white, size: 36.sp),
+      //             ),
+      //           ),
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // ),
+
+      floatingActionButton: SubscriptionGuard(
+        child: SizedBox(
+          width: 56.w,
+          height: 56.w,
+          child: FloatingActionButton(
+            heroTag: 'project_fab',
+            elevation: 4,
+            onPressed: () => _openCreate(context),
+            backgroundColor: AppTheme.colors.primary,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
+            child: Icon(Icons.add,color: Colors.white,size: 36.sp),
+          ),
         ),
       ),
       body: Column(
@@ -129,44 +222,60 @@ class _InstallmentListView extends StatelessWidget {
 // ─── Status Filter Bar ────────────────────────────────────────────────────────
 
 class _StatusFilterBar extends StatelessWidget {
-  final filters = const [(null, 'Barchasi'), ('active', 'Faol'), ('completed', "To'langan"), ('cancelled', 'Bekor')];
+  static const _statuses = [null, 'active', 'completed', 'cancelled'];
+  static const _labels = ['Barchasi', 'Faol', "To'langan", 'Bekor'];
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<InstallmentListCubit, InstallmentListState>(
+      buildWhen: (prev, curr) => prev.filterStatus != curr.filterStatus,
       builder: (context, state) {
-        return ColoredBox(
+        final selectedIndex = _statuses.indexOf(state.filterStatus).clamp(0, _statuses.length - 1);
+
+        return Container(
           color: AppTheme.colors.white,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
-            child: Row(
-              children: filters.map((f) {
-                final isSelected = state.filterStatus == f.$1;
-                return Padding(
-                  padding: EdgeInsets.only(right: 8.w),
-                  child: GestureDetector(
-                    onTap: () => context.read<InstallmentListCubit>().setStatusFilter(f.$1),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
-                      decoration: BoxDecoration(
-                        color: isSelected ? AppTheme.colors.primary : AppTheme.colors.background,
-                        borderRadius: BorderRadius.circular(20.r),
-                        border: Border.all(color: isSelected ? AppTheme.colors.primary : AppTheme.colors.divider),
-                      ),
-                      child: Text(
-                        f.$2,
-                        style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: isSelected ? Colors.white : AppTheme.colors.gray),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
+          padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
+          child: CupertinoSlidingSegmentedControl<int>(
+            groupValue: selectedIndex,
+            backgroundColor: CupertinoColors.systemGrey6,
+            thumbColor: AppTheme.colors.white,
+            padding: EdgeInsets.all(3.r),
+            children: {
+              for (int i = 0; i < _labels.length; i++)
+                i: _SegmentTab(
+                  label: _labels[i],
+                  isSelected: selectedIndex == i,
+                ),
+            },
+            onValueChanged: (index) {
+              if (index == null) return;
+              context.read<InstallmentListCubit>().setStatusFilter(_statuses[index]);
+            },
           ),
         );
       },
+    );
+  }
+}
+
+class _SegmentTab extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+
+  const _SegmentTab({required this.label, required this.isSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 7.h),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 13.sp,
+          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          color: isSelected ? AppTheme.colors.primary : AppTheme.colors.gray,
+        ),
+      ),
     );
   }
 }

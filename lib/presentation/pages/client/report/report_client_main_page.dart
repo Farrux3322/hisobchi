@@ -683,7 +683,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

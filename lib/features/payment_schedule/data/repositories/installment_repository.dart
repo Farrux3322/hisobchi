@@ -1,15 +1,29 @@
 import 'package:dio/dio.dart';
+import 'package:hisobchi/infrastructure/common/dio_exception.dart';
 import 'package:hisobchi/infrastructure/common/network_provider.dart';
 
 import '../models/installment_item_model.dart';
 import '../models/installment_plan_model.dart';
+import '../models/payment_history_model.dart';
 
 class InstallmentRepository {
   // ─── error helper ────────────────────────────────────────────────────────────
   String _err(DioException e) {
-    final data = e.response?.data;
+    // DioExceptionX serverError'ni to'g'ridan-to'g'ri Map sifatida saqlaydi
+    final data = (e is DioExceptionX) ? e.serverError : e.response?.data;
     if (data is Map) {
-      return data['error']?['message']?.toString() ?? data['message']?.toString() ?? 'Xatolik yuz berdi';
+      // {"errors": {"paid_at": ["The paid at field is required."]}}
+      final errors = data['errors'];
+      if (errors is Map && errors.isNotEmpty) {
+        final firstField = errors.values.first;
+        if (firstField is List && firstField.isNotEmpty) {
+          return firstField.first.toString();
+        }
+      }
+      // {"message": "..."} yoki {"error": {"message": "..."}}
+      return data['message']?.toString() ??
+          data['error']?['message']?.toString() ??
+          'Xatolik yuz berdi';
     }
     return e.message ?? 'Xatolik yuz berdi';
   }
@@ -65,6 +79,8 @@ class InstallmentRepository {
     int? installmentCount,
     // custom uchun — avans KIRITMAY faqat oddiy qismlar
     List<Map<String, dynamic>>? items,
+    // yuklangan fayllar ID'lari
+    List<int>? fileIds,
   }) async {
     try {
       final body = <String, dynamic>{
@@ -79,6 +95,7 @@ class InstallmentRepository {
         if (scheduleType == 'equal') 'start_date': startDate,
         if (scheduleType == 'equal') 'installment_count': installmentCount,
         if (items != null && items.isNotEmpty) 'items': items,
+        if (fileIds != null && fileIds.isNotEmpty) 'file_ids': fileIds,
       };
 
       final response = await dio.post('/partners/installments', data: body);
@@ -134,12 +151,15 @@ class InstallmentRepository {
     required int installmentId,
     required double amount,
     String? note,
+    DateTime? paidAt,
   }) async {
     try {
+      final effectivePaidAt = paidAt ?? DateTime.now();
       final response = await dio.post(
         '/partners/installments/$installmentId/payment',
         data: {
           'amount': amount,
+          'paid_at': effectivePaidAt.toUtc().toIso8601String(),
           if (note != null && note.isNotEmpty) 'note': note,
         },
       );
@@ -155,6 +175,33 @@ class InstallmentRepository {
       final response = await dio.get('/partners/partner/$partnerId/installments');
       final data = response.data['result'] as List<dynamic>;
       return data.map((e) => InstallmentPlanModel.fromJson(e as Map<String, dynamic>)).toList();
+    } on DioException catch (e) {
+      throw Exception(_err(e));
+    }
+  }
+
+  // ─── 9. To'lovlar tarixi ─────────────────────────────────────────────────────
+  Future<List<PaymentHistoryModel>> getPaymentHistory(int installmentId) async {
+    try {
+      final response = await dio.get('/partners/installments/$installmentId/payment-history');
+      final data = response.data['result'] as List<dynamic>;
+      return data.map((e) => PaymentHistoryModel.fromJson(e as Map<String, dynamic>)).toList();
+    } on DioException catch (e) {
+      throw Exception(_err(e));
+    }
+  }
+
+  // ─── 10. To'lovni bekor qilish ───────────────────────────────────────────────
+  Future<PaymentHistoryModel> cancelPayment({
+    required int installmentId,
+    required int paymentId,
+  }) async {
+    try {
+      final response = await dio.delete('/partners/installments/$installmentId/payments/$paymentId');
+      final result = response.data['result'];
+      // API massiv yoki object qaytarishi mumkin
+      final json = result is List ? result.first as Map<String, dynamic> : result as Map<String, dynamic>;
+      return PaymentHistoryModel.fromJson(json);
     } on DioException catch (e) {
       throw Exception(_err(e));
     }

@@ -47,7 +47,7 @@ class Step2ScheduleTypePage extends StatelessWidget {
                         description:
                             'Boshlanish sanasi va qismlar sonini belgilang. Tizim har bir qism uchun teng summani avtomatik hisoblaydi.',
                         icon: Icons.calculate_rounded,
-                        color: const Color(0xFFF97316),
+                        color: AppTheme.colors.primary,
                         onTap: () {
                           context.read<PaymentScheduleBloc>().add(
                                 const PaymentScheduleTypeSelected(PaymentScheduleType.equal),

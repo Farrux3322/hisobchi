@@ -7,6 +7,7 @@ import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
 import '../../data/models/installment_plan_model.dart';
 import '../cubit/installment_detail_cubit.dart';
+import 'payment_history_page.dart';
 
 class InstallmentDetailPage extends StatelessWidget {
   final int installmentId;
@@ -94,7 +95,7 @@ class _DetailViewState extends State<_DetailView> {
                   children: [
                     Icon(Icons.cancel_outlined, color: AppTheme.colors.red, size: 18.r),
                     SizedBox(width: 8.w),
-                    Text('Rejani bekor qilish', style: TextStyle(color: AppTheme.colors.red, fontSize: 14.sp)),
+                    Text('Bo\'lib to\'lashni bekor qilish', style: TextStyle(color: AppTheme.colors.red, fontSize: 14.sp)),
                   ],
                 ),
               ),
@@ -138,10 +139,26 @@ class _DetailViewState extends State<_DetailView> {
     return Column(
       children: [
         Expanded(
-          child: ListView(
+          child: RefreshIndicator(
+            onRefresh: () => context.read<InstallmentDetailCubit>().loadDetail(plan.id),
+            color: AppTheme.colors.primary,
+            backgroundColor: AppTheme.colors.white,
+            displacement: 40.h,
+            child: ListView(
             padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, plan.isActive ? 100.h : 24.h),
             children: [
-              _SummaryCard(plan: plan),
+              _SummaryCard(
+                plan: plan,
+                onHistoryTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaymentHistoryPage(
+                      installmentId: plan.id,
+                      partnerName: plan.partnerName,
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(height: 12.h),
               _ProgressCard(plan: plan),
               SizedBox(height: 16.h),
@@ -151,8 +168,9 @@ class _DetailViewState extends State<_DetailView> {
                 _EmptyItems()
               else
                 ...plan.items.map((item) => _ItemCard(item: item, currency: plan.currencyTypeName)),
-              Gap( MediaQuery.of(context).padding.bottom),
+              Gap(MediaQuery.of(context).padding.bottom),
             ],
+          ),
           ),
         ),
 
@@ -266,7 +284,8 @@ class _DetailViewState extends State<_DetailView> {
 
 class _SummaryCard extends StatelessWidget {
   final InstallmentPlanModel plan;
-  const _SummaryCard({required this.plan});
+  final VoidCallback onHistoryTap;
+  const _SummaryCard({required this.plan, required this.onHistoryTap});
 
   @override
   Widget build(BuildContext context) {
@@ -314,11 +333,12 @@ class _SummaryCard extends StatelessWidget {
           SizedBox(height: 10.h),
           Row(
             children: [
-              _InfoTile(
+              _TappableInfoTile(
                 label: "To'langan ($currLabel)",
                 value: fmt.format(plan.paidAmount).replaceAll(',', ' '),
                 icon: Icons.check_circle_outline_rounded,
                 valueColor: const Color(0xFF22C55E),
+                onTap: onHistoryTap,
               ),
               SizedBox(width: 12.w),
               _InfoTile(
@@ -389,6 +409,68 @@ class _InfoTile extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TappableInfoTile extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color? valueColor;
+  final VoidCallback onTap;
+
+  const _TappableInfoTile({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.onTap,
+    this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10.r),
+        child: Container(
+          padding: EdgeInsets.all(10.r),
+          decoration: BoxDecoration(
+            color: (valueColor ?? AppTheme.colors.primary).withValues(alpha: 0.07),
+            borderRadius: BorderRadius.circular(10.r),
+            border: Border.all(color: (valueColor ?? AppTheme.colors.primary).withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 16.r, color: valueColor ?? AppTheme.colors.primary),
+              SizedBox(width: 6.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(label, style: TextStyle(fontSize: 10.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w600)),
+                        ),
+                        Icon(Icons.chevron_right_rounded, size: 13.r, color: AppTheme.colors.gray),
+                      ],
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      value,
+                      style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: valueColor ?? AppTheme.colors.black),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -770,6 +852,18 @@ class _PaymentSheetState extends State<_PaymentSheet> {
   final _amountCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
   bool _isLoading = false;
+  late DateTime _paidAt;
+
+  bool get _isOverLimit {
+    final amount = double.tryParse(_amountCtrl.text.replaceAll(' ', '')) ?? 0;
+    return amount > widget.plan.remaining;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _paidAt = DateTime.now();
+  }
 
   @override
   void dispose() {
@@ -778,15 +872,42 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     super.dispose();
   }
 
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _paidAt,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      builder: (ctx, child) => Theme(
+        data: Theme.of(ctx).copyWith(
+          colorScheme: ColorScheme.light(
+            primary: AppTheme.colors.primary,
+            onPrimary: Colors.white,
+            surface: AppTheme.colors.white,
+          ),
+        ),
+        child: child!,
+      ),
+    );
+    if (picked == null) return;
+    setState(() => _paidAt = picked);
+  }
+
   Future<void> _submit() async {
     final amount = double.tryParse(_amountCtrl.text.replaceAll(' ', '')) ?? 0;
     if (amount <= 0) return;
+
+    if (amount > widget.plan.remaining) {
+      widget.onError("Summa qolgan qarzdan oshib ketdi (max: ${NumberFormat('#,###', 'en_US').format(widget.plan.remaining).replaceAll(',', ' ')})");
+      return;
+    }
 
     setState(() => _isLoading = true);
 
     final ok = await widget.cubit.acceptPayment(
       amount: amount,
       note: _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),
+      paidAt: _paidAt,
     );
 
     if (!mounted) return;
@@ -873,9 +994,15 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                       _ThousandsSeparatorFormatter(),
+                      _MaxValueFormatter(widget.plan.remaining),
                     ],
                     enabled: !_isLoading,
-                    style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.black),
+                    onChanged: (_) => setState(() {}),
+                    style: TextStyle(
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.w800,
+                      color: _isOverLimit ? AppTheme.colors.red : AppTheme.colors.black,
+                    ),
                     decoration: InputDecoration(
                       hintText: '0',
                       hintStyle: TextStyle(color: AppTheme.colors.divider, fontSize: 22.sp, fontWeight: FontWeight.w800),
@@ -896,6 +1023,27 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                     style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.primary),
                   ),
                 ),
+              ],
+            ),
+          ),
+          SizedBox(height: 12.h),
+
+          // To'lov sanasi
+          Text("To'lov sanasi", style: TextStyle(fontSize: 12.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w600)),
+          SizedBox(height: 6.h),
+          _SheetField(
+            onTap: _isLoading ? null : _pickDate,
+            child: Row(
+              children: [
+                Icon(Icons.calendar_today_rounded, size: 18.r, color: AppTheme.colors.primary),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: Text(
+                    _formatPaidAt(_paidAt),
+                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
+                  ),
+                ),
+                Icon(Icons.edit_calendar_rounded, size: 16.r, color: AppTheme.colors.gray),
               ],
             ),
           ),
@@ -956,12 +1104,13 @@ class _PaymentSheetState extends State<_PaymentSheet> {
 /// Theme orqali InputBorder.none ga o'rnatadi — hech qanday chiziq chiqmaydi.
 class _SheetField extends StatelessWidget {
   final Widget child;
+  final VoidCallback? onTap;
 
-  const _SheetField({required this.child});
+  const _SheetField({required this.child, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
+    final inner = Theme(
       data: Theme.of(context).copyWith(
         inputDecorationTheme: const InputDecorationTheme(
           border: InputBorder.none,
@@ -981,7 +1130,17 @@ class _SheetField extends StatelessWidget {
         child: child,
       ),
     );
+
+    if (onTap == null) return inner;
+
+    return GestureDetector(onTap: onTap, child: inner);
   }
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+String _formatPaidAt(DateTime dt) {
+  return DateFormat('dd.MM.yyyy').format(dt);
 }
 
 // ─── Formatter ────────────────────────────────────────────────────────────────
@@ -994,5 +1153,19 @@ class _ThousandsSeparatorFormatter extends TextInputFormatter {
     if (number == null) return oldValue;
     final formatted = NumberFormat('#,###', 'en_US').format(number).replaceAll(',', ' ');
     return TextEditingValue(text: formatted, selection: TextSelection.collapsed(offset: formatted.length));
+  }
+}
+
+class _MaxValueFormatter extends TextInputFormatter {
+  final double max;
+  const _MaxValueFormatter(this.max);
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.isEmpty) return newValue;
+    final number = double.tryParse(newValue.text.replaceAll(RegExp(r'[^0-9]'), ''));
+    if (number == null) return oldValue;
+    if (number > max) return oldValue;
+    return newValue;
   }
 }

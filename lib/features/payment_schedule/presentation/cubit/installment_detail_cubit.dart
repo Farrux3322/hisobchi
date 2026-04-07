@@ -66,7 +66,7 @@ class InstallmentDetailCubit extends Cubit<InstallmentDetailState> {
   }
 
   /// To'lov qabul qilish (FIFO)
-  Future<bool> acceptPayment({required double amount, String? note}) async {
+  Future<bool> acceptPayment({required double amount, String? note, DateTime? paidAt}) async {
     if (state.plan == null) return false;
     if (amount <= 0) return false;
 
@@ -77,6 +77,7 @@ class InstallmentDetailCubit extends Cubit<InstallmentDetailState> {
         installmentId: state.plan!.id,
         amount: amount,
         note: note,
+        paidAt: paidAt ?? DateTime.now(),
       );
       emit(state.copyWith(status: InstallmentDetailStatus.success, plan: updated));
       return true;

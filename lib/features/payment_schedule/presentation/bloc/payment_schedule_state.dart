@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
 import '../../data/models/installment_plan_model.dart';
+import '../../data/models/payment_document_model.dart';
 import '../../data/models/payment_partner_model.dart';
 
 enum PaymentScheduleStatus { initial, loading, success, failure }
@@ -25,6 +26,7 @@ class PaymentScheduleState extends Equatable {
   final String? errorMessage;
   final Map<String, String> validationErrors;
   final bool isPartnerLocked;
+  final List<PaymentDocumentModel> documents;
   // Muvaffaqiyatli yaratilgan reja (list page refresh uchun)
   final InstallmentPlanModel? createdPlan;
 
@@ -45,6 +47,7 @@ class PaymentScheduleState extends Equatable {
     this.errorMessage,
     this.validationErrors = const {},
     this.isPartnerLocked = false,
+    this.documents = const [],
     this.createdPlan,
   }) : startDate = startDate ?? DateTime.now().add(const Duration(days: 1));
 
@@ -65,6 +68,7 @@ class PaymentScheduleState extends Equatable {
     String? errorMessage,
     Map<String, String>? validationErrors,
     bool? isPartnerLocked,
+    List<PaymentDocumentModel>? documents,
     InstallmentPlanModel? createdPlan,
   }) {
     return PaymentScheduleState(
@@ -84,6 +88,7 @@ class PaymentScheduleState extends Equatable {
       errorMessage: errorMessage,
       validationErrors: validationErrors ?? this.validationErrors,
       isPartnerLocked: isPartnerLocked ?? this.isPartnerLocked,
+      documents: documents ?? this.documents,
       createdPlan: createdPlan ?? this.createdPlan,
     );
   }
@@ -106,6 +111,7 @@ class PaymentScheduleState extends Equatable {
         errorMessage,
         validationErrors,
         isPartnerLocked,
+        documents,
         createdPlan,
       ];
 }

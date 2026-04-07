@@ -28,6 +28,7 @@ import '../../components/subscription/subscription_guard.dart';
 class _StatusTab {
   final String label;
   final String? value;
+
   const _StatusTab({required this.label, required this.value});
 }
 
@@ -138,17 +139,11 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                     return [
                       SliverPersistentHeader(
                         pinned: true,
-                        delegate: _ClientHeaderDelegate(
-                          child: _buildHeader(),
-                          hasActiveFilters: hasActiveFilters,
-                        ),
+                        delegate: _ClientHeaderDelegate(child: _buildHeader(), hasActiveFilters: hasActiveFilters),
                       ),
                     ];
                   },
-                  body: TabBarView(
-                    controller: _tabController,
-                    children: _statusTabs.map((_) => _buildBody(state)).toList(),
-                  ),
+                  body: TabBarView(controller: _tabController, children: _statusTabs.map((_) => _buildBody(state)).toList()),
                 ),
                 floatingActionButton: SubscriptionGuard(
                   child: Column(
@@ -355,12 +350,7 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => ClientFilterBottomSheet(
-                    initialStartDate: filterStartDate,
-                    initialEndDate: filterEndDate,
-                    initialSort: filterSort,
-                    onApply: _handleFilterApply,
-                  ),
+                  builder: (context) => ClientFilterBottomSheet(initialStartDate: filterStartDate, initialEndDate: filterEndDate, initialSort: filterSort, onApply: _handleFilterApply),
                 );
               },
               onSearchChanged: () {
@@ -416,29 +406,15 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
           tabAlignment: TabAlignment.start,
           dividerColor: Colors.transparent,
           indicatorSize: TabBarIndicatorSize.tab,
-          indicator: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          labelStyle: TextStyle(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF0F172A),
-          ),
-          unselectedLabelStyle: TextStyle(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF64748B),
-          ),
+          indicator: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12.r)),
+          labelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A)),
+          unselectedLabelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: const Color(0xFF64748B)),
           labelColor: const Color(0xFF0F172A),
           unselectedLabelColor: const Color(0xFF64748B),
           padding: EdgeInsets.zero,
           labelPadding: EdgeInsets.symmetric(horizontal: 16.w),
           tabs: _statusTabs.map((tab) {
-            return Tab(
-              height: 38.h,
-              text: tab.label,
-            );
+            return Tab(height: 38.h, text: tab.label);
           }).toList(),
         ),
       ),
@@ -493,7 +469,10 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                           child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary)),
                         )
                       : Icon(Icons.refresh_rounded, size: 20.sp),
-                  label: Text('Qayta yuklash', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600)),
+                  label: Text(
+                    'Qayta yuklash',
+                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ),
             ),
@@ -525,14 +504,21 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                     Shimmer.fromColors(
                       baseColor: Colors.grey[300]!,
                       highlightColor: Colors.grey[100]!,
-                      child: Container(width: 40, height: 40, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r))),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
+                      ),
                     ),
                     SizedBox(width: 14.w),
                     Expanded(
                       child: Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,
-                        child: Container(height: 16, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+                        child: Container(
+                          height: 16,
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                        ),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -542,13 +528,21 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                         Shimmer.fromColors(
                           baseColor: Colors.grey[300]!,
                           highlightColor: Colors.grey[100]!,
-                          child: Container(width: 80, height: 14, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+                          child: Container(
+                            width: 80,
+                            height: 14,
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                          ),
                         ),
                         SizedBox(height: 4.h),
                         Shimmer.fromColors(
                           baseColor: Colors.grey[300]!,
                           highlightColor: Colors.grey[100]!,
-                          child: Container(width: 80, height: 14, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+                          child: Container(
+                            width: 80,
+                            height: 14,
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                          ),
                         ),
                       ],
                     ),
@@ -558,7 +552,10 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                 Shimmer.fromColors(
                   baseColor: Colors.grey[300]!,
                   highlightColor: Colors.grey[100]!,
-                  child: Container(height: 32, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r))),
+                  child: Container(
+                    height: 32,
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
+                  ),
                 ),
               ],
             ),
@@ -579,10 +576,7 @@ class _ClientHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox(
-      height: _height,
-      child: child,
-    );
+    return SizedBox(height: _height, child: child);
   }
 
   @override
@@ -600,6 +594,5 @@ class _ClientHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  bool shouldRebuild(_ClientHeaderDelegate oldDelegate) =>
-      oldDelegate.hasActiveFilters != hasActiveFilters || oldDelegate.child != child;
+  bool shouldRebuild(_ClientHeaderDelegate oldDelegate) => oldDelegate.hasActiveFilters != hasActiveFilters || oldDelegate.child != child;
 }

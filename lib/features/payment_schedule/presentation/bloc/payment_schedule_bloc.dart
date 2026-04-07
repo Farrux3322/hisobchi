@@ -1,19 +1,25 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart' show DateFormat;
+import 'dart:io';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../presentation/assets/asset_index.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
 import '../../data/models/installment_plan_model.dart';
+import '../../data/models/payment_document_model.dart';
+import '../../data/repositories/document_upload_repository.dart';
 import '../../data/repositories/installment_repository.dart';
 import 'payment_schedule_event.dart';
 import 'payment_schedule_state.dart';
 
 class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleState> {
   final InstallmentRepository _repository;
+  final DocumentUploadRepository _docRepository;
 
-  PaymentScheduleBloc({InstallmentRepository? repository})
-      : _repository = repository ?? InstallmentRepository(),
-        super(PaymentScheduleState()) {
+  PaymentScheduleBloc({InstallmentRepository? repository, DocumentUploadRepository? docRepository})
+    : _repository = repository ?? InstallmentRepository(),
+      _docRepository = docRepository ?? DocumentUploadRepository(),
+      super(PaymentScheduleState()) {
     on<PaymentScheduleStarted>(_onStarted);
     on<PaymentPartnerSelected>(_onPartnerSelected);
     on<PaymentTotalAmountChanged>(_onTotalAmountChanged);
@@ -30,17 +36,18 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
     on<PaymentScheduleSubmitted>(_onScheduleSubmitted);
     on<PaymentStepChanged>(_onStepChanged);
     on<PaymentStepBack>(_onStepBack);
+    // Documents
+    on<PaymentDocumentAdded>(_onDocumentAdded);
+    on<PaymentDocumentProgressUpdated>(_onDocumentProgress);
+    on<PaymentDocumentUploadSucceeded>(_onDocumentSucceeded);
+    on<PaymentDocumentUploadFailed>(_onDocumentFailed);
+    on<PaymentDocumentRemoved>(_onDocumentRemoved);
   }
 
   // ─── Start ────────────────────────────────────────────────────────────────
 
   void _onStarted(PaymentScheduleStarted event, Emitter<PaymentScheduleState> emit) {
-    emit(state.copyWith(
-      status: PaymentScheduleStatus.initial,
-      currentStep: 0,
-      selectedPartner: event.initialPartner,
-      isPartnerLocked: event.initialPartner != null,
-    ));
+    emit(state.copyWith(status: PaymentScheduleStatus.initial, currentStep: 0, selectedPartner: event.initialPartner, isPartnerLocked: event.initialPartner != null));
   }
 
   // ─── Step 1 ───────────────────────────────────────────────────────────────
@@ -52,16 +59,12 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
   void _onTotalAmountChanged(PaymentTotalAmountChanged event, Emitter<PaymentScheduleState> emit) {
     emit(state.copyWith(totalAmount: event.amount, validationErrors: {}));
     if (state.scheduleType == PaymentScheduleType.equal) {
-      emit(state.copyWith(
-        totalAmount: event.amount,
-        calculatedInstallments: _calculateEqual(
-          total: event.amount,
-          startDate: state.startDate,
-          count: state.installmentCount,
-          hasAdvance: state.isAdvanceEnabled,
-          advance: state.advanceAmount,
+      emit(
+        state.copyWith(
+          totalAmount: event.amount,
+          calculatedInstallments: _calculateEqual(total: event.amount, startDate: state.startDate, count: state.installmentCount, hasAdvance: state.isAdvanceEnabled, advance: state.advanceAmount),
         ),
-      ));
+      );
     }
   }
 
@@ -77,29 +80,14 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
 
   void _onScheduleTypeSelected(PaymentScheduleTypeSelected event, Emitter<PaymentScheduleState> emit) {
     // Type o'zgarganda avans holatini reset qilamiz
-    emit(state.copyWith(
-      scheduleType: event.type,
-      validationErrors: {},
-      isAdvanceEnabled: false,
-      advanceAmount: 0.0,
-    ));
+    emit(state.copyWith(scheduleType: event.type, validationErrors: {}, isAdvanceEnabled: false, advanceAmount: 0.0));
 
     if (event.type == PaymentScheduleType.custom) {
       // Erkin grafik: avans toggle off — faqat 2 ta bo'sh qism bilan boshlaymiz
       final today = DateTime.now();
       final items = <InstallmentItemModel>[
-        InstallmentItemModel.preview(
-          itemNumber: 1,
-          isAdvance: false,
-          amount: 0,
-          dueDate: DateFormat('yyyy-MM-dd').format(DateTime(today.year, today.month + 1, today.day)),
-        ),
-        InstallmentItemModel.preview(
-          itemNumber: 2,
-          isAdvance: false,
-          amount: 0,
-          dueDate: DateFormat('yyyy-MM-dd').format(DateTime(today.year, today.month + 2, today.day)),
-        ),
+        InstallmentItemModel.preview(itemNumber: 1, isAdvance: false, amount: 0, dueDate: DateFormat('yyyy-MM-dd').format(DateTime(today.year, today.month + 1, today.day))),
+        InstallmentItemModel.preview(itemNumber: 2, isAdvance: false, amount: 0, dueDate: DateFormat('yyyy-MM-dd').format(DateTime(today.year, today.month + 2, today.day))),
       ];
       emit(state.copyWith(freeInstallments: items));
     }
@@ -108,29 +96,21 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
   // ─── Step 3 (equal) ──────────────────────────────────────────────────────
 
   void _onStartDateChanged(PaymentStartDateChanged event, Emitter<PaymentScheduleState> emit) {
-    emit(state.copyWith(
-      startDate: event.date,
-      calculatedInstallments: _calculateEqual(
-        total: state.totalAmount,
+    emit(
+      state.copyWith(
         startDate: event.date,
-        count: state.installmentCount,
-        hasAdvance: state.isAdvanceEnabled,
-        advance: state.advanceAmount,
+        calculatedInstallments: _calculateEqual(total: state.totalAmount, startDate: event.date, count: state.installmentCount, hasAdvance: state.isAdvanceEnabled, advance: state.advanceAmount),
       ),
-    ));
+    );
   }
 
   void _onInstallmentCountChanged(PaymentInstallmentCountChanged event, Emitter<PaymentScheduleState> emit) {
-    emit(state.copyWith(
-      installmentCount: event.count,
-      calculatedInstallments: _calculateEqual(
-        total: state.totalAmount,
-        startDate: state.startDate,
-        count: event.count,
-        hasAdvance: state.isAdvanceEnabled,
-        advance: state.advanceAmount,
+    emit(
+      state.copyWith(
+        installmentCount: event.count,
+        calculatedInstallments: _calculateEqual(total: state.totalAmount, startDate: state.startDate, count: event.count, hasAdvance: state.isAdvanceEnabled, advance: state.advanceAmount),
       ),
-    ));
+    );
   }
 
   void _onAdvanceToggled(PaymentAdvanceToggled event, Emitter<PaymentScheduleState> emit) {
@@ -144,12 +124,7 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
         final alreadyHas = state.freeInstallments.any((i) => i.isAdvance);
         if (!alreadyHas) {
           final today = DateTime.now();
-          final advanceItem = InstallmentItemModel.preview(
-            itemNumber: 0,
-            isAdvance: true,
-            amount: 0,
-            dueDate: DateFormat('yyyy-MM-dd').format(today),
-          );
+          final advanceItem = InstallmentItemModel.preview(itemNumber: 0, isAdvance: true, amount: 0, dueDate: DateFormat('yyyy-MM-dd').format(today));
           updatedFree = [advanceItem, ...state.freeInstallments];
         } else {
           updatedFree = state.freeInstallments;
@@ -158,38 +133,26 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
         // Avans itemni olib tashlaymiz
         updatedFree = state.freeInstallments.where((i) => !i.isAdvance).toList();
       }
-      emit(state.copyWith(
-        isAdvanceEnabled: event.isEnabled,
-        advanceAmount: advance,
-        freeInstallments: updatedFree,
-      ));
+      emit(state.copyWith(isAdvanceEnabled: event.isEnabled, advanceAmount: advance, freeInstallments: updatedFree));
     } else {
       // ── Teng jadval: calculated installments ni qayta hisoblaymiz ─────────
-      emit(state.copyWith(
-        isAdvanceEnabled: event.isEnabled,
-        advanceAmount: advance,
-        calculatedInstallments: _calculateEqual(
-          total: state.totalAmount,
-          startDate: state.startDate,
-          count: state.installmentCount,
-          hasAdvance: event.isEnabled,
-          advance: advance,
+      emit(
+        state.copyWith(
+          isAdvanceEnabled: event.isEnabled,
+          advanceAmount: advance,
+          calculatedInstallments: _calculateEqual(total: state.totalAmount, startDate: state.startDate, count: state.installmentCount, hasAdvance: event.isEnabled, advance: advance),
         ),
-      ));
+      );
     }
   }
 
   void _onAdvanceAmountChanged(PaymentAdvanceAmountChanged event, Emitter<PaymentScheduleState> emit) {
-    emit(state.copyWith(
-      advanceAmount: event.amount,
-      calculatedInstallments: _calculateEqual(
-        total: state.totalAmount,
-        startDate: state.startDate,
-        count: state.installmentCount,
-        hasAdvance: state.isAdvanceEnabled,
-        advance: event.amount,
+    emit(
+      state.copyWith(
+        advanceAmount: event.amount,
+        calculatedInstallments: _calculateEqual(total: state.totalAmount, startDate: state.startDate, count: state.installmentCount, hasAdvance: state.isAdvanceEnabled, advance: event.amount),
       ),
-    ));
+    );
   }
 
   // ─── Step 3 (custom / free) ───────────────────────────────────────────────
@@ -199,12 +162,7 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
     final today = DateTime.now();
     final newDate = DateTime(today.year, today.month + nonAdvance + 1, today.day);
 
-    final newItem = InstallmentItemModel.preview(
-      itemNumber: nonAdvance + 1,
-      isAdvance: false,
-      amount: 0,
-      dueDate: DateFormat('yyyy-MM-dd').format(newDate),
-    );
+    final newItem = InstallmentItemModel.preview(itemNumber: nonAdvance + 1, isAdvance: false, amount: 0, dueDate: DateFormat('yyyy-MM-dd').format(newDate));
     emit(state.copyWith(freeInstallments: [...state.freeInstallments, newItem]));
   }
 
@@ -228,17 +186,19 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
     }
 
     if (event.step == 2 && state.scheduleType == PaymentScheduleType.equal) {
-      emit(state.copyWith(
-        currentStep: event.step,
-        validationErrors: {},
-        calculatedInstallments: _calculateEqual(
-          total: state.totalAmount,
-          startDate: state.startDate,
-          count: state.installmentCount,
-          hasAdvance: state.isAdvanceEnabled,
-          advance: state.advanceAmount,
+      emit(
+        state.copyWith(
+          currentStep: event.step,
+          validationErrors: {},
+          calculatedInstallments: _calculateEqual(
+            total: state.totalAmount,
+            startDate: state.startDate,
+            count: state.installmentCount,
+            hasAdvance: state.isAdvanceEnabled,
+            advance: state.advanceAmount,
+          ),
         ),
-      ));
+      );
     } else {
       emit(state.copyWith(currentStep: event.step, validationErrors: {}));
     }
@@ -248,6 +208,57 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
     if (state.currentStep > 0) {
       emit(state.copyWith(currentStep: state.currentStep - 1, validationErrors: {}));
     }
+  }
+
+  // ─── Documents ───────────────────────────────────────────────────────────
+
+  Future<void> _onDocumentAdded(PaymentDocumentAdded event, Emitter<PaymentScheduleState> emit) async {
+    // Ro'yxatga qo'shamiz, status = uploading
+    final doc = event.document.copyWith(status: DocumentUploadStatus.uploading, progress: 0);
+    emit(state.copyWith(documents: [...state.documents, doc]));
+
+    try {
+      final result = await _docRepository.upload(
+        file: File(doc.localPath),
+        type: 'installment',
+        // type: doc.isImage ? 'image' : 'file',
+        onProgress: (percent) {
+          add(PaymentDocumentProgressUpdated(localPath: doc.localPath, progress: percent));
+        },
+      );
+      add(PaymentDocumentUploadSucceeded(localPath: doc.localPath, serverId: result.id, serverUrl: result.url));
+    } catch (e) {
+      add(PaymentDocumentUploadFailed(localPath: doc.localPath, error: e.toString()));
+    }
+  }
+
+  void _onDocumentProgress(PaymentDocumentProgressUpdated event, Emitter<PaymentScheduleState> emit) {
+    final updated = state.documents.map((d) {
+      if (d.localPath != event.localPath) return d;
+      return d.copyWith(progress: event.progress);
+    }).toList();
+    emit(state.copyWith(documents: updated));
+  }
+
+  void _onDocumentSucceeded(PaymentDocumentUploadSucceeded event, Emitter<PaymentScheduleState> emit) {
+    final updated = state.documents.map((d) {
+      if (d.localPath != event.localPath) return d;
+      return d.copyWith(status: DocumentUploadStatus.success, progress: 100, serverId: event.serverId, serverUrl: event.serverUrl);
+    }).toList();
+    emit(state.copyWith(documents: updated));
+  }
+
+  void _onDocumentFailed(PaymentDocumentUploadFailed event, Emitter<PaymentScheduleState> emit) {
+    final updated = state.documents.map((d) {
+      if (d.localPath != event.localPath) return d;
+      return d.copyWith(status: DocumentUploadStatus.failure, errorMessage: event.error);
+    }).toList();
+    emit(state.copyWith(documents: updated));
+  }
+
+  void _onDocumentRemoved(PaymentDocumentRemoved event, Emitter<PaymentScheduleState> emit) {
+    final updated = state.documents.where((d) => d.localPath != event.localPath).toList();
+    emit(state.copyWith(documents: updated));
   }
 
   // ─── Submit (real API) ────────────────────────────────────────────────────
@@ -261,6 +272,7 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
       final partnerId = int.tryParse(state.selectedPartner!.id) ?? 0;
       final currencyTypeId = state.currency == PaymentCurrency.uzs ? 1 : 2;
       final globalNote = state.note.isNotEmpty ? state.note : null;
+      final uploadedFileIds = state.documents.where((d) => d.isUploaded && d.serverId != null).map((d) => d.serverId!).toList();
 
       InstallmentPlanModel result;
 
@@ -272,16 +284,10 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
         // Equal uchun items: avans (agar bor bo'lsa) + calculatedInstallments dan oddiy qismlar
         final equalItems = <Map<String, dynamic>>[];
         if (hasAdvance) {
-          equalItems.add({
-            'amount': state.advanceAmount,
-            'due_date': state.startDate.toIso8601String(),
-          });
+          equalItems.add({'amount': state.advanceAmount, 'due_date': state.startDate.toIso8601String()});
         }
         for (final item in state.calculatedInstallments.where((i) => !i.isAdvance)) {
-          equalItems.add({
-            'amount': item.amount,
-            'due_date': _toIso(item.dueDate),
-          });
+          equalItems.add({'amount': item.amount, 'due_date': _toIso(item.dueDate)});
         }
 
         result = await _repository.createInstallment(
@@ -295,6 +301,7 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
           installmentCount: state.installmentCount,
           items: equalItems.isNotEmpty ? equalItems : null,
           note: globalNote,
+          fileIds: uploadedFileIds.isNotEmpty ? uploadedFileIds : null,
         );
       } else {
         // Custom (erkin grafik):
@@ -307,18 +314,8 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
 
         // items: avans birinchi, keyin oddiy qismlar
         final items = <Map<String, dynamic>>[
-          if (hasAdvance)
-            {
-              'amount': advanceItem.amount,
-              'due_date': _toIso(advanceItem.dueDate),
-              if (advanceItem.note != null && advanceItem.note!.isNotEmpty)
-                'note': advanceItem.note,
-            },
-          ...regularItems.map((item) => <String, dynamic>{
-                'amount': item.amount,
-                'due_date': _toIso(item.dueDate),
-                if (item.note != null && item.note!.isNotEmpty) 'note': item.note,
-              }),
+          if (hasAdvance) {'amount': advanceItem.amount, 'due_date': _toIso(advanceItem.dueDate), if (advanceItem.note != null && advanceItem.note!.isNotEmpty) 'note': advanceItem.note},
+          ...regularItems.map((item) => <String, dynamic>{'amount': item.amount, 'due_date': _toIso(item.dueDate), if (item.note != null && item.note!.isNotEmpty) 'note': item.note}),
         ];
 
         result = await _repository.createInstallment(
@@ -330,19 +327,13 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
           advanceAmount: advanceAmount,
           items: items,
           note: globalNote,
+          fileIds: uploadedFileIds.isNotEmpty ? uploadedFileIds : null,
         );
       }
 
-      emit(state.copyWith(
-        status: PaymentScheduleStatus.success,
-        createdPlan: result,
-        errorMessage: null,
-      ));
+      emit(state.copyWith(status: PaymentScheduleStatus.success, createdPlan: result, errorMessage: null));
     } catch (e) {
-      emit(state.copyWith(
-        status: PaymentScheduleStatus.failure,
-        errorMessage: e.toString().replaceFirst('Exception: ', ''),
-      ));
+      emit(state.copyWith(status: PaymentScheduleStatus.failure, errorMessage: e.toString().replaceFirst('Exception: ', '')));
     }
   }
 
@@ -370,13 +361,7 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
 
   // ─── Equal schedule calculator (API algoritmi bilan mos) ─────────────────
 
-  List<InstallmentItemModel> _calculateEqual({
-    required double total,
-    required DateTime startDate,
-    required int count,
-    required bool hasAdvance,
-    required double advance,
-  }) {
+  List<InstallmentItemModel> _calculateEqual({required double total, required DateTime startDate, required int count, required bool hasAdvance, required double advance}) {
     if (total <= 0 || count <= 0) return [];
 
     final items = <InstallmentItemModel>[];
@@ -384,12 +369,7 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
     int itemNum = 1;
 
     if (hasAdvance && advance > 0) {
-      items.add(InstallmentItemModel.preview(
-        itemNumber: 0,
-        isAdvance: true,
-        amount: _round2(advance),
-        dueDate: fmt.format(startDate),
-      ));
+      items.add(InstallmentItemModel.preview(itemNumber: 0, isAdvance: true, amount: _round2(advance), dueDate: fmt.format(startDate)));
     }
 
     final remaining = hasAdvance ? _round2(total - advance) : total;
@@ -404,12 +384,7 @@ class PaymentScheduleBloc extends Bloc<PaymentScheduleEvent, PaymentScheduleStat
       final dueDate = DateTime(startDate.year, startDate.month + monthOffset, startDate.day);
       final amount = (i == count - 1) ? lastAmount : perItem;
 
-      items.add(InstallmentItemModel.preview(
-        itemNumber: itemNum++,
-        isAdvance: false,
-        amount: amount,
-        dueDate: fmt.format(dueDate),
-      ));
+      items.add(InstallmentItemModel.preview(itemNumber: itemNum++, isAdvance: false, amount: amount, dueDate: fmt.format(dueDate)));
     }
 
     return items;

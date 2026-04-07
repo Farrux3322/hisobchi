@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
+import '../../data/models/payment_document_model.dart';
 import '../../data/models/payment_partner_model.dart';
 
 abstract class PaymentScheduleEvent extends Equatable {
@@ -125,4 +126,45 @@ class PaymentStepChanged extends PaymentScheduleEvent {
 
 class PaymentStepBack extends PaymentScheduleEvent {
   const PaymentStepBack();
+}
+
+// ─── Documents ────────────────────────────────────────────────────────────────
+
+class PaymentDocumentAdded extends PaymentScheduleEvent {
+  final PaymentDocumentModel document;
+  const PaymentDocumentAdded(this.document);
+  @override
+  List<Object?> get props => [document];
+}
+
+class PaymentDocumentProgressUpdated extends PaymentScheduleEvent {
+  final String localPath;
+  final int progress;
+  const PaymentDocumentProgressUpdated({required this.localPath, required this.progress});
+  @override
+  List<Object?> get props => [localPath, progress];
+}
+
+class PaymentDocumentUploadSucceeded extends PaymentScheduleEvent {
+  final String localPath;
+  final int serverId;
+  final String serverUrl;
+  const PaymentDocumentUploadSucceeded({required this.localPath, required this.serverId, required this.serverUrl});
+  @override
+  List<Object?> get props => [localPath, serverId, serverUrl];
+}
+
+class PaymentDocumentUploadFailed extends PaymentScheduleEvent {
+  final String localPath;
+  final String error;
+  const PaymentDocumentUploadFailed({required this.localPath, required this.error});
+  @override
+  List<Object?> get props => [localPath, error];
+}
+
+class PaymentDocumentRemoved extends PaymentScheduleEvent {
+  final String localPath;
+  const PaymentDocumentRemoved(this.localPath);
+  @override
+  List<Object?> get props => [localPath];
 }
