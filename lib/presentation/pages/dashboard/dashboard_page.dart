@@ -10,13 +10,13 @@ import 'package:hisobchi/application/project/project_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
-import 'package:hisobchi/presentation/pages/client/report/partner_operations_detail_page.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../infrastructure/services/permission_extension.dart';
 import '../../components/toast/toast.dart';
 import '../client/report/report_client_main_page.dart';
 import '../currency/currency_page.dart';
+import 'due_dates/due_dates_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -209,9 +209,32 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     final projects = result?.projects;
     final details = partners?.details;
 
-    final expiredCount = (details?.qarzExpired?.count ?? 0) + (details?.installmentExpired?.count ?? 0);
-    final todayCount = (details?.qarzToday?.count ?? 0) + (details?.installmentToday?.count ?? 0);
-    final soonCount = (details?.qarz3Days?.count ?? 0) + (details?.installment3Days?.count ?? 0);
+    final qarzExpired = details?.qarzExpired?.count ?? 0;
+    final installmentExpired = details?.installmentExpired?.count ?? 0;
+    final qarzToday = details?.qarzToday?.count ?? 0;
+    final installmentToday = details?.installmentToday?.count ?? 0;
+    final qarz3Days = details?.qarz3Days?.count ?? 0;
+    final installment3Days = details?.installment3Days?.count ?? 0;
+
+    final expiredCount = qarzExpired + installmentExpired;
+    final todayCount = qarzToday + installmentToday;
+    final soonCount = qarz3Days + installment3Days;
+
+    void openDueDates({required String title, required String qarzType, required String installmentType, int initialTab = 0, required int qarzCount, required int instCount}) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => DueDatesPage(
+            title: title,
+            qarzType: qarzType,
+            installmentType: installmentType,
+            initialTabIndex: initialTab,
+            qarzCount: qarzCount,
+            installmentCount: instCount,
+          ),
+        ),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,24 +244,27 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           expiredCount: expiredCount,
           todayCount: todayCount,
           soonCount: soonCount,
-          onExpiredTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => PartnerOperationsDetailPage(type: 'qarz_expired', currencyTypeId: 0, title: "Muddati o’tgan")),
-            );
-          },
-          onTodayTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => PartnerOperationsDetailPage(type: 'qarz_today', currencyTypeId: 0, title: 'Bugungilar')),
-            );
-          },
-          onSoonTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => PartnerOperationsDetailPage(type:'qarz_3_days', currencyTypeId: 0, title: 'Tez orada')),
-            );
-          },
+          onExpiredTap: () => openDueDates(
+            title: "Muddati o’tgan",
+            qarzType: 'qarz_expired',
+            installmentType: 'installment_expired',
+            qarzCount: qarzExpired,
+            instCount: installmentExpired,
+          ),
+          onTodayTap: () => openDueDates(
+            title: 'Bugungilar',
+            qarzType: 'qarz_today',
+            installmentType: 'installment_today',
+            qarzCount: qarzToday,
+            instCount: installmentToday,
+          ),
+          onSoonTap: () => openDueDates(
+            title: 'Tez orada',
+            qarzType: 'qarz_3_days',
+            installmentType: 'installment_3_days',
+            qarzCount: qarz3Days,
+            instCount: installment3Days,
+          ),
         ),
         SizedBox(height: 10.h),
         LoyihalarCard(
