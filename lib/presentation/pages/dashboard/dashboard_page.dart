@@ -29,8 +29,6 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  String _selectedCurrency = 'UZS';
-
   @override
   void initState() {
     super.initState();
@@ -209,46 +207,36 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     final result = state.dashboardModel?.result;
     final partners = result?.partners;
     final projects = result?.projects;
+    final details = partners?.details;
 
-    final availableCurrencies = partners?.details?.keys.toList() ?? ['UZS'];
-    if (!availableCurrencies.contains(_selectedCurrency)) {
-      _selectedCurrency = availableCurrencies.first;
-    }
-
-    final currencyDetails = partners?.details?[_selectedCurrency];
-    final currencyTypeId = _selectedCurrency == 'UZS' ? 1 : 2;
+    final expiredCount = (details?.qarzExpired?.count ?? 0) + (details?.installmentExpired?.count ?? 0);
+    final todayCount = (details?.qarzToday?.count ?? 0) + (details?.installmentToday?.count ?? 0);
+    final soonCount = (details?.qarz3Days?.count ?? 0) + (details?.installment3Days?.count ?? 0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         HamkorlarCard(
           totalCount: partners?.partnersCount ?? 0,
-          availableCurrencies: availableCurrencies,
-          selectedCurrency: _selectedCurrency,
-          onCurrencyChanged: (currency) {
-            setState(() {
-              _selectedCurrency = currency;
-            });
-          },
-          expiredCount: currencyDetails?.qarzExpired?.count ?? 0,
-          todayCount: currencyDetails?.qarzToday?.count ?? 0,
-          soonCount: currencyDetails?.qarz3Days?.count ?? 0,
+          expiredCount: expiredCount,
+          todayCount: todayCount,
+          soonCount: soonCount,
           onExpiredTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => PartnerOperationsDetailPage(type: currencyDetails?.qarzExpired?.type ?? 'qarz_expired', currencyTypeId: currencyTypeId, title: 'Muddati o‘tgan')),
+              MaterialPageRoute(builder: (_) => PartnerOperationsDetailPage(type: 'qarz_expired', currencyTypeId: 0, title: "Muddati o’tgan")),
             );
           },
           onTodayTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => PartnerOperationsDetailPage(type: currencyDetails?.qarzToday?.type ?? 'qarz_today', currencyTypeId: currencyTypeId, title: 'Bugungilar')),
+              MaterialPageRoute(builder: (_) => PartnerOperationsDetailPage(type: 'qarz_today', currencyTypeId: 0, title: 'Bugungilar')),
             );
           },
           onSoonTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => PartnerOperationsDetailPage(type: currencyDetails?.qarz3Days?.type ?? 'qarz_3_days', currencyTypeId: currencyTypeId, title: 'Tez orada')),
+              MaterialPageRoute(builder: (_) => PartnerOperationsDetailPage(type:'qarz_3_days', currencyTypeId: 0, title: 'Tez orada')),
             );
           },
         ),
@@ -270,9 +258,6 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
 
 class HamkorlarCard extends StatelessWidget {
   final int totalCount;
-  final List<String> availableCurrencies;
-  final String selectedCurrency;
-  final ValueChanged<String> onCurrencyChanged;
   final int expiredCount;
   final int todayCount;
   final int soonCount;
@@ -283,9 +268,6 @@ class HamkorlarCard extends StatelessWidget {
   const HamkorlarCard({
     super.key,
     required this.totalCount,
-    required this.availableCurrencies,
-    required this.selectedCurrency,
-    required this.onCurrencyChanged,
     required this.expiredCount,
     required this.todayCount,
     required this.soonCount,
@@ -345,85 +327,6 @@ class HamkorlarCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: 16.h),
-          if (availableCurrencies.isNotEmpty)
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final double padding = 4.w;
-                final double totalWidth = constraints.maxWidth;
-                final double itemWidth = (totalWidth - padding * 2) / availableCurrencies.length;
-                final int selectedIndex = availableCurrencies.indexOf(selectedCurrency).clamp(0, availableCurrencies.length - 1);
-
-                return Container(
-                  height: 42.h,
-                  padding: EdgeInsets.all(padding),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF4F4F5), // Light gray background
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // The sliding thumb removed per user request
-                      AnimatedPositioned(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeOutCubic,
-                        left: selectedIndex * itemWidth,
-                        top: 0,
-                        bottom: 0,
-                        width: itemWidth,
-                        child: const SizedBox(),
-                      ),
-                      // Text overlays and dividers
-                      Row(
-                        children: availableCurrencies.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final currency = entry.value;
-                          final isSelected = selectedIndex == index;
-                          return Expanded(
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () {
-                                HapticFeedback.selectionClick();
-                                onCurrencyChanged(currency);
-                              },
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  AnimatedDefaultTextStyle(
-                                    duration: const Duration(milliseconds: 150),
-                                    style: TextStyle(
-                                      fontSize: 13.sp,
-                                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                      color: isSelected ? const Color(0xFF0F172A) : const Color(0xFF64748B),
-                                      letterSpacing: -0.2,
-                                    ),
-                                    child: Text('$currency Hisob'),
-                                  ),
-                                  // Right divider (visible between tabs, mimicking `||`)
-                                  if (index < availableCurrencies.length - 1)
-                                    Positioned(
-                                      right: 0,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(width: 2.w, height: 10.h, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2))),
-                                          SizedBox(width: 2.w),
-                                          Container(width: 2.w, height: 10.h, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2))),
-                                        ],
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          SizedBox(height: 10.h),
           SizedBox(
             height: 280.h,
             child: Row(
@@ -448,7 +351,6 @@ class HamkorlarCard extends StatelessWidget {
                               height: availableHeight,
                               width: requiredWidth,
                               child: TweenAnimationBuilder<double>(
-                                key: ValueKey('donut_anim_$selectedCurrency'), // Key forces rebuild on tab switch
                                 tween: Tween<double>(begin: 0.0, end: 1.0),
                                 duration: const Duration(milliseconds: 1400),
                                 curve: Curves.easeOutCubic,

@@ -32,87 +32,81 @@ class DashboardResult {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (partners != null) {
-      data['partners'] = partners!.toJson();
-    }
-    if (projects != null) {
-      data['projects'] = projects!.toJson();
-    }
+    if (partners != null) data['partners'] = partners!.toJson();
+    if (projects != null) data['projects'] = projects!.toJson();
     return data;
   }
 }
 
 class PartnersData {
   int? partnersCount;
-  Map<String, PartnersDetails>? details;
+  PartnersDetails? details;
 
   PartnersData({this.partnersCount, this.details});
 
   PartnersData.fromJson(Map<String, dynamic> json) {
     partnersCount = json['partners_count'];
-    if (json['details'] != null) {
-      details = {};
-      json['details'].forEach((key, value) {
-        details![key] = PartnersDetails.fromJson(value);
-      });
-    }
+    details = json['details'] != null ? PartnersDetails.fromJson(json['details']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['partners_count'] = partnersCount;
-    if (details != null) {
-      data['details'] = details!.map((key, value) => MapEntry(key, value.toJson()));
-    }
+    if (details != null) data['details'] = details!.toJson();
     return data;
   }
 }
 
 class PartnersDetails {
-  QarzDetail? qarzExpired;
-  QarzDetail? qarzToday;
-  QarzDetail? qarz3Days;
+  PartnerDetailItem? qarzExpired;
+  PartnerDetailItem? qarzToday;
+  PartnerDetailItem? qarz3Days;
+  PartnerDetailItem? installmentExpired;
+  PartnerDetailItem? installmentToday;
+  PartnerDetailItem? installment3Days;
 
-  PartnersDetails({this.qarzExpired, this.qarzToday, this.qarz3Days});
+  PartnersDetails({
+    this.qarzExpired,
+    this.qarzToday,
+    this.qarz3Days,
+    this.installmentExpired,
+    this.installmentToday,
+    this.installment3Days,
+  });
 
   PartnersDetails.fromJson(Map<String, dynamic> json) {
-    qarzExpired = json['qarz_expired'] != null ? QarzDetail.fromJson(json['qarz_expired']) : null;
-    qarzToday = json['qarz_today'] != null ? QarzDetail.fromJson(json['qarz_today']) : null;
-    qarz3Days = json['qarz_3_days'] != null ? QarzDetail.fromJson(json['qarz_3_days']) : null;
+    qarzExpired = json['qarz_expired'] != null ? PartnerDetailItem.fromJson(json['qarz_expired']) : null;
+    qarzToday = json['qarz_today'] != null ? PartnerDetailItem.fromJson(json['qarz_today']) : null;
+    qarz3Days = json['qarz_3_days'] != null ? PartnerDetailItem.fromJson(json['qarz_3_days']) : null;
+    installmentExpired = json['installment_expired'] != null ? PartnerDetailItem.fromJson(json['installment_expired']) : null;
+    installmentToday = json['installment_today'] != null ? PartnerDetailItem.fromJson(json['installment_today']) : null;
+    installment3Days = json['installment_3_days'] != null ? PartnerDetailItem.fromJson(json['installment_3_days']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (qarzExpired != null) {
-      data['qarz_expired'] = qarzExpired!.toJson();
-    }
-    if (qarzToday != null) {
-      data['qarz_today'] = qarzToday!.toJson();
-    }
-    if (qarz3Days != null) {
-      data['qarz_3_days'] = qarz3Days!.toJson();
-    }
+    if (qarzExpired != null) data['qarz_expired'] = qarzExpired!.toJson();
+    if (qarzToday != null) data['qarz_today'] = qarzToday!.toJson();
+    if (qarz3Days != null) data['qarz_3_days'] = qarz3Days!.toJson();
+    if (installmentExpired != null) data['installment_expired'] = installmentExpired!.toJson();
+    if (installmentToday != null) data['installment_today'] = installmentToday!.toJson();
+    if (installment3Days != null) data['installment_3_days'] = installment3Days!.toJson();
     return data;
   }
 }
 
-class QarzDetail {
+class PartnerDetailItem {
   int? count;
   String? type;
 
-  QarzDetail({this.count, this.type});
+  PartnerDetailItem({this.count, this.type});
 
-  QarzDetail.fromJson(Map<String, dynamic> json) {
+  PartnerDetailItem.fromJson(Map<String, dynamic> json) {
     count = json['count'];
     type = json['type'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['count'] = count;
-    data['type'] = type;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {'count': count, 'type': type};
 }
 
 class ProjectsData {
