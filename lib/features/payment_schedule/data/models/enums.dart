@@ -22,6 +22,15 @@ enum PaymentScheduleType {
   final String value;
   const PaymentScheduleType(this.value);
 
+  String get label {
+    switch (this) {
+      case PaymentScheduleType.equal:
+        return 'Teng ulushli';
+      case PaymentScheduleType.custom:
+        return 'Erkin';
+    }
+  }
+
   static PaymentScheduleType fromString(String value) {
     return PaymentScheduleType.values.firstWhere(
       (e) => e.value == value,

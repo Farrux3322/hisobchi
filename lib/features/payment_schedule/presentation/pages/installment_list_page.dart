@@ -64,6 +64,7 @@ class _InstallmentListView extends StatelessWidget {
           ],
         ),
       ),
+
       // floatingActionButton: SubscriptionGuard(
       //   child: Column(
       //     mainAxisSize: MainAxisSize.min,
@@ -148,7 +149,6 @@ class _InstallmentListView extends StatelessWidget {
       //     ],
       //   ),
       // ),
-
       floatingActionButton: SubscriptionGuard(
         child: SizedBox(
           width: 56.w,
@@ -159,7 +159,7 @@ class _InstallmentListView extends StatelessWidget {
             onPressed: () => _openCreate(context),
             backgroundColor: AppTheme.colors.primary,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
-            child: Icon(Icons.add,color: Colors.white,size: 36.sp),
+            child: Icon(Icons.add, color: Colors.white, size: 36.sp),
           ),
         ),
       ),
@@ -173,10 +173,7 @@ class _InstallmentListView extends StatelessWidget {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (state.status == InstallmentListStatus.failure) {
-                  return _ErrorView(
-                    message: state.errorMessage ?? 'Xatolik yuz berdi',
-                    onRetry: () => context.read<InstallmentListCubit>().load(refresh: true),
-                  );
+                  return _ErrorView(message: state.errorMessage ?? 'Xatolik yuz berdi', onRetry: () => context.read<InstallmentListCubit>().load(refresh: true));
                 }
                 if (state.plans.isEmpty) {
                   return _EmptyView(onAdd: () => _openCreate(context));
@@ -188,10 +185,7 @@ class _InstallmentListView extends StatelessWidget {
                     padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 100.h),
                     itemCount: state.plans.length,
                     separatorBuilder: (_, __) => SizedBox(height: 10.h),
-                    itemBuilder: (_, i) => _PlanCard(
-                      plan: state.plans[i],
-                      onTap: () => _openDetail(context, state.plans[i]),
-                    ),
+                    itemBuilder: (_, i) => _PlanCard(plan: state.plans[i], onTap: () => _openDetail(context, state.plans[i])),
                   ),
                 );
               },
@@ -211,7 +205,7 @@ class _InstallmentListView extends StatelessWidget {
   }
 
   void _openDetail(BuildContext context, InstallmentPlanModel plan) {
-    pushScreen(context, screen: InstallmentDetailPage(installmentId: plan.id)).then((changed) {
+    pushScreen(context, screen: InstallmentDetailPage(installmentPlanModel: plan)).then((changed) {
       if (changed == true && context.mounted) {
         context.read<InstallmentListCubit>().refresh();
       }
@@ -235,22 +229,18 @@ class _StatusFilterBar extends StatelessWidget {
         return Container(
           color: AppTheme.colors.white,
           padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
-          child: CupertinoSlidingSegmentedControl<int>(
-            groupValue: selectedIndex,
-            backgroundColor: CupertinoColors.systemGrey6,
-            thumbColor: AppTheme.colors.white,
-            padding: EdgeInsets.all(3.r),
-            children: {
-              for (int i = 0; i < _labels.length; i++)
-                i: _SegmentTab(
-                  label: _labels[i],
-                  isSelected: selectedIndex == i,
-                ),
-            },
-            onValueChanged: (index) {
-              if (index == null) return;
-              context.read<InstallmentListCubit>().setStatusFilter(_statuses[index]);
-            },
+          child: MergeSemantics(
+            child: CupertinoSlidingSegmentedControl<int>(
+              groupValue: selectedIndex,
+              backgroundColor: CupertinoColors.systemGrey6,
+              thumbColor: AppTheme.colors.white,
+              padding: EdgeInsets.all(3.r),
+              children: {for (int i = 0; i < _labels.length; i++) i: _SegmentTab(label: _labels[i], isSelected: selectedIndex == i)},
+              onValueChanged: (index) {
+                if (index == null) return;
+                context.read<InstallmentListCubit>().setStatusFilter(_statuses[index]);
+              },
+            ),
           ),
         );
       },
@@ -270,11 +260,7 @@ class _SegmentTab extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 7.h),
       child: Text(
         label,
-        style: TextStyle(
-          fontSize: 13.sp,
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-          color: isSelected ? AppTheme.colors.primary : AppTheme.colors.gray,
-        ),
+        style: TextStyle(fontSize: 13.sp, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500, color: isSelected ? AppTheme.colors.primary : AppTheme.colors.gray),
       ),
     );
   }
@@ -363,12 +349,7 @@ class _PlanCard extends StatelessWidget {
                 ? _SegmentedProgressBar(items: plan.items, totalAmount: plan.totalAmount)
                 : ClipRRect(
                     borderRadius: BorderRadius.circular(4.r),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      backgroundColor: AppTheme.colors.divider.withValues(alpha: 0.3),
-                      color: plan.status.color,
-                      minHeight: 6.h,
-                    ),
+                    child: LinearProgressIndicator(value: progress, backgroundColor: AppTheme.colors.divider.withValues(alpha: 0.3), color: plan.status.color, minHeight: 6.h),
                   ),
             SizedBox(height: 8.h),
 
@@ -431,16 +412,17 @@ class _SegmentedProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty || totalAmount <= 0) return const SizedBox.shrink();
 
-    // Har bir segment kengligi o'z amount nisbatiga proporsional
+    const double height = 8;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final totalWidth = constraints.maxWidth;
-        const gap = 2.0; // segmentlar orasidagi bo'shliq (px)
+        const gap = 2.0;
         final totalGap = gap * (items.length - 1);
         final availableWidth = totalWidth - totalGap;
 
         return SizedBox(
-          height: 8,
+          height: height,
           child: Row(
             children: items.asMap().entries.map((entry) {
               final index = entry.key;
@@ -459,21 +441,15 @@ class _SegmentedProgressBar extends StatelessWidget {
               return Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (index > 0) SizedBox(width: gap),
+                  if (index > 0) const SizedBox(width: gap),
                   SizedBox(
                     width: segWidth,
-                    height: 8,
+                    height: height,
                     child: ClipRRect(
                       borderRadius: radius,
                       child: Stack(
                         children: [
-                          // Background
-                          Container(
-                            decoration: BoxDecoration(
-                              color: AppTheme.colors.divider.withValues(alpha: 0.25),
-                            ),
-                          ),
-                          // Fill
+                          Container(color: AppTheme.colors.divider.withValues(alpha: 0.25)),
                           FractionallySizedBox(
                             widthFactor: fillRatio,
                             child: Container(color: _segmentColor(item)),
@@ -494,15 +470,15 @@ class _SegmentedProgressBar extends StatelessWidget {
   Color _segmentColor(InstallmentItemModel item) {
     switch (item.status) {
       case InstallmentStatus.paid:
-        return const Color(0xFF22C55E); // yashil
+        return const Color(0xFF22C55E);
       case InstallmentStatus.partial:
-        return const Color(0xFF3B82F6); // ko'k
+        return const Color(0xFF3B82F6);
       case InstallmentStatus.near:
-        return const Color(0xFFF59E0B); // sariq
+        return const Color(0xFFF59E0B);
       case InstallmentStatus.overdue:
-        return const Color(0xFFEF4444); // qizil
+        return const Color(0xFFEF4444);
       case InstallmentStatus.pending:
-        return const Color(0xFF94A3B8); // kulrang (background ustida ko'rinmaydi)
+        return const Color(0xFF94A3B8);
     }
   }
 }

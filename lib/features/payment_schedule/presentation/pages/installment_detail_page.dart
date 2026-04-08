@@ -7,19 +7,17 @@ import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
 import '../../data/models/installment_plan_model.dart';
 import '../cubit/installment_detail_cubit.dart';
+import 'installment_plan_info_page.dart';
 import 'payment_history_page.dart';
 
 class InstallmentDetailPage extends StatelessWidget {
-  final int installmentId;
+  final InstallmentPlanModel installmentPlanModel;
 
-  const InstallmentDetailPage({super.key, required this.installmentId});
+  const InstallmentDetailPage({super.key, required this.installmentPlanModel});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => InstallmentDetailCubit()..loadDetail(installmentId),
-      child: const _DetailView(),
-    );
+    return BlocProvider(create: (_) => InstallmentDetailCubit()..loadDetail(installmentPlanModel.id), child: const _DetailView());
   }
 }
 
@@ -49,11 +47,7 @@ class _DetailViewState extends State<_DetailView> {
             if (didPop) return;
             Navigator.pop(context, _hasChanges);
           },
-          child: Scaffold(
-            backgroundColor: AppTheme.colors.background,
-            appBar: _buildAppBar(context, state),
-            body: _buildBody(context, state),
-          ),
+          child: Scaffold(backgroundColor: AppTheme.colors.background, appBar: _buildAppBar(context, state), body: _buildBody(context, state)),
         );
       },
     );
@@ -63,17 +57,16 @@ class _DetailViewState extends State<_DetailView> {
     return AppBar(
       backgroundColor: AppTheme.colors.white,
       elevation: 0,
-      leading: InkWell(
-        onTap: () => Navigator.pop(context, _hasChanges),
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          margin: const EdgeInsets.all(8),
+      leading: IconButton(
+        onPressed: () => Navigator.pop(context, _hasChanges),
+        icon: Container(
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(color: const Color(0xFFE2E8F0)),
           ),
-          child: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 18),
+          child: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 16),
         ),
       ),
       title: Text(
@@ -95,7 +88,10 @@ class _DetailViewState extends State<_DetailView> {
                   children: [
                     Icon(Icons.cancel_outlined, color: AppTheme.colors.red, size: 18.r),
                     SizedBox(width: 8.w),
-                    Text('Bo\'lib to\'lashni bekor qilish', style: TextStyle(color: AppTheme.colors.red, fontSize: 14.sp)),
+                    Text(
+                      'Bo\'lib to\'lashni bekor qilish',
+                      style: TextStyle(color: AppTheme.colors.red, fontSize: 14.sp),
+                    ),
                   ],
                 ),
               ),
@@ -118,7 +114,10 @@ class _DetailViewState extends State<_DetailView> {
           children: [
             Icon(Icons.error_outline_rounded, size: 56.r, color: AppTheme.colors.red),
             SizedBox(height: 12.h),
-            Text(state.errorMessage ?? 'Xatolik', style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray)),
+            Text(
+              state.errorMessage ?? 'Xatolik',
+              style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray),
+            ),
             SizedBox(height: 16.h),
             ElevatedButton(
               onPressed: () => context.read<InstallmentDetailCubit>().loadDetail(installmentId),
@@ -143,34 +142,51 @@ class _DetailViewState extends State<_DetailView> {
             onRefresh: () => context.read<InstallmentDetailCubit>().loadDetail(plan.id),
             color: AppTheme.colors.primary,
             backgroundColor: AppTheme.colors.white,
-            displacement: 40.h,
-            child: ListView(
-            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, plan.isActive ? 100.h : 24.h),
-            children: [
-              _SummaryCard(
-                plan: plan,
-                onHistoryTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PaymentHistoryPage(
-                      installmentId: plan.id,
-                      partnerName: plan.partnerName,
-                    ),
+            displacement: 20.h,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverPadding(
+                  padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      _SummaryCard(
+                        plan: plan,
+                        onHistoryTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PaymentHistoryPage(installmentId: plan.id, partnerName: plan.partnerName),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 12.h),
+                      _ProgressCard(plan: plan),
+                      SizedBox(height: 20.h),
+                      _SectionTitle(title: "To'lov jadvali", count: plan.items.length),
+                      SizedBox(height: 12.h),
+                    ]),
                   ),
                 ),
-              ),
-              SizedBox(height: 12.h),
-              _ProgressCard(plan: plan),
-              SizedBox(height: 16.h),
-              _SectionTitle(title: "To'lov jadvali", count: plan.items.length),
-              SizedBox(height: 10.h),
-              if (plan.items.isEmpty)
-                _EmptyItems()
-              else
-                ...plan.items.map((item) => _ItemCard(item: item, currency: plan.currencyTypeName)),
-              Gap(MediaQuery.of(context).padding.bottom),
-            ],
-          ),
+                if (plan.items.isEmpty)
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    sliver: SliverToBoxAdapter(child: _EmptyItems()),
+                  )
+                else
+                  SliverPadding(
+                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, plan.isActive ? 110.h : 30.h),
+                    sliver: SliverList.separated(
+                      itemCount: plan.items.length,
+                      separatorBuilder: (_, __) => const SizedBox.shrink(),
+                      itemBuilder: (_, i) => _ItemCard(item: plan.items[i], currency: plan.currencyTypeName),
+                    ),
+                  ),
+                SliverPadding(
+                  padding: EdgeInsets.only(bottom: plan.isActive ? 0 : 30.h),
+                  sliver: const SliverToBoxAdapter(),
+                ),
+              ],
+            ),
           ),
         ),
 
@@ -179,13 +195,17 @@ class _DetailViewState extends State<_DetailView> {
           Container(
             padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
             decoration: BoxDecoration(
-                color: AppTheme.colors.background,
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(24.r),topRight: Radius.circular(24.r))
+              color: AppTheme.colors.background,
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(24.r), topRight: Radius.circular(24.r)),
             ),
             child: ElevatedButton.icon(
               onPressed: (isPaying || isCancelling) ? null : () => _showPaymentSheet(context, plan),
               icon: isPaying
-                  ? SizedBox(width: 18.r, height: 18.r, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  ? SizedBox(
+                      width: 18.r,
+                      height: 18.r,
+                      child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
                   : Icon(Icons.payments_rounded, size: 20.r),
               label: Text(
                 isPaying ? "To'lanmoqda..." : "To'lov qabul qilish",
@@ -233,7 +253,10 @@ class _DetailViewState extends State<_DetailView> {
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-        title: Text('Rejani bekor qilish', style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w800)),
+        title: Text(
+          'Rejani bekor qilish',
+          style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w800),
+        ),
         content: Text(
           "Ushbu bo'lib to'lash rejasini bekor qilmoqchimisiz? Bu amalni qaytarib bo'lmaydi.",
           style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.gray),
@@ -252,7 +275,10 @@ class _DetailViewState extends State<_DetailView> {
                 if (context.mounted) _showSuccessSnackbar(context, 'Reja bekor qilindi');
               }
             },
-            child: Text('Ha, bekor qilish', style: TextStyle(color: AppTheme.colors.red, fontWeight: FontWeight.w700)),
+            child: Text(
+              'Ha, bekor qilish',
+              style: TextStyle(color: AppTheme.colors.red, fontWeight: FontWeight.w700),
+            ),
           ),
         ],
       ),
@@ -262,21 +288,11 @@ class _DetailViewState extends State<_DetailView> {
   int get installmentId => (context.read<InstallmentDetailCubit>().state.plan?.id ?? 0);
 
   void _showSuccessSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      backgroundColor: AppTheme.colors.green,
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 2),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.colors.green, behavior: SnackBarBehavior.floating, duration: const Duration(seconds: 2)));
   }
 
   void _showErrorSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      backgroundColor: AppTheme.colors.red,
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 3),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.colors.red, behavior: SnackBarBehavior.floating, duration: const Duration(seconds: 3)));
   }
 }
 
@@ -285,6 +301,7 @@ class _DetailViewState extends State<_DetailView> {
 class _SummaryCard extends StatelessWidget {
   final InstallmentPlanModel plan;
   final VoidCallback onHistoryTap;
+
   const _SummaryCard({required this.plan, required this.onHistoryTap});
 
   @override
@@ -317,55 +334,73 @@ class _SummaryCard extends StatelessWidget {
           SizedBox(height: 12.h),
           Row(
             children: [
-              _InfoTile(
-                label: 'Jami summa ($currLabel)',
-                value: fmt.format(plan.totalAmount).replaceAll(',', ' '),
-                icon: Icons.account_balance_wallet_rounded,
+              Expanded(
+                child: _InfoTile(label: 'Jami summa ($currLabel)', value: fmt.format(plan.totalAmount).replaceAll(',', ' '), icon: Icons.account_balance_wallet_rounded),
               ),
               SizedBox(width: 12.w),
-              _InfoTile(
-                label: 'Qismlar soni',
-                value: '${plan.totalCount} ta',
-                icon: Icons.format_list_numbered_rounded,
+              Expanded(
+                child: _InfoTile(label: 'Qismlar soni', value: '${plan.totalCount} ta', icon: Icons.format_list_numbered_rounded),
               ),
             ],
           ),
           SizedBox(height: 10.h),
           Row(
             children: [
-              _TappableInfoTile(
-                label: "To'langan ($currLabel)",
-                value: fmt.format(plan.paidAmount).replaceAll(',', ' '),
-                icon: Icons.check_circle_outline_rounded,
-                valueColor: const Color(0xFF22C55E),
-                onTap: onHistoryTap,
+              Expanded(
+                child: _TappableInfoTile(
+                  label: "To'langan ($currLabel)",
+                  value: fmt.format(plan.paidAmount).replaceAll(',', ' '),
+                  icon: Icons.check_circle_outline_rounded,
+                  valueColor: const Color(0xFF22C55E),
+                  onTap: onHistoryTap,
+                ),
               ),
               SizedBox(width: 12.w),
-              _InfoTile(
-                label: 'Qolgan qarz ($currLabel)',
-                value: fmt.format(plan.remaining).replaceAll(',', ' '),
-                icon: Icons.hourglass_empty_rounded,
-                valueColor: plan.remaining > 0 ? AppTheme.colors.red : AppTheme.colors.gray,
+              Expanded(
+                child: _InfoTile(
+                  label: 'Qolgan qarz ($currLabel)',
+                  value: fmt.format(plan.remaining).replaceAll(',', ' '),
+                  icon: Icons.hourglass_empty_rounded,
+                  valueColor: plan.remaining > 0 ? AppTheme.colors.red : AppTheme.colors.gray,
+                ),
               ),
             ],
           ),
-          if (plan.note != null && plan.note!.isNotEmpty) ...[
-            SizedBox(height: 10.h),
-            Divider(height: 1, color: AppTheme.colors.divider.withValues(alpha: 0.5)),
-            SizedBox(height: 10.h),
-            Row(
-              children: [
-                Icon(Icons.notes_rounded, size: 16.r, color: AppTheme.colors.gray),
-                SizedBox(width: 6.w),
-                Expanded(
-                  child: Text(
-                    plan.note!,
-                    style: TextStyle(fontSize: 13.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w500),
+          SizedBox(height: 10.h),
+          Divider(height: 1, color: AppTheme.colors.divider.withValues(alpha: 0.5)),
+          SizedBox(height: 12.h),
+
+          InkWell(
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => InstallmentPlanInfoPage(plan: plan))),
+            borderRadius: BorderRadius.circular(10.r),
+            child: Container(
+              padding: EdgeInsets.all(10.r),
+              decoration: BoxDecoration(
+                color: (AppTheme.colors.gray).withValues(alpha: 0.07),
+                borderRadius: BorderRadius.circular(10.r),
+                border: Border.all(color: (AppTheme.colors.primary).withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline_rounded, size: 16.r, color: AppTheme.colors.primary),
+                  SizedBox(width: 6.w),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Batafsil ma'lumot",
+                            style: TextStyle(fontSize: 14.sp, color: AppTheme.colors.black, fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        Icon(Icons.chevron_right_rounded, size: 13.r, color: AppTheme.colors.black),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ],
+          ),
         ],
       ),
     );
@@ -382,22 +417,77 @@ class _InfoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return Container(
+      padding: EdgeInsets.all(10.r),
+      decoration: BoxDecoration(color: AppTheme.colors.background, borderRadius: BorderRadius.circular(10.r)),
+      child: Row(
+        children: [
+          Icon(icon, size: 16.r, color: AppTheme.colors.gray),
+          SizedBox(width: 6.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 10.sp, color: AppTheme.colors.black, fontWeight: FontWeight.w600),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  value,
+                  style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: valueColor ?? AppTheme.colors.black),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TappableInfoTile extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color? valueColor;
+  final VoidCallback onTap;
+
+  const _TappableInfoTile({required this.label, required this.value, required this.icon, required this.onTap, this.valueColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10.r),
       child: Container(
         padding: EdgeInsets.all(10.r),
         decoration: BoxDecoration(
-          color: AppTheme.colors.background,
+          color: (valueColor ?? AppTheme.colors.primary).withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(color: (valueColor ?? AppTheme.colors.primary).withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 16.r, color: AppTheme.colors.gray),
+            Icon(icon, size: 16.r, color: valueColor ?? AppTheme.colors.primary),
             SizedBox(width: 6.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: TextStyle(fontSize: 10.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w600)),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          label,
+                          style: TextStyle(fontSize: 10.sp, color: AppTheme.colors.black, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Icon(Icons.chevron_right_rounded, size: 13.r, color: AppTheme.colors.black),
+                    ],
+                  ),
                   SizedBox(height: 2.h),
                   Text(
                     value,
@@ -415,72 +505,11 @@ class _InfoTile extends StatelessWidget {
   }
 }
 
-class _TappableInfoTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color? valueColor;
-  final VoidCallback onTap;
-
-  const _TappableInfoTile({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.onTap,
-    this.valueColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10.r),
-        child: Container(
-          padding: EdgeInsets.all(10.r),
-          decoration: BoxDecoration(
-            color: (valueColor ?? AppTheme.colors.primary).withValues(alpha: 0.07),
-            borderRadius: BorderRadius.circular(10.r),
-            border: Border.all(color: (valueColor ?? AppTheme.colors.primary).withValues(alpha: 0.2)),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, size: 16.r, color: valueColor ?? AppTheme.colors.primary),
-              SizedBox(width: 6.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(label, style: TextStyle(fontSize: 10.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w600)),
-                        ),
-                        Icon(Icons.chevron_right_rounded, size: 13.r, color: AppTheme.colors.gray),
-                      ],
-                    ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      value,
-                      style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: valueColor ?? AppTheme.colors.black),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // ─── Progress Card ────────────────────────────────────────────────────────────
 
 class _ProgressCard extends StatelessWidget {
   final InstallmentPlanModel plan;
+
   const _ProgressCard({required this.plan});
 
   @override
@@ -502,7 +531,10 @@ class _ProgressCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("To'lov holati", style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black)),
+              Text(
+                "To'lov holati",
+                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
+              ),
               Text(
                 '$paidCount / $total qism',
                 style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.primary),
@@ -530,22 +562,26 @@ class _ProgressCard extends StatelessWidget {
 class _SectionTitle extends StatelessWidget {
   final String title;
   final int count;
+
   const _SectionTitle({required this.title, required this.count});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(title, style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.black)),
+        Text(
+          title,
+          style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w800, color: AppTheme.colors.black),
+        ),
         SizedBox(width: 8.w),
         if (count > 0)
           Container(
             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-            decoration: BoxDecoration(
-              color: AppTheme.colors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6.r),
+            decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6.r)),
+            child: Text(
+              '$count ta',
+              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.primary),
             ),
-            child: Text('$count ta', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.primary)),
           ),
       ],
     );
@@ -571,10 +607,7 @@ class _ItemCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.colors.white,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(
-          color: item.isAdvance ? const Color(0xFFF97316).withValues(alpha: 0.4) : item.status.color.withValues(alpha: 0.2),
-          width: 1.5.w,
-        ),
+        border: Border.all(color: item.isAdvance ? const Color(0xFFF97316).withValues(alpha: 0.4) : item.status.color.withValues(alpha: 0.2), width: 1.5.w),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 3))],
       ),
       child: Column(
@@ -587,11 +620,11 @@ class _ItemCard extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                   margin: EdgeInsets.only(right: 8.w),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF97316).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6.r),
+                  decoration: BoxDecoration(color: const Color(0xFFF97316).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6.r)),
+                  child: Text(
+                    'AVANS',
+                    style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w800, color: const Color(0xFFF97316), letterSpacing: 1),
                   ),
-                  child: Text('AVANS', style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w800, color: const Color(0xFFF97316), letterSpacing: 1)),
                 ),
               Text(
                 item.label,
@@ -601,10 +634,7 @@ class _ItemCard extends StatelessWidget {
               // Status chip
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                decoration: BoxDecoration(
-                  color: item.status.backgroundColor,
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
+                decoration: BoxDecoration(color: item.status.backgroundColor, borderRadius: BorderRadius.circular(10.r)),
                 child: Text(
                   item.statusLabel.isNotEmpty ? item.statusLabel : item.status.label,
                   style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: item.status.color),
@@ -615,23 +645,16 @@ class _ItemCard extends StatelessWidget {
           SizedBox(height: 10.h),
           Row(
             children: [
-              _MiniInfo(
-                icon: Icons.account_balance_wallet_outlined,
-                label: 'Jami ($currLabel)',
-                value: fmt.format(item.amount).replaceAll(',', ' '),
+              Expanded(
+                child: _MiniInfo(icon: Icons.account_balance_wallet_outlined, label: 'Jami ($currLabel)', value: fmt.format(item.amount).replaceAll(',', ' ')),
               ),
               SizedBox(width: 8.w),
-              _MiniInfo(
-                icon: Icons.check_circle_outline,
-                label: "To'langan ($currLabel)",
-                value: fmt.format(item.paidAmount).replaceAll(',', ' '),
-                valueColor: const Color(0xFF22C55E),
+              Expanded(
+                child: _MiniInfo(icon: Icons.check_circle_outline, label: "To'langan ($currLabel)", value: fmt.format(item.paidAmount).replaceAll(',', ' '), valueColor: const Color(0xFF22C55E)),
               ),
               SizedBox(width: 8.w),
-              _MiniInfo(
-                icon: Icons.calendar_today_outlined,
-                label: 'Muddat',
-                value: item.dueDate,
+              Expanded(
+                child: _MiniInfo(icon: Icons.calendar_today_outlined, label: 'Muddat', value: item.dueDate),
               ),
             ],
           ),
@@ -678,26 +701,27 @@ class _MiniInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 11.r, color: AppTheme.colors.gray),
-              SizedBox(width: 3.w),
-              Text(label, style: TextStyle(fontSize: 10.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w600)),
-            ],
-          ),
-          SizedBox(height: 3.h),
-          Text(
-            value,
-            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700, color: valueColor ?? AppTheme.colors.black),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 11.r, color: AppTheme.colors.gray),
+            SizedBox(width: 3.w),
+            Text(
+              label,
+              style: TextStyle(fontSize: 10.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+        SizedBox(height: 3.h),
+        Text(
+          value,
+          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700, color: valueColor ?? AppTheme.colors.black),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 }
@@ -707,10 +731,7 @@ class _EmptyItems extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(24.r),
-      decoration: BoxDecoration(
-        color: AppTheme.colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-      ),
+      decoration: BoxDecoration(color: AppTheme.colors.white, borderRadius: BorderRadius.circular(14.r)),
       child: Center(
         child: Text(
           "Qismlar topilmadi",
@@ -728,11 +749,7 @@ class _SegmentedProgressBar extends StatelessWidget {
   final double totalAmount;
   final double height;
 
-  const _SegmentedProgressBar({
-    required this.items,
-    required this.totalAmount,
-    this.height = 8,
-  });
+  const _SegmentedProgressBar({required this.items, required this.totalAmount, this.height = 8});
 
   @override
   Widget build(BuildContext context) {
@@ -758,8 +775,8 @@ class _SegmentedProgressBar extends StatelessWidget {
               final isFirst = index == 0;
               final isLast = index == items.length - 1;
               final radius = BorderRadius.horizontal(
-                left: isFirst ? const Radius.circular(4) : Radius.zero,
-                right: isLast ? const Radius.circular(4) : Radius.zero,
+                left: isFirst ? Radius.circular(height / 2) : Radius.zero,
+                right: isLast ? Radius.circular(height / 2) : Radius.zero,
               );
 
               return Row(
@@ -794,15 +811,15 @@ class _SegmentedProgressBar extends StatelessWidget {
   Color _segmentColor(InstallmentItemModel item) {
     switch (item.status) {
       case InstallmentStatus.paid:
-        return const Color(0xFF22C55E);
+        return const Color(0xFF22C55E); // yashil
       case InstallmentStatus.partial:
-        return const Color(0xFF3B82F6);
+        return const Color(0xFF3B82F6); // ko'k
       case InstallmentStatus.near:
-        return const Color(0xFFF59E0B);
+        return const Color(0xFFF59E0B); // sariq
       case InstallmentStatus.overdue:
-        return const Color(0xFFEF4444);
+        return const Color(0xFFEF4444); // qizil
       case InstallmentStatus.pending:
-        return const Color(0xFF94A3B8);
+        return const Color(0xFF94A3B8); // kulrang (background ustida ko'rinmaydi)
     }
   }
 }
@@ -811,16 +828,14 @@ class _SegmentedProgressBar extends StatelessWidget {
 
 class _StatusChip extends StatelessWidget {
   final InstallmentPlanStatus status;
+
   const _StatusChip({required this.status});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: status.backgroundColor,
-        borderRadius: BorderRadius.circular(20.r),
-      ),
+      decoration: BoxDecoration(color: status.backgroundColor, borderRadius: BorderRadius.circular(20.r)),
       child: Text(
         status.label,
         style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: status.color),
@@ -837,12 +852,7 @@ class _PaymentSheet extends StatefulWidget {
   final VoidCallback onSuccess;
   final ValueChanged<String> onError;
 
-  const _PaymentSheet({
-    required this.plan,
-    required this.cubit,
-    required this.onSuccess,
-    required this.onError,
-  });
+  const _PaymentSheet({required this.plan, required this.cubit, required this.onSuccess, required this.onError});
 
   @override
   State<_PaymentSheet> createState() => _PaymentSheetState();
@@ -880,11 +890,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
       lastDate: DateTime.now(),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: ColorScheme.light(
-            primary: AppTheme.colors.primary,
-            onPrimary: Colors.white,
-            surface: AppTheme.colors.white,
-          ),
+          colorScheme: ColorScheme.light(primary: AppTheme.colors.primary, onPrimary: Colors.white, surface: AppTheme.colors.white),
         ),
         child: child!,
       ),
@@ -904,11 +910,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
 
     setState(() => _isLoading = true);
 
-    final ok = await widget.cubit.acceptPayment(
-      amount: amount,
-      note: _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),
-      paidAt: _paidAt,
-    );
+    final ok = await widget.cubit.acceptPayment(amount: amount, note: _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(), paidAt: _paidAt);
 
     if (!mounted) return;
 
@@ -942,10 +944,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
             child: Container(
               width: 40.w,
               height: 4.h,
-              decoration: BoxDecoration(
-                color: AppTheme.colors.divider,
-                borderRadius: BorderRadius.circular(10.r),
-              ),
+              decoration: BoxDecoration(color: AppTheme.colors.divider, borderRadius: BorderRadius.circular(10.r)),
             ),
           ),
           SizedBox(height: 20.h),
@@ -956,10 +955,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               Container(
                 width: 44.r,
                 height: 44.r,
-                decoration: BoxDecoration(
-                  color: AppTheme.colors.green.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: AppTheme.colors.green.withValues(alpha: 0.1), shape: BoxShape.circle),
                 child: Icon(Icons.payments_rounded, color: AppTheme.colors.green, size: 22.r),
               ),
               SizedBox(width: 12.w),
@@ -982,7 +978,10 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           SizedBox(height: 24.h),
 
           // Summa
-          Text('Summa', style: TextStyle(fontSize: 12.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w600)),
+          Text(
+            'Summa',
+            style: TextStyle(fontSize: 12.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w600),
+          ),
           SizedBox(height: 6.h),
           _SheetField(
             child: Row(
@@ -991,18 +990,10 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                   child: TextField(
                     controller: _amountCtrl,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      _ThousandsSeparatorFormatter(),
-                      _MaxValueFormatter(widget.plan.remaining),
-                    ],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, _ThousandsSeparatorFormatter(), _MaxValueFormatter(widget.plan.remaining)],
                     enabled: !_isLoading,
                     onChanged: (_) => setState(() {}),
-                    style: TextStyle(
-                      fontSize: 22.sp,
-                      fontWeight: FontWeight.w800,
-                      color: _isOverLimit ? AppTheme.colors.red : AppTheme.colors.black,
-                    ),
+                    style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w800, color: _isOverLimit ? AppTheme.colors.red : AppTheme.colors.black),
                     decoration: InputDecoration(
                       hintText: '0',
                       hintStyle: TextStyle(color: AppTheme.colors.divider, fontSize: 22.sp, fontWeight: FontWeight.w800),
@@ -1014,10 +1005,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 ),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                  decoration: BoxDecoration(
-                    color: AppTheme.colors.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
+                  decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8.r)),
                   child: Text(
                     currLabel,
                     style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.primary),
@@ -1029,7 +1017,10 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           SizedBox(height: 12.h),
 
           // To'lov sanasi
-          Text("To'lov sanasi", style: TextStyle(fontSize: 12.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w600)),
+          Text(
+            "To'lov sanasi",
+            style: TextStyle(fontSize: 12.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w600),
+          ),
           SizedBox(height: 6.h),
           _SheetField(
             onTap: _isLoading ? null : _pickDate,
@@ -1050,7 +1041,10 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           SizedBox(height: 12.h),
 
           // Izoh
-          Text('Izoh', style: TextStyle(fontSize: 12.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w600)),
+          Text(
+            'Izoh',
+            style: TextStyle(fontSize: 12.sp, color: AppTheme.colors.gray, fontWeight: FontWeight.w600),
+          ),
           SizedBox(height: 6.h),
           _SheetField(
             child: TextField(
@@ -1089,7 +1083,10 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                     children: [
                       Icon(Icons.check_rounded, size: 20.r),
                       SizedBox(width: 8.w),
-                      Text("Tasdiqlash", style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700)),
+                      Text(
+                        "Tasdiqlash",
+                        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700),
+                      ),
                     ],
                   ),
           ),
@@ -1123,10 +1120,7 @@ class _SheetField extends StatelessWidget {
       ),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-        decoration: BoxDecoration(
-          color: AppTheme.colors.background,
-          borderRadius: BorderRadius.circular(14.r),
-        ),
+        decoration: BoxDecoration(color: AppTheme.colors.background, borderRadius: BorderRadius.circular(14.r)),
         child: child,
       ),
     );
@@ -1152,12 +1146,16 @@ class _ThousandsSeparatorFormatter extends TextInputFormatter {
     final number = int.tryParse(newValue.text.replaceAll(RegExp(r'[^0-9]'), ''));
     if (number == null) return oldValue;
     final formatted = NumberFormat('#,###', 'en_US').format(number).replaceAll(',', ' ');
-    return TextEditingValue(text: formatted, selection: TextSelection.collapsed(offset: formatted.length));
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
   }
 }
 
 class _MaxValueFormatter extends TextInputFormatter {
   final double max;
+
   const _MaxValueFormatter(this.max);
 
   @override
