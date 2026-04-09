@@ -14,6 +14,7 @@ import 'package:hisobchi/presentation/pages/client/report/partner_operations_det
 import 'package:hisobchi/presentation/pages/client/report/partner_summary_list_page.dart';
 import 'package:hisobchi/presentation/pages/client/report/debt_report_detail_page.dart';
 import 'package:hisobchi/presentation/pages/client/report/staff_report_page.dart';
+import 'package:hisobchi/presentation/pages/client/report/installment_report_page.dart';
 import 'package:hisobchi/presentation/pages/client/report/time_report_page.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:hisobchi/application/partner_report/export_excel/export_partner_excel_bloc.dart';
@@ -362,6 +363,10 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           // Muddat hisoboti Entry Card
           _buildTimeReportEntryCard(context),
           const SizedBox(height: 12),
+
+          // Muddatli to'lov hisoboti Entry Card
+          _buildInstallmentReportEntryCard(context),
+          const SizedBox(height: 12),
         ],
       ),
     );
@@ -501,6 +506,57 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       ),
                       SizedBox(height: 4),
                       Text('Muddati o\'tgan, bugun va kelgusi qarzlar', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Icon(Icons.chevron_right, color: Colors.grey[400]),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Muddatli to'lov hisoboti Entry Card
+  Widget _buildInstallmentReportEntryCard(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.3), width: 1),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const InstallmentReportPage()));
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: const Color(0xFF6366F1).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                  child: const Icon(Icons.receipt_long_rounded, color: Color(0xFF6366F1), size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Muddatli to'lov hisoboti",
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151), height: 1.2),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Rejalar, undirish, oylik dinamika va muammoli hamkorlar",
+                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                      ),
                     ],
                   ),
                 ),
