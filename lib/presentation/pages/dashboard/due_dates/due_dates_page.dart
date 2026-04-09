@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:hisobchi/infrastructure/dto/models/due_dates/due_dates_model.dart';
 import 'package:hisobchi/infrastructure/repository/due_dates/due_dates_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -420,139 +418,136 @@ class _QarzCard extends StatelessWidget {
   final QarzDueItem item;
   const _QarzCard({required this.item});
 
+  bool get _isOverdue => item.daysOverdue != null && item.daysOverdue! > 0;
+  bool get _isWarning => !_isOverdue && item.daysLeft != null && item.daysLeft! <= 3;
+
   Color get _statusColor {
-    if (item.daysOverdue != null && item.daysOverdue! > 0) return const Color(0xFFEF4444);
-    if (item.daysLeft != null && item.daysLeft! <= 3) return const Color(0xFFF59E0B);
+    if (_isOverdue) return const Color(0xFFEF4444);
+    if (_isWarning) return const Color(0xFFF59E0B);
     return const Color(0xFF3B82F6);
   }
 
-  Color get _statusBg {
-    if (item.daysOverdue != null && item.daysOverdue! > 0) return const Color(0xFFFFF0ED);
-    if (item.daysLeft != null && item.daysLeft! <= 3) return const Color(0xFFFFFBEB);
-    return const Color(0xFFEFF6FF);
-  }
-
-  String get _dueBadgeText {
-    if (item.daysOverdue != null && item.daysOverdue! > 0) return '${item.daysOverdue} kun kechikkan';
-    if (item.daysLeft != null) return '${item.daysLeft} kun qoldi';
-    return item.status;
-  }
-
-  IconData get _statusIcon {
-    if (item.daysOverdue != null && item.daysOverdue! > 0) return Icons.warning_amber_rounded;
-    if (item.daysLeft != null && item.daysLeft! <= 3) return Icons.hourglass_bottom_rounded;
-    return Icons.schedule_rounded;
+  String get _badgeText {
+    if (_isOverdue) return 'Muddati o\'tgan: ${item.daysOverdue} kun';
+    if (item.daysLeft != null) {
+      return item.daysLeft == 0 ? 'Bugun qaytarishi kerak' : '${item.daysLeft} kun qoldi';
+    }
+    return item.dueDate;
   }
 
   @override
   Widget build(BuildContext context) {
-    final scheduled = double.tryParse(item.scheduledAmount) ?? 1;
-    final paid = double.tryParse(item.paidAmount) ?? 0;
-    final progress = (paid / scheduled).clamp(0.0, 1.0);
+    return Container(
+      margin: EdgeInsets.only(bottom: 0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))],
+        border: Border.all(color: const Color(0xFF94A3B8).withValues(alpha: 0.05)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _QarzDetailSheet.show(context, item),
+          borderRadius: BorderRadius.circular(12.r),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Status icon
+                    Container(
+                      width: 36.w,
+                      height: 36.w,
+                      decoration: BoxDecoration(
+                        color: _statusColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.north_east_rounded,
+                        color: _statusColor,
+                        size: 20.sp,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
 
-    return GestureDetector(
-      onTap: () => _QarzDetailSheet.show(context, item),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(color: _statusColor.withValues(alpha: 0.2)),
-          boxShadow: [
-            BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 4)),
-          ],
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 10.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 38.w,
-                        height: 38.w,
-                        decoration: BoxDecoration(color: _statusColor.withValues(alpha: 0.1), shape: BoxShape.circle),
-                        child: Center(
-                          child: Text(
-                            item.partnerName.isNotEmpty ? item.partnerName[0].toUpperCase() : '?',
-                            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800, color: _statusColor),
+                    // Partner name + phone
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.partnerName,
+                            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ),
-                      SizedBox(width: 10.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(item.partnerName, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)), maxLines: 1, overflow: TextOverflow.ellipsis),
-                            SizedBox(height: 2.h),
-                            Row(
-                              children: [
-                                Icon(Icons.phone_outlined, size: 12.sp, color: const Color(0xFF94A3B8)),
-                                SizedBox(width: 3.w),
-                                Text(_formatPhone(item.partnerPhone), style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B))),
-                              ],
+                          if (item.partnerPhone.isNotEmpty)
+                            Text(
+                              _formatPhone(item.partnerPhone),
+                              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500, color: const Color(0xFF94A3B8)),
                             ),
-                          ],
-                        ),
+                        ],
                       ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                        decoration: BoxDecoration(color: _statusBg, borderRadius: BorderRadius.circular(8.r)),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(_statusIcon, size: 11.sp, color: _statusColor),
-                            SizedBox(width: 3.w),
-                            Text(_dueBadgeText, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: _statusColor)),
-                          ],
+                    ),
+
+                    // Remaining amount
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '-${_formatMoney(item.remainingAmount)}',
+                          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800, color: _statusColor),
                         ),
+                        Text(
+                          item.currencyTypeName,
+                          style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 6.h),
+
+                // Bottom row: due badge + due date
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: _statusColor.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(6.r),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 12.h),
-                  Row(
-                    children: [
-                      _AmountChip(label: 'Jami', amount: item.scheduledAmount, currency: item.currencyTypeName, color: const Color(0xFF475569)),
-                      SizedBox(width: 8.w),
-                      _AmountChip(label: 'To\'langan', amount: item.paidAmount, currency: item.currencyTypeName, color: const Color(0xFF22C55E)),
-                      SizedBox(width: 8.w),
-                      _AmountChip(label: 'Qolgan', amount: item.remainingAmount, currency: item.currencyTypeName, color: const Color(0xFFEF4444), bold: true),
-                    ],
-                  ),
-                  SizedBox(height: 10.h),
-                  _ProgressBar(progress: progress, color: _statusColor),
-                  SizedBox(height: 6.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(item.status, style: TextStyle(fontSize: 11.sp, color: _statusColor, fontWeight: FontWeight.w600)),
-                      Text('${(progress * 100).toStringAsFixed(0)}% to\'langan', style: TextStyle(fontSize: 11.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                ],
-              ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _isOverdue ? Icons.notification_important_rounded : Icons.schedule_rounded,
+                            size: 12.sp,
+                            color: _statusColor,
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            _badgeText,
+                            style: TextStyle(fontSize: 10.sp, color: _statusColor, fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      item.dueDate,
+                      style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(14.r), bottomRight: Radius.circular(14.r)),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today_outlined, size: 12.sp, color: const Color(0xFF94A3B8)),
-                  SizedBox(width: 4.w),
-                  Text('Muddat: ${item.dueDate}', style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w500)),
-                  const Spacer(),
-                  _CurrencyBadge(currency: item.currencyTypeName),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -571,233 +566,159 @@ class _InstallmentCard extends StatelessWidget {
     return const Color(0xFF3B82F6);
   }
 
-  Color get _statusBg {
-    if (item.daysOverdue != null && item.daysOverdue! > 0) return const Color(0xFFFFF0ED);
-    if (item.daysLeft != null && item.daysLeft! <= 3) return const Color(0xFFFFFBEB);
-    return const Color(0xFFEFF6FF);
-  }
+  bool get _isOverdue => item.daysOverdue != null && item.daysOverdue! > 0;
 
-  String get _dueBadgeText {
-    if (item.daysOverdue != null && item.daysOverdue! > 0) return '${item.daysOverdue} kun kechikkan';
-    if (item.daysLeft != null) return '${item.daysLeft} kun qoldi';
+  String get _badgeText {
+    if (_isOverdue) return 'Muddati o\'tgan: ${item.daysOverdue} kun';
+    if (item.daysLeft != null) {
+      return item.daysLeft == 0 ? 'Bugun to\'lanishi kerak' : '${item.daysLeft} kun qoldi';
+    }
     return item.statusLabel;
   }
 
+  String get _paymentLabel => item.isAdvance
+      ? 'Avans to\'lov'
+      : '${item.itemNumber}-to\'lov';
+
   @override
   Widget build(BuildContext context) {
-    final paid = double.tryParse(item.planPaid) ?? 0;
-    final total = double.tryParse(item.planTotal) ?? 1;
-    final progress = (paid / total).clamp(0.0, 1.0);
-
-    return GestureDetector(
-      onTap: () => _InstallmentDetailSheet.show(context, item),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(color: _statusColor.withValues(alpha: 0.2)),
-          boxShadow: [
-            BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 4)),
-          ],
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 10.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 38.w,
-                        height: 38.w,
-                        decoration: BoxDecoration(color: _statusColor.withValues(alpha: 0.1), shape: BoxShape.circle),
-                        child: Center(
-                          child: Text(
-                            item.partnerName.isNotEmpty ? item.partnerName[0].toUpperCase() : '?',
-                            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800, color: _statusColor),
-                          ),
-                        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))],
+        border: Border.all(color: const Color(0xFF94A3B8).withValues(alpha: 0.05)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _InstallmentDetailSheet.show(context, item),
+          borderRadius: BorderRadius.circular(12.r),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Payment number icon
+                    Container(
+                      width: 36.w,
+                      height: 36.w,
+                      decoration: BoxDecoration(
+                        color: _statusColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
                       ),
-                      SizedBox(width: 10.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Icon(
+                        Icons.receipt_long_rounded,
+                        color: _statusColor,
+                        size: 18.sp,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+
+                    // Partner name + phone
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.partnerName,
+                            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (item.partnerPhone.isNotEmpty)
+                            Text(
+                              _formatPhone(item.partnerPhone),
+                              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500, color: const Color(0xFF94A3B8)),
+                            ),
+                        ],
+                      ),
+                    ),
+
+                    // Remaining amount
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          _formatMoney(item.remaining),
+                          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800, color: _statusColor),
+                        ),
+                        Text(
+                          item.currencyTypeName,
+                          style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 6.h),
+
+                // Bottom row: payment label + due badge + due date
+                Row(
+                  children: [
+                    // Which payment chip
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Text(
+                        _paymentLabel,
+                        style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: const Color(0xFF475569)),
+                      ),
+                    ),
+                    SizedBox(width: 6.w),
+
+                    // Due badge
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
+                        decoration: BoxDecoration(
+                          color: _statusColor.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(6.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(item.partnerName, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)), maxLines: 1, overflow: TextOverflow.ellipsis),
-                            SizedBox(height: 2.h),
-                            Row(
-                              children: [
-                                Icon(Icons.phone_outlined, size: 12.sp, color: const Color(0xFF94A3B8)),
-                                SizedBox(width: 3.w),
-                                Text(_formatPhone(item.partnerPhone), style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B))),
-                              ],
+                            Icon(
+                              _isOverdue ? Icons.notification_important_rounded : Icons.schedule_rounded,
+                              size: 11.sp,
+                              color: _statusColor,
+                            ),
+                            SizedBox(width: 3.w),
+                            Flexible(
+                              child: Text(
+                                _badgeText,
+                                style: TextStyle(fontSize: 10.sp, color: _statusColor, fontWeight: FontWeight.w700),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                        decoration: BoxDecoration(color: _statusBg, borderRadius: BorderRadius.circular(8.r)),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(item.daysOverdue != null && item.daysOverdue! > 0 ? Icons.warning_amber_rounded : Icons.hourglass_bottom_rounded, size: 11.sp, color: _statusColor),
-                            SizedBox(width: 3.w),
-                            Text(_dueBadgeText, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: _statusColor)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10.h),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                    decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(8.r)),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.receipt_long_outlined, size: 13.sp, color: const Color(0xFF64748B)),
-                        SizedBox(width: 5.w),
-                        Text(item.isAdvance ? '${item.itemNumber}-to\'lov (avans)' : '${item.itemNumber}-to\'lov', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: const Color(0xFF475569))),
-                      ],
                     ),
-                  ),
-                  SizedBox(height: 10.h),
-                  Row(
-                    children: [
-                      _AmountChip(label: 'To\'lov', amount: item.amount, currency: item.currencyTypeName, color: const Color(0xFF475569)),
-                      SizedBox(width: 8.w),
-                      _AmountChip(label: 'To\'langan', amount: item.paidAmount, currency: item.currencyTypeName, color: const Color(0xFF22C55E)),
-                      SizedBox(width: 8.w),
-                      _AmountChip(label: 'Qolgan', amount: item.remaining, currency: item.currencyTypeName, color: const Color(0xFFEF4444), bold: true),
-                    ],
-                  ),
-                  SizedBox(height: 12.h),
-                  Row(
-                    children: [
-                      Text('Reja:', style: TextStyle(fontSize: 11.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500)),
-                      SizedBox(width: 4.w),
-                      Expanded(child: _ProgressBar(progress: progress, color: _statusColor)),
-                      SizedBox(width: 8.w),
-                      Text('${(progress * 100).toStringAsFixed(0)}%', style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: _statusColor)),
-                    ],
-                  ),
-                  SizedBox(height: 4.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Jami reja: ${PriceFormatter.priceFormat(item.planTotal)} ${item.currencyTypeName}', style: TextStyle(fontSize: 11.sp, color: const Color(0xFF64748B))),
-                      Text(item.statusLabel, style: TextStyle(fontSize: 11.sp, color: _statusColor, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
-                ],
-              ),
+                    SizedBox(width: 6.w),
+
+                    // Due date
+                    Text(
+                      item.dueDate,
+                      style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(14.r), bottomRight: Radius.circular(14.r)),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today_outlined, size: 12.sp, color: const Color(0xFF94A3B8)),
-                  SizedBox(width: 4.w),
-                  Text('Muddat: ${item.dueDate}', style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w500)),
-                  const Spacer(),
-                  _CurrencyBadge(currency: item.currencyTypeName),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
-
-// ─── Shared small widgets ─────────────────────────────────────────────────────
-
-class _AmountChip extends StatelessWidget {
-  final String label;
-  final String amount;
-  final String currency;
-  final Color color;
-  final bool bold;
-
-  const _AmountChip({required this.label, required this.amount, required this.currency, required this.color, this.bold = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: TextStyle(fontSize: 10.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500)),
-          SizedBox(height: 2.h),
-          Text(
-            PriceFormatter.priceFormat(amount),
-            style: TextStyle(fontSize: 12.sp, fontWeight: bold ? FontWeight.w800 : FontWeight.w600, color: color),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(currency, style: TextStyle(fontSize: 10.sp, color: const Color(0xFF94A3B8))),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProgressBar extends StatelessWidget {
-  final double progress;
-  final Color color;
-
-  const _ProgressBar({required this.progress, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(4.r),
-          child: Stack(
-            children: [
-              Container(height: 6.h, width: constraints.maxWidth, color: color.withValues(alpha: 0.12)),
-              Container(height: 6.h, width: constraints.maxWidth * progress, color: color),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-// ─── Currency badge ───────────────────────────────────────────────────────────
-
-class _CurrencyBadge extends StatelessWidget {
-  final String currency;
-  const _CurrencyBadge({required this.currency});
-
-  @override
-  Widget build(BuildContext context) {
-    final isUsd = currency == 'USD';
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-      decoration: BoxDecoration(
-        color: isUsd ? const Color(0xFFEFF6FF) : const Color(0xFFF0FDF4),
-        borderRadius: BorderRadius.circular(6.r),
-      ),
-      child: Text(
-        currency,
-        style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: isUsd ? const Color(0xFF3B82F6) : const Color(0xFF22C55E)),
-      ),
-    );
-  }
-}
-
 // ─── Shared sheet helpers ─────────────────────────────────────────────────────
 
 Widget _sheetHandle() => Builder(
@@ -1079,10 +1000,6 @@ class _InstallmentDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final paid = double.tryParse(item.planPaid) ?? 0;
-    final total = double.tryParse(item.planTotal) ?? 1;
-    final progress = (paid / total).clamp(0.0, 1.0);
-
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.colors.background,
@@ -1134,7 +1051,7 @@ class _InstallmentDetailSheet extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 16.h),
+              SizedBox(height: 8.h),
               // Partner name + date
               Row(
                 children: [
@@ -1156,16 +1073,16 @@ class _InstallmentDetailSheet extends StatelessWidget {
               ],
               // Status + holat
               SizedBox(height: 12.h),
-              Row(
-                children: [
-                  Expanded(child: _sheetInfoTile(label: 'Holati', value: item.statusLabel, color: _statusColor, icon: Icons.info_outline_rounded, isUrgent: item.daysOverdue != null && item.daysOverdue! > 0)),
-                  SizedBox(width: 12.w),
-                  Expanded(child: _sheetInfoTile(label: 'Reja holati', value: item.planStatus, color: const Color(0xFF10B981), icon: Icons.assignment_outlined)),
-                ],
-              ),
+              // Row(
+              //   children: [
+              //     Expanded(child: _sheetInfoTile(label: 'Holati', value: item.statusLabel, color: _statusColor, icon: Icons.info_outline_rounded, isUrgent: item.daysOverdue != null && item.daysOverdue! > 0)),
+              //     SizedBox(width: 12.w),
+              //     Expanded(child: _sheetInfoTile(label: 'Reja holati', value: item.planStatus, color: const Color(0xFF10B981), icon: Icons.assignment_outlined)),
+              //   ],
+              // ),
               // Overdue / days left banner
               if (item.daysOverdue != null && item.daysOverdue! > 0) ...[
-                SizedBox(height: 12.h),
+                SizedBox(height: 8.h),
                 Container(
                   width: double.infinity,
                   padding: EdgeInsets.all(12.w),
@@ -1179,7 +1096,7 @@ class _InstallmentDetailSheet extends StatelessWidget {
                   ),
                 ),
               ] else if (item.daysLeft != null && item.daysLeft! > 0) ...[
-                SizedBox(height: 12.h),
+                SizedBox(height: 8.h),
                 Container(
                   width: double.infinity,
                   padding: EdgeInsets.all(12.w),
@@ -1194,7 +1111,7 @@ class _InstallmentDetailSheet extends StatelessWidget {
                 ),
               ],
               // This payment amounts
-              SizedBox(height: 14.h),
+              SizedBox(height: 8.h),
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.all(12.w),
@@ -1213,31 +1130,201 @@ class _InstallmentDetailSheet extends StatelessWidget {
                 ),
               ),
               // Plan progress
-              SizedBox(height: 12.h),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(12.w),
-                decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(16.r), border: Border.all(color: const Color(0xFFE2E8F0))),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [Icon(Icons.bar_chart_rounded, size: 12.sp, color: const Color(0xFF94A3B8)), SizedBox(width: 6.w), Text('Reja jarayoni', style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w800, color: const Color(0xFF94A3B8), letterSpacing: 0.8))]),
-                    SizedBox(height: 10.h),
-                    _ProgressBar(progress: progress, color: _statusColor),
-                    SizedBox(height: 8.h),
-                    _sheetAmountRow('Jami reja:', item.planTotal, item.currencyTypeName),
-                    SizedBox(height: 4.h),
-                    _sheetAmountRow('To\'langan:', item.planPaid, item.currencyTypeName, color: const Color(0xFF10B981)),
-                    SizedBox(height: 4.h),
-                    _sheetAmountRow('Qolgan:', item.planRemaining, item.currencyTypeName, color: const Color(0xFF6366F1), isBold: true),
-                  ],
-                ),
-              ),
+              SizedBox(height: 8.h),
+              _PlanProgressSection(item: item, statusColor: _statusColor),
               SizedBox(height: 20.h),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+// ─── Plan Progress Section (bottom sheet) ─────────────────────────────────────
+
+class _PlanProgressSection extends StatelessWidget {
+  final InstallmentDueItem item;
+  final Color statusColor;
+
+  const _PlanProgressSection({required this.item, required this.statusColor});
+
+  @override
+  Widget build(BuildContext context) {
+    final planTotal = double.tryParse(item.planTotal) ?? 1;
+    final planPaid = double.tryParse(item.planPaid) ?? 0;
+    final currentDue = double.tryParse(item.remaining) ?? 0;
+    final planRemaining = double.tryParse(item.planRemaining) ?? 0;
+    final futureRemaining = (planRemaining - currentDue).clamp(0.0, double.infinity);
+    final paidPct = planTotal > 0 ? (planPaid / planTotal * 100).toStringAsFixed(0) : '0';
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.bar_chart_rounded, size: 12.sp, color: const Color(0xFF94A3B8)),
+                  SizedBox(width: 6.w),
+                  Text(
+                    'REJA JARAYONI',
+                    style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w800, color: const Color(0xFF94A3B8), letterSpacing: 0.8),
+                  ),
+                ],
+              ),
+              Text(
+                '$paidPct% to\'langan',
+                style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: statusColor),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+
+          // Segmented bar
+          _DueDatesPlanSegmentedBar(
+            planTotal: planTotal,
+            planPaid: planPaid,
+            currentDue: currentDue,
+            futureRemaining: futureRemaining,
+            statusColor: statusColor,
+          ),
+          SizedBox(height: 10.h),
+
+          // Legend
+          Row(
+            children: [
+              _ProgressLegendDot(color: const Color(0xFF22C55E), label: "To'langan"),
+              SizedBox(width: 12.w),
+              _ProgressLegendDot(color: statusColor, label: 'Joriy to\'lov'),
+              SizedBox(width: 12.w),
+              _ProgressLegendDot(color: const Color(0xFFCBD5E1), label: 'Keyingi'),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          Divider(height: 1, color: const Color(0xFFE2E8F0)),
+          SizedBox(height: 10.h),
+
+          // Amount rows
+          _sheetAmountRow('Jami reja:', item.planTotal, item.currencyTypeName),
+          SizedBox(height: 4.h),
+          _sheetAmountRow("To'langan:", item.planPaid, item.currencyTypeName, color: const Color(0xFF10B981)),
+          SizedBox(height: 4.h),
+          _sheetAmountRow('Joriy to\'lov:', item.remaining, item.currencyTypeName, color: statusColor, isBold: true),
+          SizedBox(height: 4.h),
+          _sheetAmountRow('Keyingi qarz:', futureRemaining.toStringAsFixed(0), item.currencyTypeName, color: const Color(0xFF94A3B8)),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Segmented bar ────────────────────────────────────────────────────────────
+
+class _DueDatesPlanSegmentedBar extends StatelessWidget {
+  final double planTotal;
+  final double planPaid;
+  final double currentDue;
+  final double futureRemaining;
+  final Color statusColor;
+
+  const _DueDatesPlanSegmentedBar({
+    required this.planTotal,
+    required this.planPaid,
+    required this.currentDue,
+    required this.futureRemaining,
+    required this.statusColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (planTotal <= 0) return const SizedBox.shrink();
+
+    const gap = 2.0;
+    const segmentCount = 3;
+    const totalGap = gap * (segmentCount - 1);
+
+    final segments = [
+      _Segment(ratio: (planPaid / planTotal).clamp(0.0, 1.0), color: const Color(0xFF22C55E)),
+      _Segment(ratio: (currentDue / planTotal).clamp(0.0, 1.0), color: statusColor),
+      _Segment(ratio: (futureRemaining / planTotal).clamp(0.0, 1.0), color: const Color(0xFFCBD5E1)),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final totalWidth = constraints.maxWidth - totalGap;
+
+        return SizedBox(
+          height: 10.h,
+          child: Row(
+            children: segments.asMap().entries.map((entry) {
+              final index = entry.key;
+              final seg = entry.value;
+              final segWidth = (seg.ratio * totalWidth).clamp(0.0, totalWidth);
+
+              final isFirst = index == 0;
+              final isLast = index == segmentCount - 1;
+              final radius = BorderRadius.horizontal(
+                left: isFirst ? Radius.circular(5.r) : Radius.zero,
+                right: isLast ? Radius.circular(5.r) : Radius.zero,
+              );
+
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (index > 0) const SizedBox(width: gap),
+                  // Minimum visible width so empty segments don't disappear completely
+                  SizedBox(
+                    width: segWidth < 4 && seg.ratio > 0 ? 4 : segWidth,
+                    height: 10.h,
+                    child: ClipRRect(
+                      borderRadius: radius,
+                      child: Container(color: seg.color),
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _Segment {
+  final double ratio;
+  final Color color;
+  const _Segment({required this.ratio, required this.color});
+}
+
+// ─── Legend dot ───────────────────────────────────────────────────────────────
+
+class _ProgressLegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _ProgressLegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(width: 8.w, height: 8.w, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        SizedBox(width: 4.w),
+        Text(label, style: TextStyle(fontSize: 10.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w500)),
+      ],
     );
   }
 }
