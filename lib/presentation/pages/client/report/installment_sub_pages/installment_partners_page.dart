@@ -17,7 +17,8 @@ class InstallmentPartnersPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => InstallmentPartnersCubit(InstallmentReportRepository())..load(),
+      create: (_) =>
+          InstallmentPartnersCubit(InstallmentReportRepository())..load(),
       child: const _PartnersView(),
     );
   }
@@ -30,7 +31,8 @@ class _PartnersView extends StatefulWidget {
   State<_PartnersView> createState() => _PartnersViewState();
 }
 
-class _PartnersViewState extends State<_PartnersView> with SingleTickerProviderStateMixin {
+class _PartnersViewState extends State<_PartnersView>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -56,7 +58,11 @@ class _PartnersViewState extends State<_PartnersView> with SingleTickerProviderS
         leading: BackArrowButton(),
         title: const Text(
           "Mijozlar bo'yicha",
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF1E293B),
+          ),
         ),
         centerTitle: true,
         bottom: PreferredSize(
@@ -69,8 +75,16 @@ class _PartnersViewState extends State<_PartnersView> with SingleTickerProviderS
           return TabBarView(
             controller: _tabController,
             children: [
-              _PartnersTabContent(currencyTypeId: 1, currencyLabel: 'UZS', state: state),
-              _PartnersTabContent(currencyTypeId: 2, currencyLabel: 'USD', state: state),
+              _PartnersTabContent(
+                currencyTypeId: 1,
+                currencyLabel: 'UZS',
+                state: state,
+              ),
+              _PartnersTabContent(
+                currencyTypeId: 2,
+                currencyLabel: 'USD',
+                state: state,
+              ),
             ],
           );
         },
@@ -116,7 +130,9 @@ class _PartnersTabContentState extends State<_PartnersTabContent> {
     if (_scroll.position.pixels >= _scroll.position.maxScrollExtent * 0.85) {
       final s = context.read<InstallmentPartnersCubit>().state;
       if (!s.isLoadingMore && s.hasMoreFor(widget.currencyTypeId)) {
-        context.read<InstallmentPartnersCubit>().loadMore(widget.currencyTypeId);
+        context.read<InstallmentPartnersCubit>().loadMore(
+          widget.currencyTypeId,
+        );
       }
     }
   }
@@ -136,114 +152,25 @@ class _PartnersTabContentState extends State<_PartnersTabContent> {
       color: AppTheme.colors.primary,
       child: ListView(
         controller: _scroll,
-        padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 32.h + MediaQuery.of(context).padding.bottom),
+        padding: EdgeInsets.fromLTRB(
+          16.w,
+          16.h,
+          16.w,
+          32.h + MediaQuery.of(context).padding.bottom,
+        ),
         children: [
-          // ── Sort Bar ──
-          _SortBar(
-            sort: state.sort,
-            isLoading: isLoading,
-            onChanged: (s) => cubit.changeSort(s),
-          ),
-          SizedBox(height: 14.h),
-
           // ── Content ──
           if (isLoading)
             _PartnersShimmer()
           else if (partners.isEmpty)
             _EmptyCard()
           else ...[
-            Padding(
-              padding: EdgeInsets.only(bottom: 10.h, left: 2.w),
-              child: Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    child: Text(
-                      '${partners.length} ta mijoz',
-                      style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: const Color(0xFFF59E0B)),
-                    ),
-                  ),
-                ],
-              ),
+            ...partners.map(
+              (p) => _PartnerCard(partner: p, currency: widget.currencyLabel),
             ),
-            ...partners.map((p) => _PartnerCard(partner: p, currency: widget.currencyLabel, sort: state.sort)),
             if (state.isLoadingMore) _LoadMoreShimmer(),
           ],
         ],
-      ),
-    );
-  }
-}
-
-// ─── Sort Bar ─────────────────────────────────────────────────────────────────
-
-class _SortBar extends StatelessWidget {
-  final String sort;
-  final bool isLoading;
-  final ValueChanged<String> onChanged;
-
-  const _SortBar({required this.sort, required this.isLoading, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    const options = [
-      ('remaining', Icons.hourglass_bottom_rounded, 'Qolgan summa'),
-      ('total_given', Icons.account_balance_wallet_outlined, 'Berilgan summa'),
-    ];
-
-    return Container(
-      padding: EdgeInsets.all(4.r),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 2)),
-        ],
-      ),
-      child: Row(
-        children: options.map((opt) {
-          final value = opt.$1;
-          final icon = opt.$2;
-          final label = opt.$3;
-          final selected = sort == value;
-          return Expanded(
-            child: GestureDetector(
-              onTap: isLoading ? null : () => onChanged(value),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeInOut,
-                margin: EdgeInsets.all(3.r),
-                padding: EdgeInsets.symmetric(vertical: 10.h),
-                decoration: BoxDecoration(
-                  color: selected ? AppTheme.colors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10.r),
-                  boxShadow: selected
-                      ? [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.30), blurRadius: 8, offset: const Offset(0, 3))]
-                      : [],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(icon, size: 14.sp, color: selected ? Colors.white : const Color(0xFF94A3B8)),
-                    SizedBox(width: 6.w),
-                    Text(
-                      label,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w700,
-                        color: selected ? Colors.white : const Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }).toList(),
       ),
     );
   }
@@ -253,9 +180,14 @@ class _SortBar extends StatelessWidget {
 
 Color _avatarColor(String name) {
   const colors = [
-    Color(0xFF6366F1), Color(0xFF3B82F6), Color(0xFF22C55E),
-    Color(0xFFF59E0B), Color(0xFF8B5CF6), Color(0xFF06B6D4),
-    Color(0xFFEC4899), Color(0xFF10B981),
+    Color(0xFF6366F1),
+    Color(0xFF3B82F6),
+    Color(0xFF22C55E),
+    Color(0xFFF59E0B),
+    Color(0xFF8B5CF6),
+    Color(0xFF06B6D4),
+    Color(0xFFEC4899),
+    Color(0xFF10B981),
   ];
   if (name.isEmpty) return colors[0];
   final hash = name.codeUnits.fold(0, (a, b) => a + b);
@@ -265,9 +197,8 @@ Color _avatarColor(String name) {
 class _PartnerCard extends StatelessWidget {
   final InstallmentPartnerReportModel partner;
   final String currency;
-  final String sort;
 
-  const _PartnerCard({required this.partner, required this.currency, required this.sort});
+  const _PartnerCard({required this.partner, required this.currency});
 
   @override
   Widget build(BuildContext context) {
@@ -278,9 +209,15 @@ class _PartnerCard extends StatelessWidget {
     final overdue = double.tryParse(partner.overdueAmount) ?? 0;
     final hasOverdue = overdue > 0;
 
-    final paidRatio = totalGiven > 0 ? (totalPaid / totalGiven).clamp(0.0, 1.0) : 0.0;
-    final overdueRatio = totalGiven > 0 ? (overdue / totalGiven).clamp(0.0, 1.0) : 0.0;
-    final pendingRatio = totalGiven > 0 ? ((totalRemaining - overdue) / totalGiven).clamp(0.0, 1.0) : 0.0;
+    final paidRatio = totalGiven > 0
+        ? (totalPaid / totalGiven).clamp(0.0, 1.0)
+        : 0.0;
+    final overdueRatio = totalGiven > 0
+        ? (overdue / totalGiven).clamp(0.0, 1.0)
+        : 0.0;
+    final pendingRatio = totalGiven > 0
+        ? ((totalRemaining - overdue) / totalGiven).clamp(0.0, 1.0)
+        : 0.0;
     final paidPct = (paidRatio * 100).toStringAsFixed(0);
 
     return Container(
@@ -318,12 +255,21 @@ class _PartnerCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: avatarColor.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
-                    border: Border.all(color: avatarColor.withValues(alpha: 0.25), width: 1.5),
+                    border: Border.all(
+                      color: avatarColor.withValues(alpha: 0.25),
+                      width: 1.5,
+                    ),
                   ),
                   child: Center(
                     child: Text(
-                      partner.partnerName.isNotEmpty ? partner.partnerName[0].toUpperCase() : '?',
-                      style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w800, color: avatarColor),
+                      partner.partnerName.isNotEmpty
+                          ? partner.partnerName[0].toUpperCase()
+                          : '?',
+                      style: TextStyle(
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.w800,
+                        color: avatarColor,
+                      ),
                     ),
                   ),
                 ),
@@ -334,47 +280,75 @@ class _PartnerCard extends StatelessWidget {
                     children: [
                       Text(
                         partner.partnerName,
-                        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1E293B),
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: 4.h),
                       Row(
                         children: [
+                          if (partner.partnerPhone.isNotEmpty) ...[
+                            Icon(
+                              Icons.phone_outlined,
+                              size: 10.sp,
+                              color: const Color(0xFFCBD5E1),
+                            ),
+                            SizedBox(width: 2.w),
+                            Text(
+                              PhoneFormatter.formatPhoneNumber(
+                                partner.partnerPhone,
+                              ),
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                color: const Color(0xFF94A3B8),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                          Spacer(),
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 6.w,
+                              vertical: 2.h,
+                            ),
                             decoration: BoxDecoration(
-                              color: AppTheme.colors.primary.withValues(alpha: 0.08),
+                              color: AppTheme.colors.primary.withValues(
+                                alpha: 0.08,
+                              ),
                               borderRadius: BorderRadius.circular(5.r),
                             ),
                             child: Text(
                               '${partner.activePlans} faol reja',
-                              style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.primary),
-                            ),
-                          ),
-                          if (partner.partnerPhone.isNotEmpty) ...[
-                            SizedBox(width: 6.w),
-                            Icon(Icons.phone_outlined, size: 10.sp, color: const Color(0xFFCBD5E1)),
-                            SizedBox(width: 2.w),
-                            Flexible(
-                              child: Text(
-                                PhoneFormatter.formatPhoneNumber(partner.partnerPhone),
-                                style: TextStyle(fontSize: 10.sp, color: const Color(0xFF94A3B8)),
-                                overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.colors.primary,
                               ),
                             ),
-                          ],
+                          ),
                         ],
                       ),
                       if (partner.lastPaymentAt != null) ...[
                         SizedBox(height: 3.h),
                         Row(
                           children: [
-                            Icon(Icons.access_time_rounded, size: 10.sp, color: const Color(0xFFCBD5E1)),
+                            Icon(
+                              Icons.access_time_rounded,
+                              size: 10.sp,
+                              color: const Color(0xFF94A3B8),
+                            ),
                             SizedBox(width: 3.w),
                             Text(
-                              "So'ngi: ${partner.lastPaymentAt}",
-                              style: TextStyle(fontSize: 10.sp, color: const Color(0xFFCBD5E1), fontWeight: FontWeight.w500),
+                              "Oxirgi qilingan to'lov: ${partner.lastPaymentAt}",
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                color: const Color(0xFF94A3B8),
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ],
                         ),
@@ -382,39 +356,82 @@ class _PartnerCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(width: 8.w),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      sort == 'total_given'
-                          ? PriceFormatter.priceFormat(partner.totalGiven)
-                          : PriceFormatter.priceFormat(partner.totalRemaining),
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w800,
-                        color: sort == 'total_given' ? const Color(0xFF475569) : const Color(0xFF3B82F6),
-                      ),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(currency, style: TextStyle(fontSize: 9.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
-                        SizedBox(width: 3.w),
-                        Text(
-                          sort == 'total_given' ? 'berilgan' : 'qoldi',
-                          style: TextStyle(fontSize: 9.sp, color: const Color(0xFF94A3B8)),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
 
-          // ── Progress Bar ──
+          // ── Divider ──
+          Container(height: 1, color: const Color(0xFFF1F5F9)),
+
+          // ── Berilgan + To'langan ──
+          Padding(
+            padding: EdgeInsets.fromLTRB(14.w, 10.h, 14.w, 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _AmountChip(
+                    label: 'Berilgan',
+                    amount: partner.totalGiven,
+                    currency: currency,
+                    color: const Color(0xFF475569),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: _AmountChip(
+                    label: "To'langan",
+                    amount: partner.totalPaid,
+                    currency: currency,
+                    color: const Color(0xFF22C55E),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 8.h),
+
+          // ── Qolgan (muddati o'tgan bilan yoki yolg'iz) ──
+          Padding(
+            padding: EdgeInsets.fromLTRB(14.w, 0, 14.w, 0),
+            child: hasOverdue
+                ? Row(
+                    children: [
+                      Expanded(
+                        child: _AmountChip(
+                          label: 'Qolgan',
+                          amount: partner.totalRemaining,
+                          currency: currency,
+                          color: const Color(0xFFF59E0B),
+                          textColor: const Color(0xFF1E293B),
+                          icon: Icons.hourglass_bottom_rounded,
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+
+                      Expanded(
+                        child: _AmountChip(
+                          label: "Muddati o'tgan",
+                          amount: partner.overdueAmount,
+                          currency: currency,
+                          color: const Color(0xFFEF4444),
+                          isAlert: true,
+                        ),
+                      ),
+                    ],
+                  )
+                : _AmountChip(
+                    label: 'Qolgan',
+                    amount: partner.totalRemaining,
+                    currency: currency,
+                    color: const Color(0xFFF59E0B),
+                    textColor: const Color(0xFF1E293B),
+                    icon: Icons.hourglass_bottom_rounded,
+                  ),
+          ),
+
+          // ── Progress Bar (oxirida) ──
           if (totalGiven > 0) ...[
+            SizedBox(height: 10.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 14.w),
               child: Column(
@@ -425,11 +442,19 @@ class _PartnerCard extends StatelessWidget {
                     children: [
                       Text(
                         "To'lov jarayoni",
-                        style: TextStyle(fontSize: 10.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          color: const Color(0xFF94A3B8),
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       Text(
                         "$paidPct% to'landi",
-                        style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: const Color(0xFF22C55E)),
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF22C55E),
+                        ),
                       ),
                     ],
                   ),
@@ -442,17 +467,30 @@ class _PartnerCard extends StatelessWidget {
                         children: [
                           if (paidRatio > 0)
                             Expanded(
-                              flex: (paidRatio * 1000).toInt().clamp(1, 1000000),
+                              flex: (paidRatio * 1000).toInt().clamp(
+                                1,
+                                1000000,
+                              ),
                               child: Container(color: const Color(0xFF22C55E)),
                             ),
                           if (pendingRatio > 0)
                             Expanded(
-                              flex: (pendingRatio * 1000).toInt().clamp(1, 1000000),
-                              child: Container(color: const Color(0xFF3B82F6).withValues(alpha: 0.30)),
+                              flex: (pendingRatio * 1000).toInt().clamp(
+                                1,
+                                1000000,
+                              ),
+                              child: Container(
+                                color: const Color(
+                                  0xFFF59E0B,
+                                ).withValues(alpha: 0.40),
+                              ),
                             ),
                           if (overdueRatio > 0)
                             Expanded(
-                              flex: (overdueRatio * 1000).toInt().clamp(1, 1000000),
+                              flex: (overdueRatio * 1000).toInt().clamp(
+                                1,
+                                1000000,
+                              ),
                               child: Container(color: const Color(0xFFEF4444)),
                             ),
                         ],
@@ -462,27 +500,8 @@ class _PartnerCard extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 10.h),
           ],
-
-          // ── Divider ──
-          Container(height: 1, color: const Color(0xFFF1F5F9)),
-
-          // ── Amount Chips ──
-          Padding(
-            padding: EdgeInsets.fromLTRB(14.w, 10.h, 14.w, 12.h),
-            child: Row(
-              children: [
-                Expanded(child: _AmountChip(label: 'Berilgan', amount: partner.totalGiven, currency: currency, color: const Color(0xFF475569))),
-                SizedBox(width: 8.w),
-                Expanded(child: _AmountChip(label: "To'langan", amount: partner.totalPaid, currency: currency, color: const Color(0xFF22C55E))),
-                if (hasOverdue) ...[
-                  SizedBox(width: 8.w),
-                  Expanded(child: _AmountChip(label: "Muddati o'tgan", amount: partner.overdueAmount, currency: currency, color: const Color(0xFFEF4444), isAlert: true)),
-                ],
-              ],
-            ),
-          ),
+          SizedBox(height: 12.h),
         ],
       ),
     );
@@ -496,18 +515,31 @@ class _AmountChip extends StatelessWidget {
   final String amount;
   final String currency;
   final Color color;
+  final Color? textColor;
   final bool isAlert;
+  final IconData? icon;
 
-  const _AmountChip({required this.label, required this.amount, required this.currency, required this.color, this.isAlert = false});
+  const _AmountChip({
+    required this.label,
+    required this.amount,
+    required this.currency,
+    required this.color,
+    this.textColor,
+    this.isAlert = false,
+    this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final tc = textColor ?? color;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 7.h),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: isAlert ? 0.07 : 0.05),
+        color: color.withValues(alpha: isAlert ? 0.07 : 0.08),
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: color.withValues(alpha: isAlert ? 0.25 : 0.12)),
+        border: Border.all(
+          color: color.withValues(alpha: isAlert ? 0.25 : 0.20),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -517,15 +549,43 @@ class _AmountChip extends StatelessWidget {
               if (isAlert) ...[
                 Icon(Icons.warning_amber_rounded, size: 9.sp, color: color),
                 SizedBox(width: 2.w),
+              ] else if (icon != null) ...[
+                Icon(icon, size: 9.sp, color: tc),
+                SizedBox(width: 2.w),
               ],
               Flexible(
-                child: Text(label, style: TextStyle(fontSize: 9.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    color: const Color(0xFF94A3B8),
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
           SizedBox(height: 3.h),
-          Text(PriceFormatter.priceFormat(amount), style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w800, color: color), maxLines: 1, overflow: TextOverflow.ellipsis),
-          Text(currency, style: TextStyle(fontSize: 8.sp, color: color.withValues(alpha: 0.65), fontWeight: FontWeight.w600)),
+          Text(
+            PriceFormatter.priceFormat(amount),
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w800,
+              color: tc,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            currency,
+            style: TextStyle(
+              fontSize: 8.sp,
+              color: tc.withValues(alpha: 0.65),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
@@ -551,36 +611,98 @@ class _ShimmerCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
       padding: EdgeInsets.all(14.r),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(width: 42.w, height: 42.w, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+              Container(
+                width: 42.w,
+                height: 42.w,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+              ),
               SizedBox(width: 10.w),
               Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Container(height: 13.h, width: 140.w, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6.r))),
-                  SizedBox(height: 6.h),
-                  Container(height: 10.h, width: 90.w, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6.r))),
-                ]),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 13.h,
+                      width: 140.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                    ),
+                    SizedBox(height: 6.h),
+                    Container(
+                      height: 10.h,
+                      width: 90.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                Container(height: 13.h, width: 70.w, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6.r))),
-                SizedBox(height: 5.h),
-                Container(height: 10.h, width: 40.w, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6.r))),
-              ]),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    height: 13.h,
+                    width: 70.w,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                  ),
+                  SizedBox(height: 5.h),
+                  Container(
+                    height: 10.h,
+                    width: 40.w,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
           SizedBox(height: 12.h),
-          Container(height: 7.h, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6.r))),
+          Container(
+            height: 7.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(6.r),
+            ),
+          ),
           SizedBox(height: 12.h),
           Row(
-            children: [0, 1, 2].expand((i) => [
-              if (i > 0) SizedBox(width: 8.w),
-              Expanded(child: Container(height: 52.h, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10.r)))),
-            ]).toList(),
+            children: [0, 1, 2]
+                .expand(
+                  (i) => [
+                    if (i > 0) SizedBox(width: 8.w),
+                    Expanded(
+                      child: Container(
+                        height: 52.h,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+                .toList(),
           ),
         ],
       ),
@@ -610,15 +732,35 @@ class _EmptyCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          Icon(Icons.people_outline_rounded, size: 38.sp, color: const Color(0xFFCBD5E1)),
+          Icon(
+            Icons.people_outline_rounded,
+            size: 38.sp,
+            color: const Color(0xFFCBD5E1),
+          ),
           SizedBox(height: 10.h),
-          Text('Mijozlar topilmadi', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF94A3B8))),
+          Text(
+            'Mijozlar topilmadi',
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF94A3B8),
+            ),
+          ),
           SizedBox(height: 4.h),
-          Text("Muddatli to'lov ma'lumotlari yo'q", style: TextStyle(fontSize: 11.sp, color: const Color(0xFFCBD5E1))),
+          Text(
+            "Muddatli to'lov ma'lumotlari yo'q",
+            style: TextStyle(fontSize: 11.sp, color: const Color(0xFFCBD5E1)),
+          ),
         ],
       ),
     );
@@ -629,6 +771,7 @@ class _EmptyCard extends StatelessWidget {
 
 class _CurrencyTabBar extends StatelessWidget {
   final TabController controller;
+
   const _CurrencyTabBar({required this.controller});
 
   @override
@@ -640,12 +783,23 @@ class _CurrencyTabBar extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
         child: Container(
           height: 46,
-          decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Row(
             children: [
-              _TabItem(label: 'UZS Hisob', selected: controller.index == 0, onTap: () => controller.animateTo(0)),
+              _TabItem(
+                label: 'UZS Hisob',
+                selected: controller.index == 0,
+                onTap: () => controller.animateTo(0),
+              ),
               _TabDivider(),
-              _TabItem(label: 'USD Hisob', selected: controller.index == 1, onTap: () => controller.animateTo(1)),
+              _TabItem(
+                label: 'USD Hisob',
+                selected: controller.index == 1,
+                onTap: () => controller.animateTo(1),
+              ),
             ],
           ),
         ),
@@ -658,7 +812,12 @@ class _TabItem extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  const _TabItem({required this.label, required this.selected, required this.onTap});
+
+  const _TabItem({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -672,7 +831,9 @@ class _TabItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-              color: selected ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+              color: selected
+                  ? const Color(0xFF0F172A)
+                  : const Color(0xFF64748B),
             ),
           ),
         ),
@@ -684,11 +845,25 @@ class _TabItem extends StatelessWidget {
 class _TabDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(width: 2, height: 12, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2))),
-          const SizedBox(width: 2),
-          Container(width: 2, height: 12, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2))),
-        ],
-      );
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 2,
+        height: 12,
+        decoration: BoxDecoration(
+          color: const Color(0xFFCBD5E1),
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+      const SizedBox(width: 2),
+      Container(
+        width: 2,
+        height: 12,
+        decoration: BoxDecoration(
+          color: const Color(0xFFCBD5E1),
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+    ],
+  );
 }
