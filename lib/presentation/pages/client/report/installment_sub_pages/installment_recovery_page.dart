@@ -224,19 +224,19 @@ class _RecoveryContent extends StatelessWidget {
         ),
         SizedBox(height: 20.h),
 
-        // ── Berilgan (full-width) ──
-        _WideAmountCard(
-          label: 'Berilgan',
-          amount: recovery.totalGiven,
-          currency: currency,
-          color: const Color(0xFF6366F1),
-          icon: Icons.account_balance_wallet_outlined,
-        ),
-        SizedBox(height: 8.h),
-
-        // ── To'langan + Qolgan ──
+        // ── Berilgan + To'langan — 2 ta ──
         Row(
           children: [
+            Expanded(
+              child: _AmountCard(
+                label: 'Berilgan',
+                amount: recovery.totalGiven,
+                currency: currency,
+                color: const Color(0xFF6366F1),
+                icon: Icons.account_balance_wallet_outlined,
+              ),
+            ),
+            SizedBox(width: 8.w),
             Expanded(
               child: _AmountCard(
                 label: "To'langan",
@@ -246,17 +246,18 @@ class _RecoveryContent extends StatelessWidget {
                 icon: Icons.check_circle_outline_rounded,
               ),
             ),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: _AmountCard(
-                label: 'Qolgan',
-                amount: recovery.totalRemaining,
-                currency: currency,
-                color: const Color(0xFF3B82F6),
-                icon: Icons.hourglass_bottom_rounded,
-              ),
-            ),
           ],
+        ),
+        SizedBox(height: 8.h),
+
+        // ── Qolgan — full width (asosiy) ──
+        _WideAmountCard(
+          label: 'Qolgan',
+          amount: recovery.totalRemaining,
+          currency: currency,
+          color: const Color(0xFFF59E0B),
+          textColor: const Color(0xFF1E293B),
+          icon: Icons.hourglass_bottom_rounded,
         ),
         SizedBox(height: 10.h),
 
@@ -422,6 +423,7 @@ class _WideAmountCard extends StatelessWidget {
   final String amount;
   final String currency;
   final Color color;
+  final Color? textColor;
   final IconData icon;
 
   const _WideAmountCard({
@@ -429,18 +431,20 @@ class _WideAmountCard extends StatelessWidget {
     required this.amount,
     required this.currency,
     required this.color,
+    this.textColor,
     required this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
+    final tc = textColor ?? color;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: color.withValues(alpha: 0.22)),
+        border: Border.all(color: color.withValues(alpha: 0.30)),
         boxShadow: [
-          BoxShadow(color: color.withValues(alpha: 0.10), blurRadius: 10, offset: const Offset(0, 3)),
+          BoxShadow(color: color.withValues(alpha: 0.14), blurRadius: 10, offset: const Offset(0, 3)),
         ],
       ),
       child: ClipRRect(
@@ -455,7 +459,7 @@ class _WideAmountCard extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [color.withValues(alpha: 0.08), color.withValues(alpha: 0.03)],
+                      colors: [color.withValues(alpha: 0.12), color.withValues(alpha: 0.04)],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
@@ -465,10 +469,10 @@ class _WideAmountCard extends StatelessWidget {
                       Container(
                         padding: EdgeInsets.all(9.r),
                         decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.14),
+                          color: color.withValues(alpha: 0.18),
                           borderRadius: BorderRadius.circular(10.r),
                         ),
-                        child: Icon(icon, size: 16.sp, color: color),
+                        child: Icon(icon, size: 16.sp, color: tc),
                       ),
                       SizedBox(width: 12.w),
                       Expanded(
@@ -480,7 +484,7 @@ class _WideAmountCard extends StatelessWidget {
                               label,
                               style: TextStyle(
                                 fontSize: 11.sp,
-                                color: color.withValues(alpha: 0.70),
+                                color: tc.withValues(alpha: 0.60),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -490,7 +494,7 @@ class _WideAmountCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 18.sp,
                                 fontWeight: FontWeight.w900,
-                                color: color,
+                                color: tc,
                                 height: 1.1,
                               ),
                               maxLines: 1,
@@ -502,14 +506,14 @@ class _WideAmountCard extends StatelessWidget {
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                         decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.13),
+                          color: color.withValues(alpha: 0.18),
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Text(
                           currency,
                           style: TextStyle(
                             fontSize: 11.sp,
-                            color: color,
+                            color: tc,
                             fontWeight: FontWeight.w800,
                           ),
                         ),

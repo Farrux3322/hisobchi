@@ -58,14 +58,12 @@ class _RiskyPartnersViewState extends State<_RiskyPartnersView> with SingleTicke
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: BackArrowButton(),
         title: const Text(
-          'Muammoli hamkorlar',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+          'Muammoli mijozlar'
         ),
         centerTitle: true,
         bottom: PreferredSize(
@@ -111,7 +109,6 @@ class _RiskyTabContent extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 32.h),
         children: [
           _Section(
-            title: 'Muammoli hamkorlar',
             icon: Icons.warning_amber_rounded,
             iconColor: const Color(0xFFEF4444),
             child: state.status == Status.loading && state.data.isEmpty
@@ -217,7 +214,7 @@ class _RiskyPartnerCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('${partner.riskScore}', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w900, color: _riskColor)),
+                        Text('${partner.riskScore} %', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w900, color: _riskColor)),
                         Text(' xavf', style: TextStyle(fontSize: 9.sp, color: _riskColor.withValues(alpha: 0.8))),
                       ],
                     ),
@@ -233,7 +230,7 @@ class _RiskyPartnerCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _RiskyMiniStat(
-                  label: "Muddati o'tgan",
+                  label: "Muddati o'tgan to'lovlar",
                   value: '${partner.overdueItems} ta',
                   color: const Color(0xFFEF4444),
                 ),
@@ -241,20 +238,17 @@ class _RiskyPartnerCard extends StatelessWidget {
               SizedBox(width: 6.w),
               Expanded(
                 child: _RiskyMiniStat(
-                  label: "O'rtacha kechik.",
+                  label: "O'rtacha kechikish",
                   value: '${partner.avgDaysOverdue} kun',
                   color: const Color(0xFFF59E0B),
                 ),
               ),
-              SizedBox(width: 6.w),
-              Expanded(
-                child: _RiskyMiniStat(
-                  label: 'Qolgan qarz',
-                  value: '${PriceFormatter.priceFormat(partner.totalRemaining)} $currency',
-                  color: const Color(0xFF6366F1),
-                ),
-              ),
             ],
+          ),
+          SizedBox(height: 6.h),
+          _RiskyRemainingCard(
+            amount: PriceFormatter.priceFormat(partner.totalRemaining),
+            currency: currency,
           ),
         ],
       ),
@@ -283,6 +277,60 @@ class _RiskyMiniStat extends StatelessWidget {
           Text(label, style: TextStyle(fontSize: 9.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500)),
           SizedBox(height: 2.h),
           Text(value, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: color), maxLines: 1, overflow: TextOverflow.ellipsis),
+        ],
+      ),
+    );
+  }
+}
+
+class _RiskyRemainingCard extends StatelessWidget {
+  final String amount;
+  final String currency;
+
+  const _RiskyRemainingCard({required this.amount, required this.currency});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFFEF4444).withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border(left: BorderSide(color: const Color(0xFFEF4444), width: 3.w)),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Qolgan qarz',
+                  style: TextStyle(fontSize: 9.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  amount,
+                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w800, color: const Color(0xFFEF4444)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEF4444).withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(4.r),
+            ),
+            child: Text(
+              currency,
+              style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w700, color: const Color(0xFFEF4444)),
+            ),
+          ),
         ],
       ),
     );
@@ -371,14 +419,12 @@ class _TabDivider extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  final String title;
   final IconData icon;
   final Color? iconColor;
   final Widget child;
   final Widget? trailing;
 
   const _Section({
-    required this.title,
     required this.icon,
     this.iconColor,
     required this.child,
@@ -395,23 +441,7 @@ class _Section extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 14.sp, color: iconColor ?? AppTheme.colors.primary),
-              SizedBox(width: 6.w),
-              Expanded(
-                child: Text(title, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
-              ),
-              if (trailing != null) trailing!,
-            ],
-          ),
-          SizedBox(height: 12.h),
-          child,
-        ],
-      ),
+      child:child,
     );
   }
 }

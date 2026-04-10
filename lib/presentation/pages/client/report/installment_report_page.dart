@@ -352,14 +352,39 @@ class _SummarySection extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 10.h),
+                    // ── Berilgan + To'langan — 2 ta ──
                     Row(
                       children: [
-                        Expanded(child: _AmountTile(label: 'Berilgan', amount: summary!.totalGiven, currency: currency, color: const Color(0xFF6366F1))),
-                        SizedBox(width: 10.w),
-                        Expanded(child: _AmountTile(label: "To'langan", amount: summary!.totalPaid, currency: currency, color: const Color(0xFF22C55E))),
-                        SizedBox(width: 10.w),
-                        Expanded(child: _AmountTile(label: "Qolgan", amount: summary!.totalRemaining, currency: currency, color: const Color(0xFF3B82F6))),
+                        Expanded(
+                          child: _AmountTile(
+                            label: 'Berilgan',
+                            amount: summary!.totalGiven,
+                            currency: currency,
+                            color: const Color(0xFF6366F1),
+                            icon: Icons.account_balance_wallet_outlined,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: _AmountTile(
+                            label: "To'langan",
+                            amount: summary!.totalPaid,
+                            currency: currency,
+                            color: const Color(0xFF22C55E),
+                            icon: Icons.check_circle_outline_rounded,
+                          ),
+                        ),
                       ],
+                    ),
+                    SizedBox(height: 8.h),
+                    // ── Qolgan — full width (asosiy) ──
+                    _WideAmountTile(
+                      label: 'Qolgan',
+                      amount: summary!.totalRemaining,
+                      currency: currency,
+                      color: const Color(0xFFF59E0B),
+                      textColor: const Color(0xFF1E293B),
+                      icon: Icons.hourglass_bottom_rounded,
                     ),
                     if ((double.tryParse(summary!.overdueAmount) ?? 0) > 0) ...[
                       SizedBox(height: 10.h),
@@ -453,35 +478,210 @@ class _MetricTile extends StatelessWidget {
   }
 }
 
+// ── Wide card: Berilgan (full width) ─────────────────────────────────────────
+
+class _WideAmountTile extends StatelessWidget {
+  final String label;
+  final String amount;
+  final String currency;
+  final Color color;
+  final Color? textColor;
+  final IconData icon;
+
+  const _WideAmountTile({
+    required this.label,
+    required this.amount,
+    required this.currency,
+    required this.color,
+    this.textColor,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tc = textColor ?? color;
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(13.r),
+        border: Border.all(color: color.withValues(alpha: 0.30)),
+        boxShadow: [
+          BoxShadow(color: color.withValues(alpha: 0.14), blurRadius: 10, offset: const Offset(0, 3)),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.r),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(width: 5, color: color),
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 13.h),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [color.withValues(alpha: 0.12), color.withValues(alpha: 0.04)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(8.r),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(9.r),
+                        ),
+                        child: Icon(icon, size: 16.sp, color: tc),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                color: tc.withValues(alpha: 0.60),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(height: 2.h),
+                            Text(
+                              PriceFormatter.priceFormat(amount),
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w900,
+                                color: tc,
+                                height: 1.1,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(7.r),
+                        ),
+                        child: Text(
+                          currency,
+                          style: TextStyle(fontSize: 11.sp, color: tc, fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Half-width cards: To'langan / Qolgan ─────────────────────────────────────
+
 class _AmountTile extends StatelessWidget {
   final String label;
   final String amount;
   final String currency;
   final Color color;
+  final IconData icon;
 
-  const _AmountTile({required this.label, required this.amount, required this.currency, required this.color});
+  const _AmountTile({
+    required this.label,
+    required this.amount,
+    required this.currency,
+    required this.color,
+    required this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10.r),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: TextStyle(fontSize: 9.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500)),
-          SizedBox(height: 3.h),
-          Text(
-            PriceFormatter.priceFormat(amount),
-            style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w800, color: color),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(currency, style: TextStyle(fontSize: 9.sp, color: color.withValues(alpha: 0.7))),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+        boxShadow: [
+          BoxShadow(color: color.withValues(alpha: 0.07), blurRadius: 6, offset: const Offset(0, 2)),
         ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(11.r),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(width: 3, color: color),
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 11.h),
+                  color: color.withValues(alpha: 0.05),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(5.r),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.13),
+                          borderRadius: BorderRadius.circular(7.r),
+                        ),
+                        child: Icon(icon, size: 12.sp, color: color),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 9.sp,
+                          color: const Color(0xFF94A3B8),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        PriceFormatter.priceFormat(amount),
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w800,
+                          color: color,
+                          height: 1.1,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 3.h),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(4.r),
+                        ),
+                        child: Text(
+                          currency,
+                          style: TextStyle(
+                            fontSize: 8.sp,
+                            color: color,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -491,7 +491,8 @@ class _ItemCard extends StatelessWidget {
                               label: 'Qolgan',
                               amount: item.remaining,
                               currency: currency,
-                              color: const Color(0xFF3B82F6),
+                              color: const Color(0xFFF59E0B),
+                              textColor: const Color(0xFF1E293B),
                             ),
                           ),
                         ],
@@ -515,22 +516,25 @@ class _AmountChip extends StatelessWidget {
   final String amount;
   final String currency;
   final Color color;
+  final Color? textColor;
 
   const _AmountChip({
     required this.label,
     required this.amount,
     required this.currency,
     required this.color,
+    this.textColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final tc = textColor ?? color;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 7.h),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.05),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: color.withValues(alpha: 0.12)),
+        border: Border.all(color: color.withValues(alpha: 0.20)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,7 +552,7 @@ class _AmountChip extends StatelessWidget {
           SizedBox(height: 3.h),
           Text(
             PriceFormatter.priceFormat(amount),
-            style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w800, color: color),
+            style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w800, color: tc),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -556,7 +560,7 @@ class _AmountChip extends StatelessWidget {
             currency,
             style: TextStyle(
               fontSize: 8.sp,
-              color: color.withValues(alpha: 0.65),
+              color: tc.withValues(alpha: 0.65),
               fontWeight: FontWeight.w600,
             ),
           ),
