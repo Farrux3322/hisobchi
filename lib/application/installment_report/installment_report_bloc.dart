@@ -186,7 +186,10 @@ class InstallmentReportBloc
     required int period,
   }) async {
     try {
-      final data = await _repo.getForecast(period: period);
+      final now = DateTime.now();
+      final dateFrom = _fmt(now);
+      final dateTo = _fmt(now.add(Duration(days: period)));
+      final data = await _repo.getForecast(dateFrom: dateFrom, dateTo: dateTo);
       final uzs = data.where((f) => f.currencyTypeId == 1).firstOrNull;
       final usd = data.where((f) => f.currencyTypeId == 2).firstOrNull;
       emit(state.copyWith(
@@ -198,6 +201,9 @@ class InstallmentReportBloc
       emit(state.copyWith(forecastStatus: Status.error));
     }
   }
+
+  static String _fmt(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
 
   Future<void> _loadRisky(Emitter<InstallmentReportState> emit) async {
     try {

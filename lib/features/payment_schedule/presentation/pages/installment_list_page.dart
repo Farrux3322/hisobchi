@@ -198,7 +198,7 @@ class _InstallmentListView extends StatelessWidget {
   }
 
   void _openDetail(BuildContext context, InstallmentPlanModel plan) {
-    pushScreen(context, screen: InstallmentDetailPage(installmentPlanModel: plan)).then((changed) {
+    pushScreen(context, screen: InstallmentDetailPage(id: plan.id)).then((changed) {
       if (changed == true && context.mounted) {
         context.read<InstallmentListCubit>().refresh();
       }

@@ -11,13 +11,13 @@ import 'installment_plan_info_page.dart';
 import 'payment_history_page.dart';
 
 class InstallmentDetailPage extends StatelessWidget {
-  final InstallmentPlanModel installmentPlanModel;
+  final int id;
 
-  const InstallmentDetailPage({super.key, required this.installmentPlanModel});
+  const InstallmentDetailPage({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (_) => InstallmentDetailCubit()..loadDetail(installmentPlanModel.id), child: const _DetailView());
+    return BlocProvider(create: (_) => InstallmentDetailCubit()..loadDetail(id), child: const _DetailView());
   }
 }
 
@@ -89,7 +89,7 @@ class _DetailViewState extends State<_DetailView> {
                     Icon(Icons.cancel_outlined, color: AppTheme.colors.red, size: 18.r),
                     SizedBox(width: 8.w),
                     Text(
-                      'Bo\'lib to\'lashni bekor qilish',
+                      'Shartnomani bekor qilish',
                       style: TextStyle(color: AppTheme.colors.red, fontSize: 14.sp),
                     ),
                   ],

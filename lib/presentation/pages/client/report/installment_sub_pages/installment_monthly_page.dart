@@ -141,6 +141,13 @@ class _MonthlyChart extends StatefulWidget {
 class _MonthlyChartState extends State<_MonthlyChart> {
   int? _touched;
 
+  String _compact(double amount) {
+    if (amount >= 1000000000) return '${(amount / 1000000000).toStringAsFixed(1)}B';
+    if (amount >= 1000000) return '${(amount / 1000000).toStringAsFixed(1)}M';
+    if (amount >= 1000) return '${(amount / 1000).toStringAsFixed(0)}K';
+    return amount.toStringAsFixed(0);
+  }
+
   @override
   Widget build(BuildContext context) {
     final months = widget.monthly.months;
@@ -156,15 +163,16 @@ class _MonthlyChartState extends State<_MonthlyChart> {
 
       return BarChartGroupData(
         x: i,
+        showingTooltipIndicators: m.amount > 0 ? [0] : [],
         barRods: [
           BarChartRodData(
-            toY: m.amount,
-            width: 14.w,
-            borderRadius: BorderRadius.circular(4.r),
+            toY: m.amount > 0 ? m.amount : 0,
+            width: 18.w,
+            borderRadius: BorderRadius.circular(5.r),
             gradient: LinearGradient(
               colors: isTouched
-                  ? [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: 0.7)]
-                  : [AppTheme.colors.primary.withValues(alpha: 0.5), AppTheme.colors.primary.withValues(alpha: 0.3)],
+                  ? [AppTheme.colors.primary, AppTheme.colors.primary.withValues(alpha: 0.80)]
+                  : [AppTheme.colors.primary.withValues(alpha: 0.70), AppTheme.colors.primary.withValues(alpha: 0.40)],
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
             ),
@@ -177,18 +185,26 @@ class _MonthlyChartState extends State<_MonthlyChart> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 160.h,
+          height: 220.h,
           child: BarChart(
             BarChartData(
-              maxY: maxVal * 1.25,
+              maxY: maxVal * 1.55,
               barTouchData: BarTouchData(
                 touchTooltipData: BarTouchTooltipData(
-                  getTooltipColor: (_) => const Color(0xFF1E293B),
+                  getTooltipColor: (_) => AppTheme.colors.primary,
+                  tooltipRoundedRadius: 6.r,
+                  tooltipPadding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+                  tooltipMargin: 6,
                   getTooltipItem: (group, _, rod, __) {
                     final m = months[group.x];
                     return BarTooltipItem(
-                      '${m.uzLabel}\n${PriceFormatter.priceFormat(m.totalAmount)} ${widget.currency}\n${m.paymentsCount} ta',
-                      TextStyle(fontSize: 10.sp, color: Colors.white, fontWeight: FontWeight.w600, height: 1.5),
+                      '${_compact(m.amount)}\n${m.paymentsCount}ta',
+                      TextStyle(
+                        fontSize: 9.sp,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        height: 1.45,
+                      ),
                     );
                   },
                 ),
@@ -204,10 +220,17 @@ class _MonthlyChartState extends State<_MonthlyChart> {
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 20.h,
-                    getTitlesWidget: (v, _) => Text(
-                      months[v.toInt()].uzLabel,
-                      style: TextStyle(fontSize: 8.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600),
+                    reservedSize: 28.h,
+                    getTitlesWidget: (v, _) => Padding(
+                      padding: EdgeInsets.only(top: 5.h),
+                      child: Text(
+                        months[v.toInt()].uzLabel,
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          color: const Color(0xFF94A3B8),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                 ),

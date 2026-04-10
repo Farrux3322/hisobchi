@@ -8,6 +8,7 @@ import 'package:hisobchi/infrastructure/repository/installment_report/installmen
 import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/components/utils/price_extension.dart';
+import 'package:hisobchi/presentation/pages/client/report/installment_sub_pages/installment_items_page.dart';
 import 'package:shimmer/shimmer.dart';
 
 class InstallmentRecoveryPage extends StatelessWidget {
@@ -94,10 +95,9 @@ class _RecoveryTabContent extends StatelessWidget {
       },
       color: AppTheme.colors.primary,
       child: ListView(
-        padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 32.h),
+        padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 32.h + MediaQuery.of(context).padding.bottom),
         children: [
           _Section(
-            title: 'Undirish samaradorligi',
             icon: Icons.trending_up_rounded,
             iconColor: const Color(0xFF22C55E),
             child: state.status == Status.loading && state.data.isEmpty
@@ -224,19 +224,19 @@ class _RecoveryContent extends StatelessWidget {
         ),
         SizedBox(height: 20.h),
 
-        // ── 3 Amount Cards ──
+        // ── Berilgan (full-width) ──
+        _WideAmountCard(
+          label: 'Berilgan',
+          amount: recovery.totalGiven,
+          currency: currency,
+          color: const Color(0xFF6366F1),
+          icon: Icons.account_balance_wallet_outlined,
+        ),
+        SizedBox(height: 8.h),
+
+        // ── To'langan + Qolgan ──
         Row(
           children: [
-            Expanded(
-              child: _AmountCard(
-                label: 'Berilgan',
-                amount: recovery.totalGiven,
-                currency: currency,
-                color: const Color(0xFF6366F1),
-                icon: Icons.account_balance_wallet_outlined,
-              ),
-            ),
-            SizedBox(width: 8.w),
             Expanded(
               child: _AmountCard(
                 label: "To'langan",
@@ -349,21 +349,179 @@ class _RecoveryContent extends StatelessWidget {
             ),
           ),
           SizedBox(height: 14.h),
-          Row(
-            children: [
-              Expanded(child: _ByItemChip(label: "To'langan", count: by.paid, color: const Color(0xFF22C55E))),
-              SizedBox(width: 6.w),
-              Expanded(child: _ByItemChip(label: 'Qisman', count: by.partial, color: const Color(0xFF3B82F6))),
-              SizedBox(width: 6.w),
-              Expanded(child: _ByItemChip(label: "Muddati o't.", count: by.overdue, color: const Color(0xFFEF4444))),
-              SizedBox(width: 6.w),
-              Expanded(child: _ByItemChip(label: 'Kutilmoqda', count: by.pending, color: const Color(0xFF94A3B8))),
-            ],
+          Builder(
+            builder: (context) {
+              void openItems(String status, String label, Color color) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => InstallmentItemsPage(
+                      status: status,
+                      statusLabel: label,
+                      currencyTypeId: recovery.currencyTypeId,
+                      currencyLabel: currency,
+                      statusColor: color,
+                    ),
+                  ),
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(
+                    child: _ByItemChip(
+                      label: "To'langan",
+                      count: by.paid,
+                      color: const Color(0xFF22C55E),
+                      onTap: () => openItems('paid', "To'langan", const Color(0xFF22C55E)),
+                    ),
+                  ),
+                  SizedBox(width: 6.w),
+                  Expanded(
+                    child: _ByItemChip(
+                      label: 'Qisman',
+                      count: by.partial,
+                      color: const Color(0xFF3B82F6),
+                      onTap: () => openItems('partial', 'Qisman', const Color(0xFF3B82F6)),
+                    ),
+                  ),
+                  SizedBox(width: 6.w),
+                  Expanded(
+                    child: _ByItemChip(
+                      label: "Muddati o't.",
+                      count: by.overdue,
+                      color: const Color(0xFFEF4444),
+                      onTap: () => openItems('overdue', "Muddati o'tgan", const Color(0xFFEF4444)),
+                    ),
+                  ),
+                  SizedBox(width: 6.w),
+                  Expanded(
+                    child: _ByItemChip(
+                      label: 'Kutilmoqda',
+                      count: by.pending,
+                      color: const Color(0xFF94A3B8),
+                      onTap: () => openItems('pending', 'Kutilmoqda', const Color(0xFF94A3B8)),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
           SizedBox(height: 10.h),
           _StackedBar(by: by),
         ],
       ],
+    );
+  }
+}
+
+// ─── Wide Amount Card (Berilgan) ──────────────────────────────────────────────
+
+class _WideAmountCard extends StatelessWidget {
+  final String label;
+  final String amount;
+  final String currency;
+  final Color color;
+  final IconData icon;
+
+  const _WideAmountCard({
+    required this.label,
+    required this.amount,
+    required this.currency,
+    required this.color,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: color.withValues(alpha: 0.22)),
+        boxShadow: [
+          BoxShadow(color: color.withValues(alpha: 0.10), blurRadius: 10, offset: const Offset(0, 3)),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(13.r),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(width: 5, color: color),
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [color.withValues(alpha: 0.08), color.withValues(alpha: 0.03)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(9.r),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        child: Icon(icon, size: 16.sp, color: color),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                color: color.withValues(alpha: 0.70),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(height: 2.h),
+                            Text(
+                              PriceFormatter.priceFormat(amount),
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w900,
+                                color: color,
+                                height: 1.1,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.13),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Text(
+                          currency,
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: color,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -420,14 +578,14 @@ class _AmountCard extends StatelessWidget {
                     SizedBox(height: 6.h),
                     Text(
                       PriceFormatter.priceFormat(amount),
-                      style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w800, color: color, height: 1.1),
+                      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: color, height: 1.1),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 2.h),
                     Text(
                       label,
-                      style: TextStyle(fontSize: 10.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w600),
+                      style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w600),
                     ),
                     SizedBox(height: 3.h),
                     Container(
@@ -459,50 +617,69 @@ class _ByItemChip extends StatelessWidget {
   final String label;
   final int count;
   final Color color;
+  final VoidCallback? onTap;
 
-  const _ByItemChip({required this.label, required this.count, required this.color});
+  const _ByItemChip({
+    required this.label,
+    required this.count,
+    required this.color,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 9.h),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [color.withValues(alpha: 0.10), color.withValues(alpha: 0.04)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10.r),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [color.withValues(alpha: 0.10), color.withValues(alpha: 0.04)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.circular(10.r),
+            border: Border.all(color: color.withValues(alpha: 0.22)),
+            boxShadow: [
+              BoxShadow(color: color.withValues(alpha: 0.07), blurRadius: 5, offset: const Offset(0, 2)),
+            ],
           ),
-          borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: color.withValues(alpha: 0.22)),
-          boxShadow: [
-            BoxShadow(color: color.withValues(alpha: 0.07), blurRadius: 5, offset: const Offset(0, 2)),
-          ],
-        ),
-        child: Column(
-          children: [
-            Text(
-              '$count',
-              style: TextStyle(
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w900,
-                color: color,
-                height: 1.0,
-              ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 9.h),
+            child: Column(
+              children: [
+                Text(
+                  '$count',
+                  style: TextStyle(
+                    fontSize: 17.sp,
+                    fontWeight: FontWeight.w900,
+                    color: color,
+                    height: 1.0,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 9.sp,
+                    color: const Color(0xFF475569),
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (onTap != null) ...[
+                  SizedBox(height: 3.h),
+                  Icon(Icons.arrow_forward_ios_rounded, size: 8.sp, color: color.withValues(alpha: 0.50)),
+                ],
+              ],
             ),
-            SizedBox(height: 4.h),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 9.sp,
-                color: const Color(0xFF475569),
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+          ),
         ),
+      ),
     );
   }
 }
@@ -618,14 +795,12 @@ class _TabDivider extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  final String title;
   final IconData icon;
   final Color? iconColor;
   final Widget child;
   final Widget? trailing;
 
   const _Section({
-    required this.title,
     required this.icon,
     this.iconColor,
     required this.child,
@@ -645,39 +820,7 @@ class _Section extends StatelessWidget {
           BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 1)),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(6.r),
-                decoration: BoxDecoration(
-                  color: (iconColor ?? AppTheme.colors.primary).withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Icon(icon, size: 13.sp, color: iconColor ?? AppTheme.colors.primary),
-              ),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: Text(title, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
-              ),
-              if (trailing != null) trailing!,
-            ],
-          ),
-          SizedBox(height: 10.h),
-          Container(
-            height: 1,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [const Color(0xFFE2E8F0), const Color(0xFFE2E8F0).withValues(alpha: 0)],
-              ),
-            ),
-          ),
-          SizedBox(height: 14.h),
-          child,
-        ],
-      ),
+      child: child,
     );
   }
 }

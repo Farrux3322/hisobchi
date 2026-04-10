@@ -112,30 +112,33 @@ class InstallmentForecastModel {
   final int currencyTypeId;
   final String currencyTypeName;
   final int periodDays;
+  final String dateFrom;
+  final String dateTo;
   final int itemsCount;
+  final int partnersCount;
   final String expectedAmount;
-  final int dueTodayCount;
-  final int due3daysCount;
 
   const InstallmentForecastModel({
     required this.currencyTypeId,
     required this.currencyTypeName,
     required this.periodDays,
+    required this.dateFrom,
+    required this.dateTo,
     required this.itemsCount,
+    required this.partnersCount,
     required this.expectedAmount,
-    required this.dueTodayCount,
-    required this.due3daysCount,
   });
 
   factory InstallmentForecastModel.fromJson(Map<String, dynamic> json) {
     return InstallmentForecastModel(
       currencyTypeId: json['currency_type_id'] ?? 1,
       currencyTypeName: json['currency_type_name'] ?? 'UZS',
-      periodDays: json['period_days'] ?? 30,
+      periodDays: json['period_days'] ?? 0,
+      dateFrom: json['date_from'] ?? '',
+      dateTo: json['date_to'] ?? '',
       itemsCount: json['items_count'] ?? 0,
+      partnersCount: json['partners_count'] ?? 0,
       expectedAmount: json['expected_amount'] ?? '0',
-      dueTodayCount: json['due_today_count'] ?? 0,
-      due3daysCount: json['due_3days_count'] ?? 0,
     );
   }
 }
@@ -317,6 +320,92 @@ class MonthDataModel {
       monthLabel: json['month_label'] ?? '',
       paymentsCount: json['payments_count'] ?? 0,
       totalAmount: json['total_amount'] ?? '0',
+    );
+  }
+}
+
+// ─── Installment Items ────────────────────────────────────────────────────────
+
+class InstallmentItemModel {
+  final int id;
+  final int itemNumber;
+  final bool isAdvance;
+  final String amount;
+  final String paidAmount;
+  final String remaining;
+  final String dueDate;
+  final String status;
+  final String statusLabel;
+  final int planId;
+  final int partnerId;
+  final String partnerName;
+  final String partnerPhone;
+  final int currencyTypeId;
+  final String currencyTypeName;
+
+  const InstallmentItemModel({
+    required this.id,
+    required this.itemNumber,
+    required this.isAdvance,
+    required this.amount,
+    required this.paidAmount,
+    required this.remaining,
+    required this.dueDate,
+    required this.status,
+    required this.statusLabel,
+    required this.planId,
+    required this.partnerId,
+    required this.partnerName,
+    required this.partnerPhone,
+    required this.currencyTypeId,
+    required this.currencyTypeName,
+  });
+
+  factory InstallmentItemModel.fromJson(Map<String, dynamic> json) {
+    return InstallmentItemModel(
+      id: json['id'] ?? 0,
+      itemNumber: json['item_number'] ?? 0,
+      isAdvance: json['is_advance'] ?? false,
+      amount: json['amount'] ?? '0',
+      paidAmount: json['paid_amount'] ?? '0',
+      remaining: json['remaining'] ?? '0',
+      dueDate: json['due_date'] ?? '',
+      status: json['status'] ?? '',
+      statusLabel: json['status_label'] ?? '',
+      planId: json['plan_id'] ?? 0,
+      partnerId: json['partner_id'] ?? 0,
+      partnerName: json['partner_name'] ?? '',
+      partnerPhone: json['partner_phone'] ?? '',
+      currencyTypeId: json['currency_type_id'] ?? 1,
+      currencyTypeName: json['currency_type_name'] ?? 'UZS',
+    );
+  }
+}
+
+class InstallmentItemsResponse {
+  final List<InstallmentItemModel> data;
+  final String? nextPageUrl;
+  final int currentPage;
+  final int perPage;
+
+  const InstallmentItemsResponse({
+    required this.data,
+    this.nextPageUrl,
+    required this.currentPage,
+    required this.perPage,
+  });
+
+  bool get hasNextPage => nextPageUrl != null && nextPageUrl!.isNotEmpty;
+
+  factory InstallmentItemsResponse.fromJson(Map<String, dynamic> json) {
+    final result = json['result'] as Map<String, dynamic>;
+    return InstallmentItemsResponse(
+      data: (result['data'] as List? ?? [])
+          .map((e) => InstallmentItemModel.fromJson(e))
+          .toList(),
+      nextPageUrl: result['next_page_url'],
+      currentPage: result['current_page'] ?? 1,
+      perPage: result['per_page'] ?? 20,
     );
   }
 }

@@ -16,6 +16,7 @@ import 'package:hisobchi/presentation/pages/client/report/debt_report_detail_pag
 import 'package:hisobchi/presentation/pages/client/report/staff_report_page.dart';
 import 'package:hisobchi/presentation/pages/client/report/installment_report_page.dart';
 import 'package:hisobchi/presentation/pages/client/report/time_report_page.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:hisobchi/application/partner_report/export_excel/export_partner_excel_bloc.dart';
 import 'package:hisobchi/application/partner_report/export_excel/export_partner_excel_event.dart';
@@ -31,8 +32,15 @@ class ReportClientMainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => PartnerReportBloc(repository: PartnerReportRepository())..add(const LoadPartnerReportEvent())),
-        BlocProvider(create: (context) => ExportPartnerExcelBloc(repository: PartnerReportRepository())),
+        BlocProvider(
+          create: (context) =>
+              PartnerReportBloc(repository: PartnerReportRepository())
+                ..add(const LoadPartnerReportEvent()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              ExportPartnerExcelBloc(repository: PartnerReportRepository()),
+        ),
       ],
       child: const _ReportClientMainPageContent(),
     );
@@ -43,10 +51,13 @@ class _ReportClientMainPageContent extends StatefulWidget {
   const _ReportClientMainPageContent();
 
   @override
-  State<_ReportClientMainPageContent> createState() => _ReportClientMainPageContentState();
+  State<_ReportClientMainPageContent> createState() =>
+      _ReportClientMainPageContentState();
 }
 
-class _ReportClientMainPageContentState extends State<_ReportClientMainPageContent> with SingleTickerProviderStateMixin {
+class _ReportClientMainPageContentState
+    extends State<_ReportClientMainPageContent>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -68,7 +79,11 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       appBar: AppBar(
         title: const Text(
           'Mijozlar hisoboti',
-          style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            color: Color(0xFF1E293B),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         elevation: 0,
         leading: BackArrowButton(),
@@ -86,7 +101,8 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                 child: Container(
                   height: 46,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9), // Very light gray from the screenshot
+                    color: const Color(0xFFF1F5F9),
+                    // Very light gray from the screenshot
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -103,8 +119,12 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                               'UZS Hisob',
                               style: TextStyle(
                                 fontSize: 15,
-                                fontWeight: _tabController.index == 0 ? FontWeight.w800 : FontWeight.w500,
-                                color: _tabController.index == 0 ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                                fontWeight: _tabController.index == 0
+                                    ? FontWeight.w800
+                                    : FontWeight.w500,
+                                color: _tabController.index == 0
+                                    ? const Color(0xFF0F172A)
+                                    : const Color(0xFF64748B),
                               ),
                             ),
                           ),
@@ -118,13 +138,19 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                           Container(
                             width: 2,
                             height: 12,
-                            decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2)),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFCBD5E1),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
                           ),
                           const SizedBox(width: 2),
                           Container(
                             width: 2,
                             height: 12,
-                            decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2)),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFCBD5E1),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
                           ),
                         ],
                       ),
@@ -139,8 +165,12 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                               'USD Hisob',
                               style: TextStyle(
                                 fontSize: 15,
-                                fontWeight: _tabController.index == 1 ? FontWeight.w800 : FontWeight.w500,
-                                color: _tabController.index == 1 ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                                fontWeight: _tabController.index == 1
+                                    ? FontWeight.w800
+                                    : FontWeight.w500,
+                                color: _tabController.index == 1
+                                    ? const Color(0xFF0F172A)
+                                    : const Color(0xFF64748B),
                               ),
                             ),
                           ),
@@ -157,7 +187,12 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           BlocConsumer<ExportPartnerExcelBloc, ExportPartnerExcelState>(
             listener: (context, state) {
               if (state is ExportPartnerExcelSuccess) {
-                SharePlus.instance.share(ShareParams(files: [XFile(state.filePath)], text: 'Mijozlar Hisoboti'));
+                SharePlus.instance.share(
+                  ShareParams(
+                    files: [XFile(state.filePath)],
+                    text: 'Mijozlar Hisoboti',
+                  ),
+                );
               } else if (state is ExportPartnerExcelFailure) {
                 Toast.showErrorToast(message: state.error);
               }
@@ -168,11 +203,20 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                 padding: const EdgeInsets.only(right: 8),
                 child: PopupMenuButton<int>(
                   offset: const Offset(0, 48),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 8,
                   color: Colors.white,
                   icon: isLoading
-                      ? SizedBox(width: 24, height: 24, child: CupertinoActivityIndicator(color: AppTheme.colors.primary, radius: 10))
+                      ? SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CupertinoActivityIndicator(
+                            color: AppTheme.colors.primary,
+                            radius: 10,
+                          ),
+                        )
                       : Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
@@ -183,10 +227,15 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                         ),
                   onSelected: (value) {
                     if (value == 1 && !isLoading) {
-                      context.read<ExportPartnerExcelBloc>().add(DownloadPartnerExcelRequested());
+                      context.read<ExportPartnerExcelBloc>().add(
+                        DownloadPartnerExcelRequested(),
+                      );
                     }
                   },
-                  constraints: const BoxConstraints(minWidth: 10, maxWidth: 180),
+                  constraints: const BoxConstraints(
+                    minWidth: 10,
+                    maxWidth: 180,
+                  ),
                   itemBuilder: (context) => [
                     PopupMenuItem<int>(
                       value: 1,
@@ -195,11 +244,19 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.file_download_outlined, color: AppTheme.colors.primary, size: 22),
+                          Icon(
+                            Icons.file_download_outlined,
+                            color: AppTheme.colors.primary,
+                            size: 22,
+                          ),
                           const SizedBox(width: 8),
                           const Text(
                             'Excel Hisobot',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B),
+                            ),
                           ),
                         ],
                       ),
@@ -224,11 +281,17 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                 children: [
                   Icon(Icons.error_outline, size: 60, color: Colors.red[300]),
                   const SizedBox(height: 16),
-                  Text(state.errorMessage ?? 'Xatolik yuz berdi', style: const TextStyle(fontSize: 18), textAlign: TextAlign.center),
+                  Text(
+                    state.errorMessage ?? 'Xatolik yuz berdi',
+                    style: const TextStyle(fontSize: 18),
+                    textAlign: TextAlign.center,
+                  ),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
                     onPressed: () {
-                      context.read<PartnerReportBloc>().add(const LoadPartnerReportEvent());
+                      context.read<PartnerReportBloc>().add(
+                        const LoadPartnerReportEvent(),
+                      );
                     },
                     icon: const Icon(Icons.refresh),
                     label: const Text('Qayta urinish'),
@@ -241,7 +304,13 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
           if (!state.hasData) {
             return const Center(child: Text('Ma\'lumot topilmadi'));
           }
-          return TabBarView(controller: _tabController, children: [_buildReportContent(state.uzsReport!, true), _buildReportContent(state.usdReport!, false)]);
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _buildReportContent(state.uzsReport!, true),
+              _buildReportContent(state.usdReport!, false),
+            ],
+          );
         },
       ),
     );
@@ -250,21 +319,37 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
   Widget _buildReportContent(CurrencyReport data, bool isUZS) {
     return RefreshIndicator(
       onRefresh: () async {
-        context.read<PartnerReportBloc>().add(const RefreshPartnerReportEvent());
+        context.read<PartnerReportBloc>().add(
+          const RefreshPartnerReportEvent(),
+        );
         await Future.delayed(const Duration(milliseconds: 500));
       },
       child: ListView(
-        padding: EdgeInsets.all(16).copyWith(bottom: MediaQuery.of(context).padding.bottom),
+        padding: EdgeInsets.all(
+          16,
+        ).copyWith(bottom: MediaQuery.of(context).padding.bottom),
         children: [
           // Jami kirim va chiqim - Row
           Row(
             children: [
               Expanded(
-                child: _buildMetricCard(title: 'Kirim', value: data.debt, icon: AppIcons.income, color: const Color(0xFF16A34A), isUZS: isUZS),
+                child: _buildMetricCard(
+                  title: 'Kirim',
+                  value: data.debt,
+                  icon: AppIcons.income,
+                  color: const Color(0xFF16A34A),
+                  isUZS: isUZS,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _buildMetricCard(title: 'Chiqim', value: data.credit, icon: AppIcons.chiqim, color:  const Color(0xFFDC2626), isUZS: isUZS),
+                child: _buildMetricCard(
+                  title: 'Chiqim',
+                  value: data.credit,
+                  icon: AppIcons.chiqim,
+                  color: const Color(0xFFDC2626),
+                  isUZS: isUZS,
+                ),
               ),
             ],
           ),
@@ -288,7 +373,9 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                 isUZS: isUZS,
                 isLarge: true,
                 partnersCount: data.partnersCount,
-                subtitle: correctedBalance < 0 ? '• Sizning qarzingiz' : (correctedBalance > 0 ? '• Mijozlar qarzi' : null),
+                subtitle: correctedBalance < 0
+                    ? '• Sizning qarzingiz'
+                    : (correctedBalance > 0 ? '• Mijozlar qarzi' : null),
               );
             },
           ),
@@ -307,7 +394,11 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PartnerOperationsDetailPage(type: 'oparation', currencyTypeId: isUZS ? 1 : 2, title: 'Operatsiyalar'),
+                        builder: (context) => PartnerOperationsDetailPage(
+                          type: 'oparation',
+                          currencyTypeId: isUZS ? 1 : 2,
+                          title: 'Operatsiyalar',
+                        ),
                       ),
                     );
                   },
@@ -324,7 +415,11 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PartnerSummaryListPage(type: 'qarzdor', currencyTypeId: isUZS ? 1 : 2, title: 'Qarzdorlar'),
+                        builder: (context) => PartnerSummaryListPage(
+                          type: 'qarzdor',
+                          currencyTypeId: isUZS ? 1 : 2,
+                          title: 'Qarzdorlar',
+                        ),
                       ),
                     );
                   },
@@ -341,7 +436,11 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PartnerSummaryListPage(type: 'xaqdor', currencyTypeId: isUZS ? 1 : 2, title: 'Haqdorlar'),
+                        builder: (context) => PartnerSummaryListPage(
+                          type: 'xaqdor',
+                          currencyTypeId: isUZS ? 1 : 2,
+                          title: 'Haqdorlar',
+                        ),
                       ),
                     );
                   },
@@ -350,7 +449,10 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
             ],
           ),
           const SizedBox(height: 12),
-          Text(' Hisobot turlari', style: TextStyle(fontWeight: FontWeight.w700)),
+          Text(
+            ' Hisobot turlari',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 6),
           // Qarz muddatlari hisoboti Entry Card
           _buildDebtReportEntryCard(context, data, isUZS),
@@ -378,13 +480,19 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.2), width: 1),
+        border: Border.all(
+          color: Colors.blueAccent.withValues(alpha: 0.2),
+          width: 1,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const TimeReportPage()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TimeReportPage()),
+            );
           },
           borderRadius: BorderRadius.circular(16),
           child: Padding(
@@ -393,8 +501,15 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: Colors.blue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                  child: const Icon(Icons.access_time_rounded, color: Colors.blue, size: 28),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.access_time_rounded,
+                    color: Colors.blue,
+                    size: 28,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -404,10 +519,18 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       Text(
                         'Muddat hisoboti',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.grey[700], height: 1.2),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey[700],
+                          height: 1.2,
+                        ),
                       ),
                       SizedBox(height: 4),
-                      Text('Sana bo\'yicha kirim / chiqim', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text(
+                        'Sana bo\'yicha kirim / chiqim',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
                     ],
                   ),
                 ),
@@ -433,7 +556,10 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const StaffReportPage()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const StaffReportPage()),
+            );
           },
           borderRadius: BorderRadius.circular(16),
           child: Padding(
@@ -442,8 +568,15 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: Colors.blue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                  child: const Icon(Icons.people_alt_outlined, color: Colors.blue, size: 28),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.people_alt_outlined,
+                    color: Colors.blue,
+                    size: 28,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -453,10 +586,18 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       Text(
                         'Xodimlar hisoboti',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.grey[700], height: 1.2),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey[700],
+                          height: 1.2,
+                        ),
                       ),
                       SizedBox(height: 4),
-                      Text('Xodimlar bo\'yicha barcha hisobotlar', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text(
+                        'Xodimlar bo\'yicha barcha hisobotlar',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
                     ],
                   ),
                 ),
@@ -471,18 +612,30 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
   }
 
   // Qarz muddatlari hisoboti Entry Card
-  Widget _buildDebtReportEntryCard(BuildContext context, CurrencyReport data, bool isUZS) {
+  Widget _buildDebtReportEntryCard(
+    BuildContext context,
+    CurrencyReport data,
+    bool isUZS,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.5), width: 1),
+        border: Border.all(
+          color: Colors.amber.withValues(alpha: 0.5),
+          width: 1,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => DebtReportDetailPage(isUZS: isUZS)));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DebtReportDetailPage(isUZS: isUZS),
+              ),
+            );
           },
           borderRadius: BorderRadius.circular(16),
           child: Padding(
@@ -491,8 +644,15 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: Colors.amber.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                  child: Icon(Icons.access_time_rounded, color: Colors.amber.shade900, size: 28),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.access_time_rounded,
+                    color: Colors.amber.shade900,
+                    size: 28,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -502,10 +662,18 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       Text(
                         'Qarz muddatlari hisoboti',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.grey[700], height: 1.2),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey[700],
+                          height: 1.2,
+                        ),
                       ),
                       SizedBox(height: 4),
-                      Text('Muddati o\'tgan, bugun va kelgusi qarzlar', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text(
+                        'Muddati o\'tgan, bugun va kelgusi qarzlar',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
                     ],
                   ),
                 ),
@@ -525,13 +693,17 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.3), width: 1),
+        border: Border.all(
+          color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+          width: 1,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const InstallmentReportPage()));
+            // Navigator.push(context, MaterialPageRoute(builder: (_) => const InstallmentReportPage()));
+            pushScreen(context, screen: const InstallmentReportPage());
           },
           borderRadius: BorderRadius.circular(16),
           child: Padding(
@@ -540,8 +712,15 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: const Color(0xFF6366F1).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                  child: const Icon(Icons.receipt_long_rounded, color: Color(0xFF6366F1), size: 28),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.receipt_long_rounded,
+                    color: Color(0xFF6366F1),
+                    size: 28,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -550,7 +729,12 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                     children: [
                       const Text(
                         "Muddatli to'lov hisoboti",
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF374151), height: 1.2),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF374151),
+                          height: 1.2,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -593,7 +777,9 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       decoration: BoxDecoration(
         color: isBordered ? Colors.white : color,
         borderRadius: BorderRadius.circular(16),
-        border: isBordered ? Border.all(color: color.withValues(alpha: 0.5), width: 2) : null,
+        border: isBordered
+            ? Border.all(color: color.withValues(alpha: 0.5), width: 2)
+            : null,
         boxShadow: [
           BoxShadow(
             color: color.withValues(alpha: isBordered ? 0.1 : 0.3),
@@ -612,21 +798,42 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       children: [
                         Container(
                           padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(color: isBordered ? color.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
-                          child: SvgPicture.asset(icon, colorFilter: ColorFilter.mode(contentColor, BlendMode.srcIn), width: 20, height: 20),
+                          decoration: BoxDecoration(
+                            color: isBordered
+                                ? color.withValues(alpha: 0.1)
+                                : Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: SvgPicture.asset(
+                            icon,
+                            colorFilter: ColorFilter.mode(
+                              contentColor,
+                              BlendMode.srcIn,
+                            ),
+                            width: 20,
+                            height: 20,
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Row(
                           children: [
                             Text(
                               title,
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: contentColor),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: contentColor,
+                              ),
                             ),
                             if (subtitle != null) ...[
                               const SizedBox(width: 6),
                               Text(
                                 subtitle,
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: contentColor.withValues(alpha: 0.85)),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: contentColor.withValues(alpha: 0.85),
+                                ),
                               ),
                             ],
                           ],
@@ -639,14 +846,23 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       children: [
                         Text(
                           displayValue,
-                          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: contentColor, letterSpacing: 0.5),
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: contentColor,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Text(
                             currencyLabel,
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: contentColor.withValues(alpha: 0.8)),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: contentColor.withValues(alpha: 0.8),
+                            ),
                           ),
                         ),
                       ],
@@ -658,16 +874,32 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                     top: 0,
                     right: 0,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: isBordered ? color.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isBordered
+                            ? color.withValues(alpha: 0.1)
+                            : Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.people_alt_outlined, color: contentColor, size: 14),
+                          Icon(
+                            Icons.people_alt_outlined,
+                            color: contentColor,
+                            size: 14,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             '$partnersCount ta',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: contentColor),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: contentColor,
+                            ),
                           ),
                         ],
                       ),
@@ -682,13 +914,30 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                   children: [
                     Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(color: isBordered ? color.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
-                      child: SvgPicture.asset(icon, colorFilter: ColorFilter.mode(contentColor, BlendMode.srcIn), width: 14, height: 14),
+                      decoration: BoxDecoration(
+                        color: isBordered
+                            ? color.withValues(alpha: 0.1)
+                            : Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: SvgPicture.asset(
+                        icon,
+                        colorFilter: ColorFilter.mode(
+                          contentColor,
+                          BlendMode.srcIn,
+                        ),
+                        width: 14,
+                        height: 14,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       title,
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: contentColor),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: contentColor,
+                      ),
                     ),
                   ],
                 ),
@@ -700,13 +949,21 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                     children: [
                       Text(
                         displayValue,
-                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: contentColor),
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: contentColor,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         currencyLabel,
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: contentColor.withValues(alpha: 0.7)),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: contentColor.withValues(alpha: 0.7),
+                        ),
                       ),
                     ],
                   ),
@@ -717,13 +974,25 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
   }
 
   // Kichik statistika kartlari (operatsiyalar, qarzdorlar, haqdorlar uchun)
-  Widget _buildSmallStatCard({required String title, required int count, required IconData icon, required Color color, VoidCallback? onTap}) {
+  Widget _buildSmallStatCard({
+    required String title,
+    required int count,
+    required IconData icon,
+    required Color color,
+    VoidCallback? onTap,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -739,7 +1008,12 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700],
+                    height: 1.2,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -750,13 +1024,21 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: .1)),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: color.withValues(alpha: .1),
+                      ),
                       child: Icon(icon, color: color, size: 16),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       '$count',
-                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: color, height: 1),
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                        height: 1,
+                      ),
                     ),
                   ],
                 ),
@@ -779,7 +1061,13 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
     final displayValue = (number == intValue) ? intValue : number;
 
     // Faqat raqamni formatlash
-    final formatted = displayValue.toString().split('.')[0].replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]} ');
+    final formatted = displayValue
+        .toString()
+        .split('.')[0]
+        .replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]} ',
+        );
     return formatted;
   }
 
@@ -829,7 +1117,10 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
       highlightColor: Colors.grey[100]!,
       child: Container(
         height: height,
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
       ),
     );
   }

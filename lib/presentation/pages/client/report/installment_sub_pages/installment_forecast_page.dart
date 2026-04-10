@@ -22,6 +22,8 @@ class InstallmentForecastPage extends StatelessWidget {
   }
 }
 
+// ─── View ─────────────────────────────────────────────────────────────────────
+
 class _ForecastView extends StatefulWidget {
   const _ForecastView();
 
@@ -80,7 +82,7 @@ class _ForecastViewState extends State<_ForecastView> with SingleTickerProviderS
 
 // ─── Tab Content ──────────────────────────────────────────────────────────────
 
-class _ForecastTabContent extends StatelessWidget {
+class _ForecastTabContent extends StatefulWidget {
   final int currencyTypeId;
   final String currencyLabel;
   final ForecastState state;
@@ -92,112 +94,266 @@ class _ForecastTabContent extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  State<_ForecastTabContent> createState() => _ForecastTabContentState();
+}
+
+class _ForecastTabContentState extends State<_ForecastTabContent> {
+  // ── Date picker helper ────────────────────────────────────────────────────
+
+  Future<void> _openDatePicker() async {
     final cubit = context.read<InstallmentForecastCubit>();
+    final state = widget.state;
+
+    // Parse current date range for initial selection
+    DateTime? initialStart;
+    DateTime? initialEnd;
+    try {
+      final fp = state.dateFrom.split('.');
+      final tp = state.dateTo.split('.');
+      initialStart = DateTime(int.parse(fp[2]), int.parse(fp[1]), int.parse(fp[0]));
+      initialEnd = DateTime(int.parse(tp[2]), int.parse(tp[1]), int.parse(tp[0]));
+    } catch (_) {
+      initialStart = DateTime.now();
+      initialEnd = DateTime.now().add(const Duration(days: 30));
+    }
+
+    final range = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2035),
+      initialDateRange: DateTimeRange(start: initialStart, end: initialEnd),
+      builder: (ctx, child) => Theme(
+        data: Theme.of(ctx).copyWith(
+          colorScheme: ColorScheme.light(
+            primary: AppTheme.colors.primary,
+            onPrimary: Colors.white,
+            surface: Colors.white,
+            onSurface: const Color(0xFF1E293B),
+          ),
+          dialogTheme: DialogThemeData(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          ),
+        ),
+        child: child!,
+      ),
+    );
+
+    if (range != null && mounted) {
+      cubit.changeCustomRange(_fmt(range.start), _fmt(range.end));
+    }
+  }
+
+  String _fmt(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+
+  @override
+  Widget build(BuildContext context) {
+    final state = widget.state;
+    final cubit = context.read<InstallmentForecastCubit>();
+    final isLoading = state.status == Status.loading;
+    final forecast = state.forCurrency(widget.currencyTypeId);
 
     return RefreshIndicator(
       onRefresh: () async {
-        cubit.load(period: state.period);
+        cubit.load();
         await Future.delayed(const Duration(milliseconds: 400));
       },
       color: AppTheme.colors.primary,
       child: ListView(
-        padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 32.h),
+        padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 32.h + MediaQuery.of(context).padding.bottom),
         children: [
-          // ── Period Selector ──
-          _PeriodSelector(
-            period: state.period,
-            isLoading: state.status == Status.loading,
-            onChanged: (p) => cubit.changePeriod(p),
+          // ── Filter Panel ──
+          _FilterPanel(
+            presetDays: state.presetDays,
+            dateFrom: state.dateFrom,
+            dateTo: state.dateTo,
+            isLoading: isLoading,
+            onPreset: (days) => cubit.changePreset(days),
+            onCustomTap: _openDatePicker,
           ),
           SizedBox(height: 14.h),
 
           // ── Content ──
-          if (state.status == Status.loading)
+          if (isLoading)
             _ForecastShimmer()
-          else if (state.forCurrency(currencyTypeId) == null)
+          else if (forecast == null)
             _EmptyCard()
           else
-            _ForecastContent(
-              forecast: state.forCurrency(currencyTypeId)!,
-              currency: currencyLabel,
-            ),
+            _ForecastContent(forecast: forecast, currency: widget.currencyLabel),
         ],
       ),
     );
   }
 }
 
-// ─── Period Selector ──────────────────────────────────────────────────────────
+// ─── Filter Panel ─────────────────────────────────────────────────────────────
 
-class _PeriodSelector extends StatelessWidget {
-  final int period;
+class _FilterPanel extends StatelessWidget {
+  final int? presetDays;
+  final String dateFrom;
+  final String dateTo;
   final bool isLoading;
-  final ValueChanged<int> onChanged;
+  final ValueChanged<int> onPreset;
+  final VoidCallback onCustomTap;
 
-  const _PeriodSelector({
-    required this.period,
+  const _FilterPanel({
+    required this.presetDays,
+    required this.dateFrom,
+    required this.dateTo,
     required this.isLoading,
-    required this.onChanged,
+    required this.onPreset,
+    required this.onCustomTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(4.r),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 2)),
-        ],
-      ),
-      child: Row(
-        children: [30, 60, 90].map((p) {
-          final selected = period == p;
-          return Expanded(
-            child: GestureDetector(
-              onTap: isLoading ? null : () => onChanged(p),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeInOut,
-                margin: EdgeInsets.all(2.r),
-                padding: EdgeInsets.symmetric(vertical: 10.h),
-                decoration: BoxDecoration(
-                  color: selected ? AppTheme.colors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10.r),
-                  boxShadow: selected
-                      ? [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.30), blurRadius: 8, offset: const Offset(0, 3))]
-                      : [],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '$p',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w900,
-                        color: selected ? Colors.white : const Color(0xFF64748B),
-                        height: 1.0,
-                      ),
+    final isCustom = presetDays == null;
+
+    return Column(
+      children: [
+        // ── Preset + Custom buttons ──
+        Container(
+          padding: EdgeInsets.all(4.r),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14.r),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 2)),
+            ],
+          ),
+          child: Row(
+            children: [30, 60, 90].map((days) {
+              final selected = presetDays == days;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: isLoading ? null : () => onPreset(days),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    margin: EdgeInsets.all(3.r),
+                    padding: EdgeInsets.symmetric(vertical: 10.h),
+                    decoration: BoxDecoration(
+                      color: selected ? AppTheme.colors.primary : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10.r),
+                      boxShadow: selected
+                          ? [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.28), blurRadius: 8, offset: const Offset(0, 3))]
+                          : [],
                     ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      'kun',
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        color: selected ? Colors.white.withValues(alpha: 0.85) : const Color(0xFF94A3B8),
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '$days',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w900,
+                            color: selected ? Colors.white : const Color(0xFF64748B),
+                            height: 1.0,
+                          ),
+                        ),
+                        SizedBox(height: 2.h),
+                        Text(
+                          'kun',
+                          style: TextStyle(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
+                            color: selected ? Colors.white.withValues(alpha: 0.85) : const Color(0xFF94A3B8),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
+              );
+            }).toList(),
+          ),
+        ),
+
+        SizedBox(height: 8.h),
+
+        // ── Date range display (tappable → opens DateRangePicker) ──
+        GestureDetector(
+          onTap: isLoading ? null : onCustomTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(
+                color: isCustom
+                    ? AppTheme.colors.primary.withValues(alpha: 0.45)
+                    : const Color(0xFFE2E8F0),
+                width: isCustom ? 1.5 : 1.0,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: isCustom
+                      ? AppTheme.colors.primary.withValues(alpha: 0.07)
+                      : Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          );
-        }).toList(),
-      ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 13.sp,
+                  color: isCustom ? AppTheme.colors.primary : const Color(0xFF94A3B8),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  dateFrom,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1E293B),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w),
+                  child: Icon(Icons.arrow_forward_rounded, size: 12.sp, color: const Color(0xFF94A3B8)),
+                ),
+                Text(
+                  dateTo,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1E293B),
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: isCustom
+                        ? AppTheme.colors.primary.withValues(alpha: 0.10)
+                        : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                  child: Text(
+                    isCustom ? 'Maxsus' : '$presetDays kunlik',
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isCustom ? AppTheme.colors.primary : const Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 4.w),
+                Icon(
+                  Icons.edit_calendar_outlined,
+                  size: 14.sp,
+                  color: isCustom ? AppTheme.colors.primary : const Color(0xFFCBD5E1),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -233,25 +389,23 @@ class _ForecastContent extends StatelessWidget {
             SizedBox(width: 10.w),
             Expanded(
               child: _StatTile(
-                icon: Icons.today_rounded,
-                label: 'Bugun muddati',
-                value: '${forecast.dueTodayCount}',
+                icon: Icons.people_alt_outlined,
+                label: 'Mijozlar',
+                value: '${forecast.partnersCount}',
                 unit: 'ta',
-                color: const Color(0xFFEF4444),
-                urgent: forecast.dueTodayCount > 0,
+                color: const Color(0xFF8B5CF6),
               ),
             ),
-            SizedBox(width: 10.w),
-            Expanded(
-              child: _StatTile(
-                icon: Icons.hourglass_bottom_rounded,
-                label: '3 kunda',
-                value: '${forecast.due3daysCount}',
-                unit: 'ta',
-                color: const Color(0xFFF59E0B),
-                urgent: forecast.due3daysCount > 0,
-              ),
-            ),
+            // SizedBox(width: 10.w),
+            // Expanded(
+            //   child: _StatTile(
+            //     icon: Icons.timelapse_rounded,
+            //     label: 'Davr',
+            //     value: '${forecast.periodDays}',
+            //     unit: 'kun',
+            //     color: const Color(0xFFF59E0B),
+            //   ),
+            // ),
           ],
         ),
       ],
@@ -278,9 +432,13 @@ class _HeroAmountCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(18.r),
         boxShadow: [
-          BoxShadow(color: const Color(0xFF6366F1).withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 6)),
+          BoxShadow(
+            color: const Color(0xFF6366F1).withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
         ],
       ),
       child: Row(
@@ -290,22 +448,30 @@ class _HeroAmountCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Date range badge
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
-                  child: Text(
-                    "${forecast.periodDays} kunlik prognoz",
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white.withValues(alpha: 0.95),
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.date_range_rounded, size: 11.sp, color: Colors.white.withValues(alpha: 0.90)),
+                      SizedBox(width: 5.w),
+                      Text(
+                        '${forecast.dateFrom}  →  ${forecast.dateTo}',
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white.withValues(alpha: 0.95),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 14.h),
+                SizedBox(height: 16.h),
                 Text(
                   "Kutilayotgan summa",
                   style: TextStyle(
@@ -318,13 +484,13 @@ class _HeroAmountCard extends StatelessWidget {
                 Text(
                   PriceFormatter.priceFormat(forecast.expectedAmount),
                   style: TextStyle(
-                    fontSize: 22.sp,
+                    fontSize: 24.sp,
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
                     height: 1.1,
                   ),
                 ),
-                SizedBox(height: 6.h),
+                SizedBox(height: 8.h),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                   decoration: BoxDecoration(
@@ -333,27 +499,46 @@ class _HeroAmountCard extends StatelessWidget {
                   ),
                   child: Text(
                     currency,
-                    style: TextStyle(
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w800, color: Colors.white),
                   ),
                 ),
               ],
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(12.r),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(14.r),
-            ),
-            child: Icon(
-              Icons.calendar_month_rounded,
-              size: 32.sp,
-              color: Colors.white.withValues(alpha: 0.90),
-            ),
+          SizedBox(width: 12.w),
+          // Right side: icon + period days
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                padding: EdgeInsets.all(12.r),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+                child: Icon(Icons.trending_up_rounded, size: 30.sp, color: Colors.white.withValues(alpha: 0.90)),
+              ),
+              SizedBox(height: 10.h),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '${forecast.periodDays}',
+                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: Colors.white, height: 1.0),
+                    ),
+                    Text(
+                      'kun',
+                      style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w600, color: Colors.white.withValues(alpha: 0.75)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -369,7 +554,6 @@ class _StatTile extends StatelessWidget {
   final String value;
   final String unit;
   final Color color;
-  final bool urgent;
 
   const _StatTile({
     required this.icon,
@@ -377,7 +561,6 @@ class _StatTile extends StatelessWidget {
     required this.value,
     required this.unit,
     required this.color,
-    this.urgent = false,
   });
 
   @override
@@ -387,13 +570,9 @@ class _StatTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: urgent ? color.withValues(alpha: 0.4) : color.withValues(alpha: 0.12)),
+        border: Border.all(color: color.withValues(alpha: 0.12)),
         boxShadow: [
-          BoxShadow(
-            color: urgent ? color.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
+          BoxShadow(color: color.withValues(alpha: 0.07), blurRadius: 8, offset: const Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -413,19 +592,14 @@ class _StatTile extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w900,
-                  color: color,
-                  height: 1.0,
-                ),
+                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: color, height: 1.0),
               ),
               SizedBox(width: 2.w),
               Padding(
                 padding: EdgeInsets.only(bottom: 1.h),
                 child: Text(
                   unit,
-                  style: TextStyle(fontSize: 10.sp, color: color.withValues(alpha: 0.7), fontWeight: FontWeight.w700),
+                  style: TextStyle(fontSize: 12.sp, color: color.withValues(alpha: 0.70), fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -433,24 +607,10 @@ class _StatTile extends StatelessWidget {
           SizedBox(height: 3.h),
           Text(
             label,
-            style: TextStyle(fontSize: 9.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+            style: TextStyle(fontSize: 11.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          if (urgent) ...[
-            SizedBox(height: 5.h),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(4.r),
-              ),
-              child: Text(
-                'Diqqat!',
-                style: TextStyle(fontSize: 8.sp, color: color, fontWeight: FontWeight.w800),
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -467,29 +627,23 @@ class _ForecastShimmer extends StatelessWidget {
       highlightColor: const Color(0xFFF8FAFC),
       child: Column(
         children: [
-          // Hero card skeleton
           Container(
-            height: 130.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16.r),
-            ),
+            height: 140.h,
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18.r)),
           ),
           SizedBox(height: 12.h),
-          // 3 stat tiles skeleton
           Row(
-            children: List.generate(3, (i) => i).expand((i) => [
-              if (i > 0) SizedBox(width: 10.w),
-              Expanded(
-                child: Container(
-                  height: 100.h,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14.r),
-                  ),
-                ),
-              ),
-            ]).toList(),
+            children: List.generate(3, (i) => i)
+                .expand((i) => [
+                      if (i > 0) SizedBox(width: 10.w),
+                      Expanded(
+                        child: Container(
+                          height: 100.h,
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14.r)),
+                        ),
+                      ),
+                    ])
+                .toList(),
           ),
         ],
       ),
@@ -515,7 +669,7 @@ class _EmptyCard extends StatelessWidget {
           Icon(Icons.inbox_rounded, size: 36.sp, color: const Color(0xFFCBD5E1)),
           SizedBox(height: 10.h),
           Text(
-            "Ma'lumot topilmadi",
+            "Bu davr uchun ma'lumot topilmadi",
             style: TextStyle(fontSize: 13.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
           ),
         ],
@@ -539,10 +693,7 @@ class _CurrencyTabBar extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
         child: Container(
           height: 46,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(12),
-          ),
+          decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
           child: Row(
             children: [
               _TabItem(label: 'UZS Hisob', selected: controller.index == 0, onTap: () => controller.animateTo(0)),

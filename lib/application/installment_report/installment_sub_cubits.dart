@@ -32,32 +32,86 @@ class InstallmentRecoveryCubit extends Cubit<RecoveryState> {
 
 // ─── Forecast Cubit ───────────────────────────────────────────────────────────
 
+String _fmtDate(DateTime d) =>
+    '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+
 class ForecastState {
   final Status status;
   final List<InstallmentForecastModel> data;
-  final int period;
+  final int? presetDays; // 30 | 60 | 90 | null = custom
+  final String dateFrom;
+  final String dateTo;
   final String? error;
-  const ForecastState({this.status = Status.pure, this.data = const [], this.period = 30, this.error});
-  ForecastState copyWith({Status? status, List<InstallmentForecastModel>? data, int? period, String? error}) =>
-      ForecastState(status: status ?? this.status, data: data ?? this.data, period: period ?? this.period, error: error ?? this.error);
-  InstallmentForecastModel? forCurrency(int id) => data.where((f) => f.currencyTypeId == id).firstOrNull;
+
+  ForecastState({
+    this.status = Status.pure,
+    this.data = const [],
+    this.presetDays = 30,
+    String? dateFrom,
+    String? dateTo,
+    this.error,
+  })  : dateFrom = dateFrom ?? _fmtDate(DateTime.now()),
+        dateTo = dateTo ?? _fmtDate(DateTime.now().add(const Duration(days: 30)));
+
+  ForecastState copyWith({
+    Status? status,
+    List<InstallmentForecastModel>? data,
+    int? presetDays,
+    bool clearPreset = false,
+    String? dateFrom,
+    String? dateTo,
+    String? error,
+  }) =>
+      ForecastState(
+        status: status ?? this.status,
+        data: data ?? this.data,
+        presetDays: clearPreset ? null : (presetDays ?? this.presetDays),
+        dateFrom: dateFrom ?? this.dateFrom,
+        dateTo: dateTo ?? this.dateTo,
+        error: error ?? this.error,
+      );
+
+  InstallmentForecastModel? forCurrency(int id) =>
+      data.where((f) => f.currencyTypeId == id).firstOrNull;
 }
 
 class InstallmentForecastCubit extends Cubit<ForecastState> {
   final InstallmentReportRepository _repo;
-  InstallmentForecastCubit(this._repo) : super(const ForecastState());
+  InstallmentForecastCubit(this._repo) : super(ForecastState());
 
-  Future<void> load({int period = 30}) async {
-    emit(state.copyWith(status: Status.loading, period: period));
-    try {
-      final data = await _repo.getForecast(period: period);
-      emit(state.copyWith(status: Status.success, data: data));
-    } catch (e) {
-      emit(state.copyWith(status: Status.error, error: e.toString().replaceFirst('Exception: ', '')));
-    }
+  Future<void> load() => _fetch();
+
+  Future<void> changePreset(int days) async {
+    final from = DateTime.now();
+    final to = from.add(Duration(days: days));
+    emit(state.copyWith(
+      presetDays: days,
+      dateFrom: _fmtDate(from),
+      dateTo: _fmtDate(to),
+    ));
+    await _fetch();
   }
 
-  Future<void> changePeriod(int period) => load(period: period);
+  Future<void> changeCustomRange(String dateFrom, String dateTo) async {
+    emit(state.copyWith(clearPreset: true, dateFrom: dateFrom, dateTo: dateTo));
+    await _fetch();
+  }
+
+  Future<void> _fetch() async {
+    emit(state.copyWith(status: Status.loading));
+    try {
+      final results = await Future.wait([
+        _repo.getForecast(dateFrom: state.dateFrom, dateTo: state.dateTo, currencyTypeId: 1),
+        _repo.getForecast(dateFrom: state.dateFrom, dateTo: state.dateTo, currencyTypeId: 2),
+      ]);
+      emit(state.copyWith(status: Status.success, data: [...results[0], ...results[1]]));
+    } catch (e) {
+      emit(state.copyWith(
+        status: Status.error,
+        error: e.toString().replaceFirst('Exception: ', ''),
+      ));
+    }
+  }
 }
 
 // ─── Risky Cubit ──────────────────────────────────────────────────────────────
@@ -116,6 +170,99 @@ class InstallmentMonthlyCubit extends Cubit<MonthlyState> {
   }
 
   Future<void> changeYear(int year) => load(year: year);
+}
+
+// ─── Items Cubit ──────────────────────────────────────────────────────────────
+
+class ItemsState {
+  final Status status;
+  final List<InstallmentItemModel> items;
+  final bool hasMore;
+  final int page;
+  final bool isLoadingMore;
+  final String itemStatus;
+  final int currencyTypeId;
+  final String? error;
+
+  const ItemsState({
+    this.status = Status.pure,
+    this.items = const [],
+    this.hasMore = false,
+    this.page = 1,
+    this.isLoadingMore = false,
+    this.itemStatus = 'pending',
+    this.currencyTypeId = 1,
+    this.error,
+  });
+
+  ItemsState copyWith({
+    Status? status,
+    List<InstallmentItemModel>? items,
+    bool? hasMore,
+    int? page,
+    bool? isLoadingMore,
+    String? itemStatus,
+    int? currencyTypeId,
+    String? error,
+  }) =>
+      ItemsState(
+        status: status ?? this.status,
+        items: items ?? this.items,
+        hasMore: hasMore ?? this.hasMore,
+        page: page ?? this.page,
+        isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+        itemStatus: itemStatus ?? this.itemStatus,
+        currencyTypeId: currencyTypeId ?? this.currencyTypeId,
+        error: error ?? this.error,
+      );
+}
+
+class InstallmentItemsCubit extends Cubit<ItemsState> {
+  final InstallmentReportRepository _repo;
+  InstallmentItemsCubit(this._repo) : super(const ItemsState());
+
+  Future<void> load({required String status, required int currencyTypeId}) async {
+    emit(state.copyWith(
+      status: Status.loading,
+      items: [],
+      page: 1,
+      hasMore: false,
+      itemStatus: status,
+      currencyTypeId: currencyTypeId,
+    ));
+    try {
+      final resp = await _repo.getItems(status: status, currencyTypeId: currencyTypeId, page: 1);
+      emit(state.copyWith(
+        status: Status.success,
+        items: resp.data,
+        hasMore: resp.hasNextPage,
+        page: 1,
+      ));
+    } catch (e) {
+      emit(state.copyWith(status: Status.error, error: e.toString().replaceFirst('Exception: ', '')));
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoadingMore || !state.hasMore) return;
+    emit(state.copyWith(isLoadingMore: true));
+    try {
+      final nextPage = state.page + 1;
+      final resp = await _repo.getItems(
+        status: state.itemStatus,
+        currencyTypeId: state.currencyTypeId,
+        page: nextPage,
+      );
+      emit(state.copyWith(
+        isLoadingMore: false,
+        items: [...state.items, ...resp.data],
+        hasMore: resp.hasNextPage,
+        page: nextPage,
+      ));
+    } catch (_) {
+      emit(state.copyWith(isLoadingMore: false));
+    }
+  }
 }
 
 // ─── Partners Cubit ───────────────────────────────────────────────────────────

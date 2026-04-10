@@ -37,11 +37,15 @@ class InstallmentReportRepository {
 
   /// GET /reports/installments/forecast
   Future<List<InstallmentForecastModel>> getForecast({
-    int period = 30,
+    required String dateFrom,
+    required String dateTo,
     int? currencyTypeId,
   }) async {
     try {
-      final params = <String, dynamic>{'period': period};
+      final params = <String, dynamic>{
+        'date_from': dateFrom,
+        'date_to': dateTo,
+      };
       if (currencyTypeId != null) params['currency_type_id'] = currencyTypeId;
 
       final response = await dio.get('/reports/installments/forecast', queryParameters: params);
@@ -116,6 +120,30 @@ class InstallmentReportRepository {
         return InstallmentPartnersResponse.fromJson(response.data);
       }
       throw Exception('Failed to load partners');
+    } on DioException catch (e) {
+      throw Exception(_err(e));
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  /// GET /reports/installments/items
+  Future<InstallmentItemsResponse> getItems({
+    required String status,
+    int currencyTypeId = 1,
+    int page = 1,
+  }) async {
+    try {
+      final params = <String, dynamic>{
+        'status': status,
+        'currency_type_id': currencyTypeId,
+        'page': page,
+      };
+      final response = await dio.get('/reports/installments/items', queryParameters: params);
+      if (response.statusCode == 200) {
+        return InstallmentItemsResponse.fromJson(response.data);
+      }
+      throw Exception('Failed to load items');
     } on DioException catch (e) {
       throw Exception(_err(e));
     } catch (e) {
