@@ -78,6 +78,8 @@ class _ForecastViewState extends State<_ForecastView> with SingleTickerProviderS
   }
 }
 
+// ─── Tab Content ──────────────────────────────────────────────────────────────
+
 class _ForecastTabContent extends StatelessWidget {
   final int currencyTypeId;
   final String currencyLabel;
@@ -102,24 +104,99 @@ class _ForecastTabContent extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 32.h),
         children: [
-          _Section(
-            title: "Kutilayotgan to'lovlar",
-            icon: Icons.calendar_month_rounded,
-            iconColor: const Color(0xFF6366F1),
-            trailing: _PeriodSelector(
-              period: state.period,
-              onChanged: (p) => cubit.changePeriod(p),
-            ),
-            child: state.status == Status.loading && state.data.isEmpty
-                ? _SectionShimmer(height: 120.h)
-                : state.forCurrency(currencyTypeId) == null
-                    ? const _EmptySection()
-                    : _ForecastContent(
-                        forecast: state.forCurrency(currencyTypeId)!,
-                        currency: currencyLabel,
-                      ),
+          // ── Period Selector ──
+          _PeriodSelector(
+            period: state.period,
+            isLoading: state.status == Status.loading,
+            onChanged: (p) => cubit.changePeriod(p),
           ),
+          SizedBox(height: 14.h),
+
+          // ── Content ──
+          if (state.status == Status.loading)
+            _ForecastShimmer()
+          else if (state.forCurrency(currencyTypeId) == null)
+            _EmptyCard()
+          else
+            _ForecastContent(
+              forecast: state.forCurrency(currencyTypeId)!,
+              currency: currencyLabel,
+            ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Period Selector ──────────────────────────────────────────────────────────
+
+class _PeriodSelector extends StatelessWidget {
+  final int period;
+  final bool isLoading;
+  final ValueChanged<int> onChanged;
+
+  const _PeriodSelector({
+    required this.period,
+    required this.isLoading,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(4.r),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 2)),
+        ],
+      ),
+      child: Row(
+        children: [30, 60, 90].map((p) {
+          final selected = period == p;
+          return Expanded(
+            child: GestureDetector(
+              onTap: isLoading ? null : () => onChanged(p),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeInOut,
+                margin: EdgeInsets.all(2.r),
+                padding: EdgeInsets.symmetric(vertical: 10.h),
+                decoration: BoxDecoration(
+                  color: selected ? AppTheme.colors.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10.r),
+                  boxShadow: selected
+                      ? [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.30), blurRadius: 8, offset: const Offset(0, 3))]
+                      : [],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '$p',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w900,
+                        color: selected ? Colors.white : const Color(0xFF64748B),
+                        height: 1.0,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      'kun',
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w600,
+                        color: selected ? Colors.white.withValues(alpha: 0.85) : const Color(0xFF94A3B8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -137,49 +214,40 @@ class _ForecastContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // ── Hero Card ──
+        _HeroAmountCard(forecast: forecast, currency: currency),
+        SizedBox(height: 12.h),
+
+        // ── 3 Stat Tiles ──
         Row(
           children: [
             Expanded(
-              child: _ForecastTile(
-                label: '${forecast.periodDays} kun ichida',
-                value: PriceFormatter.priceFormat(forecast.expectedAmount),
-                subValue: currency,
-                icon: Icons.account_balance_wallet_rounded,
-                color: const Color(0xFF6366F1),
+              child: _StatTile(
+                icon: Icons.receipt_long_rounded,
+                label: 'Jami qismlar',
+                value: '${forecast.itemsCount}',
+                unit: 'ta',
+                color: const Color(0xFF3B82F6),
               ),
             ),
             SizedBox(width: 10.w),
             Expanded(
-              child: _ForecastTile(
-                label: 'Qismlar soni',
-                value: '${forecast.itemsCount}',
-                subValue: 'ta',
-                icon: Icons.receipt_long_rounded,
-                color: const Color(0xFF3B82F6),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 10.h),
-        Row(
-          children: [
-            Expanded(
-              child: _ForecastTile(
+              child: _StatTile(
+                icon: Icons.today_rounded,
                 label: 'Bugun muddati',
                 value: '${forecast.dueTodayCount}',
-                subValue: 'ta',
-                icon: Icons.today_rounded,
+                unit: 'ta',
                 color: const Color(0xFFEF4444),
                 urgent: forecast.dueTodayCount > 0,
               ),
             ),
             SizedBox(width: 10.w),
             Expanded(
-              child: _ForecastTile(
-                label: '3 kunda muddati',
-                value: '${forecast.due3daysCount}',
-                subValue: 'ta',
+              child: _StatTile(
                 icon: Icons.hourglass_bottom_rounded,
+                label: '3 kunda',
+                value: '${forecast.due3daysCount}',
+                unit: 'ta',
                 color: const Color(0xFFF59E0B),
                 urgent: forecast.due3daysCount > 0,
               ),
@@ -191,59 +259,100 @@ class _ForecastContent extends StatelessWidget {
   }
 }
 
-class _ForecastTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final String subValue;
-  final IconData icon;
-  final Color color;
-  final bool urgent;
+// ─── Hero Amount Card ─────────────────────────────────────────────────────────
 
-  const _ForecastTile({
-    required this.label,
-    required this.value,
-    required this.subValue,
-    required this.icon,
-    required this.color,
-    this.urgent = false,
-  });
+class _HeroAmountCard extends StatelessWidget {
+  final InstallmentForecastModel forecast;
+  final String currency;
+
+  const _HeroAmountCard({required this.forecast, required this.currency});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10.r),
+      width: double.infinity,
+      padding: EdgeInsets.all(18.r),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: color.withValues(alpha: urgent ? 0.4 : 0.15)),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF6366F1), Color(0xFF818CF8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(color: const Color(0xFF6366F1).withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 6)),
+        ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: EdgeInsets.all(6.r),
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
-            child: Icon(icon, size: 14.sp, color: color),
-          ),
-          SizedBox(width: 8.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(fontSize: 10.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w500)),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Flexible(
-                      child: Text(value, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w800, color: color), overflow: TextOverflow.ellipsis),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Text(
+                    "${forecast.periodDays} kunlik prognoz",
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white.withValues(alpha: 0.95),
                     ),
-                    SizedBox(width: 3.w),
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 1.h),
-                      child: Text(subValue, style: TextStyle(fontSize: 10.sp, color: color.withValues(alpha: 0.7), fontWeight: FontWeight.w600)),
+                  ),
+                ),
+                SizedBox(height: 14.h),
+                Text(
+                  "Kutilayotgan summa",
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    color: Colors.white.withValues(alpha: 0.70),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  PriceFormatter.priceFormat(forecast.expectedAmount),
+                  style: TextStyle(
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    height: 1.1,
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.20),
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                  child: Text(
+                    currency,
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
                     ),
-                  ],
+                  ),
                 ),
               ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.all(12.r),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(14.r),
+            ),
+            child: Icon(
+              Icons.calendar_month_rounded,
+              size: 32.sp,
+              color: Colors.white.withValues(alpha: 0.90),
             ),
           ),
         ],
@@ -252,34 +361,165 @@ class _ForecastTile extends StatelessWidget {
   }
 }
 
-class _PeriodSelector extends StatelessWidget {
-  final int period;
-  final ValueChanged<int> onChanged;
+// ─── Stat Tile ────────────────────────────────────────────────────────────────
 
-  const _PeriodSelector({required this.period, required this.onChanged});
+class _StatTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final String unit;
+  final Color color;
+  final bool urgent;
+
+  const _StatTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.unit,
+    required this.color,
+    this.urgent = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [30, 60, 90].map((p) {
-        final selected = period == p;
-        return GestureDetector(
-          onTap: () => onChanged(p),
-          child: Container(
-            margin: EdgeInsets.only(left: 4.w),
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: urgent ? color.withValues(alpha: 0.4) : color.withValues(alpha: 0.12)),
+        boxShadow: [
+          BoxShadow(
+            color: urgent ? color.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(6.r),
             decoration: BoxDecoration(
-              color: selected ? AppTheme.colors.primary : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(6.r),
+              color: color.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(8.r),
             ),
-            child: Text(
-              '${p}k',
-              style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: selected ? Colors.white : const Color(0xFF64748B)),
+            child: Icon(icon, size: 13.sp, color: color),
+          ),
+          SizedBox(height: 8.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w900,
+                  color: color,
+                  height: 1.0,
+                ),
+              ),
+              SizedBox(width: 2.w),
+              Padding(
+                padding: EdgeInsets.only(bottom: 1.h),
+                child: Text(
+                  unit,
+                  style: TextStyle(fontSize: 10.sp, color: color.withValues(alpha: 0.7), fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 3.h),
+          Text(
+            label,
+            style: TextStyle(fontSize: 9.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (urgent) ...[
+            SizedBox(height: 5.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(4.r),
+              ),
+              child: Text(
+                'Diqqat!',
+                style: TextStyle(fontSize: 8.sp, color: color, fontWeight: FontWeight.w800),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Shimmer Skeleton ─────────────────────────────────────────────────────────
+
+class _ForecastShimmer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: const Color(0xFFE2E8F0),
+      highlightColor: const Color(0xFFF8FAFC),
+      child: Column(
+        children: [
+          // Hero card skeleton
+          Container(
+            height: 130.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16.r),
             ),
           ),
-        );
-      }).toList(),
+          SizedBox(height: 12.h),
+          // 3 stat tiles skeleton
+          Row(
+            children: List.generate(3, (i) => i).expand((i) => [
+              if (i > 0) SizedBox(width: 10.w),
+              Expanded(
+                child: Container(
+                  height: 100.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14.r),
+                  ),
+                ),
+              ),
+            ]).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Empty Card ───────────────────────────────────────────────────────────────
+
+class _EmptyCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 40.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.inbox_rounded, size: 36.sp, color: const Color(0xFFCBD5E1)),
+          SizedBox(height: 10.h),
+          Text(
+            "Ma'lumot topilmadi",
+            style: TextStyle(fontSize: 13.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -353,79 +593,4 @@ class _TabDivider extends StatelessWidget {
           Container(width: 2, height: 12, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2))),
         ],
       );
-}
-
-class _Section extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final Color? iconColor;
-  final Widget child;
-  final Widget? trailing;
-
-  const _Section({
-    required this.title,
-    required this.icon,
-    this.iconColor,
-    required this.child,
-    this.trailing,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(14.r),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 14.sp, color: iconColor ?? AppTheme.colors.primary),
-              SizedBox(width: 6.w),
-              Expanded(
-                child: Text(title, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
-              ),
-              if (trailing != null) trailing!,
-            ],
-          ),
-          SizedBox(height: 12.h),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionShimmer extends StatelessWidget {
-  final double height;
-  const _SectionShimmer({required this.height});
-
-  @override
-  Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[200]!,
-      highlightColor: Colors.grey[50]!,
-      child: Container(height: height, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10.r))),
-    );
-  }
-}
-
-class _EmptySection extends StatelessWidget {
-  final String message;
-  const _EmptySection({this.message = "Ma'lumot topilmadi"});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.h),
-        child: Text(message, style: TextStyle(fontSize: 13.sp, color: const Color(0xFF94A3B8))),
-      ),
-    );
-  }
 }

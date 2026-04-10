@@ -48,15 +48,11 @@ class _RecoveryViewState extends State<_RecoveryView> with SingleTickerProviderS
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: BackArrowButton(),
-        title: const Text(
-          'Undirish samaradorligi',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
-        ),
+        title: const Text('Undirish samaradorligi'),
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(66),
@@ -105,7 +101,7 @@ class _RecoveryTabContent extends StatelessWidget {
             icon: Icons.trending_up_rounded,
             iconColor: const Color(0xFF22C55E),
             child: state.status == Status.loading && state.data.isEmpty
-                ? _SectionShimmer(height: 200.h)
+                ? _SectionShimmer(height: 340.h)
                 : state.forCurrency(currencyTypeId) == null
                     ? const _EmptySection()
                     : _RecoveryContent(
@@ -143,78 +139,228 @@ class _RecoveryContent extends StatelessWidget {
 
     return Column(
       children: [
-        Row(
-          children: [
-            SizedBox(
-              width: 90.w,
-              height: 90.w,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircularProgressIndicator(
+        // ── Big Donut Chart ──
+        Center(
+          child: SizedBox(
+            width: 140.w,
+            height: 140.w,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Glow shadow behind the ring
+                Container(
+                  width: 140.w,
+                  height: 140.w,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: _ratingColor.withValues(alpha: 0.15),
+                        blurRadius: 22,
+                        spreadRadius: 3,
+                      ),
+                    ],
+                  ),
+                ),
+                // Background track ring
+                SizedBox(
+                  width: 140.w,
+                  height: 140.w,
+                  child: CircularProgressIndicator(
+                    value: 1.0,
+                    strokeWidth: 13.w,
+                    color: const Color(0xFFF1F5F9),
+                    strokeCap: StrokeCap.round,
+                  ),
+                ),
+                // Foreground progress ring
+                SizedBox(
+                  width: 140.w,
+                  height: 140.w,
+                  child: CircularProgressIndicator(
                     value: (rate / 100).clamp(0.0, 1.0),
-                    strokeWidth: 8.w,
-                    backgroundColor: const Color(0xFFE2E8F0),
+                    strokeWidth: 13.w,
+                    backgroundColor: Colors.transparent,
                     color: _ratingColor,
                     strokeCap: StrokeCap.round,
                   ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${rate.toStringAsFixed(0)}%',
-                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w900, color: _ratingColor),
+                ),
+                // Center content
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${rate.toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        fontSize: 26.sp,
+                        fontWeight: FontWeight.w900,
+                        color: _ratingColor,
+                        height: 1.0,
                       ),
-                      Text(
+                    ),
+                    SizedBox(height: 6.h),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: _ratingColor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(20.r),
+                        border: Border.all(color: _ratingColor.withValues(alpha: 0.25)),
+                      ),
+                      child: Text(
                         recovery.ratingLabel,
-                        style: TextStyle(fontSize: 9.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          color: _ratingColor,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.2,
+                        ),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 20.h),
+
+        // ── 3 Amount Cards ──
+        Row(
+          children: [
+            Expanded(
+              child: _AmountCard(
+                label: 'Berilgan',
+                amount: recovery.totalGiven,
+                currency: currency,
+                color: const Color(0xFF6366F1),
+                icon: Icons.account_balance_wallet_outlined,
               ),
             ),
-            SizedBox(width: 14.w),
+            SizedBox(width: 8.w),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _RecoveryRow(label: 'Berilgan', amount: recovery.totalGiven, currency: currency, color: const Color(0xFF475569)),
-                  SizedBox(height: 5.h),
-                  _RecoveryRow(label: "To'langan", amount: recovery.totalCollected, currency: currency, color: const Color(0xFF22C55E)),
-                  SizedBox(height: 5.h),
-                  _RecoveryRow(label: 'Qolgan', amount: recovery.totalRemaining, currency: currency, color: const Color(0xFF3B82F6)),
-                  SizedBox(height: 5.h),
-                  Row(
-                    children: [
-                      Expanded(child: Text("Muddati o'tgan:", style: TextStyle(fontSize: 11.sp, color: const Color(0xFF64748B)))),
-                      Text(
-                        '${overdueRate.toStringAsFixed(1)}%',
-                        style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: const Color(0xFFEF4444)),
-                      ),
-                    ],
-                  ),
-                ],
+              child: _AmountCard(
+                label: "To'langan",
+                amount: recovery.totalCollected,
+                currency: currency,
+                color: const Color(0xFF22C55E),
+                icon: Icons.check_circle_outline_rounded,
+              ),
+            ),
+            SizedBox(width: 8.w),
+            Expanded(
+              child: _AmountCard(
+                label: 'Qolgan',
+                amount: recovery.totalRemaining,
+                currency: currency,
+                color: const Color(0xFF3B82F6),
+                icon: Icons.hourglass_bottom_rounded,
               ),
             ),
           ],
         ),
-        SizedBox(height: 12.h),
-        if (total > 0) ...[
-          Divider(height: 1, color: const Color(0xFFE2E8F0)),
-          SizedBox(height: 10.h),
-          Row(
-            children: [
-              _ByItemChip(label: "To'langan", count: by.paid, color: const Color(0xFF22C55E)),
-              SizedBox(width: 6.w),
-              _ByItemChip(label: 'Qisman', count: by.partial, color: const Color(0xFF3B82F6)),
-              SizedBox(width: 6.w),
-              _ByItemChip(label: "Muddati o't.", count: by.overdue, color: const Color(0xFFEF4444)),
-              SizedBox(width: 6.w),
-              _ByItemChip(label: 'Kutilmoqda', count: by.pending, color: const Color(0xFF94A3B8)),
+        SizedBox(height: 10.h),
+
+        // ── Overdue Rate Banner ──
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(color: const Color(0xFFFECDD3)),
+            boxShadow: [
+              BoxShadow(color: const Color(0xFFEF4444).withValues(alpha: 0.07), blurRadius: 8, offset: const Offset(0, 2)),
             ],
           ),
-          SizedBox(height: 8.h),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(11.r),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                Container(width: 4, color: const Color(0xFFEF4444)),
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFFEF2F2), Color(0xFFFFF5F5)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(7.r),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEF4444).withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(9.r),
+                          ),
+                          child: Icon(Icons.timer_off_outlined, size: 15.sp, color: const Color(0xFFEF4444)),
+                        ),
+                        SizedBox(width: 10.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Muddati o'tgan foiz",
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  color: const Color(0xFFB91C1C).withValues(alpha: 0.65),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(height: 1.h),
+                              Text(
+                                "Jami to'lovlardan ${overdueRate.toStringAsFixed(1)}% kechiktirilgan",
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFFB91C1C),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          '${overdueRate.toStringAsFixed(1)}%',
+                          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w900, color: const Color(0xFFEF4444)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ),
+        ),
+
+        // ── Status chips + stacked bar ──
+        if (total > 0) ...[
+          SizedBox(height: 16.h),
+          Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [const Color(0xFFE2E8F0), const Color(0xFFE2E8F0).withValues(alpha: 0)],
+              ),
+            ),
+          ),
+          SizedBox(height: 14.h),
+          Row(
+            children: [
+              Expanded(child: _ByItemChip(label: "To'langan", count: by.paid, color: const Color(0xFF22C55E))),
+              SizedBox(width: 6.w),
+              Expanded(child: _ByItemChip(label: 'Qisman', count: by.partial, color: const Color(0xFF3B82F6))),
+              SizedBox(width: 6.w),
+              Expanded(child: _ByItemChip(label: "Muddati o't.", count: by.overdue, color: const Color(0xFFEF4444))),
+              SizedBox(width: 6.w),
+              Expanded(child: _ByItemChip(label: 'Kutilmoqda', count: by.pending, color: const Color(0xFF94A3B8))),
+            ],
+          ),
+          SizedBox(height: 10.h),
           _StackedBar(by: by),
         ],
       ],
@@ -222,28 +368,92 @@ class _RecoveryContent extends StatelessWidget {
   }
 }
 
-class _RecoveryRow extends StatelessWidget {
+// ─── Amount Card ──────────────────────────────────────────────────────────────
+
+class _AmountCard extends StatelessWidget {
   final String label;
   final String amount;
   final String currency;
   final Color color;
+  final IconData icon;
 
-  const _RecoveryRow({required this.label, required this.amount, required this.currency, required this.color});
+  const _AmountCard({
+    required this.label,
+    required this.amount,
+    required this.currency,
+    required this.color,
+    required this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: Text(label, style: TextStyle(fontSize: 11.sp, color: const Color(0xFF64748B)))),
-        Text(
-          '${PriceFormatter.priceFormat(amount)} $currency',
-          style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: color),
-          overflow: TextOverflow.ellipsis,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+        boxShadow: [
+          BoxShadow(color: color.withValues(alpha: 0.07), blurRadius: 6, offset: const Offset(0, 2)),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(11.r),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+            Container(width: 3, color: color),
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 11.h),
+                color: color.withValues(alpha: 0.05),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(5.r),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.13),
+                        borderRadius: BorderRadius.circular(7.r),
+                      ),
+                      child: Icon(icon, size: 11.sp, color: color),
+                    ),
+                    SizedBox(height: 6.h),
+                    Text(
+                      PriceFormatter.priceFormat(amount),
+                      style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w800, color: color, height: 1.1),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      label,
+                      style: TextStyle(fontSize: 10.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w600),
+                    ),
+                    SizedBox(height: 3.h),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                      child: Text(
+                        currency,
+                        style: TextStyle(fontSize: 9.sp, color: color, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+        ),
+      ),
     );
   }
 }
+
+// ─── By Item Chip ─────────────────────────────────────────────────────────────
 
 class _ByItemChip extends StatelessWidget {
   final String label;
@@ -254,24 +464,50 @@ class _ByItemChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 5.h),
+    return Container(
+        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 9.h),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+          gradient: LinearGradient(
+            colors: [color.withValues(alpha: 0.10), color.withValues(alpha: 0.04)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(color: color.withValues(alpha: 0.22)),
+          boxShadow: [
+            BoxShadow(color: color.withValues(alpha: 0.07), blurRadius: 5, offset: const Offset(0, 2)),
+          ],
         ),
         child: Column(
           children: [
-            Text('$count', style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w800, color: color)),
-            Text(label, style: TextStyle(fontSize: 9.sp, color: color.withValues(alpha: 0.8), fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+            Text(
+              '$count',
+              style: TextStyle(
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w900,
+                color: color,
+                height: 1.0,
+              ),
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 9.sp,
+                color: const Color(0xFF475569),
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
-      ),
     );
   }
 }
+
+// ─── Stacked Bar ─────────────────────────────────────────────────────────────
 
 class _StackedBar extends StatelessWidget {
   final RecoveryByItems by;
@@ -283,9 +519,9 @@ class _StackedBar extends StatelessWidget {
     if (total == 0) return const SizedBox.shrink();
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(4.r),
+      borderRadius: BorderRadius.circular(7.r),
       child: SizedBox(
-        height: 6.h,
+        height: 11.h,
         child: Row(
           children: [
             _BarSegment(ratio: by.paid / total, color: const Color(0xFF22C55E)),
@@ -306,7 +542,7 @@ class _BarSegment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(flex: (ratio * 1000).toInt(), child: Container(color: color));
+    return Expanded(flex: (ratio * 1000).toInt().clamp(0, 1000000), child: Container(color: color));
   }
 }
 
@@ -404,22 +640,41 @@ class _Section extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 3)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 1)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 14.sp, color: iconColor ?? AppTheme.colors.primary),
-              SizedBox(width: 6.w),
+              Container(
+                padding: EdgeInsets.all(6.r),
+                decoration: BoxDecoration(
+                  color: (iconColor ?? AppTheme.colors.primary).withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Icon(icon, size: 13.sp, color: iconColor ?? AppTheme.colors.primary),
+              ),
+              SizedBox(width: 8.w),
               Expanded(
                 child: Text(title, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
               ),
               if (trailing != null) trailing!,
             ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 10.h),
+          Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [const Color(0xFFE2E8F0), const Color(0xFFE2E8F0).withValues(alpha: 0)],
+              ),
+            ),
+          ),
+          SizedBox(height: 14.h),
           child,
         ],
       ),
@@ -436,7 +691,10 @@ class _SectionShimmer extends StatelessWidget {
     return Shimmer.fromColors(
       baseColor: Colors.grey[200]!,
       highlightColor: Colors.grey[50]!,
-      child: Container(height: height, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10.r))),
+      child: Container(
+        height: height,
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10.r)),
+      ),
     );
   }
 }

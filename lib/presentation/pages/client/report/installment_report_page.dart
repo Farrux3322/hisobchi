@@ -233,16 +233,16 @@ class _CurrencyTabContent extends StatelessWidget {
               _ReportEntryCard(
                 icon: Icons.warning_amber_rounded,
                 color: const Color(0xFFEF4444),
-                title: 'Muammoli hamkorlar',
-                subtitle: "Kechiktirilgan va xavfli hamkorlar ro'yxati",
+                title: 'Muammoli mijozlar',
+                subtitle: "Kechiktirilgan va xavfli mijozlar ro'yxati",
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InstallmentRiskyPartnersPage())),
               ),
               SizedBox(height: 10.h),
               _ReportEntryCard(
                 icon: Icons.people_alt_outlined,
                 color: const Color(0xFFF59E0B),
-                title: "Hamkorlar bo'yicha",
-                subtitle: "Hamkor bo'yicha muddatli to'lov hisoboti",
+                title: "Mijozlar bo'yicha",
+                subtitle: "Mijoz bo'yicha muddatli to'lov hisoboti",
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InstallmentPartnersPage())),
               ),
             ],
@@ -335,7 +335,6 @@ class _SummarySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _Section(
-      title: "Umumiy ko'rinish",
       icon: Icons.dashboard_rounded,
       child: status == Status.loading && summary == null
           ? _SectionShimmer(height: 130.h)
@@ -349,7 +348,7 @@ class _SummarySection extends StatelessWidget {
                         SizedBox(width: 10.w),
                         Expanded(child: _MetricTile(label: 'Tugallangan', value: '${summary!.completedPlans} ta', icon: Icons.check_circle_outline_rounded, color: const Color(0xFF22C55E))),
                         SizedBox(width: 10.w),
-                        Expanded(child: _MetricTile(label: 'Bekor qiling.', value: '${summary!.cancelledPlans} ta', icon: Icons.cancel_outlined, color: const Color(0xFF94A3B8))),
+                        Expanded(child: _MetricTile(label: 'Bekor qilingan', value: '${summary!.cancelledPlans} ta', icon: Icons.cancel_outlined, color: const Color(0xFF94A3B8))),
                       ],
                     ),
                     SizedBox(height: 10.h),
@@ -395,14 +394,12 @@ class _SummarySection extends StatelessWidget {
 // ─── Shared Section Widget ────────────────────────────────────────────────────
 
 class _Section extends StatelessWidget {
-  final String title;
   final IconData icon;
   final Color? iconColor;
   final Widget child;
   final Widget? trailing;
 
   const _Section({
-    required this.title,
     required this.icon,
     this.iconColor,
     required this.child,
@@ -419,23 +416,7 @@ class _Section extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 14.sp, color: iconColor ?? AppTheme.colors.primary),
-              SizedBox(width: 6.w),
-              Expanded(
-                child: Text(title, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
-              ),
-              if (trailing != null) trailing!,
-            ],
-          ),
-          SizedBox(height: 12.h),
-          child,
-        ],
-      ),
+      child: child,
     );
   }
 }

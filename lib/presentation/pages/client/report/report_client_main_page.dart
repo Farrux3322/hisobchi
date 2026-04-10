@@ -404,10 +404,10 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       Text(
                         'Muddat hisoboti',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.grey[700], height: 1.2),
                       ),
                       SizedBox(height: 4),
-                      Text('Sana bo\'yicha kirim / chiqim', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                      Text('Sana bo\'yicha kirim / chiqim', style: TextStyle(fontSize: 12, color: Colors.grey)),
                     ],
                   ),
                 ),
@@ -453,10 +453,10 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       Text(
                         'Xodimlar hisoboti',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.grey[700], height: 1.2),
                       ),
                       SizedBox(height: 4),
-                      Text('Xodimlar bo\'yicha barcha hisobotlar', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                      Text('Xodimlar bo\'yicha barcha hisobotlar', style: TextStyle(fontSize: 12, color: Colors.grey)),
                     ],
                   ),
                 ),
@@ -502,10 +502,10 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                       Text(
                         'Qarz muddatlari hisoboti',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[700], height: 1.2),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.grey[700], height: 1.2),
                       ),
                       SizedBox(height: 4),
-                      Text('Muddati o\'tgan, bugun va kelgusi qarzlar', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                      Text('Muddati o\'tgan, bugun va kelgusi qarzlar', style: TextStyle(fontSize: 12, color: Colors.grey)),
                     ],
                   ),
                 ),
@@ -550,12 +550,12 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
                     children: [
                       const Text(
                         "Muddatli to'lov hisoboti",
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151), height: 1.2),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF374151), height: 1.2),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "Rejalar, undirish, oylik dinamika va muammoli hamkorlar",
-                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                        "Rejalar, undirish, oylik dinamika va muammoli mijozlar",
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                       ),
                     ],
                   ),
@@ -588,7 +588,7 @@ class _ReportClientMainPageContentState extends State<_ReportClientMainPageConte
 
     return Container(
       width: isLarge ? double.infinity : null,
-      height: isLarge ? null : 0.11.sh,
+      height: isLarge ? null : 0.1.sh,
       padding: EdgeInsets.all(isLarge ? 18 : 14),
       decoration: BoxDecoration(
         color: isBordered ? Colors.white : color,

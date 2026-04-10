@@ -1,9 +1,13 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import '../../../../presentation/assets/asset_index.dart';
 import '../../../../presentation/components/subscription/subscription_guard.dart';
+import '../../../../presentation/pages/client/report/installment_report_page.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
 import '../../data/models/installment_plan_model.dart';
@@ -37,19 +41,7 @@ class _InstallmentListView extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppTheme.colors.white,
         elevation: 0,
-        leading: InkWell(
-          onTap: () => Navigator.pop(context),
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 18),
-          ),
-        ),
+        leading: BackArrowButton(),
         title: Column(
           // crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -64,105 +56,106 @@ class _InstallmentListView extends StatelessWidget {
           ],
         ),
       ),
-
-      // floatingActionButton: SubscriptionGuard(
-      //   child: Column(
-      //     mainAxisSize: MainAxisSize.min,
-      //     children: [
-      //       SizedBox(
-      //         width: 56.w,
-      //         height: 56.w,
-      //         child: ClipRRect(
-      //           borderRadius: BorderRadius.circular(18.r),
-      //           child: FloatingActionButton(
-      //             tooltip: "Mijozlar hisoboti",
-      //             heroTag: 'client_report_fab',
-      //             elevation: 0,
-      //             focusElevation: 0,
-      //             hoverElevation: 0,
-      //             highlightElevation: 0,
-      //             onPressed: () {
-      //               if (!context.hasPermission('report_partners.view')) {
-      //                 Toast.showWarningToast(message: "Sizda bunday huquq yo'q");
-      //                 return;
-      //               }
-      //               Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportClientMainPage()));
-      //             },
-      //             backgroundColor: AppTheme.colors.primary,
-      //             shape: RoundedRectangleBorder(
-      //               borderRadius: BorderRadius.circular(18.r),
-      //               side: BorderSide(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
-      //             ),
-      //             child: Icon(Icons.analytics_rounded, color: AppTheme.colors.white, size: 28.sp),
-      //           ),
-      //         ),
-      //       ),
-      //       SizedBox(height: 16.h),
-      //       SizedBox(
-      //         width: 56.w,
-      //         height: 56.w,
-      //         child: ClipRRect(
-      //           borderRadius: BorderRadius.circular(18.r),
-      //           child: BackdropFilter(
-      //             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-      //             child: FloatingActionButton(
-      //               heroTag: 'client_fab',
-      //               elevation: 0,
-      //               focusElevation: 0,
-      //               hoverElevation: 0,
-      //               highlightElevation: 0,
-      //               onPressed: () {
-      //                 if (!context.hasPermission('partners.create')) {
-      //                   Toast.showWarningToast(message: "Sizda bunday huquq yo'q");
-      //                   return;
-      //                 }
-      //                 Navigator.push(
-      //                   context,
-      //                   MaterialPageRoute(
-      //                     builder: (context) => BlocProvider(
-      //                       create: (context) => FileUploadBloc(repository: FileUploadRepository()),
-      //                       child: const ClientAddPage(),
-      //                     ),
-      //                   ),
-      //                 ).then((v) {
-      //                   if (v is PartnerModel && context.mounted) {
-      //                     Navigator.push(context, MaterialPageRoute(builder: (_) => AccountPage(partnerModel: v))).then((_) {
-      //                       if (context.mounted) {
-      //                         context.read<PartnerBloc>().add(const GetAllEvent());
-      //                       }
-      //                     });
-      //                   } else if (v == true && context.mounted) {
-      //                     context.read<PartnerBloc>().add(const GetAllEvent());
-      //                   }
-      //                 });
-      //               },
-      //               backgroundColor: AppTheme.colors.primary,
-      //               shape: RoundedRectangleBorder(
-      //                 borderRadius: BorderRadius.circular(18.r),
-      //                 side: BorderSide(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
-      //               ),
-      //               child: Icon(Icons.add, color: Colors.white, size: 36.sp),
-      //             ),
-      //           ),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
       floatingActionButton: SubscriptionGuard(
-        child: SizedBox(
-          width: 56.w,
-          height: 56.w,
-          child: FloatingActionButton(
-            heroTag: 'project_fab',
-            elevation: 4,
-            onPressed: () => _openCreate(context),
-            backgroundColor: AppTheme.colors.primary,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
-            child: Icon(Icons.add, color: Colors.white, size: 36.sp),
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 56.w,
+              height: 56.w,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18.r),
+                child: FloatingActionButton(
+                  tooltip: "Mijozlar hisoboti",
+                  heroTag: 'client_report_fab',
+                  elevation: 0,
+                  focusElevation: 0,
+                  hoverElevation: 0,
+                  highlightElevation: 0,
+                  onPressed: () {
+                    // if (!context.hasPermission('report_partners.view')) {
+                    //   Toast.showWarningToast(message: "Sizda bunday huquq yo'q");
+                    //   return;
+                    // }
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const InstallmentReportPage()));
+                  },
+                  backgroundColor: AppTheme.colors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.r),
+                    side: BorderSide(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
+                  ),
+                  child: Icon(Icons.analytics_rounded, color: AppTheme.colors.white, size: 28.sp),
+                ),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            SizedBox(
+              width: 56.w,
+              height: 56.w,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18.r),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: FloatingActionButton(
+                    heroTag: 'client_fab_1',
+                    elevation: 0,
+                    focusElevation: 0,
+                    hoverElevation: 0,
+                    highlightElevation: 0,
+                    onPressed: ()=> _openCreate(context),
+                    // onPressed: () {
+                    //   if (!context.hasPermission('partners.create')) {
+                    //     Toast.showWarningToast(message: "Sizda bunday huquq yo'q");
+                    //     return;
+                    //   }
+                    //   Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (context) => BlocProvider(
+                    //         create: (context) => FileUploadBloc(repository: FileUploadRepository()),
+                    //         child: const ClientAddPage(),
+                    //       ),
+                    //     ),
+                    //   ).then((v) {
+                    //     if (v is PartnerModel && context.mounted) {
+                    //       Navigator.push(context, MaterialPageRoute(builder: (_) => AccountPage(partnerModel: v))).then((_) {
+                    //         if (context.mounted) {
+                    //           context.read<PartnerBloc>().add(const GetAllEvent());
+                    //         }
+                    //       });
+                    //     } else if (v == true && context.mounted) {
+                    //       context.read<PartnerBloc>().add(const GetAllEvent());
+                    //     }
+                    //   });
+                    // },
+                    backgroundColor: AppTheme.colors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.r),
+                      side: BorderSide(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
+                    ),
+                    child: Icon(Icons.add, color: Colors.white, size: 36.sp),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
+
+      // floatingActionButton: SubscriptionGuard(
+      //   child: SizedBox(
+      //     width: 56.w,
+      //     height: 56.w,
+      //     child: FloatingActionButton(
+      //       heroTag: 'project_fab',
+      //       elevation: 4,
+      //       onPressed: () => _openCreate(context),
+      //       backgroundColor: AppTheme.colors.primary,
+      //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
+      //       child: Icon(Icons.add, color: Colors.white, size: 36.sp),
+      //     ),
+      //   ),
+      // ),
       body: Column(
         children: [
           _StatusFilterBar(),
