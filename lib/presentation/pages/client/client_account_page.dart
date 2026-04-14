@@ -17,8 +17,7 @@ import 'package:hisobchi/presentation/pages/client/client_xisob_kitob.dart';
 import 'package:hisobchi/presentation/pages/client/report/report_client_show_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_delete_dialog.dart';
 import 'package:hisobchi/presentation/pages/client/sms_menu_page.dart';
-import 'package:hisobchi/features/payment_schedule/data/models/payment_partner_model.dart';
-import 'package:hisobchi/features/payment_schedule/presentation/pages/installment_list_page.dart';
+import 'package:hisobchi/presentation/pages/client/installment_index_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/kirim_bottom_sheet.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
@@ -324,18 +323,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () {
-                                    final partner = PaymentPartnerModel(
-                                      id: widget.partnerModel.id?.toString() ?? '',
-                                      name: widget.partnerModel.name ?? '',
-                                      phone: widget.partnerModel.phone,
-                                    );
-                                    pushScreen(context, screen: InstallmentListPage(partner: partner));
-                                    // Navigator.push(
-                                    //   context,
-                                    //   MaterialPageRoute(
-                                    //     builder: (_) => InstallmentListPage(partner: partner),
-                                    //   ),
-                                    // );
+                                    pushScreen(context, screen: InstallmentIndexPage(partnerModel: widget.partnerModel));
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),

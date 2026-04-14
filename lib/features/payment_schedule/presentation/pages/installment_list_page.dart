@@ -19,12 +19,23 @@ import 'payment_schedule_page.dart';
 class InstallmentListPage extends StatelessWidget {
   final PaymentPartnerModel partner;
 
-  const InstallmentListPage({super.key, required this.partner});
+  /// Ochilganda qaysi status tab tanlangan bo'lishi kerakligi.
+  /// null = Barchasi, 'active' = Faol, 'completed' = To'langan, 'cancelled' = Bekor
+  final String? initialStatus;
+
+  const InstallmentListPage({
+    super.key,
+    required this.partner,
+    this.initialStatus,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => InstallmentListCubit(partnerId: int.tryParse(partner.id) ?? 0)..load(),
+      create: (_) => InstallmentListCubit(
+        partnerId: int.tryParse(partner.id) ?? 0,
+        initialStatus: initialStatus,
+      )..load(),
       child: _InstallmentListView(partner: partner),
     );
   }

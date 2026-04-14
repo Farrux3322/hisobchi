@@ -65,9 +65,10 @@ class InstallmentListCubit extends Cubit<InstallmentListState> {
   InstallmentListCubit({
     required int partnerId,
     InstallmentRepository? repository,
+    String? initialStatus,
   })  : _partnerId = partnerId,
         _repository = repository ?? InstallmentRepository(),
-        super(const InstallmentListState());
+        super(InstallmentListState(filterStatus: initialStatus));
 
   /// Birinchi yuklash yoki yangilash (pull-to-refresh)
   Future<void> load({bool refresh = false}) async {
