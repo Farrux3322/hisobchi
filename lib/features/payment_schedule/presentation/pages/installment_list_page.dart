@@ -3,11 +3,14 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
+import 'package:hisobchi/infrastructure/services/permission_extension.dart';
 import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import '../../../../presentation/assets/asset_index.dart';
 import '../../../../presentation/components/subscription/subscription_guard.dart';
-import '../../../../presentation/pages/client/report/installment_report_page.dart';
+import '../../../../presentation/components/toast/toast.dart';
+import '../../../../presentation/pages/client/report/report_client_show_page.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
 import '../../data/models/installment_plan_model.dart';
@@ -88,7 +91,12 @@ class _InstallmentListView extends StatelessWidget {
                     //   Toast.showWarningToast(message: "Sizda bunday huquq yo'q");
                     //   return;
                     // }
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const InstallmentReportPage()));
+                    // Navigator.push(context, MaterialPageRoute(builder: (_) => const InstallmentReportPage()));
+                    if (!context.hasPermission('report_partner.view')) {
+                      Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                      return;
+                    }
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => ReportClientShowPage(partnerModel: PartnerModel(id: int.tryParse(partner.id), name: partner.name, phone: partner.phone), initialTabIndex: 1)));
                   },
                   backgroundColor: AppTheme.colors.primary,
                   shape: RoundedRectangleBorder(

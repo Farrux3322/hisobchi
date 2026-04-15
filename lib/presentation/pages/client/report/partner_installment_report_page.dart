@@ -6,6 +6,7 @@ import 'package:hisobchi/application/partner_installment_report/partner_installm
 import 'package:hisobchi/application/partner_installment_report/partner_installment_report_state.dart';
 import 'package:hisobchi/domain/common/constants.dart';
 import 'package:hisobchi/features/payment_schedule/data/models/payment_partner_model.dart';
+import 'package:hisobchi/features/payment_schedule/presentation/pages/installment_detail_page.dart';
 import 'package:hisobchi/features/payment_schedule/presentation/pages/installment_list_page.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner_installment_report/partner_installment_report_models.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
@@ -16,59 +17,12 @@ import 'package:hisobchi/presentation/components/utils/price_extension.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:shimmer/shimmer.dart';
 
-// ─── Entry point ─────────────────────────────────────────────────────────────
+// ─── Entry point: to'liq sahifa (AppBar bilan) ────────────────────────────────
 
 class PartnerInstallmentReportPage extends StatelessWidget {
   const PartnerInstallmentReportPage({super.key, required this.partnerModel});
 
   final PartnerModel partnerModel;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => PartnerInstallmentReportBloc(
-        repo: PartnerInstallmentReportRepository(),
-      )..add(LoadPartnerReportEvent(partnerModel.id ?? 0)),
-      child: _ReportView(partnerModel: partnerModel),
-    );
-  }
-}
-
-// ─── Main View ────────────────────────────────────────────────────────────────
-
-class _ReportView extends StatefulWidget {
-  const _ReportView({required this.partnerModel});
-  final PartnerModel partnerModel;
-
-  @override
-  State<_ReportView> createState() => _ReportViewState();
-}
-
-class _ReportViewState extends State<_ReportView>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-
-    // Tab o'zgarganda UI qayta render + USD lazy-load
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        setState(() {});
-        context.read<PartnerInstallmentReportBloc>().add(
-              SelectCurrencyTypeEvent(_tabController.index + 1),
-            );
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,37 +42,100 @@ class _ReportViewState extends State<_ReportView>
               ),
             ),
             Text(
-              widget.partnerModel.name ?? '',
+              partnerModel.name ?? '',
               style: TextStyle(
                 fontSize: 11.sp,
-                color: Colors.black,
-                fontWeight: FontWeight.w600,
+                color: const Color(0xFF94A3B8),
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(62),
-          child: _CurrencyTabBar(controller: _tabController),
+      ),
+      body: PartnerInstallmentReportBody(partnerModel: partnerModel),
+    );
+  }
+}
+
+// ─── Embeddable widget: tab ichida ishlatish uchun (AppBar yo'q) ───────────────
+
+class PartnerInstallmentReportBody extends StatelessWidget {
+  const PartnerInstallmentReportBody({super.key, required this.partnerModel});
+
+  final PartnerModel partnerModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => PartnerInstallmentReportBloc(
+        repo: PartnerInstallmentReportRepository(),
+      )..add(LoadPartnerReportEvent(partnerModel.id ?? 0)),
+      child: _InstallmentReportContent(partnerModel: partnerModel),
+    );
+  }
+}
+
+// ─── Umumiy kontent (UZS/USD tab + content) ───────────────────────────────────
+
+class _InstallmentReportContent extends StatefulWidget {
+  const _InstallmentReportContent({required this.partnerModel});
+  final PartnerModel partnerModel;
+
+  @override
+  State<_InstallmentReportContent> createState() =>
+      _InstallmentReportContentState();
+}
+
+class _InstallmentReportContentState extends State<_InstallmentReportContent>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {});
+        context.read<PartnerInstallmentReportBloc>().add(
+              SelectCurrencyTypeEvent(_tabController.index + 1),
+            );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // UZS / USD valyuta tanlash
+        _CurrencyTabBar(controller: _tabController),
+        // Har bir tab o'z yuklanishi va xatoligini mustaqil boshqaradi
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _ReportTabContent(
+                currencyTypeId: 1,
+                currencyLabel: 'UZS',
+                partnerModel: widget.partnerModel,
+              ),
+              _ReportTabContent(
+                currencyTypeId: 2,
+                currencyLabel: 'USD',
+                partnerModel: widget.partnerModel,
+              ),
+            ],
+          ),
         ),
-      ),
-      // Har bir tab o'z yuklanishi va xatoligini mustaqil boshqaradi
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _ReportTabContent(
-            currencyTypeId: 1,
-            currencyLabel: 'UZS',
-            partnerModel: widget.partnerModel,
-          ),
-          _ReportTabContent(
-            currencyTypeId: 2,
-            currencyLabel: 'USD',
-            partnerModel: widget.partnerModel,
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -355,8 +372,22 @@ class _PlansSectionState extends State<_PlansSection> {
   @override
   void didUpdateWidget(_PlansSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Ma'lumot o'zgarganda collapse'ga qaytarish
     if (oldWidget.plans != widget.plans) _expanded = false;
+  }
+
+  Future<void> _openDetail(
+      BuildContext context, PartnerInstallmentPlanModel plan) async {
+    // final changed = await Navigator.push<bool>(
+    //   context,
+    //   MaterialPageRoute(builder: (_) => InstallmentDetailPage(id: plan.id)),
+    // );
+    // Agar detail page da o'zgarish bo'lsa (to'lov qabul/bekor) — refreshlamiz
+    pushScreen(context, screen: InstallmentDetailPage(id: plan.id));
+    // if (changed == true && context.mounted) {
+    //   context
+    //       .read<PartnerInstallmentReportBloc>()
+    //       .add(const RefreshPartnerReportEvent());
+    // }
   }
 
   @override
@@ -381,7 +412,11 @@ class _PlansSectionState extends State<_PlansSection> {
                 // Ko'rinadigan rejalar
                 ...visible.map((plan) => Padding(
                       padding: EdgeInsets.only(bottom: 10.h),
-                      child: _PlanCard(plan: plan, currency: widget.currency),
+                      child: _PlanCard(
+                        plan: plan,
+                        currency: widget.currency,
+                        onTap: () => _openDetail(context, plan),
+                      ),
                     )),
 
                 // "Barchasini ko'rish / Yig'ish" tugmasi
@@ -455,23 +490,34 @@ class _PlansToggleButton extends StatelessWidget {
 }
 
 class _PlanCard extends StatelessWidget {
-  const _PlanCard({required this.plan, required this.currency});
+  const _PlanCard({
+    required this.plan,
+    required this.currency,
+    this.onTap,
+  });
 
   final PartnerInstallmentPlanModel plan;
   final String currency;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(12.r),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12.r),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: plan.statusColor.withValues(alpha: 0.18)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        child: Ink(
+          padding: EdgeInsets.all(12.r),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(color: plan.statusColor.withValues(alpha: 0.18)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
           // Header: sana + status
           Row(
             children: [
@@ -525,6 +571,14 @@ class _PlanCard extends StatelessWidget {
                   ),
                 ),
               ),
+              if (onTap != null) ...[
+                SizedBox(width: 4.w),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 16.sp,
+                  color: const Color(0xFFCBD5E1),
+                ),
+              ],
             ],
           ),
           SizedBox(height: 10.h),
@@ -643,6 +697,8 @@ class _PlanCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
+        ),
       ),
     );
   }

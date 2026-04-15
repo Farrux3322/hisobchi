@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
 import 'package:hisobchi/application/partner/partner_bloc.dart';
 import 'package:hisobchi/domain/common/constants.dart';
+import 'package:hisobchi/features/payment_schedule/data/models/payment_partner_model.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
 import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
@@ -26,6 +27,7 @@ import 'package:hisobchi/domain/common/data/user_data.dart';
 import 'package:hisobchi/presentation/components/toast/toast.dart';
 import 'package:hisobchi/infrastructure/services/permission_extension.dart';
 
+import '../../../features/payment_schedule/presentation/pages/installment_list_page.dart';
 import 'client_edit_page.dart';
 
 class AccountPage extends StatefulWidget {
@@ -138,6 +140,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 context.read<PartnerBloc>().add(IncomeStatementEvent(id: widget.partnerModel.id ?? 0));
               },
               child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
                 // physics: NeverScrollableScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
                 child: Column(
@@ -298,7 +301,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                       Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
                                       return;
                                     }
-                                    Navigator.push(context, MaterialPageRoute(builder: (_) => ReportClientShowPage(partnerModel: widget.partnerModel)));
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => ReportClientShowPage(partnerModel: widget.partnerModel, initialTabIndex: 0)));
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
@@ -323,7 +326,14 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () {
-                                    pushScreen(context, screen: InstallmentIndexPage(partnerModel: widget.partnerModel));
+                                    // pushScreen(context, screen: InstallmentIndexPage(partnerModel: widget.partnerModel));
+                                    final partner = PaymentPartnerModel(
+                                      id: widget.partnerModel.id?.toString() ?? '',
+                                      name: widget.partnerModel.name ?? '',
+                                      phone: widget.partnerModel.phone,
+                                    );
+                                    pushScreen(context, screen: InstallmentListPage(partner: partner));
+                                    // pushScreen(context, screen: InstallmentIndexPage(partnerModel: widget.partnerModel));
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
