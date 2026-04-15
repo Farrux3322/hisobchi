@@ -12,6 +12,7 @@ class PartnerModel {
   String? deletedAt;
   String? activity;
   PartnerBalance? balance;
+  InstallmentRemaining? installmentRemaining;
 
   PartnerModel({
     this.id,
@@ -27,6 +28,7 @@ class PartnerModel {
     this.sendOnKirim,
     this.activity,
     this.balance,
+    this.installmentRemaining,
   });
 
   PartnerModel.fromJson(Map<String, dynamic> json) {
@@ -40,14 +42,21 @@ class PartnerModel {
         files!.add(PartnerFile.fromJson(v));
       });
     }
-    mainCurrencyTypeId = json['main_currency_type_id'] ?? json['currency_type_id'];
-    mainCurrencyTypeName = json['main_currency_type_name'] ?? json['currency_type_name'];
+    mainCurrencyTypeId =
+        json['main_currency_type_id'] ?? json['currency_type_id'];
+    mainCurrencyTypeName =
+        json['main_currency_type_name'] ?? json['currency_type_name'];
     createdAt = json['created_at'];
     deletedAt = json['deleted_at'];
     sendOnKirim = json['send_on_kirim'];
     sendOnChiqim = json['send_on_chiqim'];
     activity = json['activity'];
-    balance = json['balance'] != null ? PartnerBalance.fromJson(json['balance']) : null;
+    balance = json['balance'] != null
+        ? PartnerBalance.fromJson(json['balance'])
+        : null;
+    installmentRemaining = json['installment_remaining'] != null
+        ? InstallmentRemaining.fromJson(json['installment_remaining'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -68,6 +77,9 @@ class PartnerModel {
     data['activity'] = activity;
     if (balance != null) {
       data['balance'] = balance!.toJson();
+    }
+    if (installmentRemaining != null) {
+      data['installment_remaining'] = installmentRemaining!.toJson();
     }
     return data;
   }
@@ -111,6 +123,22 @@ class PartnerBalance {
   }
 }
 
+class InstallmentRemaining {
+  num? uzs;
+  num? usd;
+
+  InstallmentRemaining({this.uzs, this.usd});
+
+  InstallmentRemaining.fromJson(Map<String, dynamic> json) {
+    uzs = json['UZS'];
+    usd = json['USD'];
+  }
+
+  Map<String, dynamic> toJson() => {'UZS': uzs, 'USD': usd};
+
+  bool get hasAnyValue => (uzs ?? 0) != 0 || (usd ?? 0) != 0;
+}
+
 class PaginationLinks {
   String? first;
   String? last;
@@ -135,7 +163,14 @@ class PaginationMeta {
   int? perPage;
   int? to;
 
-  PaginationMeta({this.currentPage, this.currentPageUrl, this.from, this.path, this.perPage, this.to});
+  PaginationMeta({
+    this.currentPage,
+    this.currentPageUrl,
+    this.from,
+    this.path,
+    this.perPage,
+    this.to,
+  });
 
   PaginationMeta.fromJson(Map<String, dynamic> json) {
     currentPage = json['current_page'];

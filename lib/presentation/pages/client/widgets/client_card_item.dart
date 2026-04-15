@@ -139,6 +139,11 @@ class ClientCardItem extends StatelessWidget {
                           ],
                         ),
 
+                        if (partnerModel?.installmentRemaining?.hasAnyValue == true) ...[
+                          SizedBox(height: 10.h),
+                          _InstallmentRow(remaining: partnerModel!.installmentRemaining!),
+                        ],
+
                         SizedBox(height: 12.h),
 
                         // Footer
@@ -214,6 +219,17 @@ class ClientCardItem extends StatelessWidget {
     );
   }
 
+  String _fmtNum(num amount) {
+    final abs = amount.abs();
+    final raw = abs.toStringAsFixed(0);
+    final buf = StringBuffer();
+    for (int i = 0; i < raw.length; i++) {
+      if (i > 0 && (raw.length - i) % 3 == 0) buf.write(' ');
+      buf.write(raw[i]);
+    }
+    return buf.toString();
+  }
+
   Widget _buildBalanceRow({required num amount, required String currency}) {
     final Color color;
     if (amount == 0) {
@@ -237,6 +253,84 @@ class ClientCardItem extends StatelessWidget {
         Text(
           currency,
           style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w700, color: Colors.black54),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Installment remaining row ────────────────────────────────────────────────
+
+class _InstallmentRow extends StatelessWidget {
+  final InstallmentRemaining remaining;
+  const _InstallmentRow({required this.remaining});
+
+  static String _fmt(num v) {
+    final raw = v.abs().toStringAsFixed(0);
+    final buf = StringBuffer();
+    for (int i = 0; i < raw.length; i++) {
+      if (i > 0 && (raw.length - i) % 3 == 0) buf.write(' ');
+      buf.write(raw[i]);
+    }
+    return buf.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final uzs = remaining.uzs ?? 0;
+    final usd = remaining.usd ?? 0;
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF7ED),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: const Color(0xFFFBBF24).withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.calendar_month_outlined, size: 13.sp, color: const Color(0xFFD97706)),
+          SizedBox(width: 6.w),
+          Text(
+            "Muddatli to'lov:",
+            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: const Color(0xFF92400E)),
+          ),
+          const Spacer(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (uzs != 0) _Chip(amount: _fmt(uzs), currency: 'UZS'),
+              if (uzs != 0 && usd != 0) SizedBox(height: 2.h),
+              if (usd != 0) _Chip(amount: _fmt(usd), currency: 'USD'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  final String amount;
+  final String currency;
+  const _Chip({required this.amount, required this.currency});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(
+          amount,
+          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w800, color: const Color(0xFFB45309), letterSpacing: -0.3),
+        ),
+        SizedBox(width: 2.w),
+        Text(
+          currency,
+          style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w700, color: const Color(0xFFD97706)),
         ),
       ],
     );
