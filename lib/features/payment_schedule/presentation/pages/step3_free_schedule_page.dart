@@ -192,7 +192,7 @@ class Step3FreeSchedulePage extends StatelessWidget {
               ),
               PSBottomButtons(
                 showBack: true,
-                continueLabel: 'Saqlash va SMS',
+                continueLabel: 'Saqlash',
                 continueColor: isValid ? AppTheme.colors.green : AppTheme.colors.disable,
                 isLoading: state.status == PaymentScheduleStatus.loading,
                 onBack: () => context.read<PaymentScheduleBloc>().add(const PaymentStepBack()),

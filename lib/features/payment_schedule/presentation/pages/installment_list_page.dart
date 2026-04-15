@@ -122,31 +122,6 @@ class _InstallmentListView extends StatelessWidget {
                     hoverElevation: 0,
                     highlightElevation: 0,
                     onPressed: ()=> _openCreate(context),
-                    // onPressed: () {
-                    //   if (!context.hasPermission('partners.create')) {
-                    //     Toast.showWarningToast(message: "Sizda bunday huquq yo'q");
-                    //     return;
-                    //   }
-                    //   Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //       builder: (context) => BlocProvider(
-                    //         create: (context) => FileUploadBloc(repository: FileUploadRepository()),
-                    //         child: const ClientAddPage(),
-                    //       ),
-                    //     ),
-                    //   ).then((v) {
-                    //     if (v is PartnerModel && context.mounted) {
-                    //       Navigator.push(context, MaterialPageRoute(builder: (_) => AccountPage(partnerModel: v))).then((_) {
-                    //         if (context.mounted) {
-                    //           context.read<PartnerBloc>().add(const GetAllEvent());
-                    //         }
-                    //       });
-                    //     } else if (v == true && context.mounted) {
-                    //       context.read<PartnerBloc>().add(const GetAllEvent());
-                    //     }
-                    //   });
-                    // },
                     backgroundColor: AppTheme.colors.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18.r),
@@ -209,6 +184,11 @@ class _InstallmentListView extends StatelessWidget {
   }
 
   void _openCreate(BuildContext context) {
+    if (!context.hasPermission('installments.create')) {
+      Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+      return;
+    }
+
     pushScreen(context, screen: PaymentSchedulePage(initialPartner: partner)).then((created) {
       if (created == true && context.mounted) {
         context.read<InstallmentListCubit>().refresh();

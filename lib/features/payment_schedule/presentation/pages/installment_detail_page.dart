@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../infrastructure/services/permission_extension.dart';
 import '../../../../presentation/assets/asset_index.dart';
+import '../../../../presentation/components/toast/toast.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
 import '../../data/models/installment_plan_model.dart';
@@ -226,6 +228,10 @@ class _DetailViewState extends State<_DetailView> {
   // ─── To'lov sheet ─────────────────────────────────────────────────────────
 
   void _showPaymentSheet(BuildContext context, InstallmentPlanModel plan) {
+    if (!context.hasPermission('installments.payment')) {
+      Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+      return;
+    }
     final cubit = context.read<InstallmentDetailCubit>();
     showModalBottomSheet(
       context: context,
@@ -269,6 +275,11 @@ class _DetailViewState extends State<_DetailView> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
+              if (!context.hasPermission('installments.delete')) {
+                Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                return;
+              }
+
               final ok = await context.read<InstallmentDetailCubit>().cancelPlan();
               if (ok) {
                 _hasChanges = true;

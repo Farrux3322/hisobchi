@@ -50,13 +50,15 @@ class AccountData {
   num? debt;
   num? credit;
   num? balance;
+  num? balanceWithInstallment;
 
-  AccountData({this.debt, this.credit, this.balance});
+  AccountData({this.debt, this.credit, this.balance, this.balanceWithInstallment});
 
   AccountData.fromJson(Map<String, dynamic> json) {
     debt = json['debt'];
     credit = json['credit'];
     balance = json['balance'];
+    balanceWithInstallment = json['balance_with_installment'];
   }
 
   Map<String, dynamic> toJson() {
@@ -64,6 +66,7 @@ class AccountData {
     data['debt'] = debt;
     data['credit'] = credit;
     data['balance'] = balance;
+    data['balance_with_installment'] = balanceWithInstallment;
     return data;
   }
 }

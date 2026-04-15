@@ -23,6 +23,7 @@ import 'package:hisobchi/application/partner_report/export_excel/export_partner_
 import 'package:hisobchi/application/partner_report/export_excel/export_partner_excel_state.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../infrastructure/services/permission_extension.dart';
 import '../../../components/basic_widgets.dart';
 
 class ReportClientMainPage extends StatelessWidget {
@@ -702,7 +703,10 @@ class _ReportClientMainPageContentState
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            // Navigator.push(context, MaterialPageRoute(builder: (_) => const InstallmentReportPage()));
+            if (!context.hasPermission('report_installments.view')) {
+              Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+              return;
+            }
             pushScreen(context, screen: const InstallmentReportPage());
           },
           borderRadius: BorderRadius.circular(16),

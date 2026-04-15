@@ -18,7 +18,6 @@ import 'package:hisobchi/presentation/pages/client/client_xisob_kitob.dart';
 import 'package:hisobchi/presentation/pages/client/report/report_client_show_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/client_delete_dialog.dart';
 import 'package:hisobchi/presentation/pages/client/sms_menu_page.dart';
-import 'package:hisobchi/presentation/pages/client/installment_index_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/kirim_bottom_sheet.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
@@ -314,7 +313,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        SvgPicture.asset(AppIcons.report),
+                                        SvgPicture.asset(AppIcons.report, width: 20, height: 20),
                                         SizedBox(width: 10),
                                         Text('Hisobot', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15)),
                                       ],
@@ -326,14 +325,16 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () {
-                                    // pushScreen(context, screen: InstallmentIndexPage(partnerModel: widget.partnerModel));
+                                    if (!context.hasPermission('installments.view')) {
+                                      Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                                      return;
+                                    }
                                     final partner = PaymentPartnerModel(
                                       id: widget.partnerModel.id?.toString() ?? '',
                                       name: widget.partnerModel.name ?? '',
                                       phone: widget.partnerModel.phone,
                                     );
                                     pushScreen(context, screen: InstallmentListPage(partner: partner));
-                                    // pushScreen(context, screen: InstallmentIndexPage(partnerModel: widget.partnerModel));
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
@@ -419,11 +420,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                     LayoutBuilder(
                       builder: (context, constraints) {
                         final screenHeight = MediaQuery.of(context).size.height;
-                        final availableHeight = screenHeight * 0.37; // Responsive height
+                        final availableHeight = screenHeight * 0.40; // Responsive height
 
                         return Container(
                           width: double.infinity,
-                          height: availableHeight.clamp(300, 500), // Min 300, Max 500
+                          height: availableHeight.clamp(320, 520), // Min 320, Max 520
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
@@ -441,6 +442,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                         debt: state.incomeStatementModel?.result?.uzsAccount?.debt ?? 0,
                                         credit: state.incomeStatementModel?.result?.uzsAccount?.credit ?? 0,
                                         balance: state.incomeStatementModel?.result?.uzsAccount?.balance ?? 0,
+                                        balanceWithInstallment: state.incomeStatementModel?.result?.uzsAccount?.balanceWithInstallment ?? 0,
                                         currencySymbol: 'UZS',
                                         currencyId: 1,
                                       ),
@@ -450,6 +452,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                                         debt: state.incomeStatementModel?.result?.usdAccount?.debt ?? 0,
                                         credit: state.incomeStatementModel?.result?.usdAccount?.credit ?? 0,
                                         balance: state.incomeStatementModel?.result?.usdAccount?.balance ?? 0,
+                                        balanceWithInstallment: state.incomeStatementModel?.result?.usdAccount?.balanceWithInstallment ?? 0,
                                         currencySymbol: 'USD',
                                         currencyId: 2,
                                       ),
@@ -511,7 +514,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   }
 
   // Build Currency Content - Minimalist & Clean Design
-  Widget _buildCurrencyContent({required PartnerState state, required num debt, required num credit, required num balance, required String currencySymbol, required int currencyId}) {
+  Widget _buildCurrencyContent({required PartnerState state, required num debt, required num credit, required num balance, required num balanceWithInstallment, required String currencySymbol, required int currencyId}) {
     final screenWidth = MediaQuery.of(context).size.width;
     final cardPadding = screenWidth * 0.035; // Responsive padding
     final iconPadding = screenWidth * 0.02; // Responsive icon padding
@@ -666,12 +669,13 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
 
           SizedBox(height: screenWidth * 0.04),
 
-          // Qoldiq Card - Elegant Minimalist
-          // Senior approach: Conditional colors based on balance
+          // Qoldiq Card
           (() {
             final Color balanceColor = balance < 0 ? AppTheme.colors.colorDE5050 : (balance == 0 ? Colors.black : AppTheme.colors.color3CC293);
             final String? subtitle = balance < 0 ? 'Mijoz qarzi' : (balance > 0 ? 'Mijoz haqqi' : null);
             final String sign = balance < 0 ? '-' : (balance > 0 ? '+' : '');
+            final num bwi = balanceWithInstallment;
+            final String bwiSign = bwi < 0 ? '-' : '';
             return Container(
               padding: EdgeInsets.all(cardPadding.clamp(12, 18)),
               decoration: BoxDecoration(
@@ -691,44 +695,64 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                   ),
                   SizedBox(width: screenWidth * 0.035),
                   Expanded(
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
+                        // Asosiy qoldiq qatori
+                        Row(
                           children: [
-                            Text(
-                              'Qoldiq',
-                              style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.4),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('Qoldiq', style: TextStyle(color: balanceColor, fontSize: 15.sp, fontWeight: FontWeight.w700)),
+                                if (subtitle != null)
+                                  Text(subtitle, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w500, color: balanceColor.withValues(alpha: 0.8))),
+                              ],
                             ),
-                            if (subtitle != null) ...[
-                              Gap(4.h),
-                              Text(
-                                subtitle,
-                                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: balanceColor.withValues(alpha: 0.9)),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
+                            const Spacer(),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '$sign ${PriceFormatter.priceFormat('${balance.abs()}')}',
+                                  style: TextStyle(color: balanceColor, fontSize: 15.sp, fontWeight: FontWeight.w700),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(currencySymbol, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black54)),
+                              ],
+                            ),
                           ],
                         ),
-                        const Spacer(),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                        Gap(6.h),
+                        // Divider
+                        Container(height: 1, color: Colors.grey.withValues(alpha: 0.15)),
+                        Gap(6.h),
+                        // Bo'lib to'lash bilan qoldiq
+                        Row(
                           children: [
-                            Text(
-                              '$sign ${PriceFormatter.priceFormat('${balance.abs()}')}',
-                              style: TextStyle(color: balanceColor, fontSize: 16.sp, fontWeight: FontWeight.w700, letterSpacing: 0.3),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.end,
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.calendar_month_outlined, size: 13.sp, color: const Color(0xFFD97706)),
+                                Gap(4.w),
+                                Text("Bo'lib to'lash qoldiq", style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w500, color: const Color(0xFFD97706))),
+                              ],
                             ),
-                            Text(
-                              currencySymbol,
-                              style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: Colors.black),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.end,
+                            const Spacer(),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '$bwiSign${PriceFormatter.priceFormat('${bwi.abs()}')}',
+                                  style: TextStyle(color: const Color(0xFFD97706), fontSize: 15.sp, fontWeight: FontWeight.w700),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(currencySymbol, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black54)),
+                              ],
                             ),
                           ],
                         ),
@@ -739,6 +763,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
               ),
             );
           })(),
+
           const SizedBox(height: 16),
 
           // Minimal Divider

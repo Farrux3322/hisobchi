@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/application/staff/staff_bloc.dart';
 import 'package:hisobchi/application/staff/staff_event.dart';
 import 'package:hisobchi/application/staff/staff_state.dart';
@@ -14,9 +13,6 @@ import 'package:hisobchi/presentation/components/toast/toast.dart';
 
 import '../../components/back_button.dart';
 
-// ─── Phone formatter ─────────────────────────────────────────
-/// Input: 9 digits like "937373322"
-/// Output: "+998 (93) 737 33 22"
 String formatStaffPhone(String raw) {
   final d = raw.replaceAll(RegExp(r'\D'), '');
   if (d.length < 9) return '+998 $raw';
@@ -589,7 +585,7 @@ class _PermissionGroupItemState extends State<_PermissionGroupItem> {
 
     if (name.contains('view')) {
       return Icon(Icons.visibility_outlined, size: size, color: color);
-    } else if (name.contains('create')) {
+    } else if (name.contains('create') || name.contains('payment')) {
       return SvgPicture.asset(
         AppIcons.projectAdd,
         width: size,
