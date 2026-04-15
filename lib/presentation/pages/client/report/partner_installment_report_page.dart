@@ -637,15 +637,7 @@ class _PlanCard extends StatelessWidget {
           SizedBox(height: 10.h),
 
           // Progress bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4.r),
-            child: LinearProgressIndicator(
-              value: plan.progress,
-              backgroundColor: const Color(0xFFE2E8F0),
-              color: plan.statusColor,
-              minHeight: 6.h,
-            ),
-          ),
+          _PlanSegmentedProgressBar(plan: plan),
           SizedBox(height: 8.h),
 
           // To'langan / Qolgan
@@ -912,6 +904,95 @@ class _PaymentTile extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ─── Plan Segmented Progress Bar ─────────────────────────────────────────────
+
+class _PlanSegmentedProgressBar extends StatelessWidget {
+  const _PlanSegmentedProgressBar({required this.plan});
+
+  final PartnerInstallmentPlanModel plan;
+
+  @override
+  Widget build(BuildContext context) {
+    final total = plan.itemsCount;
+    if (total <= 0) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(4.r),
+        child: LinearProgressIndicator(
+          value: plan.progress,
+          backgroundColor: const Color(0xFFE2E8F0),
+          color: plan.statusColor,
+          minHeight: 8.h,
+        ),
+      );
+    }
+
+    final overdue = plan.overdueItemsCount.clamp(0, total);
+    final near = plan.nearItemsCount.clamp(0, total - overdue);
+    final paid = ((plan.paidAmountDouble / (plan.totalAmountDouble > 0 ? plan.totalAmountDouble : 1)) * total)
+        .round()
+        .clamp(0, total - overdue - near);
+    final pending = (total - overdue - near - paid).clamp(0, total);
+
+    // Statuslarga mos segmentlar ro'yxati: (count, color, fillRatio)
+    final segments = <(int, Color, double)>[
+      (overdue, const Color(0xFFEF4444), 1.0),
+      (near, const Color(0xFFF59E0B), 1.0),
+      (paid, const Color(0xFF22C55E), 1.0),
+      (pending, const Color(0xFF94A3B8), 0.0),
+    ].where((s) => s.$1 > 0).toList();
+
+    const double height = 8;
+    const double gap = 2.0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final totalWidth = constraints.maxWidth;
+        final segmentCount = segments.fold(0, (sum, s) => sum + s.$1);
+        final totalGap = gap * (segmentCount - 1);
+        final availableWidth = totalWidth - totalGap;
+
+        final widgets = <Widget>[];
+        int segIndex = 0;
+        for (final (count, color, fillRatio) in segments) {
+          for (int i = 0; i < count; i++) {
+            final isFirst = segIndex == 0;
+            final isLast = segIndex == segmentCount - 1;
+            final radius = BorderRadius.horizontal(
+              left: isFirst ? const Radius.circular(4) : Radius.zero,
+              right: isLast ? const Radius.circular(4) : Radius.zero,
+            );
+            final segWidth = (availableWidth / segmentCount).clamp(0.0, availableWidth);
+
+            if (segIndex > 0) widgets.add(const SizedBox(width: gap));
+            widgets.add(SizedBox(
+              width: segWidth,
+              height: height,
+              child: ClipRRect(
+                borderRadius: radius,
+                child: Stack(
+                  children: [
+                    Container(color: const Color(0xFFE2E8F0)),
+                    FractionallySizedBox(
+                      widthFactor: fillRatio,
+                      child: Container(color: color),
+                    ),
+                  ],
+                ),
+              ),
+            ));
+            segIndex++;
+          }
+        }
+
+        return SizedBox(
+          height: height,
+          child: Row(mainAxisSize: MainAxisSize.max, children: widgets),
+        );
+      },
     );
   }
 }
