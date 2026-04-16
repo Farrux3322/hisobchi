@@ -761,16 +761,18 @@ class _ProfilePageState extends State<ProfilePage> {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
+                    style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: Colors.grey.shade200,
                       side: BorderSide(color: AppTheme.colors.divider),
+                      elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                     child: Text(
                       'Qaytish',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.colors.gray),
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
                     ),
                   ),
                 ),

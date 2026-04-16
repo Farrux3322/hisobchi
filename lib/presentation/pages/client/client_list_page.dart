@@ -84,14 +84,20 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
       GetAllEvent(
         startDate: filterStartDate,
         endDate: filterEndDate,
-        search: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
+        search: _searchController.text.trim().isNotEmpty
+            ? _searchController.text.trim()
+            : null,
         sort: filterSort,
         statusFilter: filterStatusFilter,
       ),
     );
   }
 
-  void _handleFilterApply(DateTime? startDate, DateTime? endDate, String? sort) {
+  void _handleFilterApply(
+    DateTime? startDate,
+    DateTime? endDate,
+    String? sort,
+  ) {
     setState(() {
       filterStartDate = startDate;
       filterEndDate = endDate;
@@ -100,7 +106,8 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
     _fetchPartners();
   }
 
-  bool get hasActiveFilters => filterStartDate != null || filterEndDate != null || filterSort != null;
+  bool get hasActiveFilters =>
+      filterStartDate != null || filterEndDate != null || filterSort != null;
 
   List<PartnerModel> _filterPartners(List<PartnerModel> partners) {
     if (_searchController.text.isEmpty) return partners;
@@ -109,7 +116,9 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
       final phone = partner.phone ?? '';
       final activity = partner.activity?.toLowerCase() ?? '';
       final query = _searchController.text.toLowerCase();
-      return name.contains(query) || phone.contains(query) || activity.contains(query);
+      return name.contains(query) ||
+          phone.contains(query) ||
+          activity.contains(query);
     }).toList();
   }
 
@@ -119,17 +128,24 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
       bottom: false,
       child: DeFocus(
         child: Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
           child: BlocConsumer<PartnerBloc, PartnerState>(
             listener: (context, state) {
               if (state.statusAdd == Status.success) {
                 Toast.showSuccessToast(message: 'Muvaffaqiyatli saqlandi');
               }
               if (state.statusAdd == Status.error) {
-                Toast.showErrorToast(message: state.errorMessage ?? 'Xatolik yuz berdi');
+                Toast.showErrorToast(
+                  message: state.errorMessage ?? 'Xatolik yuz berdi',
+                );
               }
               if (state.status == Status.error) {
-                Toast.showErrorToast(message: state.errorMessage ?? "Ma'lumotlarni yuklashda xatolik");
+                Toast.showErrorToast(
+                  message:
+                      state.errorMessage ?? "Ma'lumotlarni yuklashda xatolik",
+                );
               }
             },
             builder: (context, state) {
@@ -139,11 +155,19 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                     return [
                       SliverPersistentHeader(
                         pinned: true,
-                        delegate: _ClientHeaderDelegate(child: _buildHeader(), hasActiveFilters: hasActiveFilters),
+                        delegate: _ClientHeaderDelegate(
+                          child: _buildHeader(),
+                          hasActiveFilters: hasActiveFilters,
+                        ),
                       ),
                     ];
                   },
-                  body: TabBarView(controller: _tabController, children: _statusTabs.map((_) => _buildBody(state)).toList()),
+                  body: TabBarView(
+                    controller: _tabController,
+                    children: _statusTabs
+                        .map((_) => _buildBody(state))
+                        .toList(),
+                  ),
                 ),
                 floatingActionButton: SubscriptionGuard(
                   child: Column(
@@ -162,18 +186,34 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                             hoverElevation: 0,
                             highlightElevation: 0,
                             onPressed: () {
-                              if (!context.hasPermission('report_partners.view')) {
-                                Toast.showWarningToast(message: "Sizda bunday huquq yo'q");
+                              if (!context.hasPermission(
+                                'report_partners.view',
+                              )) {
+                                Toast.showWarningToast(
+                                  message: "Sizda bunday huquq yo'q",
+                                );
                                 return;
                               }
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportClientMainPage()));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const ReportClientMainPage(),
+                                ),
+                              );
                             },
                             backgroundColor: AppTheme.colors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18.r),
-                              side: BorderSide(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
+                              side: BorderSide(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                width: 1.5,
+                              ),
                             ),
-                            child: Icon(Icons.analytics_rounded, color: AppTheme.colors.white, size: 28.sp),
+                            child: Icon(
+                              Icons.analytics_rounded,
+                              color: AppTheme.colors.white,
+                              size: 28.sp,
+                            ),
                           ),
                         ),
                       ),
@@ -193,35 +233,56 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                               highlightElevation: 0,
                               onPressed: () {
                                 if (!context.hasPermission('partners.create')) {
-                                  Toast.showWarningToast(message: "Sizda bunday huquq yo'q");
+                                  Toast.showWarningToast(
+                                    message: "Sizda bunday huquq yo'q",
+                                  );
                                   return;
                                 }
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => BlocProvider(
-                                      create: (context) => FileUploadBloc(repository: FileUploadRepository()),
+                                      create: (context) => FileUploadBloc(
+                                        repository: FileUploadRepository(),
+                                      ),
                                       child: const ClientAddPage(),
                                     ),
                                   ),
                                 ).then((v) {
                                   if (v is PartnerModel && context.mounted) {
-                                    Navigator.push(context, MaterialPageRoute(builder: (_) => AccountPage(partnerModel: v))).then((_) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            AccountPage(partnerModel: v),
+                                      ),
+                                    ).then((_) {
                                       if (context.mounted) {
-                                        context.read<PartnerBloc>().add(const GetAllEvent());
+                                        context.read<PartnerBloc>().add(
+                                          const GetAllEvent(),
+                                        );
                                       }
                                     });
                                   } else if (v == true && context.mounted) {
-                                    context.read<PartnerBloc>().add(const GetAllEvent());
+                                    context.read<PartnerBloc>().add(
+                                      const GetAllEvent(),
+                                    );
                                   }
                                 });
                               },
                               backgroundColor: AppTheme.colors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(18.r),
-                                side: BorderSide(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
+                                side: BorderSide(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  width: 1.5,
+                                ),
                               ),
-                              child: Icon(Icons.add, color: Colors.white, size: 36.sp),
+                              child: Icon(
+                                Icons.add,
+                                color: Colors.white,
+                                size: 36.sp,
+                              ),
                             ),
                           ),
                         ),
@@ -257,10 +318,17 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
             const SizedBox(height: 16),
             const Text(
               'Hech narsa topilmadi',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1E293B),
+              ),
             ),
             const SizedBox(height: 8),
-            Text("Boshqa kalit so'z bilan qidiring", style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+            Text(
+              "Boshqa kalit so'z bilan qidiring",
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            ),
           ],
         ),
       );
@@ -271,12 +339,16 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
         if (scrollInfo is ScrollUpdateNotification) {
           final maxScroll = scrollInfo.metrics.maxScrollExtent;
           final currentScroll = scrollInfo.metrics.pixels;
-          if (currentScroll >= (maxScroll * 0.9) && state.statusLoadMore != Status.loading && !state.hasReachedMax) {
+          if (currentScroll >= (maxScroll * 0.9) &&
+              state.statusLoadMore != Status.loading &&
+              !state.hasReachedMax) {
             context.read<PartnerBloc>().add(
               LoadMorePartnersEvent(
                 startDate: filterStartDate,
                 endDate: filterEndDate,
-                search: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
+                search: _searchController.text.trim().isNotEmpty
+                    ? _searchController.text.trim()
+                    : null,
                 sort: filterSort,
                 statusFilter: filterStatusFilter,
               ),
@@ -293,7 +365,9 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
         child: ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.symmetric(horizontal: 12.w),
-          itemCount: state.hasReachedMax ? filteredPartners.length : filteredPartners.length + 1,
+          itemCount: state.hasReachedMax
+              ? filteredPartners.length
+              : filteredPartners.length + 1,
           itemBuilder: (context, index) {
             if (index >= filteredPartners.length) {
               return _buildLoadMoreIndicator();
@@ -303,7 +377,12 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
               children: [
                 ClientCardItem(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => AccountPage(partnerModel: partner))).then((v) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AccountPage(partnerModel: partner),
+                      ),
+                    ).then((v) {
                       if (v == true && context.mounted) {
                         context.read<PartnerBloc>().add(const GetAllEvent());
                       }
@@ -311,7 +390,8 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                   },
                   partnerModel: partner,
                 ),
-                if (index == filteredPartners.length - 1 && state.hasReachedMax) Gap(MediaQuery.of(context).padding.bottom + 20.h),
+                if (index == filteredPartners.length - 1 && state.hasReachedMax)
+                  Gap(MediaQuery.of(context).padding.bottom + 20.h),
               ],
             );
           },
@@ -327,7 +407,12 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
       child: SizedBox(
         width: 24.w,
         height: 24.w,
-        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary.withValues(alpha: 0.5))),
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            AppTheme.colors.primary.withValues(alpha: 0.5),
+          ),
+        ),
       ),
     );
   }
@@ -350,14 +435,20 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => ClientFilterBottomSheet(initialStartDate: filterStartDate, initialEndDate: filterEndDate, initialSort: filterSort, onApply: _handleFilterApply),
+                  builder: (context) => ClientFilterBottomSheet(
+                    initialStartDate: filterStartDate,
+                    initialEndDate: filterEndDate,
+                    initialSort: filterSort,
+                    onApply: _handleFilterApply,
+                  ),
                 );
               },
               onSearchChanged: () {
                 setState(() {});
                 if (_debounce?.isActive ?? false) _debounce!.cancel();
                 _debounce = Timer(const Duration(milliseconds: 500), () {
-                  if (_searchController.text.isEmpty || _searchController.text.length >= 2) {
+                  if (_searchController.text.isEmpty ||
+                      _searchController.text.length >= 2) {
                     _fetchPartners();
                   }
                 });
@@ -384,65 +475,109 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
             ),
           ),
           // Status TabBar
-          _buildStatusTabBar(),
+          Padding(
+            padding: EdgeInsets.only(top: 10.h, bottom: 10.h),
+            child: _buildStatusTabBar(),
+          ),
         ],
       ),
     );
   }
 
+  Color _tabAccentColor(String? value) {
+    return AppTheme.colors.primary;
+    // switch (value) {
+    //   case 'xaqdor':             return const Color(0xFF22C55E);
+    //   case 'qarzdor':            return const Color(0xFFEF4444);
+    //   case 'muddati_otgan_qarzdor': return const Color(0xFFF59E0B);
+    //   default:                   return AppTheme.colors.primary;
+    // }
+  }
+
   Widget _buildStatusTabBar() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(0.w, 8.h, 0.w, 12.h),
-      child: Container(
-        height: 46.h,
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: AppTheme.colors.background, // Subtle grey background
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        child: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          tabAlignment: TabAlignment.start,
-          dividerColor: Colors.transparent,
-          indicatorSize: TabBarIndicatorSize.tab,
-          indicator: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12.r)),
-          labelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A)),
-          unselectedLabelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: const Color(0xFF64748B)),
-          labelColor: const Color(0xFF0F172A),
-          unselectedLabelColor: const Color(0xFF64748B),
-          padding: EdgeInsets.zero,
-          labelPadding: EdgeInsets.symmetric(horizontal: 16.w),
-          tabs: _statusTabs.map((tab) {
-            return Tab(height: 38.h, text: tab.label);
-          }).toList(),
-        ),
+    final selected = _tabController.index;
+    return SizedBox(
+      height: 32.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 14.w),
+        physics: const BouncingScrollPhysics(),
+        itemCount: _statusTabs.length,
+        separatorBuilder: (_, __) => SizedBox(width: 6.w),
+        itemBuilder: (_, i) {
+          final tab = _statusTabs[i];
+          final isSelected = selected == i;
+          final accent = _tabAccentColor(tab.value);
+          return GestureDetector(
+            onTap: () => _tabController.animateTo(i),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+              padding: EdgeInsets.symmetric(horizontal: 12.w),
+              decoration: BoxDecoration(
+                color: isSelected ? accent : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                tab.label,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? Colors.white : const Color(0xFF64748B),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildEmptyState(PartnerState state) {
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 20.h),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).padding.bottom + 20.h,
+      ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               padding: EdgeInsets.all(24.w),
-              decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.05), shape: BoxShape.circle),
-              child: SvgPicture.asset(AppIcons.clients, width: 64.w, height: 64.w, colorFilter: ColorFilter.mode(AppTheme.colors.primary.withValues(alpha: 0.4), BlendMode.srcIn)),
+              decoration: BoxDecoration(
+                color: AppTheme.colors.primary.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: SvgPicture.asset(
+                AppIcons.clients,
+                width: 64.w,
+                height: 64.w,
+                colorFilter: ColorFilter.mode(
+                  AppTheme.colors.primary.withValues(alpha: 0.4),
+                  BlendMode.srcIn,
+                ),
+              ),
             ),
             Gap(24.h),
             Text(
               'Mijozlar topilmadi',
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B), letterSpacing: -0.5),
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1E293B),
+                letterSpacing: -0.5,
+              ),
             ),
             Gap(8.h),
             Text(
               "Hali hech qanday mijoz qo'shilmagan\nyoki ma'lumotlar yuklanmadi",
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14.sp, color: Colors.grey[500], height: 1.5),
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.grey[500],
+                height: 1.5,
+              ),
             ),
             Gap(32.h),
             SizedBox(
@@ -458,20 +593,33 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                   onPressed: null,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.colors.primary,
-                    side: BorderSide(color: AppTheme.colors.primary.withValues(alpha: 0.2), width: 1.5),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                    side: BorderSide(
+                      color: AppTheme.colors.primary.withValues(alpha: 0.2),
+                      width: 1.5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
                     padding: EdgeInsets.symmetric(horizontal: 24.w),
                   ),
                   icon: state.status == Status.loading
                       ? SizedBox(
                           width: 18.w,
                           height: 18.w,
-                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(AppTheme.colors.primary)),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppTheme.colors.primary,
+                            ),
+                          ),
                         )
                       : Icon(Icons.refresh_rounded, size: 20.sp),
                   label: Text(
                     'Qayta yuklash',
-                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -507,7 +655,10 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                       child: Container(
                         width: 40,
                         height: 40,
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
                       ),
                     ),
                     SizedBox(width: 14.w),
@@ -517,7 +668,10 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                         highlightColor: Colors.grey[100]!,
                         child: Container(
                           height: 16,
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
                       ),
                     ),
@@ -531,7 +685,10 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                           child: Container(
                             width: 80,
                             height: 14,
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
                           ),
                         ),
                         SizedBox(height: 4.h),
@@ -541,7 +698,10 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                           child: Container(
                             width: 80,
                             height: 14,
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
                           ),
                         ),
                       ],
@@ -554,7 +714,10 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                   highlightColor: Colors.grey[100]!,
                   child: Container(
                     height: 32,
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
                   ),
                 ),
               ],
@@ -575,7 +738,11 @@ class _ClientHeaderDelegate extends SliverPersistentHeaderDelegate {
   _ClientHeaderDelegate({required this.child, required this.hasActiveFilters});
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return SizedBox(height: _height, child: child);
   }
 
@@ -586,13 +753,15 @@ class _ClientHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => _height;
 
   double get _height {
-    // Search row: 12.h (top padding) + 54.h (field) = 66.h
-    // TabBar row (Segmented style): 46.h + 8.h + 12.h = 66.h
+    // Search row: 12.h (top) + 54.h (field) + 10.h (bottom) = 76.h
+    // TabBar row: 32.h + 10.h (top) + 10.h (bottom) = 52.h
     // Filter chips (if active): 12.h gap + 32.h = 44.h
-    final base = 66.h + 66.h; // 132.h
+    final base = 76.h + 52.h; // 128.h
     return hasActiveFilters ? base + 44.h : base;
   }
 
   @override
-  bool shouldRebuild(_ClientHeaderDelegate oldDelegate) => oldDelegate.hasActiveFilters != hasActiveFilters || oldDelegate.child != child;
+  bool shouldRebuild(_ClientHeaderDelegate oldDelegate) =>
+      oldDelegate.hasActiveFilters != hasActiveFilters ||
+      oldDelegate.child != child;
 }

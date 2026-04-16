@@ -114,7 +114,7 @@ class _RiskyTabContent extends StatelessWidget {
             child: state.status == Status.loading && state.data.isEmpty
                 ? _SectionShimmer(height: 200.h)
                 : state.data.isEmpty
-                    ? const _EmptySection(message: "Muammoli hamkorlar yo'q")
+                    ? const _EmptySection(message: "Muammoli mijozlar yo'q")
                     : Column(
                         children: state.data
                             .map((p) => _RiskyPartnerCard(partner: p, currency: currencyLabel))
