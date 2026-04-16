@@ -43,6 +43,8 @@
 	<true/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>payme</string>
+		<string>click</string>
 		<string>sms</string>
 		<string>tel</string>
 	</array>

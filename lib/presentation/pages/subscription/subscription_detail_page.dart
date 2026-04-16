@@ -123,12 +123,24 @@ class _SubscriptionDetailPageState extends State<SubscriptionDetailPage> with Wi
 
   Future<void> _launchPaymentUrl(String url) async {
     final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('To\'lov sahifasini ochib bo\'lmadi')));
-      }
+
+    // 1. Tashqi ilova yoki brauzer (Payme/Click app bo'lsa — ilova, bo'lmasa — default brauzer)
+    try {
+      final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (opened) return;
+    } catch (_) {}
+
+    // 2. OS ga topshiramiz — har qanday Android da ishlaydi (Huawei, Xiaomi, eski qurilmalar)
+    try {
+      final opened = await launchUrl(uri, mode: LaunchMode.platformDefault);
+      if (opened) return;
+    } catch (_) {}
+
+    // 3. Hech nima ishlamadi
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('To\'lov sahifasini ochib bo\'lmadi')),
+      );
     }
   }
 

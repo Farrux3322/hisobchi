@@ -53,17 +53,36 @@
             android:value="2" />
     </application>
     <queries>
-        <!-- If your app checks for SMS support -->
+        <!-- HTTPS / HTTP links (to'lov URL lari) -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
+        <!-- Payme deep link -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="payme" />
+        </intent>
+        <!-- Click deep link -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="click" />
+        </intent>
+        <!-- SMS -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="sms" />
         </intent>
-        <!-- If your app checks for call support -->
+        <!-- Tel -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="tel" />
         </intent>
-        <!-- If your application checks for inAppBrowserView launch mode support -->
+        <!-- Chrome Custom Tabs -->
         <intent>
             <action android:name="android.support.customtabs.action.CustomTabsService" />
         </intent>
