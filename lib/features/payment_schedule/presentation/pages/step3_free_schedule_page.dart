@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../presentation/assets/asset_index.dart';
+import '../../../../presentation/components/defocus.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/installment_item_model.dart';
 import '../bloc/payment_schedule_bloc.dart';
@@ -31,176 +32,177 @@ class Step3FreeSchedulePage extends StatelessWidget {
         final advanceItem = hasAdvance ? state.freeInstallments.first : null;
         final regularItems = state.freeInstallments.where((i) => !i.isAdvance).toList();
 
-        return Scaffold(
-          backgroundColor: AppTheme.colors.background,
-          body: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const PSStepIndicator(currentStep: 2),
-                      SizedBox(height: 6.h),
+        return DeFocus(
+          child: Scaffold(
+            body: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const PSStepIndicator(currentStep: 2),
+                        SizedBox(height: 6.h),
 
-                      // ── Header ──────────────────────────────────────────
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '3-bosqich · Erkin grafik',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.colors.black,
-                                letterSpacing: -0.5,
+                        // ── Header ──────────────────────────────────────────
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '3-bosqich · Erkin grafik',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.colors.black,
+                                  letterSpacing: -0.5,
+                                ),
                               ),
                             ),
-                          ),
-                          if (isValid) _ValidBadge(),
-                        ],
-                      ),
-                      SizedBox(height: 16.h),
-
-                      // ── Boshlang'ich to'lov toggle ──────────────────────
-                      PSAdvanceToggleCard(
-                        isEnabled: hasAdvance,
-                        onToggled: (value) {
-                          context.read<PaymentScheduleBloc>().add(PaymentAdvanceToggled(value));
-                        },
-                      ),
-
-                      // ── Avans item card ─────────────────────────────────
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        child: hasAdvance && advanceItem != null
-                            ? Column(
-                                children: [
-                                  SizedBox(height: 10.h),
-                                  PSAdvanceItemCard(
-                                    amount: advanceItem.amount,
-                                    dueDate: advanceItem.dueDate,
-                                    currSym: currSym,
-                                    note: advanceItem.note,
-                                    onAmountChanged: (amount) {
-                                      context.read<PaymentScheduleBloc>().add(
-                                            PaymentFreeInstallmentUpdated(advanceItem.copyWith(amount: amount)),
-                                          );
-                                    },
-                                    onNoteChanged: (note) {
-                                      context.read<PaymentScheduleBloc>().add(
-                                            PaymentFreeInstallmentUpdated(
-                                              advanceItem.copyWith(note: note.isEmpty ? null : note),
-                                            ),
-                                          );
-                                    },
-                                    onDateTap: () => _showDatePickerForItem(context, advanceItem),
-                                  ),
-                                ],
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-
-                      SizedBox(height: 10.h),
-
-                      // ── Info box ────────────────────────────────────────
-                      PSInfoBox(
-                        type: isValid
-                            ? InfoBoxType.success
-                            : isOverflow
-                                ? InfoBoxType.error
-                                : InfoBoxType.warning,
-                        title: isValid
-                            ? "To'liq taqsimlandi"
-                            : isOverflow
-                                ? 'Summa oshib ketdi'
-                                : 'Taqsimot qoldi',
-                        description: isValid
-                            ? "Jami ${fmt.format(totalFree).replaceAll(',', ' ')} $currSym muvaffaqiyatli rejalashtirildi."
-                            : isOverflow
-                                ? "${fmt.format(remaining.abs()).replaceAll(',', ' ')} $currSym ga kamaytiring."
-                                : "Qolgan: ${fmt.format(remaining.abs()).replaceAll(',', ' ')} $currSym. Barcha summani taqsimlang.",
-                      ),
-                      SizedBox(height: 12.h),
-
-                      // ── Oddiy qismlar ───────────────────────────────────
-                      ...regularItems.map(
-                        (item) => _RegularItemCard(
-                          item: item,
-                          currSym: currSym,
-                          canDelete: regularItems.length > 1,
-                          onAmountChanged: (amount) {
-                            context.read<PaymentScheduleBloc>().add(
-                                  PaymentFreeInstallmentUpdated(item.copyWith(amount: amount)),
-                                );
-                          },
-                          onDateChanged: (date) {
-                            context.read<PaymentScheduleBloc>().add(
-                                  PaymentFreeInstallmentUpdated(
-                                    item.copyWith(dueDate: DateFormat('yyyy-MM-dd').format(date)),
-                                  ),
-                                );
-                          },
-                          onNoteChanged: (note) {
-                            context.read<PaymentScheduleBloc>().add(
-                                  PaymentFreeInstallmentUpdated(
-                                    item.copyWith(note: note.isEmpty ? null : note),
-                                  ),
-                                );
-                          },
-                          onDelete: () => _confirmDelete(context, item),
+                            if (isValid) _ValidBadge(),
+                          ],
                         ),
-                      ),
+                        SizedBox(height: 16.h),
 
-                      // ── Yangi qism qo'shish ─────────────────────────────
-                      SizedBox(height: 8.h),
-                      GestureDetector(
-                        onTap: () => context.read<PaymentScheduleBloc>().add(const PaymentFreeInstallmentAdded()),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 16.h),
-                          decoration: BoxDecoration(
-                            color: AppTheme.colors.white,
-                            borderRadius: BorderRadius.circular(16.r),
-                            border: Border.all(color: AppTheme.colors.primary, width: 1.5.w),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppTheme.colors.primary.withValues(alpha: 0.08),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.add_circle_outline_rounded, color: AppTheme.colors.primary, size: 22.r),
-                              SizedBox(width: 10.w),
-                              Text(
-                                "Yangi qism qo'shish",
-                                style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.primary),
-                              ),
-                            ],
+                        // ── Boshlang'ich to'lov toggle ──────────────────────
+                        PSAdvanceToggleCard(
+                          isEnabled: hasAdvance,
+                          onToggled: (value) {
+                            context.read<PaymentScheduleBloc>().add(PaymentAdvanceToggled(value));
+                          },
+                        ),
+
+                        // ── Avans item card ─────────────────────────────────
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          child: hasAdvance && advanceItem != null
+                              ? Column(
+                                  children: [
+                                    SizedBox(height: 10.h),
+                                    PSAdvanceItemCard(
+                                      amount: advanceItem.amount,
+                                      dueDate: advanceItem.dueDate,
+                                      currSym: currSym,
+                                      note: advanceItem.note,
+                                      onAmountChanged: (amount) {
+                                        context.read<PaymentScheduleBloc>().add(
+                                              PaymentFreeInstallmentUpdated(advanceItem.copyWith(amount: amount)),
+                                            );
+                                      },
+                                      onNoteChanged: (note) {
+                                        context.read<PaymentScheduleBloc>().add(
+                                              PaymentFreeInstallmentUpdated(
+                                                advanceItem.copyWith(note: note.isEmpty ? null : note),
+                                              ),
+                                            );
+                                      },
+                                      onDateTap: () => _showDatePickerForItem(context, advanceItem),
+                                    ),
+                                  ],
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+
+                        SizedBox(height: 10.h),
+
+                        // ── Info box ────────────────────────────────────────
+                        PSInfoBox(
+                          type: isValid
+                              ? InfoBoxType.success
+                              : isOverflow
+                                  ? InfoBoxType.error
+                                  : InfoBoxType.warning,
+                          title: isValid
+                              ? "To'liq taqsimlandi"
+                              : isOverflow
+                                  ? 'Summa oshib ketdi'
+                                  : 'Taqsimot qoldi',
+                          description: isValid
+                              ? "Jami ${fmt.format(totalFree).replaceAll(',', ' ')} $currSym muvaffaqiyatli rejalashtirildi."
+                              : isOverflow
+                                  ? "${fmt.format(remaining.abs()).replaceAll(',', ' ')} $currSym ga kamaytiring."
+                                  : "Qolgan: ${fmt.format(remaining.abs()).replaceAll(',', ' ')} $currSym. Barcha summani taqsimlang.",
+                        ),
+                        SizedBox(height: 12.h),
+
+                        // ── Oddiy qismlar ───────────────────────────────────
+                        ...regularItems.map(
+                          (item) => _RegularItemCard(
+                            item: item,
+                            currSym: currSym,
+                            canDelete: regularItems.length > 1,
+                            onAmountChanged: (amount) {
+                              context.read<PaymentScheduleBloc>().add(
+                                    PaymentFreeInstallmentUpdated(item.copyWith(amount: amount)),
+                                  );
+                            },
+                            onDateChanged: (date) {
+                              context.read<PaymentScheduleBloc>().add(
+                                    PaymentFreeInstallmentUpdated(
+                                      item.copyWith(dueDate: DateFormat('yyyy-MM-dd').format(date)),
+                                    ),
+                                  );
+                            },
+                            onNoteChanged: (note) {
+                              context.read<PaymentScheduleBloc>().add(
+                                    PaymentFreeInstallmentUpdated(
+                                      item.copyWith(note: note.isEmpty ? null : note),
+                                    ),
+                                  );
+                            },
+                            onDelete: () => _confirmDelete(context, item),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 32.h),
-                    ],
+
+                        // ── Yangi qism qo'shish ─────────────────────────────
+                        SizedBox(height: 8.h),
+                        GestureDetector(
+                          onTap: () => context.read<PaymentScheduleBloc>().add(const PaymentFreeInstallmentAdded()),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 16.h),
+                            decoration: BoxDecoration(
+                              color: AppTheme.colors.white,
+                              borderRadius: BorderRadius.circular(16.r),
+                              border: Border.all(color: AppTheme.colors.primary, width: 1.5.w),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.colors.primary.withValues(alpha: 0.08),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.add_circle_outline_rounded, color: AppTheme.colors.primary, size: 22.r),
+                                SizedBox(width: 10.w),
+                                Text(
+                                  "Yangi qism qo'shish",
+                                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.primary),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 32.h),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              PSBottomButtons(
-                showBack: true,
-                continueLabel: 'Saqlash',
-                continueColor: isValid ? AppTheme.colors.green : AppTheme.colors.disable,
-                isLoading: state.status == PaymentScheduleStatus.loading,
-                onBack: () => context.read<PaymentScheduleBloc>().add(const PaymentStepBack()),
-                onContinue: isValid
-                    ? () => context.read<PaymentScheduleBloc>().add(const PaymentScheduleSubmitted())
-                    : null,
-              ),
-            ],
+                PSBottomButtons(
+                  showBack: true,
+                  continueLabel: 'Saqlash',
+                  continueColor: isValid ? AppTheme.colors.green : AppTheme.colors.disable,
+                  isLoading: state.status == PaymentScheduleStatus.loading,
+                  onBack: () => context.read<PaymentScheduleBloc>().add(const PaymentStepBack()),
+                  onContinue: isValid
+                      ? () => context.read<PaymentScheduleBloc>().add(const PaymentScheduleSubmitted())
+                      : null,
+                ),
+              ],
+            ),
           ),
         );
       },

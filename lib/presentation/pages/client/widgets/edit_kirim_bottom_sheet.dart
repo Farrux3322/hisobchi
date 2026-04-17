@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hisobchi/infrastructure/dto/models/partner/income_history_model.dart';
-import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
+import 'package:photo_opener/photo_opener.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../assets/asset_index.dart';
 
@@ -289,15 +289,23 @@ class TransactionDetailBottomSheet extends StatelessWidget {
             children: transaction.files!.map((file) {
               return GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ImageViewerPage(
-                        images: transaction.files!.map((f) => ImageItem(path: f.url ?? '', isNetwork: true)).toList(),
-                        initialIndex: transaction.files!.indexOf(file),
-                      ),
-                    ),
+                  onOpenPhoto(
+                    context: context,
+                    images: transaction.files?.map((f) => f.url ?? '').toList() ?? [],
+                    type: PhotoType.network,
+                    initialIndex: transaction.files!.indexOf(file),
+                    closeText: 'Qaytish',
                   );
+
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (_) => ImageViewerPage(
+                  //       images: transaction.files!.map((f) => ImageItem(path: f.url ?? '', isNetwork: true)).toList(),
+                  //       initialIndex: transaction.files!.indexOf(file),
+                  //     ),
+                  //   ),
+                  // );
                 },
                 child: Hero(
                   tag: file.url ?? '',
@@ -430,21 +438,15 @@ class TransactionDetailBottomSheet extends StatelessWidget {
     }
   }
 
-  Future<void> _sendSms({
-    required String phoneNumber,
-    required String partnerName,
-    required String amount,
-    required String currency,
-    required bool isIncoming,
-    String? returnDate,
-  }) async {
+  Future<void> _sendSms({required String phoneNumber, required String partnerName, required String amount, required String currency, required bool isIncoming, String? returnDate}) async {
     String message = "";
     final String senderName = UserData.name;
     final String senderPhone = _formatPhoneNumber(UserData.phone);
 
     if (isIncoming) {
       // 2. To'lov qabul qilinganda
-      message = "Hurmatli $partnerName, Sizdan $amount $currency miqdoridagi to‘lov qabul qilindi.\n"
+      message =
+          "Hurmatli $partnerName, Sizdan $amount $currency miqdoridagi to‘lov qabul qilindi.\n"
           "Qabul qiluvchi: $senderName\n"
           "Tel: $senderPhone\n"
           "Hamkorlik uchun rahmat\n"
@@ -471,15 +473,18 @@ class TransactionDetailBottomSheet extends StatelessWidget {
             message = "${header}Bugun $amount $currency qarzni qaytarish muddati.$footer";
           } else if (difference > 0 && difference <= 3) {
             // 3. Qarz muddati yaqinlashmoqda
-            message = "${header}Siz olgan $amount $currency qarz muddati yaqinlashmoqda.\n"
+            message =
+                "${header}Siz olgan $amount $currency qarz muddati yaqinlashmoqda.\n"
                 "Qaytarish sanasi: $formattedDate$footer";
           } else if (difference < 0) {
             // 5. Qarz muddati o'tib ketgan bo'lsa
-            message = "${header}$amount $currency qarz muddati o‘tib ketdi.\n"
+            message =
+                "$header$amount $currency qarz muddati o‘tib ketdi.\n"
                 "Iltimos, tez orada to‘lovni amalga oshiring.$footer";
           } else {
             // 1. Yangi qarz berilganda (3 kundan ko'p vaqt bo'lsa)
-            message = "${header}Sizga $amount $currency qarz berildi.\n"
+            message =
+                "${header}Sizga $amount $currency qarz berildi.\n"
                 "Qaytarish sanasi: $formattedDate$footer";
           }
         } else {

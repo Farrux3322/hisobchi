@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:photo_opener/photo_opener.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
-import 'package:hisobchi/presentation/components/full_screen_photo.dart';
 import '../../../../assets/asset_index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hisobchi/domain/common/data/user_data.dart';
@@ -9,10 +9,7 @@ import 'package:hisobchi/domain/common/data/user_data.dart';
 class PartnerOperationDetailSheet extends StatelessWidget {
   final PartnerOperation operation;
 
-  const PartnerOperationDetailSheet({
-    super.key,
-    required this.operation,
-  });
+  const PartnerOperationDetailSheet({super.key, required this.operation});
 
   @override
   Widget build(BuildContext context) {
@@ -57,9 +54,15 @@ class PartnerOperationDetailSheet extends StatelessWidget {
     final isIncoming = !operation.isCredit;
 
     // Premium Curated Palette
-    final brandColor = isIncoming ? const Color(0xFF10B981) : const Color(0xFFE11D48); // Emerald-500 vs Rose-600
-    final surfaceColor = isIncoming ? const Color(0xFFECFDF5) : const Color(0xFFFFF1F2); // Emerald-50 vs Rose-50
-    final borderColor = isIncoming ? const Color(0xFFD1FAE5) : const Color(0xFFFECDD3); // Emerald-100 vs Rose-100
+    final brandColor = isIncoming
+        ? const Color(0xFF10B981)
+        : const Color(0xFFE11D48); // Emerald-500 vs Rose-600
+    final surfaceColor = isIncoming
+        ? const Color(0xFFECFDF5)
+        : const Color(0xFFFFF1F2); // Emerald-50 vs Rose-50
+    final borderColor = isIncoming
+        ? const Color(0xFFD1FAE5)
+        : const Color(0xFFFECDD3); // Emerald-100 vs Rose-100
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -90,7 +93,9 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                     ],
                   ),
                   child: Icon(
-                    isIncoming ? Icons.south_west_rounded : Icons.north_east_rounded,
+                    isIncoming
+                        ? Icons.south_west_rounded
+                        : Icons.north_east_rounded,
                     color: Colors.white,
                     size: 16.sp,
                   ),
@@ -101,7 +106,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        operation.type=='credit' ? 'Qarz':'Kirim',
+                        operation.type == 'credit' ? 'Qarz' : 'Kirim',
                         // operation.typeDisplay.toUpperCase(),
                         style: TextStyle(
                           fontSize: 12.sp,
@@ -114,7 +119,8 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: '${isIncoming ? '+' : '-'}${_formatMoney(operation.remainingAmount)} ',
+                              text:
+                                  '${isIncoming ? '+' : '-'}${_formatMoney(operation.remainingAmount)} ',
                               style: TextStyle(
                                 fontSize: 22.sp,
                                 fontWeight: FontWeight.w900,
@@ -144,7 +150,11 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.8),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.close_rounded, size: 18.sp, color: AppTheme.colors.gray),
+                    child: Icon(
+                      Icons.close_rounded,
+                      size: 18.sp,
+                      color: AppTheme.colors.gray,
+                    ),
                   ),
                 ),
               ],
@@ -177,12 +187,14 @@ class PartnerOperationDetailSheet extends StatelessWidget {
           ),
 
           // Partner Phone (if available)
-          if (operation.partnerPhone != null && operation.partnerPhone!.isNotEmpty) ...[
+          if (operation.partnerPhone != null &&
+              operation.partnerPhone!.isNotEmpty) ...[
             SizedBox(height: 12.h),
             _buildMinimalInfo(
               label: 'Telefon raqami',
               value: _formatPhoneNumber(operation.partnerPhone!),
-              color: const Color(0xFF8B5CF6), // Purple
+              color: const Color(0xFF8B5CF6),
+              // Purple
               icon: Icons.phone_rounded,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -248,15 +260,17 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                     child: _buildMinimalInfo(
                       label: operation.isOverdue
                           ? "Muddati o'tgan"
-                          : operation.daysLeft != null && operation.daysLeft! <= 3
-                              ? 'Yaqinlashmoqda'
-                              : 'Qaytarish sanasi',
+                          : operation.daysLeft != null &&
+                                operation.daysLeft! <= 3
+                          ? 'Yaqinlashmoqda'
+                          : 'Qaytarish sanasi',
                       value: _formatDueDate(operation.dueDate!),
                       color: operation.isOverdue
                           ? const Color(0xFFEF4444)
-                          : operation.daysLeft != null && operation.daysLeft! <= 3
-                              ? const Color(0xFFF59E0B)
-                              : const Color(0xFF10B981),
+                          : operation.daysLeft != null &&
+                                operation.daysLeft! <= 3
+                          ? const Color(0xFFF59E0B)
+                          : const Color(0xFF10B981),
                       icon: operation.isOverdue
                           ? Icons.error_outline_rounded
                           : Icons.schedule_rounded,
@@ -269,7 +283,7 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                   Expanded(
                     child: _buildMinimalInfo(
                       label: 'Holati',
-                      value: operation.status??'',
+                      value: operation.status ?? '',
                       color: const Color(0xFF10B981),
                       icon: Icons.schedule_rounded,
                       isUrgent: operation.status?.toLowerCase() == 'cancelled',
@@ -361,8 +375,10 @@ class PartnerOperationDetailSheet extends StatelessWidget {
           ],
 
           // Amount Details (Scheduled, Paid, Remaining)
-          if ((operation.scheduledAmount != null && operation.scheduledAmountValue > 0) &&
-              (operation.paidAmount != null && operation.paidAmountValue > 0)) ...[
+          if ((operation.scheduledAmount != null &&
+                  operation.scheduledAmountValue > 0) &&
+              (operation.paidAmount != null &&
+                  operation.paidAmountValue > 0)) ...[
             SizedBox(height: 14.h),
             Container(
               width: double.infinity,
@@ -377,7 +393,11 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.account_balance_wallet_rounded, size: 12.sp, color: const Color(0xFF94A3B8)),
+                      Icon(
+                        Icons.account_balance_wallet_rounded,
+                        size: 12.sp,
+                        color: const Color(0xFF94A3B8),
+                      ),
                       SizedBox(width: 6.w),
                       Text(
                         'Summa tafsilotlari',
@@ -391,7 +411,8 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 8.h),
-                  if (operation.scheduledAmount != null && operation.scheduledAmountValue > 0) ...[
+                  if (operation.scheduledAmount != null &&
+                      operation.scheduledAmountValue > 0) ...[
                     _buildAmountRow(
                       'Rejalashtirilgan:',
                       _formatMoney(operation.scheduledAmount!),
@@ -399,7 +420,8 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                     ),
                     SizedBox(height: 4.h),
                   ],
-                  if (operation.paidAmount != null && operation.paidAmountValue > 0) ...[
+                  if (operation.paidAmount != null &&
+                      operation.paidAmountValue > 0) ...[
                     _buildAmountRow(
                       'To\'langan:',
                       _formatMoney(operation.paidAmount!),
@@ -436,7 +458,11 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.notes_rounded, size: 12.sp, color: const Color(0xFF94A3B8)),
+                      Icon(
+                        Icons.notes_rounded,
+                        size: 12.sp,
+                        color: const Color(0xFF94A3B8),
+                      ),
                       SizedBox(width: 6.w),
                       Text(
                         'Izoh',
@@ -480,7 +506,11 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.attach_file_rounded, size: 12.sp, color: const Color(0xFF94A3B8)),
+                      Icon(
+                        Icons.attach_file_rounded,
+                        size: 12.sp,
+                        color: const Color(0xFF94A3B8),
+                      ),
                       SizedBox(width: 6.w),
                       Text(
                         'Rasmlar',
@@ -500,15 +530,22 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                     children: operation.files.map((file) {
                       return GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ImageViewerPage(
-                                images: operation.files.map((f) => ImageItem(path: f.url, isNetwork: true)).toList(),
-                                initialIndex: operation.files.indexOf(file),
-                              ),
-                            ),
+                          onOpenPhoto(
+                            context: context,
+                            images: operation.files.map((f) => f.url).toList(),
+                            type: PhotoType.network,
+                            closeText: 'Qaytish',
                           );
+
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (_) => ImageViewerPage(
+                          //       images: operation.files.map((f) => ImageItem(path: f.url, isNetwork: true)).toList(),
+                          //       initialIndex: operation.files.indexOf(file),
+                          //     ),
+                          //   ),
+                          // );
                         },
                         child: Hero(
                           tag: file.url,
@@ -518,7 +555,9 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12.r),
-                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                              border: Border.all(
+                                color: const Color(0xFFE2E8F0),
+                              ),
                               image: DecorationImage(
                                 image: NetworkImage(file.url),
                                 fit: BoxFit.cover,
@@ -532,10 +571,16 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                                   child: Container(
                                     padding: EdgeInsets.all(4.w),
                                     decoration: BoxDecoration(
-                                      color: Colors.black.withValues(alpha: 0.5),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.5,
+                                      ),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(Icons.fullscreen_rounded, size: 12.sp, color: Colors.white),
+                                    child: Icon(
+                                      Icons.fullscreen_rounded,
+                                      size: 12.sp,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -591,7 +636,11 @@ class PartnerOperationDetailSheet extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(icon, size: 12.sp, color: color.withValues(alpha: 0.5)),
+                    Icon(
+                      icon,
+                      size: 12.sp,
+                      color: color.withValues(alpha: 0.5),
+                    ),
                     SizedBox(width: 6.w),
                     Expanded(
                       child: Text(
@@ -614,7 +663,9 @@ class PartnerOperationDetailSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: isUrgent ? FontWeight.w800 : FontWeight.w700,
-                    color: isUrgent ? color : const Color(0xFF1E293B), // Slate-800
+                    color: isUrgent
+                        ? color
+                        : const Color(0xFF1E293B), // Slate-800
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -622,20 +673,14 @@ class PartnerOperationDetailSheet extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) ...[
-            SizedBox(width: 8.w),
-            trailing,
-          ],
+          if (trailing != null) ...[SizedBox(width: 8.w), trailing],
         ],
       ),
     );
   }
 
   Future<void> _makePhoneCall(String phoneNumber) async {
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
+    final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
     if (await canLaunchUrl(launchUri)) {
       await launchUrl(launchUri);
     } else {
@@ -657,14 +702,16 @@ class PartnerOperationDetailSheet extends StatelessWidget {
 
     if (isIncoming) {
       // 2. To'lov qabul qilinganda
-      message = "Hurmatli $partnerName, Sizdan $amount $currency miqdoridagi to‘lov qabul qilindi.\n"
+      message =
+          "Hurmatli $partnerName, Sizdan $amount $currency miqdoridagi to‘lov qabul qilindi.\n"
           "Qabul qiluvchi: $senderName\n"
           "Tel: $senderPhone\n"
           "Hamkorlik uchun rahmat\n"
           "Manba: E-Hisob";
     } else {
       final String header = "Hurmatli $partnerName, ";
-      final String footer = "\nBeruvchi: $senderName\nTel: $senderPhone\nManba: E-Hisob";
+      final String footer =
+          "\nBeruvchi: $senderName\nTel: $senderPhone\nManba: E-Hisob";
 
       if (dueDate != null && dueDate.isNotEmpty) {
         final String formattedDate = _formatDueDate(dueDate);
@@ -687,23 +734,31 @@ class PartnerOperationDetailSheet extends StatelessWidget {
         if (dueDateTime != null) {
           final now = DateTime.now();
           final today = DateTime(now.year, now.month, now.day);
-          final dueDay = DateTime(dueDateTime.year, dueDateTime.month, dueDateTime.day);
+          final dueDay = DateTime(
+            dueDateTime.year,
+            dueDateTime.month,
+            dueDateTime.day,
+          );
           final difference = dueDay.difference(today).inDays;
 
           if (difference == 0) {
             // 4. Bugun qaytarish muddati bo'lsa
-            message = "${header}Bugun $amount $currency qarzni qaytarish muddati.$footer";
+            message =
+                "${header}Bugun $amount $currency qarzni qaytarish muddati.$footer";
           } else if (difference > 0 && difference <= 3) {
             // 3. Qarz muddati yaqinlashmoqda
-            message = "${header}Siz olgan $amount $currency qarz muddati yaqinlashmoqda.\n"
+            message =
+                "${header}Siz olgan $amount $currency qarz muddati yaqinlashmoqda.\n"
                 "Qaytarish sanasi: $formattedDate$footer";
           } else if (difference < 0) {
             // 5. Qarz muddati o'tib ketgan bo'lsa
-            message = "$header$amount $currency qarz muddati o‘tib ketdi.\n"
+            message =
+                "$header$amount $currency qarz muddati o‘tib ketdi.\n"
                 "Iltimos, tez orada to‘lovni amalga oshiring.$footer";
           } else {
             // 1. Yangi qarz berilganda
-            message = "${header}Sizga $amount $currency qarz berildi.\n"
+            message =
+                "${header}Sizga $amount $currency qarz berildi.\n"
                 "Qaytarish sanasi: $formattedDate$footer";
           }
         } else {
@@ -726,7 +781,13 @@ class PartnerOperationDetailSheet extends StatelessWidget {
     }
   }
 
-  Widget _buildAmountRow(String label, String amount, String currency, {Color? color, bool isBold = false}) {
+  Widget _buildAmountRow(
+    String label,
+    String amount,
+    String currency, {
+    Color? color,
+    bool isBold = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -768,9 +829,9 @@ class PartnerOperationDetailSheet extends StatelessWidget {
     final value = double.tryParse(amount) ?? 0.0;
     final intValue = value.toInt();
     return intValue.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]} ',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]} ',
+    );
   }
 
   String _formatDate(String dateStr) {
