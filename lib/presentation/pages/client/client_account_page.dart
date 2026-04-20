@@ -19,6 +19,7 @@ import 'package:hisobchi/presentation/pages/client/report/report_client_show_pag
 import 'package:hisobchi/presentation/pages/client/widgets/client_delete_dialog.dart';
 import 'package:hisobchi/presentation/pages/client/sms_menu_page.dart';
 import 'package:hisobchi/presentation/pages/client/widgets/kirim_bottom_sheet.dart';
+import 'package:hisobchi/presentation/pages/client/widgets/chiqim_page.dart';
 import 'package:hisobchi/presentation/components/subscription/subscription_guard.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:shimmer/shimmer.dart';
@@ -420,7 +421,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                     LayoutBuilder(
                       builder: (context, constraints) {
                         final screenHeight = MediaQuery.of(context).size.height;
-                        final availableHeight = screenHeight * 0.40; // Responsive height
+                        final availableHeight = screenHeight * 0.42; // Responsive height
 
                         return Container(
                           width: double.infinity,
@@ -837,6 +838,22 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                             return;
                           }
                           showKirimBottomSheet(context, widget.partnerModel.id ?? 0, false, currencySymbol, widget.partnerModel);
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (_) => MultiBlocProvider(
+                          //       providers: [
+                          //         BlocProvider.value(value: context.read<PartnerBloc>()),
+                          //         BlocProvider(create: (_) => FileUploadBloc(repository: FileUploadRepository())),
+                          //       ],
+                          //       child: ChiqimPage(
+                          //         partnerId: widget.partnerModel.id ?? 0,
+                          //         currencySymbol: currencySymbol,
+                          //         partnerModel: widget.partnerModel,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // );
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.025, horizontal: buttonPadding),

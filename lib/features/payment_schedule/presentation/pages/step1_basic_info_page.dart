@@ -159,6 +159,7 @@ class _Step1BasicInfoPageState extends State<Step1BasicInfoPage> {
                                         Expanded(
                                           child: TextField(
                                             keyboardType: TextInputType.number,
+                                            maxLength: 13,
                                             inputFormatters: [
                                               FilteringTextInputFormatter.digitsOnly,
                                               _ThousandsSeparatorInputFormatter(),
@@ -171,6 +172,7 @@ class _Step1BasicInfoPageState extends State<Step1BasicInfoPage> {
                                             ),
                                             decoration: InputDecoration(
                                               hintText: '0',
+                                              counter: SizedBox(),
                                               hintStyle:
                                                   TextStyle(color: AppTheme.colors.divider),
                                               border: InputBorder.none,

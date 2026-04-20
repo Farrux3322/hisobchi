@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:hisobchi/presentation/components/back_button.dart';
 import 'package:hisobchi/presentation/pages/client/sms_detail_page.dart';
 import 'package:hisobchi/presentation/pages/client/sms_setting_page.dart';
 
@@ -16,14 +17,9 @@ class SmsMenuPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.colors.background,
       appBar: AppBar(
         backgroundColor: AppTheme.colors.white,
-        elevation: 0.5,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.colors.primary),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: BackArrowButton(),
         title: Text(
           'SMS Sozlamalari',
           style: TextStyle(
@@ -38,7 +34,7 @@ class SmsMenuPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         children: [
           _MenuCard(
-            icon: Icons.settings_outlined,
+            icon: Icons.settings,
             title: 'SMS Sozlamalari',
             subtitle: 'SMS xabar shablonlari va sozlamalar',
             onTap: () {
