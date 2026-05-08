@@ -27,6 +27,30 @@ class Step1BasicInfoPage extends StatefulWidget {
 }
 
 class _Step1BasicInfoPageState extends State<Step1BasicInfoPage> {
+  late final TextEditingController _amountController;
+  late final TextEditingController _noteController;
+
+  static final _fmt = NumberFormat('#,###', 'en_US');
+
+  @override
+  void initState() {
+    super.initState();
+    final state = context.read<PaymentScheduleBloc>().state;
+    _amountController = TextEditingController(
+      text: state.totalAmount > 0
+          ? _fmt.format(state.totalAmount.toInt()).replaceAll(',', ' ')
+          : '',
+    );
+    _noteController = TextEditingController(text: state.note);
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PaymentScheduleBloc, PaymentScheduleState>(
@@ -158,6 +182,7 @@ class _Step1BasicInfoPageState extends State<Step1BasicInfoPage> {
                                         SizedBox(width: 12.w),
                                         Expanded(
                                           child: TextField(
+                                            controller: _amountController,
                                             keyboardType: TextInputType.number,
                                             maxLength: 13,
                                             inputFormatters: [
@@ -263,6 +288,7 @@ class _Step1BasicInfoPageState extends State<Step1BasicInfoPage> {
                         PSSectionCard(
                           label: 'Izoh (ixtiyoriy)',
                           child: TextField(
+                            controller: _noteController,
                             maxLines: 3,
                             cursorColor: AppTheme.colors.primary,
                             style: TextStyle(

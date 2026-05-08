@@ -209,10 +209,18 @@ class _ClientEditPageState extends State<ClientEditPage> {
     }
 
     if (_formKey.currentState!.validate()) {
+      String getUnmasked(String text) {
+        String digits = text.replaceAll(RegExp(r'[^0-9]'), '');
+        if (digits.startsWith('998') && text.startsWith('+998')) {
+          return digits.substring(3);
+        }
+        return digits;
+      }
+
       final data = {
         'name': _nameController.text.trim(),
-        'phone': _maskFormatter1.getUnmaskedText(),
-        'additional_phone': _maskFormatter2.getUnmaskedText(),
+        'phone': getUnmasked(_phoneController.text),
+        'additional_phone': getUnmasked(_additionalPhoneController.text),
         'file_id': _uploadedImageId == null ? [] : [_uploadedImageId],
         'currency_type_id': _selectedCurrency!.id,
       };
