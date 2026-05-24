@@ -62,6 +62,8 @@ class ProjectCostBloc extends Bloc<ProjectCostEvent, ProjectCostState> {
   ) async {
     if (state.hasReachedMax || state.status == Status.loading) return;
 
+    emit(state.copyWith(status: Status.loading));
+
     try {
       final int nextPage = state.currentPage + 1;
       final response = await repository.getProjectCosts(
