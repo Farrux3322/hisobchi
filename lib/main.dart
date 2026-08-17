@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:io';
+// import 'dart:io';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+// Firebase vaqtincha o'chirilgan (network so'rovlarini uzish uchun)
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,12 +29,12 @@ import 'package:ehisob/application/work_type/work_type_bloc.dart';
 import 'package:ehisob/application/worker/worker_bloc.dart';
 import 'package:ehisob/application/tutorial/tutorial_bloc.dart';
 import 'package:ehisob/infrastructure/repository/tutorial/tutorial_repository.dart';
-import 'package:ehisob/firebase_options.dart';
+// import 'package:ehisob/firebase_options.dart';
 import 'package:ehisob/infrastructure/repository/project_cost/project_cost_repository.dart';
 import 'package:ehisob/infrastructure/repository/project_income/project_income_repository.dart';
 import 'package:ehisob/infrastructure/repository/theme/theme_repository.dart';
 import 'package:ehisob/infrastructure/repository/worker/worker_repository.dart';
-import 'package:ehisob/presentation/components/notification.dart';
+// import 'package:ehisob/presentation/components/notification.dart';
 import 'application/app_manager/app_manager_cubit.dart';
 import 'application/cost_type/cost_type_bloc.dart';
 import 'domain/common/app_init.dart';
@@ -46,93 +47,95 @@ import 'package:ehisob/infrastructure/repository/partner_report/partner_report_r
 import 'package:ehisob/infrastructure/services/connectivity_service.dart';
 
 
-@pragma('vm:entry-point')
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-}
+// Firebase vaqtincha o'chirilgan (network so'rovlarini uzish uchun)
+// @pragma('vm:entry-point')
+// Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   await Firebase.initializeApp();
+// }
 
-Future<void> getDeviceToken() async {
-  try {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    
-    // Log App ID for matching with Firebase Console
-    debugPrint('🔔 FCM: App ID ishlatilmoqda: ${DefaultFirebaseOptions.ios.appId}');
-    NotificationSettings settings = await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
-
-    if (settings.authorizationStatus != AuthorizationStatus.authorized &&
-        settings.authorizationStatus != AuthorizationStatus.provisional) {
-      debugPrint('🔔 FCM: Push notificationga ruxsat berilmadi (${settings.authorizationStatus})');
-      return;
-    }
-
-    debugPrint('🔔 FCM: Push notificationga ruxsat berildi');
-
-    // 2. iOS specific: Wait for APNS Token
-    // Real devices often take a few seconds to get the APNS token from Apple
-    if (Platform.isIOS) {
-      debugPrint('🔔 FCM: iOS aniqlandi, APNS token kutilmoqda...');
-      String? apnsToken;
-      int retryCount = 0;
-      const int maxRetries = 10;
-
-      while (apnsToken == null && retryCount < maxRetries) {
-        apnsToken = await messaging.getAPNSToken();
-        if (apnsToken == null) {
-          retryCount++;
-          debugPrint('🔔 FCM: APNS token hali yo\'q, kutish... ($retryCount/$maxRetries)');
-          await Future.delayed(Duration(seconds: 2));
-        }
-      }
-
-      if (apnsToken == null) {
-        debugPrint('❌ FCM: APNS token olib bo\'lmadi (10 ta urinish muvaffaqiyatsiz).');
-        debugPrint('👉 ILTIMOS TEKSHIRING: Xcode -> Signing & Capabilities -> Push Notifications qo\'shilganmi?');
-        debugPrint('👉 ILTIMOS TEKSHIRING: Firebase Console -> iOS App -> .p8 key yuklanganmi?');
-        return; // iOS'da APNS tokensiz davom etib bo'lmaydi
-      } else {
-        debugPrint('✅ FCM: APNS token olindi: $apnsToken');
-      }
-    }
-
-    // 3. Get FCM Token
-    // We only reach here if permission is granted AND (APNS is ready or not iOS)
-    String? token = await messaging.getToken().timeout(
-      const Duration(seconds: 20),
-      onTimeout: () {
-        debugPrint('❌ FCM: Token olish vaqti tugadi (Timeout)');
-        return null;
-      },
-    );
-
-    if (token != null) {
-      debugPrint('🚀 FCM Token: $token');
-      // Token yangilanganda kuzatib borish
-      messaging.onTokenRefresh.listen((newToken) {
-        debugPrint('🔄 FCM Token yangilandi: $newToken');
-      });
-    } else {
-      debugPrint('❌ FCM: Token null qaytdi');
-    }
-  } catch (e, stack) {
-    debugPrint('❌ FCM Token olishda fatal xatolik: $e');
-    debugPrint('Detailed stack trace: $stack');
-  }
-}
+// Future<void> getDeviceToken() async {
+//   try {
+//     FirebaseMessaging messaging = FirebaseMessaging.instance;
+//
+//     // Log App ID for matching with Firebase Console
+//     debugPrint('🔔 FCM: App ID ishlatilmoqda: ${DefaultFirebaseOptions.ios.appId}');
+//     NotificationSettings settings = await messaging.requestPermission(
+//       alert: true,
+//       badge: true,
+//       sound: true,
+//       provisional: false,
+//     );
+//
+//     if (settings.authorizationStatus != AuthorizationStatus.authorized &&
+//         settings.authorizationStatus != AuthorizationStatus.provisional) {
+//       debugPrint('🔔 FCM: Push notificationga ruxsat berilmadi (${settings.authorizationStatus})');
+//       return;
+//     }
+//
+//     debugPrint('🔔 FCM: Push notificationga ruxsat berildi');
+//
+//     // 2. iOS specific: Wait for APNS Token
+//     // Real devices often take a few seconds to get the APNS token from Apple
+//     if (Platform.isIOS) {
+//       debugPrint('🔔 FCM: iOS aniqlandi, APNS token kutilmoqda...');
+//       String? apnsToken;
+//       int retryCount = 0;
+//       const int maxRetries = 10;
+//
+//       while (apnsToken == null && retryCount < maxRetries) {
+//         apnsToken = await messaging.getAPNSToken();
+//         if (apnsToken == null) {
+//           retryCount++;
+//           debugPrint('🔔 FCM: APNS token hali yo\'q, kutish... ($retryCount/$maxRetries)');
+//           await Future.delayed(Duration(seconds: 2));
+//         }
+//       }
+//
+//       if (apnsToken == null) {
+//         debugPrint('❌ FCM: APNS token olib bo\'lmadi (10 ta urinish muvaffaqiyatsiz).');
+//         debugPrint('👉 ILTIMOS TEKSHIRING: Xcode -> Signing & Capabilities -> Push Notifications qo\'shilganmi?');
+//         debugPrint('👉 ILTIMOS TEKSHIRING: Firebase Console -> iOS App -> .p8 key yuklanganmi?');
+//         return; // iOS'da APNS tokensiz davom etib bo'lmaydi
+//       } else {
+//         debugPrint('✅ FCM: APNS token olindi: $apnsToken');
+//       }
+//     }
+//
+//     // 3. Get FCM Token
+//     // We only reach here if permission is granted AND (APNS is ready or not iOS)
+//     String? token = await messaging.getToken().timeout(
+//       const Duration(seconds: 20),
+//       onTimeout: () {
+//         debugPrint('❌ FCM: Token olish vaqti tugadi (Timeout)');
+//         return null;
+//       },
+//     );
+//
+//     if (token != null) {
+//       debugPrint('🚀 FCM Token: $token');
+//       // Token yangilanganda kuzatib borish
+//       messaging.onTokenRefresh.listen((newToken) {
+//         debugPrint('🔄 FCM Token yangilandi: $newToken');
+//       });
+//     } else {
+//       debugPrint('❌ FCM: Token null qaytdi');
+//     }
+//   } catch (e, stack) {
+//     debugPrint('❌ FCM Token olishda fatal xatolik: $e');
+//     debugPrint('Detailed stack trace: $stack');
+//   }
+// }
 Future<void> main() async {
   await runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    
-    // FCM initiliazation
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-    unawaited(getDeviceToken());
+    // Firebase vaqtincha o'chirilgan (network so'rovlarini uzish uchun)
+    // await Firebase.initializeApp(
+    //   options: DefaultFirebaseOptions.currentPlatform,
+    // );
+    //
+    // // FCM initiliazation
+    // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    // unawaited(getDeviceToken());
     AwesomeNotifications().initialize(
       null,
       [
@@ -200,16 +203,17 @@ class _MyAppState extends State<MyApp> {
       }
     });
 
-    // Foreground holatda pushni tinglash
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (Platform.isIOS) {
-        if (message.notification == null) {
-          showAwesomeNotification(message);
-        }
-      } else {
-        showAwesomeNotification(message);
-      }
-    });
+    // Firebase vaqtincha o'chirilgan (network so'rovlarini uzish uchun)
+    // // Foreground holatda pushni tinglash
+    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    //   if (Platform.isIOS) {
+    //     if (message.notification == null) {
+    //       showAwesomeNotification(message);
+    //     }
+    //   } else {
+    //     showAwesomeNotification(message);
+    //   }
+    // });
   }
 
 

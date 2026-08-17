@@ -110,12 +110,15 @@ class AuthRepository {
 
   Future<Map<String, dynamic>> getDeviceInfo() async {
     final deviceInfoPlugin = DeviceInfoPlugin();
-    final FirebaseMessaging messaging = FirebaseMessaging.instance;
 
     String? deviceToken;
 
-    // 🔐 Push ruxsat so‘rash
+    // 🔐 Push ruxsat so'rash
+    // Firebase vaqtincha o'chirilgan bo'lishi mumkin — shuning uchun
+    // FirebaseMessaging.instance chaqiruvi ham try/catch ichida, [core/no-app]
+    // kabi kutilmagan xatoliklar ilovani yiqitmasligi uchun.
     try {
+      final FirebaseMessaging messaging = FirebaseMessaging.instance;
       NotificationSettings settings = await messaging.requestPermission();
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
