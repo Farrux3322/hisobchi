@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class GlobalErrorBoundary extends StatefulWidget {

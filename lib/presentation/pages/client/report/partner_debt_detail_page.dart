@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hisobchi/application/partner_operations/partner_operations_bloc.dart';
-import 'package:hisobchi/application/partner_operations/partner_operations_event.dart';
-import 'package:hisobchi/application/partner_operations/partner_operations_state.dart';
-import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
-import 'package:hisobchi/infrastructure/repository/partner_operations/partner_operations_repository.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
-import 'package:hisobchi/presentation/pages/client/report/widgets/partner_operation_detail_sheet.dart';
+import 'package:ehisob/application/partner_operations/partner_operations_bloc.dart';
+import 'package:ehisob/application/partner_operations/partner_operations_event.dart';
+import 'package:ehisob/application/partner_operations/partner_operations_state.dart';
+import 'package:ehisob/infrastructure/models/partner_operations_detail_model.dart';
+import 'package:ehisob/infrastructure/repository/partner_operations/partner_operations_repository.dart';
+import 'package:ehisob/presentation/assets/theme/app_theme.dart';
+import 'package:ehisob/presentation/components/back_button.dart';
+import 'package:ehisob/presentation/pages/client/report/widgets/partner_operation_detail_sheet.dart';
 import 'package:shimmer/shimmer.dart';
 
 class PartnerDebtDetailPage extends StatefulWidget {

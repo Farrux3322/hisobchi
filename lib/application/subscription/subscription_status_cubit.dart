@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:hisobchi/domain/common/enums/subscription_status.dart';
+import 'package:ehisob/domain/common/enums/subscription_status.dart';
 
 class SubscriptionStatusCubit extends Cubit<SubscriptionStatus> {
   SubscriptionStatusCubit() : super(SubscriptionStatus.active);

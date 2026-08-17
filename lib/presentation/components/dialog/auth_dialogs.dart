@@ -3,8 +3,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
-import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:ehisob/presentation/assets/theme/app_theme.dart';
+import 'package:ehisob/presentation/components/toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AuthDialogs {
@@ -126,7 +126,7 @@ class AuthDialogs {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(FontAwesomeIcons.telegram, color: CupertinoColors.activeBlue),
+                          const FaIcon(FontAwesomeIcons.telegram, color: CupertinoColors.activeBlue),
                           const SizedBox(width: 8),
                           Text(
                             tr("Telegram"),

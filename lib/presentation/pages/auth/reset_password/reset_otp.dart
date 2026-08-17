@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/auth/init/init_auth_bloc.dart';
-import 'package:hisobchi/domain/common/second_to_time.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/defocus.dart';
-import 'package:hisobchi/presentation/components/inputs/pin_put_x.dart';
-import 'package:hisobchi/presentation/components/loading/premium_loading.dart';
-import 'package:hisobchi/presentation/components/toast/toast.dart';
-import 'package:hisobchi/presentation/routes/index_routes.dart';
+import 'package:ehisob/application/auth/init/init_auth_bloc.dart';
+import 'package:ehisob/domain/common/second_to_time.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/defocus.dart';
+import 'package:ehisob/presentation/components/inputs/pin_put_x.dart';
+import 'package:ehisob/presentation/components/loading/premium_loading.dart';
+import 'package:ehisob/presentation/components/toast/toast.dart';
+import 'package:ehisob/presentation/routes/index_routes.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 
 class RestOTPPage extends StatefulWidget {

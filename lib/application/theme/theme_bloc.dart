@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/theme/theme_event.dart';
-import 'package:hisobchi/application/theme/theme_state.dart';
-import 'package:hisobchi/infrastructure/repository/theme/theme_repository.dart';
+import 'package:ehisob/application/theme/theme_event.dart';
+import 'package:ehisob/application/theme/theme_state.dart';
+import 'package:ehisob/infrastructure/repository/theme/theme_repository.dart';
 
 class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
   final ThemeRepository repository;

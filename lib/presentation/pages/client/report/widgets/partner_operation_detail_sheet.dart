@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:photo_opener/photo_opener.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
+import 'package:ehisob/infrastructure/models/partner_operations_detail_model.dart';
 import '../../../../assets/asset_index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hisobchi/domain/common/data/user_data.dart';
+import 'package:ehisob/domain/common/data/user_data.dart';
 
 class PartnerOperationDetailSheet extends StatelessWidget {
   final PartnerOperation operation;

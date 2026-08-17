@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hisobchi/infrastructure/services/shared_service.dart';
-import 'package:hisobchi/presentation/pages/onboarding/models/onboarding_model.dart';
-import 'package:hisobchi/presentation/pages/onboarding/widgets/gradient_button.dart';
-import 'package:hisobchi/presentation/pages/onboarding/widgets/onboarding_content.dart';
-import 'package:hisobchi/presentation/pages/onboarding/widgets/page_indicator.dart';
-import 'package:hisobchi/presentation/routes/entity/routes.dart';
+import 'package:ehisob/infrastructure/services/shared_service.dart';
+import 'package:ehisob/presentation/pages/onboarding/models/onboarding_model.dart';
+import 'package:ehisob/presentation/pages/onboarding/widgets/gradient_button.dart';
+import 'package:ehisob/presentation/pages/onboarding/widgets/onboarding_content.dart';
+import 'package:ehisob/presentation/pages/onboarding/widgets/page_indicator.dart';
+import 'package:ehisob/presentation/routes/entity/routes.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -21,33 +21,45 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   final List<OnboardingModel> _pages = [
     const OnboardingModel(
-      title: 'E-Hisob ga\nXush Kelibsiz!',
+      title: 'Moliyangizni\nBir Joyda Ko\'ring',
       description:
-          'Professional moliyaviy boshqaruv va biznesingizni rivojlantirish uchun eng yaxshi vosita',
+          'E-Hisob bilan kundalik hisob-kitoblaringizni soddalashtiring va biznesingizni ishonch bilan boshqaring',
       features: [
-        'Sodda va qulay interfeys',
-        'Real-time ma\'lumotlar',
-        'Xavfsiz va ishonchli',
+        'Tez va tushunarli interfeys',
+        'Ma\'lumotlar real vaqtda yangilanadi',
+        'Ma\'lumotlaringiz ishonchli himoyada',
       ],
-      iconAsset: '',
       gradientColors: [
         Color(0xFF6366F1),
         Color(0xFF8B5CF6),
       ],
     ),
     const OnboardingModel(
-      title: 'Biznesingizni\nBoshqaring',
+      title: 'Loyiha va Mijozlar\nDoim Nazoratda',
       description:
-          'Loyihalar, mijozlar va moliyaviy oqimlarni bir joyda nazorat qiling',
+          'Har bir loyihangiz va mijozingiz bilan bog\'liq hisob-kitoblarni bir joydan kuzatib boring',
       features: [
-        'Loyihalarni professional kuzatish',
-        'Mijozlar bilan aniq hisob-kitob',
-        'Real-time balans va hisobotlar',
+        'Loyihalarni bosqichma-bosqich yuriting',
+        'Mijozlar bilan hisob-kitob aniqligi',
+        'Har lahzada yangilanadigan hisobotlar',
       ],
-      iconAsset: '',
       gradientColors: [
         Color(0xFF10B981),
         Color(0xFF059669),
+      ],
+    ),
+    const OnboardingModel(
+      title: 'Balansni Kuzating,\nAniq Qaror Qabul Qiling',
+      description:
+          'Kirim-chiqim va valyuta kurslarini bir qarashda ko\'ring, moliyaviy holatingizdan doimo xabardor bo\'ling',
+      features: [
+        'Kirim va chiqimlar tahlili',
+        'Valyuta kurslari onlayn kuzatuvda',
+        'Aniq va tushunarli hisobotlar',
+      ],
+      gradientColors: [
+        Color(0xFFF59E0B),
+        Color(0xFFEA580C),
       ],
     ),
   ];

@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/worker/worker_event.dart';
-import 'package:hisobchi/application/worker/worker_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/repository/worker/worker_repository.dart';
+import 'package:ehisob/application/worker/worker_event.dart';
+import 'package:ehisob/application/worker/worker_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/repository/worker/worker_repository.dart';
 
 class WorkerBloc extends Bloc<WorkerEvent, WorkerState> {
   final WorkerRepository repository;

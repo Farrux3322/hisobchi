@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hisobchi/domain/common/data/user_data.dart';
-import 'package:hisobchi/infrastructure/services/shared_service.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/pages/auth/confirmation/sign_in_confirmation_page.dart';
-import 'package:hisobchi/presentation/pages/auth/register/register_page.dart';
-import 'package:hisobchi/presentation/pages/auth/reset_password/reset_otp.dart';
-import 'package:hisobchi/presentation/pages/auth/reset_password/reset_password.dart';
-import 'package:hisobchi/presentation/pages/client/client_list_page.dart';
-import 'package:hisobchi/presentation/pages/dashboard/dashboard_page.dart';
-import 'package:hisobchi/presentation/pages/onboarding/onboarding_page.dart';
-import 'package:hisobchi/presentation/pages/profile/profile_page.dart';
-import 'package:hisobchi/presentation/pages/project/project_list_page.dart';
-import 'package:hisobchi/presentation/pages/project/project_add_page.dart';
-import 'package:hisobchi/presentation/pages/subscription/subscription_page.dart';
-import 'package:hisobchi/presentation/pages/subscription/subscription_detail_page.dart';
-import 'package:hisobchi/presentation/pages/subscription/payment_success_page.dart';
-import 'package:hisobchi/presentation/pages/profile/screens/sms_buy_page/sms_buy_page.dart';
-import 'package:hisobchi/presentation/pages/profile/screens/usage_guide_page.dart';
-import 'package:hisobchi/presentation/pages/profile/screens/youtube_full_screen_player_page.dart';
-import 'package:hisobchi/infrastructure/models/user_me_model.dart';
-import 'package:hisobchi/presentation/pages/auth/workspace_selection_page.dart';
-import 'package:hisobchi/features/payment_schedule/presentation/pages/payment_schedule_page.dart';
+import 'package:ehisob/domain/common/data/user_data.dart';
+import 'package:ehisob/infrastructure/services/shared_service.dart';
+import 'package:ehisob/presentation/pages/auth/confirmation/sign_in_confirmation_page.dart';
+import 'package:ehisob/presentation/pages/auth/register/register_page.dart';
+import 'package:ehisob/presentation/pages/auth/reset_password/reset_otp.dart';
+import 'package:ehisob/presentation/pages/auth/reset_password/reset_password.dart';
+import 'package:ehisob/presentation/pages/client/client_list_page.dart';
+import 'package:ehisob/presentation/pages/dashboard/dashboard_page.dart';
+import 'package:ehisob/presentation/pages/onboarding/onboarding_page.dart';
+import 'package:ehisob/presentation/pages/profile/profile_page.dart';
+import 'package:ehisob/presentation/pages/project/project_list_page.dart';
+import 'package:ehisob/presentation/pages/project/project_add_page.dart';
+import 'package:ehisob/presentation/pages/subscription/subscription_page.dart';
+import 'package:ehisob/presentation/pages/subscription/subscription_detail_page.dart';
+import 'package:ehisob/presentation/pages/subscription/payment_success_page.dart';
+import 'package:ehisob/presentation/pages/profile/screens/sms_buy_page/sms_buy_page.dart';
+import 'package:ehisob/presentation/pages/profile/screens/usage_guide_page.dart';
+import 'package:ehisob/presentation/pages/profile/screens/youtube_full_screen_player_page.dart';
+import 'package:ehisob/infrastructure/models/user_me_model.dart';
+import 'package:ehisob/presentation/pages/auth/workspace_selection_page.dart';
+import 'package:ehisob/features/payment_schedule/presentation/pages/payment_schedule_page.dart';
 
 import 'entity/pages.dart';
 import 'entity/routes.dart';
@@ -204,10 +203,10 @@ final router = GoRouter(
                     shellNavigatorProfileKey,
                   ],
                   items: [
-                    LiquidTabItem(icon: AppIcons.home, label: 'Asosiy'),
-                    LiquidTabItem(icon: AppIcons.clients, label: 'Mijozlar'),
-                    LiquidTabItem(icon: AppIcons.project, label: 'Loyihalar'),
-                    LiquidTabItem(icon: AppIcons.profile, label: 'Profile'),
+                    LiquidTabItem(icon: Icons.home_rounded, label: 'Asosiy'),
+                    LiquidTabItem(icon: Icons.people_alt_rounded, label: 'Mijozlar'),
+                    LiquidTabItem(icon: Icons.work_rounded, label: 'Loyihalar'),
+                    LiquidTabItem(icon: Icons.person_rounded, label: 'Profile'),
                   ],
                 ),
               ),

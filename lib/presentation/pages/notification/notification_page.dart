@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/notification/notification_bloc.dart';
-import 'package:hisobchi/domain/enums/bloc_status.dart';
-import 'package:hisobchi/infrastructure/dto/models/notification/notification_model.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
-import 'package:hisobchi/presentation/components/empty_page.dart';
+import 'package:ehisob/application/notification/notification_bloc.dart';
+import 'package:ehisob/domain/enums/bloc_status.dart';
+import 'package:ehisob/infrastructure/dto/models/notification/notification_model.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/back_button.dart';
+import 'package:ehisob/presentation/components/empty_page.dart';
 import 'package:shimmer/shimmer.dart';
 import 'notification_detail.dart';
 

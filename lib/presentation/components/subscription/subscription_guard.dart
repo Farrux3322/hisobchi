@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hisobchi/application/subscription/subscription_status_cubit.dart';
-import 'package:hisobchi/domain/common/enums/subscription_status.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/routes/entity/routes.dart';
+import 'package:ehisob/application/subscription/subscription_status_cubit.dart';
+import 'package:ehisob/domain/common/enums/subscription_status.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/routes/entity/routes.dart';
 
 class SubscriptionGuard extends StatelessWidget {
   final Widget child;

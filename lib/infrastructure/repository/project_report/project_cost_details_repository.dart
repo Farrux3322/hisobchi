@@ -1,4 +1,4 @@
-import 'package:hisobchi/infrastructure/common/network_provider.dart';
+import 'package:ehisob/infrastructure/common/network_provider.dart';
 
 class ProjectCostDetailsRepository {
   Future<Map<String, dynamic>> getCostDetails({required int projectId, required int costTypeId}) async {

@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:hisobchi/domain/common/data/user_data.dart';
-import 'package:hisobchi/infrastructure/models/user_me_model.dart';
-import 'package:hisobchi/infrastructure/repository/auth/auth_repository.dart';
-import 'package:hisobchi/infrastructure/services/shared_service.dart';
+import 'package:ehisob/domain/common/data/user_data.dart';
+import 'package:ehisob/infrastructure/models/user_me_model.dart';
+import 'package:ehisob/infrastructure/repository/auth/auth_repository.dart';
+import 'package:ehisob/infrastructure/services/shared_service.dart';
 
 part 'init_auth_event.dart';
 

@@ -1,6 +1,6 @@
 
 
-import 'package:hisobchi/image_uploader/models/uploadable_image.dart';
+import 'package:ehisob/image_uploader/models/uploadable_image.dart';
 
 abstract class ImageUploaderEvent {}
 

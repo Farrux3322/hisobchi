@@ -4,12 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hisobchi/application/currency/currency_bloc.dart';
-import 'package:hisobchi/application/dashboard/dashboard_bloc.dart';
-import 'package:hisobchi/application/project/project_bloc.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/utils/price_extension.dart';
+import 'package:ehisob/application/currency/currency_bloc.dart';
+import 'package:ehisob/application/dashboard/dashboard_bloc.dart';
+import 'package:ehisob/application/project/project_bloc.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/utils/price_extension.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../infrastructure/services/permission_extension.dart';
@@ -85,7 +85,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                         child: SlideTransition(
                           position: _slideAnimation,
                           child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12.w),
+                            padding: EdgeInsets.symmetric(horizontal: 14.w),
                             child: _buildBody(state),
                           ),
                         ),
@@ -120,14 +120,14 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       child: Container(
         width: double.infinity,
         height: 220.h,
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20.r)),
       ),
     );
   }
 
   Widget _buildHeader() {
     return Container(
-      padding: EdgeInsets.fromLTRB(16.w, 12.h, 10.w, 10.h),
+      padding: EdgeInsets.fromLTRB(18.w, 14.h, 12.w, 12.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -170,9 +170,9 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(16.r),
               border: Border.all(color: const Color(0xFFE2E8F0)),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+              boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.06), blurRadius: 12, offset: const Offset(0, 4))],
             ),
             child: Row(
               children: [
@@ -266,7 +266,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             instCount: installment3Days,
           ),
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: 14.h),
         LoyihalarCard(
           totalCount: projects?.projectsCount ?? 0,
           inProgressCount: projects?.inProgress ?? 0,
@@ -306,17 +306,16 @@ class HamkorlarCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+      padding: EdgeInsets.fromLTRB(18.w, 18.h, 18.w, 18.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.04), // Soft dark-blue tint shadow
-            blurRadius: 24,
-            spreadRadius: 0,
-            offset: const Offset(0, 8),
+            color: AppTheme.colors.primary.withValues(alpha: 0.08), // Soft primary-tint shadow
+            blurRadius: 28,
+            spreadRadius: -4,
+            offset: const Offset(0, 10),
           )
         ],
       ),
@@ -494,7 +493,7 @@ class HamkorlarCard extends StatelessWidget {
         // padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: BorderRadius.circular(16.r),
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
@@ -515,7 +514,7 @@ class HamkorlarCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -678,17 +677,16 @@ class LoyihalarCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+      padding: EdgeInsets.fromLTRB(18.w, 18.h, 18.w, 18.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.04), // Soft dark-blue tint shadow
-            blurRadius: 24,
-            spreadRadius: 0,
-            offset: const Offset(0, 8),
+            color: AppTheme.colors.primary.withValues(alpha: 0.08), // Soft primary-tint shadow
+            blurRadius: 28,
+            spreadRadius: -4,
+            offset: const Offset(0, 10),
           )
         ],
       ),
@@ -773,11 +771,11 @@ class LoyihalarCard extends StatelessWidget {
         onTap();
       },
       child: Container(
-        height: 100.h,
+        height: 104.h,
         // padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: BorderRadius.circular(16.r),
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
@@ -792,7 +790,7 @@ class LoyihalarCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

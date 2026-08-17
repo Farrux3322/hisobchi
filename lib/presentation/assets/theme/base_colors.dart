@@ -4,11 +4,11 @@ import 'package:flutter/cupertino.dart';
 abstract class BaseColors {
   const BaseColors();
 
-  Color get primaryText => const Color.fromRGBO(0, 111, 229, 1);
+  Color get primaryText => const Color(0xFF4F6EF7);
   ///////////////////////////////////////////////
-  Color get primary => const Color(0xFF202020);
+  Color get primary => const Color(0xFF4F6EF7);
   Color get white => const Color(0xFFFFFFFF);
-  Color get black => const Color(0xFF202020);
+  Color get black => const Color(0xFF1E293B);
   Color get color9E97FF => const Color(0xFF9E97FF);
   Color get colorB007FF => const Color(0xFFB007FF);
   Color get colorDE5050 => const Color(0xFFDE5050);
@@ -19,10 +19,10 @@ abstract class BaseColors {
   Color get colorE1EOEE => const Color(0xFFE1E0EE);
   Color get color87859F => const Color(0xFF87859F);
   ///////////////////////////////////////////////////
-  Color get secondary => const Color.fromRGBO(107, 61, 237, 0.5);
-  Color get primary30 => const Color(0xFFC9D6DF);
+  Color get secondary => const Color.fromRGBO(99, 102, 241, 0.5);
+  Color get primary30 => const Color(0xFFCBD5E1);
   Color get disable => const Color.fromRGBO(226, 230, 238, 1);
-  Color get accent => const Color.fromRGBO(240, 244, 248, 1);
+  Color get accent => const Color(0xFFEEF2FF);
   Color get red => const Color.fromRGBO(235, 87, 87, 1);
   Color get divider => const Color.fromRGBO(101, 122, 147, 0.18);
   Color get gray => const Color.fromRGBO(177, 184, 200, 1);

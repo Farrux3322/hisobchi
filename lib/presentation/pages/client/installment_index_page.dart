@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:hisobchi/features/payment_schedule/data/models/payment_partner_model.dart';
-import 'package:hisobchi/features/payment_schedule/presentation/pages/installment_list_page.dart';
-import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
-import 'package:hisobchi/presentation/pages/client/report/installment_report_page.dart';
-import 'package:hisobchi/presentation/pages/client/report/partner_installment_report_page.dart';
+import 'package:ehisob/features/payment_schedule/data/models/payment_partner_model.dart';
+import 'package:ehisob/features/payment_schedule/presentation/pages/installment_list_page.dart';
+import 'package:ehisob/infrastructure/dto/models/partner/partner_model.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/back_button.dart';
+import 'package:ehisob/presentation/pages/client/report/installment_report_page.dart';
+import 'package:ehisob/presentation/pages/client/report/partner_installment_report_page.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 class InstallmentIndexPage extends StatelessWidget {

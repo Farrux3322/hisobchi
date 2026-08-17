@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hisobchi/infrastructure/dto/models/partner/income_history_model.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/utils/price_extension.dart';
+import 'package:ehisob/infrastructure/dto/models/partner/income_history_model.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/utils/price_extension.dart';
 
 class HistoryTransactionCard extends StatelessWidget {
   final Result item;

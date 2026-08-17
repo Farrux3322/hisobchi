@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hisobchi/application/installment_report/installment_sub_cubits.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/installment_report/installment_report_models.dart';
-import 'package:hisobchi/infrastructure/repository/installment_report/installment_report_repository.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
-import 'package:hisobchi/presentation/components/utils/price_extension.dart';
-import 'package:hisobchi/presentation/pages/client/report/installment_sub_pages/installment_items_page.dart';
+import 'package:ehisob/application/installment_report/installment_sub_cubits.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/dto/models/installment_report/installment_report_models.dart';
+import 'package:ehisob/infrastructure/repository/installment_report/installment_report_repository.dart';
+import 'package:ehisob/presentation/assets/theme/app_theme.dart';
+import 'package:ehisob/presentation/components/back_button.dart';
+import 'package:ehisob/presentation/components/utils/price_extension.dart';
+import 'package:ehisob/presentation/pages/client/report/installment_sub_pages/installment_items_page.dart';
 import 'package:shimmer/shimmer.dart';
 
 class InstallmentRecoveryPage extends StatelessWidget {

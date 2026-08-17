@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:hisobchi/image_uploader/models/network_image_model.dart';
-import 'package:hisobchi/infrastructure/common/network_provider.dart';
+import 'package:ehisob/image_uploader/models/network_image_model.dart';
+import 'package:ehisob/infrastructure/common/network_provider.dart';
 
 class ImageRepository {
   Future<NetworkImageModel> uploadImage(

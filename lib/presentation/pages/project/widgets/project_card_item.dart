@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hisobchi/infrastructure/dto/models/project/project_model.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/utils/phone_formatter.dart';
+import 'package:ehisob/infrastructure/dto/models/project/project_model.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/utils/phone_formatter.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProjectCardItem extends StatelessWidget {

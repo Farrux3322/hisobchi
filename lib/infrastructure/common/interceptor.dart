@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:hisobchi/infrastructure/services/shared_service.dart';
-import 'package:hisobchi/presentation/routes/coordinator.dart';
-import 'package:hisobchi/presentation/routes/index_routes.dart';
-import 'package:hisobchi/application/subscription/subscription_status_cubit.dart';
+import 'package:ehisob/infrastructure/services/shared_service.dart';
+import 'package:ehisob/presentation/routes/coordinator.dart';
+import 'package:ehisob/presentation/routes/index_routes.dart';
+import 'package:ehisob/application/subscription/subscription_status_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 

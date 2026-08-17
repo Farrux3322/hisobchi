@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:ehisob/presentation/assets/theme/app_theme.dart';
 
 /// Rasm ma'lumotlarini saqlash uchun model
 class ImageItem {

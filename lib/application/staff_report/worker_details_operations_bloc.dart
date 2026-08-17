@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/repository/partner_report/partner_report_repository.dart';
 import 'worker_details_operations_event.dart';
 import 'worker_details_operations_state.dart';
 

@@ -1,4 +1,4 @@
-import 'package:hisobchi/infrastructure/dto/models/project/project_model.dart';
+import 'package:ehisob/infrastructure/dto/models/project/project_model.dart';
 
 class ProjectCostModel {
   final int? id;

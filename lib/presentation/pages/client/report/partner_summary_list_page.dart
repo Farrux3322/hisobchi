@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/partner_summary/partner_summary_bloc.dart';
-import 'package:hisobchi/application/partner_summary/partner_summary_event.dart';
-import 'package:hisobchi/application/partner_summary/partner_summary_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
-import 'package:hisobchi/infrastructure/models/partner_summary_model.dart';
-import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
-import 'package:hisobchi/presentation/components/basic_widgets.dart';
-import 'package:hisobchi/presentation/pages/client/client_account_page.dart';
+import 'package:ehisob/application/partner_summary/partner_summary_bloc.dart';
+import 'package:ehisob/application/partner_summary/partner_summary_event.dart';
+import 'package:ehisob/application/partner_summary/partner_summary_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/dto/models/partner/partner_model.dart';
+import 'package:ehisob/infrastructure/models/partner_summary_model.dart';
+import 'package:ehisob/infrastructure/repository/partner_report/partner_report_repository.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/back_button.dart';
+import 'package:ehisob/presentation/components/basic_widgets.dart';
+import 'package:ehisob/presentation/pages/client/client_account_page.dart';
 import 'package:shimmer/shimmer.dart';
 
 class PartnerSummaryListPage extends StatelessWidget {

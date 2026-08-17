@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:hisobchi/infrastructure/common/network_provider.dart';
-import 'package:hisobchi/infrastructure/dto/models/due_dates/due_dates_model.dart';
+import 'package:ehisob/infrastructure/common/network_provider.dart';
+import 'package:ehisob/infrastructure/dto/models/due_dates/due_dates_model.dart';
 
 class DueDatesRepository {
   String _errorMessage(DioException e) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
+import 'package:ehisob/presentation/components/back_button.dart';
 
 import '../../../../infrastructure/services/permission_extension.dart';
 import '../../../../presentation/assets/asset_index.dart';

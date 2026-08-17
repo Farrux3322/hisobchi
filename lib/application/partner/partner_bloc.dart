@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/partner/income_history_model.dart';
-import 'package:hisobchi/infrastructure/dto/models/partner/income_statement_model.dart';
-import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
-import 'package:hisobchi/infrastructure/repository/partner/partner_repository.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/dto/models/partner/income_history_model.dart';
+import 'package:ehisob/infrastructure/dto/models/partner/income_statement_model.dart';
+import 'package:ehisob/infrastructure/dto/models/partner/partner_model.dart';
+import 'package:ehisob/infrastructure/repository/partner/partner_repository.dart';
 
 part 'partner_event.dart';
 

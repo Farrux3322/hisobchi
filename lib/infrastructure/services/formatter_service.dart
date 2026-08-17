@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:hisobchi/presentation/components/utils/price_extension.dart';
+import 'package:ehisob/presentation/components/utils/price_extension.dart';
 
 class RangeInputFormatter extends TextInputFormatter {
   final int min;

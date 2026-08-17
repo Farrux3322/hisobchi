@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:hisobchi/infrastructure/common/network_provider.dart';
-import 'package:hisobchi/infrastructure/models/partner_wallet_detail_model.dart';
+import 'package:ehisob/infrastructure/common/network_provider.dart';
+import 'package:ehisob/infrastructure/models/partner_wallet_detail_model.dart';
 
 class PartnerWalletRepository {
   String _getErrorMessage(DioException e) {

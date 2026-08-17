@@ -15,7 +15,10 @@ class DarkModeColors extends BaseColors {
   Color get black => const Color(0xFFE5E5E5);
 
   @override
-  Color get primaryText => const Color(0xFF64B5F6);
+  Color get primaryText => const Color(0xFF7C93FF);
+
+  @override
+  Color get primary => const Color(0xFF7C93FF);
 
   @override
   Color get primary30 => const Color(0xFF424242);

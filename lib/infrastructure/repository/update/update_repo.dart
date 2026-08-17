@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:hisobchi/domain/common/api_path.dart';
+import 'package:ehisob/domain/common/api_path.dart';
 
 class UpdateRepository {
   Future<Map<String, dynamic>> updateApp({required String appVersion}) async {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
 
 class EmptyView extends StatelessWidget {
   const EmptyView({super.key, required this.onTap});

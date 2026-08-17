@@ -1,4 +1,4 @@
-import 'package:hisobchi/infrastructure/common/network_provider.dart';
+import 'package:ehisob/infrastructure/common/network_provider.dart';
 
 class CurrencyRepository {
   /// Get list of currencies (old endpoint)

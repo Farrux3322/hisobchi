@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:hisobchi/infrastructure/dto/models/project/project_model.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:ehisob/infrastructure/dto/models/project/project_model.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
 
 class EditProjectBottomSheet extends StatefulWidget {
   final Function(String projectName, String ownerName, String phone, String address, String location, List<File> images)? onSubmit;

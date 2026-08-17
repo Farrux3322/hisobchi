@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/project_report/income_details/project_income_details_bloc.dart';
-import 'package:hisobchi/infrastructure/dto/models/project_report/project_income_detail_model.dart';
+import 'package:ehisob/application/project_report/income_details/project_income_details_bloc.dart';
+import 'package:ehisob/infrastructure/dto/models/project_report/project_income_detail_model.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';

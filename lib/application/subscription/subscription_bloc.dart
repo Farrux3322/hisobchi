@@ -1,12 +1,12 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/subscription/pricing_plan_model.dart';
-import 'package:hisobchi/infrastructure/dto/models/subscription/purchase_subscription_model.dart';
-import 'package:hisobchi/infrastructure/dto/models/subscription/sms_pricing_model.dart';
-import 'package:hisobchi/infrastructure/dto/models/subscription/subscription_info_model.dart';
-import 'package:hisobchi/infrastructure/repository/subscription/subscription_repository.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/dto/models/subscription/pricing_plan_model.dart';
+import 'package:ehisob/infrastructure/dto/models/subscription/purchase_subscription_model.dart';
+import 'package:ehisob/infrastructure/dto/models/subscription/sms_pricing_model.dart';
+import 'package:ehisob/infrastructure/dto/models/subscription/subscription_info_model.dart';
+import 'package:ehisob/infrastructure/repository/subscription/subscription_repository.dart';
 
 part 'subscription_event.dart';
 

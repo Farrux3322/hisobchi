@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/repository/installment_report/installment_report_repository.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/repository/installment_report/installment_report_repository.dart';
 
 import 'installment_report_event.dart';
 import 'installment_report_state.dart';

@@ -1,5 +1,5 @@
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/project_cost_model.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/project_cost_model.dart';
 
 class ProjectCostState {
   final Status status;

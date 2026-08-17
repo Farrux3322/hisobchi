@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/infrastructure/dto/models/due_dates/due_dates_model.dart';
-import 'package:hisobchi/infrastructure/repository/due_dates/due_dates_repository.dart';
+import 'package:ehisob/infrastructure/dto/models/due_dates/due_dates_model.dart';
+import 'package:ehisob/infrastructure/repository/due_dates/due_dates_repository.dart';
 
 part 'due_dates_state.dart';
 

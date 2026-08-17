@@ -1,16 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hisobchi/domain/common/data/user_data.dart';
-import 'package:hisobchi/infrastructure/services/shared_service.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
+import 'package:ehisob/domain/common/data/user_data.dart';
+import 'package:ehisob/infrastructure/services/shared_service.dart';
+import 'package:ehisob/presentation/components/back_button.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:hisobchi/infrastructure/repository/auth/auth_repository.dart';
+import 'package:ehisob/infrastructure/repository/auth/auth_repository.dart';
 import 'package:pinput/pinput.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hisobchi/presentation/routes/entity/routes.dart';
-import 'package:hisobchi/presentation/routes/coordinator.dart';
+import 'package:ehisob/presentation/routes/entity/routes.dart';
+import 'package:ehisob/presentation/routes/coordinator.dart';
 import '../widgets/delete_account_dialog.dart';
 
 import '../../../assets/asset_index.dart';

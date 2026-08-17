@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/buttons/text_button.dart';
-import 'package:hisobchi/presentation/components/register_dialog.dart';
-import 'package:hisobchi/presentation/routes/index_routes.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/buttons/text_button.dart';
+import 'package:ehisob/presentation/components/register_dialog.dart';
+import 'package:ehisob/presentation/routes/index_routes.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../../../application/auth/init/init_auth_bloc.dart';

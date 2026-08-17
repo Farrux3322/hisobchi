@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:hisobchi/infrastructure/common/dio_exception.dart';
-import 'package:hisobchi/infrastructure/common/network_provider.dart';
+import 'package:ehisob/infrastructure/common/dio_exception.dart';
+import 'package:ehisob/infrastructure/common/network_provider.dart';
 
 import '../models/installment_item_model.dart';
 import '../models/installment_plan_model.dart';

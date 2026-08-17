@@ -5,17 +5,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:hisobchi/presentation/pages/auth/passcode/set_passcode_page.dart';
-import 'package:hisobchi/presentation/pages/auth/passcode/verify_old_passcode_page.dart';
-import 'package:hisobchi/presentation/pages/notification/notification_page.dart';
-import 'package:hisobchi/presentation/routes/coordinator.dart';
+import 'package:ehisob/presentation/pages/auth/passcode/set_passcode_page.dart';
+import 'package:ehisob/presentation/pages/auth/passcode/verify_old_passcode_page.dart';
+import 'package:ehisob/presentation/pages/notification/notification_page.dart';
+import 'package:ehisob/presentation/routes/coordinator.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
-import 'package:hisobchi/application/subscription/subscription_bloc.dart';
-import 'package:hisobchi/domain/common/data/user_data.dart';
-import 'package:hisobchi/infrastructure/services/shared_service.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/pages/profile/screens/profile_update_page.dart';
-import 'package:hisobchi/presentation/routes/entity/routes.dart';
+import 'package:ehisob/application/subscription/subscription_bloc.dart';
+import 'package:ehisob/domain/common/data/user_data.dart';
+import 'package:ehisob/infrastructure/services/shared_service.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/pages/profile/screens/profile_update_page.dart';
+import 'package:ehisob/presentation/routes/entity/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -682,7 +682,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildContactOption({required IconData iconData, required Color iconColor, required String title, required String subtitle, required VoidCallback onTap, bool isEnabled = true}) {
+  Widget _buildContactOption({required FaIconData iconData, required Color iconColor, required String title, required String subtitle, required VoidCallback onTap, bool isEnabled = true}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -702,7 +702,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), shape: BoxShape.circle),
-                  child: Icon(iconData, color: iconColor, size: 24),
+                  child: FaIcon(iconData, color: iconColor, size: 24),
                 ),
                 const SizedBox(width: 16),
                 Expanded(

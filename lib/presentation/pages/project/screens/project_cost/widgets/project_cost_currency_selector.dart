@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hisobchi/application/currency/currency_bloc.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/currency/currency_model.dart' as currency;
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:ehisob/application/currency/currency_bloc.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/dto/models/currency/currency_model.dart' as currency;
+import 'package:ehisob/presentation/assets/theme/app_theme.dart';
 
 class ProjectCostCurrencySelector extends StatelessWidget {
   final currency.Result? selectedCurrency;

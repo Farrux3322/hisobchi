@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:hisobchi/domain/common/enums/passcode_step.dart';
-import 'package:hisobchi/infrastructure/services/shared_service.dart';
+import 'package:ehisob/domain/common/enums/passcode_step.dart';
+import 'package:ehisob/infrastructure/services/shared_service.dart';
 
 part 'passcode_state.dart';
 

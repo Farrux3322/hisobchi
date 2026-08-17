@@ -1,4 +1,4 @@
-import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
+import 'package:ehisob/infrastructure/dto/models/partner/partner_model.dart';
 
 class PartnerSummaryResponse {
   final bool status;

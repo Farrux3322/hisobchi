@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/cost_type/cost_type_event.dart';
-import 'package:hisobchi/application/cost_type/cost_type_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/repository/cost_type/cost_type_repository.dart';
+import 'package:ehisob/application/cost_type/cost_type_event.dart';
+import 'package:ehisob/application/cost_type/cost_type_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/repository/cost_type/cost_type_repository.dart';
 
 class CostTypeBloc extends Bloc<CostTypeEvent, CostTypeState> {
   final CostTypeRepository repository;

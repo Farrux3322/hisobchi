@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/pages/client/sms_detail_page.dart';
-import 'package:hisobchi/presentation/pages/client/sms_setting_page.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/pages/client/sms_detail_page.dart';
+import 'package:ehisob/presentation/pages/client/sms_setting_page.dart';
 
 class SmsMenuPage extends StatelessWidget {
   final int partnerId;

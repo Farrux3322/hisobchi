@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/infrastructure/models/staff_worker_model.dart';
+import 'package:ehisob/infrastructure/models/staff_worker_model.dart';
 
 class StaffReportWorkersState extends Equatable {
   final bool isInitial;

@@ -1,5 +1,5 @@
-import 'package:hisobchi/infrastructure/models/partner_summary_model.dart';
-import 'package:hisobchi/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/partner_summary_model.dart';
+import 'package:ehisob/domain/common/constants.dart';
 
 class PartnerSummaryState {
   final Status status;

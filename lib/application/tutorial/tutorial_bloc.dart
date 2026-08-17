@@ -1,10 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
-import 'package:hisobchi/application/tutorial/tutorial_event.dart';
-import 'package:hisobchi/application/tutorial/tutorial_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/tutorial_model.dart';
-import 'package:hisobchi/infrastructure/repository/tutorial/tutorial_repository.dart';
+import 'package:ehisob/application/tutorial/tutorial_event.dart';
+import 'package:ehisob/application/tutorial/tutorial_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/tutorial_model.dart';
+import 'package:ehisob/infrastructure/repository/tutorial/tutorial_repository.dart';
 
 class TutorialBloc extends Bloc<TutorialEvent, TutorialState> {
   final TutorialRepository repository;

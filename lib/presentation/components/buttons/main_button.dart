@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_bounce/flutter_bounce.dart';
 class MainButton extends StatelessWidget {

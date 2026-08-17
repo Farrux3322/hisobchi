@@ -1,10 +1,10 @@
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:hisobchi/application/identification/identification_bloc.dart';
-// import 'package:hisobchi/domain/common/myid_config.dart';
-// import 'package:hisobchi/infrastructure/repository/identification/identification_repository.dart';
-// import 'package:hisobchi/presentation/assets/asset_index.dart';
-// import 'package:hisobchi/presentation/components/back_button.dart';
+// import 'package:ehisob/application/identification/identification_bloc.dart';
+// import 'package:ehisob/domain/common/myid_config.dart';
+// import 'package:ehisob/infrastructure/repository/identification/identification_repository.dart';
+// import 'package:ehisob/presentation/assets/asset_index.dart';
+// import 'package:ehisob/presentation/components/back_button.dart';
 // // import 'package:myid/enums.dart';
 // // import 'package:myid/myid.dart';
 // // import 'package:myid/myid_config.dart';

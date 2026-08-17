@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:hisobchi/infrastructure/models/cost_type_model.dart';
+import 'package:ehisob/infrastructure/models/cost_type_model.dart';
 
 class DeleteConfirmSheet extends StatelessWidget {
   final CostTypeModel costType;

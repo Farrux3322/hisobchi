@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:hisobchi/infrastructure/models/project_cost_model.dart';
+import 'package:ehisob/infrastructure/models/project_cost_model.dart';
 import '../../common/network_provider.dart';
 
 class ProjectCostRepository {

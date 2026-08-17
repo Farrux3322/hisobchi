@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/currency/currency_bloc.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/currency/exchange_rate_model.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
+import 'package:ehisob/application/currency/currency_bloc.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/dto/models/currency/exchange_rate_model.dart';
+import 'package:ehisob/presentation/components/back_button.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../assets/asset_index.dart';

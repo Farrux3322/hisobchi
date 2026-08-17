@@ -6,7 +6,7 @@ class LightModeColors extends BaseColors {
   const LightModeColors();
 
   @override
-  Color get background => const Color(0xFFF5F6F8);
+  Color get background => const Color(0xFFF8FAFC);
 
   // Qo'shimcha ranglar
   Color get searchBackground => const Color(0xFFF1F5F9);

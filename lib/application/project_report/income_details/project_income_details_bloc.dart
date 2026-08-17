@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/infrastructure/dto/models/project_report/project_income_detail_model.dart';
-import 'package:hisobchi/infrastructure/repository/project_report/project_income_details_repository.dart';
+import 'package:ehisob/infrastructure/dto/models/project_report/project_income_detail_model.dart';
+import 'package:ehisob/infrastructure/repository/project_report/project_income_details_repository.dart';
 
 part 'project_income_details_event.dart';
 part 'project_income_details_state.dart';

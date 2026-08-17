@@ -2,10 +2,12 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hisobchi/domain/common/api_path.dart';
+import 'package:ehisob/domain/common/api_path.dart';
 
 import 'interceptor.dart';
 import 'retry_interceptor.dart';
+
+String get _userAgentPlatform => Platform.isIOS ? 'iOS' : 'Android';
 
 Dio createDio() {
   final dio = Dio();
@@ -29,6 +31,7 @@ Dio createDio() {
       headers: {
         HttpHeaders.acceptHeader: 'application/json',
         HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.userAgentHeader: 'E-Hisob/1.0.0 ($_userAgentPlatform; uz.ehisob.app)',
       },
       connectTimeout: const Duration(seconds: 15),
       sendTimeout: const Duration(seconds: 15),

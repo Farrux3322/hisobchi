@@ -1,5 +1,5 @@
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/cost_type_model.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/cost_type_model.dart';
 
 class CostTypeState {
   final Status status;

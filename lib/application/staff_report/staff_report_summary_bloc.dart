@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
+import 'package:ehisob/infrastructure/repository/partner_report/partner_report_repository.dart';
 import 'staff_report_summary_event.dart';
 import 'staff_report_summary_state.dart';
 

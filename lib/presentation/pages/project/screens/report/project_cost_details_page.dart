@@ -3,8 +3,8 @@
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';
 // import 'package:gap/gap.dart';
-// import 'package:hisobchi/application/project_report/cost_details/project_cost_details_bloc.dart';
-// import 'package:hisobchi/infrastructure/dto/models/project_report/project_cost_detail_item_model.dart';
+// import 'package:ehisob/application/project_report/cost_details/project_cost_details_bloc.dart';
+// import 'package:ehisob/infrastructure/dto/models/project_report/project_cost_detail_item_model.dart';
 // import 'package:intl/intl.dart';
 // import 'package:shimmer/shimmer.dart';
 // import 'package:photo_view/photo_view.dart';

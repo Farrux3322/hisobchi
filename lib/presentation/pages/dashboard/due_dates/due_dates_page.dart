@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hisobchi/domain/common/data/user_data.dart';
-import 'package:hisobchi/infrastructure/dto/models/due_dates/due_dates_model.dart';
-import 'package:hisobchi/infrastructure/repository/due_dates/due_dates_repository.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/utils/price_extension.dart';
+import 'package:ehisob/domain/common/data/user_data.dart';
+import 'package:ehisob/infrastructure/dto/models/due_dates/due_dates_model.dart';
+import 'package:ehisob/infrastructure/repository/due_dates/due_dates_repository.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/utils/price_extension.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 

@@ -1,5 +1,5 @@
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/partner_installment_report/partner_installment_report_models.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/dto/models/partner_installment_report/partner_installment_report_models.dart';
 
 // ─── Per-currency snapshot ────────────────────────────────────────────────────
 //

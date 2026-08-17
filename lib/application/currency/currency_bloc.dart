@@ -1,10 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/currency/currency_model.dart';
-import 'package:hisobchi/infrastructure/dto/models/currency/exchange_rate_model.dart';
-import 'package:hisobchi/infrastructure/repository/currency/currency_repository.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/dto/models/currency/currency_model.dart';
+import 'package:ehisob/infrastructure/dto/models/currency/exchange_rate_model.dart';
+import 'package:ehisob/infrastructure/repository/currency/currency_repository.dart';
 
 part 'currency_event.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
 
 class DeleteAccountDialog extends StatefulWidget {
   const DeleteAccountDialog({super.key, required this.onConfirm});

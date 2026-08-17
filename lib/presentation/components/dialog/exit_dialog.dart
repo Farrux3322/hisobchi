@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/buttons/main_button.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/buttons/main_button.dart';
 import '../basic_widgets.dart';
 
 class ExitDialog extends StatelessWidget {

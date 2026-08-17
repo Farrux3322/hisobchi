@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/sent_sms_model.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/sent_sms_model.dart';
 
 class SentSmsState extends Equatable {
   final Status status;

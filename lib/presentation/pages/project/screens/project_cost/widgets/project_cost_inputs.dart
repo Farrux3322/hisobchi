@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hisobchi/infrastructure/dto/models/currency/currency_model.dart' as currency;
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
-import 'package:hisobchi/presentation/pages/project/screens/project_cost/widgets/project_cost_currency_selector.dart';
+import 'package:ehisob/infrastructure/dto/models/currency/currency_model.dart' as currency;
+import 'package:ehisob/presentation/assets/theme/app_theme.dart';
+import 'package:ehisob/presentation/pages/project/screens/project_cost/widgets/project_cost_currency_selector.dart';
 
 class ProjectCostInputs extends StatelessWidget {
   final TextEditingController summaController;

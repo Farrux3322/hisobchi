@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:hisobchi/infrastructure/dto/models/project_report/project_cost_detail_item_model.dart';
+import 'package:ehisob/infrastructure/dto/models/project_report/project_cost_detail_item_model.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/back_button.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 

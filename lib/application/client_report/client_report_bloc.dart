@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/client_report/client_report_event.dart';
-import 'package:hisobchi/application/client_report/client_report_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/repository/client_report/client_report_repository.dart';
+import 'package:ehisob/application/client_report/client_report_event.dart';
+import 'package:ehisob/application/client_report/client_report_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/repository/client_report/client_report_repository.dart';
 
 class ClientReportBloc extends Bloc<ClientReportEvent, ClientReportState> {
   final ClientReportRepository repository;

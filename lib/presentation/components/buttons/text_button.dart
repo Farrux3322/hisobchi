@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:ehisob/presentation/assets/theme/app_theme.dart';
 
 class TextButtonX extends StatelessWidget {
   const TextButtonX({

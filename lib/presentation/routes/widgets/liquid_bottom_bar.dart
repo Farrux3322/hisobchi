@@ -1,8 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
 
 class LiquidBottomBar extends StatelessWidget {
   final double pageOffset;
@@ -174,13 +173,10 @@ class LiquidBottomBar extends StatelessWidget {
                       children: [
                         Transform.scale(
                           scale: 1.0 + (0.15 * t),
-                          child: SvgPicture.asset(
+                          child: Icon(
                             item.icon,
-                            height: 20.sp,
-                            colorFilter: ColorFilter.mode(
-                              Color.lerp(inactiveColor, activeColor, t)!,
-                              BlendMode.srcIn,
-                            ),
+                            size: 24.sp,
+                            color: Color.lerp(inactiveColor, activeColor, t),
                           ),
                         ),
                         SizedBox(height: 2.h),
@@ -207,7 +203,7 @@ class LiquidBottomBar extends StatelessWidget {
 }
 
 class LiquidTabItem {
-  final String icon;
+  final IconData icon;
   final String label;
 
   LiquidTabItem({required this.icon, required this.label});

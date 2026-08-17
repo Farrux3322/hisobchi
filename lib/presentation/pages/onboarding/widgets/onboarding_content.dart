@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/pages/onboarding/models/onboarding_model.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/pages/onboarding/models/onboarding_model.dart';
 
 class OnboardingContent extends StatefulWidget {
   final OnboardingModel model;

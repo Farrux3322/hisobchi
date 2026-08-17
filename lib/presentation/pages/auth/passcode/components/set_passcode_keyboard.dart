@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/auth/passcode/passcode_cubit.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:ehisob/application/auth/passcode/passcode_cubit.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
 
 class SetPasscodeKeyboard extends StatelessWidget {
   const SetPasscodeKeyboard({super.key});

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hisobchi/application/subscription/subscription_bloc.dart';
-import 'package:hisobchi/presentation/routes/entity/routes.dart';
+import 'package:ehisob/application/subscription/subscription_bloc.dart';
+import 'package:ehisob/presentation/routes/entity/routes.dart';
 
 class PaymentSuccessPage extends StatelessWidget {
   const PaymentSuccessPage({

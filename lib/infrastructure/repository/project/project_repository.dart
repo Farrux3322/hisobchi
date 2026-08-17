@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:hisobchi/infrastructure/common/network_provider.dart';
+import 'package:ehisob/infrastructure/common/network_provider.dart';
 
 class ProjectRepository {
   /// Extracts error message from DioException and stringifies validation errors

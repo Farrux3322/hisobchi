@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:hisobchi/presentation/components/no_internet_dialog.dart';
-import 'package:hisobchi/presentation/routes/coordinator.dart';
+import 'package:ehisob/presentation/components/no_internet_dialog.dart';
+import 'package:ehisob/presentation/routes/coordinator.dart';
 
 import '../../infrastructure/services/connectivity_service.dart';
 

@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:hisobchi/domain/common/data/user_data.dart';
-import 'package:hisobchi/infrastructure/common/platform_info.dart';
-import 'package:hisobchi/infrastructure/services/shared_service.dart';
+import 'package:ehisob/domain/common/data/user_data.dart';
+import 'package:ehisob/infrastructure/common/platform_info.dart';
+import 'package:ehisob/infrastructure/services/shared_service.dart';
 
 import '../../presentation/assets/asset_index.dart';
 

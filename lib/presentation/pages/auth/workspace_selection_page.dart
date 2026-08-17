@@ -3,9 +3,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/auth/init/init_auth_bloc.dart';
-import 'package:hisobchi/infrastructure/models/user_me_model.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:ehisob/application/auth/init/init_auth_bloc.dart';
+import 'package:ehisob/infrastructure/models/user_me_model.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
 
 import '../../components/loading/premium_loading.dart';
 import '../../components/toast/toast.dart';

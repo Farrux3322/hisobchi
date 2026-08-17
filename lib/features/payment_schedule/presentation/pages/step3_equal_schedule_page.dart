@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/presentation/components/basic_widgets.dart';
+import 'package:ehisob/presentation/components/basic_widgets.dart';
 
 import '../../../../presentation/assets/asset_index.dart';
 import '../bloc/payment_schedule_bloc.dart';

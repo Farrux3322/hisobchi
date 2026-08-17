@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/project/project_model.dart';
-import 'package:hisobchi/infrastructure/repository/project/project_repository.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/dto/models/project/project_model.dart';
+import 'package:ehisob/infrastructure/repository/project/project_repository.dart';
 
 part 'project_event.dart';
 part 'project_state.dart';

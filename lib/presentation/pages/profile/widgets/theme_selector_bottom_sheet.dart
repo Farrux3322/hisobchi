@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/theme/theme_bloc.dart';
-import 'package:hisobchi/application/theme/theme_event.dart';
-import 'package:hisobchi/application/theme/theme_state.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:ehisob/application/theme/theme_bloc.dart';
+import 'package:ehisob/application/theme/theme_event.dart';
+import 'package:ehisob/application/theme/theme_state.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
 
 class ThemeSelectorBottomSheet extends StatelessWidget {
   const ThemeSelectorBottomSheet({super.key});

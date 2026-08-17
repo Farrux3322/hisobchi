@@ -1,5 +1,5 @@
 
-import 'package:hisobchi/domain/common/data/user_data.dart';
+import 'package:ehisob/domain/common/data/user_data.dart';
 
 extension Check on String {
 

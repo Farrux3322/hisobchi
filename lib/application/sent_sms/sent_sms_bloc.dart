@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/sent_sms/sent_sms_event.dart';
-import 'package:hisobchi/application/sent_sms/sent_sms_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
+import 'package:ehisob/application/sent_sms/sent_sms_event.dart';
+import 'package:ehisob/application/sent_sms/sent_sms_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/repository/partner_report/partner_report_repository.dart';
 
 class SentSmsBloc extends Bloc<SentSmsEvent, SentSmsState> {
   final PartnerReportRepository repository;

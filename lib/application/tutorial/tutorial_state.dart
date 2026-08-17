@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/tutorial_model.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/tutorial_model.dart';
 
 class TutorialState extends Equatable {
   final Status status;

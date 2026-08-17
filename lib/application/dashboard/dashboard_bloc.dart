@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/dashboard/dashboard_model.dart';
-import 'package:hisobchi/infrastructure/repository/dashboard/dashboard_repository.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/dto/models/dashboard/dashboard_model.dart';
+import 'package:ehisob/infrastructure/repository/dashboard/dashboard_repository.dart';
 
 part 'dashboard_event.dart';
 part 'dashboard_state.dart';

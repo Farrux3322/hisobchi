@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/staff/staff_bloc.dart';
-import 'package:hisobchi/application/staff/staff_event.dart';
-import 'package:hisobchi/application/staff/staff_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/basic_widgets.dart';
-import 'package:hisobchi/presentation/components/loading/loading.dart';
-import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:ehisob/application/staff/staff_bloc.dart';
+import 'package:ehisob/application/staff/staff_event.dart';
+import 'package:ehisob/application/staff/staff_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/basic_widgets.dart';
+import 'package:ehisob/presentation/components/loading/loading.dart';
+import 'package:ehisob/presentation/components/toast/toast.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
-import 'package:hisobchi/presentation/components/dialog/confirmation_dialog.dart';
+import 'package:ehisob/presentation/components/dialog/confirmation_dialog.dart';
 import '../../components/back_button.dart';
 import 'staff_edit_page.dart';
 import 'staff_otp_page.dart';

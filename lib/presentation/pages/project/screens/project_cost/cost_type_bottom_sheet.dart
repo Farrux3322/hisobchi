@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:gap/gap.dart';
-import 'package:hisobchi/application/cost_type/cost_type_bloc.dart';
-import 'package:hisobchi/application/cost_type/cost_type_event.dart';
-import 'package:hisobchi/application/cost_type/cost_type_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/cost_type_model.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
-import 'package:hisobchi/presentation/pages/project/screens/project_cost/widgets/add_cost_type_sheet.dart';
-import 'package:hisobchi/presentation/pages/project/screens/project_cost/widgets/delete_confirm_sheet.dart';
-import 'package:hisobchi/presentation/components/loading/loading.dart';
+import 'package:ehisob/application/cost_type/cost_type_bloc.dart';
+import 'package:ehisob/application/cost_type/cost_type_event.dart';
+import 'package:ehisob/application/cost_type/cost_type_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/cost_type_model.dart';
+import 'package:ehisob/presentation/assets/theme/app_theme.dart';
+import 'package:ehisob/presentation/pages/project/screens/project_cost/widgets/add_cost_type_sheet.dart';
+import 'package:ehisob/presentation/pages/project/screens/project_cost/widgets/delete_confirm_sheet.dart';
+import 'package:ehisob/presentation/components/loading/loading.dart';
 
 import '../../../../components/toast/toast.dart';
 

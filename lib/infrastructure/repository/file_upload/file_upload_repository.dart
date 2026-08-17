@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:hisobchi/infrastructure/common/network_provider.dart';
-import 'package:hisobchi/infrastructure/models/file_upload_response.dart';
+import 'package:ehisob/infrastructure/common/network_provider.dart';
+import 'package:ehisob/infrastructure/models/file_upload_response.dart';
 
 class FileUploadRepository {
   /// Upload file to server and return the file id and URL

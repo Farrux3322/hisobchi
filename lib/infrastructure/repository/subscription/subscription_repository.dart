@@ -1,5 +1,5 @@
-import 'package:hisobchi/infrastructure/common/network_provider.dart';
-import 'package:hisobchi/infrastructure/dto/models/subscription/purchase_subscription_model.dart';
+import 'package:ehisob/infrastructure/common/network_provider.dart';
+import 'package:ehisob/infrastructure/dto/models/subscription/purchase_subscription_model.dart';
 
 class SubscriptionRepository {
   Future<Map<String, dynamic>> getPricingPlans() async {

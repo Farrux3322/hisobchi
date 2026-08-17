@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hisobchi/infrastructure/dto/models/currency/currency_model.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:ehisob/infrastructure/dto/models/currency/currency_model.dart';
+import 'package:ehisob/presentation/assets/theme/app_theme.dart';
 
 class AddClientDialogs {
   /// Show currency selection bottom sheet

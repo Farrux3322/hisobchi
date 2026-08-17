@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/infrastructure/models/partner_details_report_model.dart';
-import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
+import 'package:ehisob/infrastructure/models/partner_details_report_model.dart';
+import 'package:ehisob/infrastructure/repository/partner_report/partner_report_repository.dart';
 
 part 'partner_details_report_state.dart';
 

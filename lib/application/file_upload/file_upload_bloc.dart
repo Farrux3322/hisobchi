@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/file_upload/file_upload_event.dart';
-import 'package:hisobchi/application/file_upload/file_upload_state.dart';
-import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
+import 'package:ehisob/application/file_upload/file_upload_event.dart';
+import 'package:ehisob/application/file_upload/file_upload_state.dart';
+import 'package:ehisob/infrastructure/repository/file_upload/file_upload_repository.dart';
 
 class FileUploadBloc extends Bloc<FileUploadEvent, FileUploadState> {
   final FileUploadRepository _repository;

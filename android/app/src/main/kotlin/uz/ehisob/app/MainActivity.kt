@@ -1,4 +1,4 @@
-package com.alpha.hisobchi
+package uz.ehisob.app
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

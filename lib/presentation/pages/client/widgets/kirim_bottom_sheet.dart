@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hisobchi/application/currency/currency_bloc.dart';
-import 'package:hisobchi/application/file_upload/file_upload_bloc.dart';
-import 'package:hisobchi/application/file_upload/file_upload_event.dart';
-import 'package:hisobchi/application/file_upload/file_upload_state.dart';
-import 'package:hisobchi/application/partner/partner_bloc.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/partner/partner_model.dart';
-import 'package:hisobchi/infrastructure/repository/file_upload/file_upload_repository.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/loading/loading.dart';
-import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:ehisob/application/currency/currency_bloc.dart';
+import 'package:ehisob/application/file_upload/file_upload_bloc.dart';
+import 'package:ehisob/application/file_upload/file_upload_event.dart';
+import 'package:ehisob/application/file_upload/file_upload_state.dart';
+import 'package:ehisob/application/partner/partner_bloc.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/dto/models/partner/partner_model.dart';
+import 'package:ehisob/infrastructure/repository/file_upload/file_upload_repository.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/loading/loading.dart';
+import 'package:ehisob/presentation/components/toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
 
 // Number formatter - raqamlarni space bilan ajratadi va kasr sonlarni qo'llab-quvvatlaydi

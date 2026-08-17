@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:ehisob/presentation/assets/theme/app_theme.dart';
 
 import '../../../assets/asset_index.dart' show DateFormat, SizeExtension;
 

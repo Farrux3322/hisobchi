@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/contract_model.dart';
-import 'package:hisobchi/infrastructure/repository/contract/contract_repository.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/contract_model.dart';
+import 'package:ehisob/infrastructure/repository/contract/contract_repository.dart';
 
 part 'contract_event.dart';
 part 'contract_state.dart';

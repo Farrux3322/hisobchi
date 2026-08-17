@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:hisobchi/infrastructure/models/worker_model.dart';
+import 'package:ehisob/infrastructure/models/worker_model.dart';
 
 import '../../common/network_provider.dart';
 

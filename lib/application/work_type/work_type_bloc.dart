@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/work_type_model.dart';
-import 'package:hisobchi/infrastructure/repository/work_type/work_type_repository.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/work_type_model.dart';
+import 'package:ehisob/infrastructure/repository/work_type/work_type_repository.dart';
 
 part 'work_type_event.dart';
 part 'work_type_state.dart';

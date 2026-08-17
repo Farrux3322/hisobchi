@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/project_income/project_income_event.dart';
-import 'package:hisobchi/application/project_income/project_income_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/repository/project_income/project_income_repository.dart';
+import 'package:ehisob/application/project_income/project_income_event.dart';
+import 'package:ehisob/application/project_income/project_income_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/repository/project_income/project_income_repository.dart';
 
 class ProjectIncomeBloc extends Bloc<ProjectIncomeEvent, ProjectIncomeState> {
   final ProjectIncomeRepository repository;

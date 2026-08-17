@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/partner_operations/partner_operations_event.dart';
-import 'package:hisobchi/application/partner_operations/partner_operations_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/repository/partner_operations/partner_operations_repository.dart';
+import 'package:ehisob/application/partner_operations/partner_operations_event.dart';
+import 'package:ehisob/application/partner_operations/partner_operations_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/repository/partner_operations/partner_operations_repository.dart';
 
 class PartnerOperationsBloc
     extends Bloc<PartnerOperationsEvent, PartnerOperationsState> {

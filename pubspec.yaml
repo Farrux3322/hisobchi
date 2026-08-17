@@ -1,4 +1,4 @@
-name: hisobchi
+name: ehisob
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -55,18 +55,12 @@ dependencies:
   file_picker: ^10.1.2
   collection: ^1.19.1
   no_screenshot: ^0.3.1
-  confetti: ^0.8.0
-  font_awesome_flutter: ^10.8.0
+  font_awesome_flutter: ^11.0.0
   url_launcher: ^6.2.6
   oktoast: ^3.4.0
   freezed_annotation: ^3.0.0
-  json_annotation: ^4.9.0
-  syncfusion_flutter_datagrid: ^24.1.41
   flutter_form_builder: ^9.1.1
-  form_builder_validators: ^11.0.0
   flutter_slidable: ^3.1.2
-  fdottedline_nullsafety: ^2.0.1
-  accordion: ^2.6.0
   cupertino_icons: ^1.0.8
   flutter_easyloading: ^3.0.5
   flutter_screenutil: ^5.9.3
@@ -77,13 +71,10 @@ dependencies:
   flutter_svg: ^2.0.10+1
   timer_count_down: ^2.2.2
   flutter_animator: ^3.2.2
-  flutter_reorderable_grid_view: ^5.5.0
   #  vibration: ^1.9.0
   mask_text_input_formatter: ^2.9.0
   loading_animation_widget: ^1.3.0
   fl_chart: ^0.69.0
-  modal_bottom_sheet: ^3.0.0
-  easy_rich_text: ^2.2.0
   flutter_native_splash: ^2.4.6
   image_picker: ^1.1.2
   image_cropper: ^9.1.0
@@ -113,8 +104,6 @@ dependencies:
 
   # Local storage
   shared_preferences: ^2.3.5
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
 
   # Biometric authentication
   local_auth: ^3.0.0
@@ -124,8 +113,6 @@ dependencies:
   # Navigation
   go_router: ^14.6.3
   persistent_bottom_nav_bar_v2: ^5.3.1
-  back_button_interceptor: ^8.0.3
-  liquid_glass_bottom_bar: ^0.0.6
   app_links: ^6.4.1
   youtube_player_flutter: ^9.1.3
   intl: ^0.20.1
@@ -136,7 +123,6 @@ dev_dependencies:
     sdk: flutter
 
   freezed: ^3.0.6
-  json_serializable: ^6.9.4
   build_runner: ^2.4.15
   flutter_launcher_icons: ^0.14.3
   flutter_lints: ^5.0.0

@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hisobchi/application/partner/partner_bloc.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
+import 'package:ehisob/application/partner/partner_bloc.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
 
 class SmsSettingPage extends StatefulWidget {
   final int partnerId;

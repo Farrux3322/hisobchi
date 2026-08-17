@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/infrastructure/repository/identification/identification_repository.dart';
+import 'package:ehisob/infrastructure/repository/identification/identification_repository.dart';
 
 part 'identification_event.dart';
 part 'identification_state.dart';

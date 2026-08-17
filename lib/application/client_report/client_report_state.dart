@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/client_report_model.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/client_report_model.dart';
 
 class ClientReportState extends Equatable {
   final Status status;

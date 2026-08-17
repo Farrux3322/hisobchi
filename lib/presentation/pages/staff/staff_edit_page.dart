@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/staff/staff_bloc.dart';
-import 'package:hisobchi/application/staff/staff_event.dart';
-import 'package:hisobchi/application/staff/staff_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/permission_model.dart';
-import 'package:hisobchi/infrastructure/models/staff_model.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/basic_widgets.dart';
-import 'package:hisobchi/presentation/components/toast/toast.dart';
+import 'package:ehisob/application/staff/staff_bloc.dart';
+import 'package:ehisob/application/staff/staff_event.dart';
+import 'package:ehisob/application/staff/staff_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/permission_model.dart';
+import 'package:ehisob/infrastructure/models/staff_model.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/basic_widgets.dart';
+import 'package:ehisob/presentation/components/toast/toast.dart';
 
 import '../../components/back_button.dart';
 

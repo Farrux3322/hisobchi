@@ -1,5 +1,5 @@
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/time_report_summary_model.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/time_report_summary_model.dart';
 
 class TimeReportSummaryState {
   final Status status;

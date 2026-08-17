@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:hisobchi/application/sent_sms/sent_sms_bloc.dart';
-import 'package:hisobchi/application/sent_sms/sent_sms_event.dart';
-import 'package:hisobchi/application/sent_sms/sent_sms_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/sent_sms_model.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
+import 'package:ehisob/application/sent_sms/sent_sms_bloc.dart';
+import 'package:ehisob/application/sent_sms/sent_sms_event.dart';
+import 'package:ehisob/application/sent_sms/sent_sms_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/sent_sms_model.dart';
+import 'package:ehisob/presentation/assets/theme/app_theme.dart';
+import 'package:ehisob/presentation/components/back_button.dart';
 import 'package:shimmer/shimmer.dart';
 
 class SmsDetailPage extends StatefulWidget {

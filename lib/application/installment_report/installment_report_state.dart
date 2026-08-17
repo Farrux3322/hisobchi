@@ -1,5 +1,5 @@
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/dto/models/installment_report/installment_report_models.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/dto/models/installment_report/installment_report_models.dart';
 
 class InstallmentReportState {
   // ─── Statuses ──────────────────────────────────────────────────────────────

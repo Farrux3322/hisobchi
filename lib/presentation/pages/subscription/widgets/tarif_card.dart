@@ -1,6 +1,6 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
-import 'package:hisobchi/infrastructure/dto/models/subscription/pricing_plan_model.dart';
+import 'package:ehisob/infrastructure/dto/models/subscription/pricing_plan_model.dart';
 class TarifCard extends StatelessWidget {
   final PricingPlanModel tarif;
 

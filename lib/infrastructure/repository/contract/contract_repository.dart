@@ -1,4 +1,4 @@
-import 'package:hisobchi/infrastructure/common/network_provider.dart';
+import 'package:ehisob/infrastructure/common/network_provider.dart';
 
 class ContractRepository {
   Future<Map<String, dynamic>> getContracts({

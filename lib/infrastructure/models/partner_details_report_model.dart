@@ -1,4 +1,4 @@
-import 'package:hisobchi/infrastructure/models/partner_report_model.dart';
+import 'package:ehisob/infrastructure/models/partner_report_model.dart';
 
 class PartnerDetailsReportResponse {
   final bool status;

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:hisobchi/infrastructure/common/network_provider.dart';
-import 'package:hisobchi/infrastructure/dto/models/installment_report/installment_report_models.dart';
+import 'package:ehisob/infrastructure/common/network_provider.dart';
+import 'package:ehisob/infrastructure/dto/models/installment_report/installment_report_models.dart';
 
 class InstallmentReportRepository {
   /// GET /reports/installments/summary

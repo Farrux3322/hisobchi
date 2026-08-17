@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hisobchi/application/project_report/project_report_bloc.dart';
-import 'package:hisobchi/infrastructure/dto/models/project_report/project_report_model.dart';
-import 'package:hisobchi/presentation/assets/asset_index.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
-import 'package:hisobchi/presentation/pages/project/screens/project_cost/project_cost_list_page.dart';
-import 'package:hisobchi/presentation/pages/project/screens/project_income/project_income_list_page.dart';
+import 'package:ehisob/application/project_report/project_report_bloc.dart';
+import 'package:ehisob/infrastructure/dto/models/project_report/project_report_model.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
+import 'package:ehisob/presentation/components/back_button.dart';
+import 'package:ehisob/presentation/pages/project/screens/project_cost/project_cost_list_page.dart';
+import 'package:ehisob/presentation/pages/project/screens/project_income/project_income_list_page.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProjectReportPage extends StatelessWidget {

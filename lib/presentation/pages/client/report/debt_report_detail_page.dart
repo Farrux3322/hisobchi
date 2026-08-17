@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hisobchi/application/partner_report/warranty/warranty_period_details_bloc.dart';
-import 'package:hisobchi/application/partner_report/warranty/warranty_period_details_event.dart';
-import 'package:hisobchi/application/partner_report/warranty/warranty_period_details_state.dart';
-import 'package:hisobchi/application/partner_report/warranty/warranty_periods_bloc.dart';
-import 'package:hisobchi/application/partner_report/warranty/warranty_periods_event.dart';
-import 'package:hisobchi/application/partner_report/warranty/warranty_periods_state.dart';
-import 'package:hisobchi/domain/common/constants.dart';
-import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
-import 'package:hisobchi/infrastructure/repository/partner_report/partner_report_repository.dart';
-import 'package:hisobchi/presentation/components/back_button.dart';
-import 'package:hisobchi/presentation/pages/client/report/widgets/partner_operation_detail_sheet.dart';
+import 'package:ehisob/application/partner_report/warranty/warranty_period_details_bloc.dart';
+import 'package:ehisob/application/partner_report/warranty/warranty_period_details_event.dart';
+import 'package:ehisob/application/partner_report/warranty/warranty_period_details_state.dart';
+import 'package:ehisob/application/partner_report/warranty/warranty_periods_bloc.dart';
+import 'package:ehisob/application/partner_report/warranty/warranty_periods_event.dart';
+import 'package:ehisob/application/partner_report/warranty/warranty_periods_state.dart';
+import 'package:ehisob/domain/common/constants.dart';
+import 'package:ehisob/infrastructure/models/partner_operations_detail_model.dart';
+import 'package:ehisob/infrastructure/repository/partner_report/partner_report_repository.dart';
+import 'package:ehisob/presentation/components/back_button.dart';
+import 'package:ehisob/presentation/pages/client/report/widgets/partner_operation_detail_sheet.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../assets/asset_index.dart';

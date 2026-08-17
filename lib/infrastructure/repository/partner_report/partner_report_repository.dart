@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
-import 'package:hisobchi/infrastructure/common/network_provider.dart';
-import 'package:hisobchi/infrastructure/models/partner_details_report_model.dart';
-import 'package:hisobchi/infrastructure/models/partner_report_model.dart';
-import 'package:hisobchi/infrastructure/models/partner_summary_model.dart';
-import 'package:hisobchi/infrastructure/models/sent_sms_model.dart';
-import 'package:hisobchi/infrastructure/models/time_report_summary_model.dart';
-import 'package:hisobchi/infrastructure/models/partner_operations_detail_model.dart';
-import 'package:hisobchi/infrastructure/models/warranty_periods_model.dart';
+import 'package:ehisob/infrastructure/common/network_provider.dart';
+import 'package:ehisob/infrastructure/models/partner_details_report_model.dart';
+import 'package:ehisob/infrastructure/models/partner_report_model.dart';
+import 'package:ehisob/infrastructure/models/partner_summary_model.dart';
+import 'package:ehisob/infrastructure/models/sent_sms_model.dart';
+import 'package:ehisob/infrastructure/models/time_report_summary_model.dart';
+import 'package:ehisob/infrastructure/models/partner_operations_detail_model.dart';
+import 'package:ehisob/infrastructure/models/warranty_periods_model.dart';
 
 import '../../models/staff_worker_model.dart';
 

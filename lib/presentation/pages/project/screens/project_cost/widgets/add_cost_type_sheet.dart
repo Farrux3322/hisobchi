@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:hisobchi/infrastructure/models/cost_type_model.dart';
-import 'package:hisobchi/presentation/assets/theme/app_theme.dart';
+import 'package:ehisob/infrastructure/models/cost_type_model.dart';
+import 'package:ehisob/presentation/assets/theme/app_theme.dart';
 
 class AddCostTypeSheet extends StatefulWidget {
   final CostTypeModel? costType;
