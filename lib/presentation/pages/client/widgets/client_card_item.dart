@@ -12,24 +12,12 @@ class ClientCardItem extends StatelessWidget {
 
   const ClientCardItem({super.key, required this.partnerModel, this.onTap});
 
-  String formatCurrency(num amount) {
-    final absAmount = amount.abs();
-    if (absAmount >= 1000000) {
-      return '${(absAmount / 1000000).toStringAsFixed(3)} \$';
-    } else if (absAmount >= 1000) {
-      return '${(absAmount / 1000).toStringAsFixed(1)}K \$';
-    }
-    return '${absAmount.toStringAsFixed(0)} \$';
-  }
-
   String _formatBalance(num amount) {
-    // Format number with spaces as thousand separators
     final isNegative = amount < 0;
     final absAmount = amount.abs();
     final parts = absAmount.toStringAsFixed(0).split('.');
     final integerPart = parts[0];
 
-    // Add spaces every 3 digits from right
     String formatted = '';
     for (int i = 0; i < integerPart.length; i++) {
       if (i > 0 && (integerPart.length - i) % 3 == 0) {
@@ -41,199 +29,245 @@ class ClientCardItem extends StatelessWidget {
     return '${isNegative ? '-' : ''}$formatted';
   }
 
+  String _getInitials(String name) {
+    final parts = name.trim().split(' ').where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return 'M';
+    if (parts.length == 1) {
+      return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
+    }
+    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final bool isUZSPositive = (partnerModel?.balance?.uzs ?? 0) >= 0;
-    // final bool isUSDPositive = (partnerModel?.balance?.usd ?? 0) >= 0;
-
     final bool isDeleted = partnerModel?.deletedAt != null;
+    final num uzs = partnerModel?.balance?.uzs ?? 0;
+    final num usd = partnerModel?.balance?.usd ?? 0;
+    final bool hasDebt = uzs < 0 || usd < 0;
+    final bool hasCredit = uzs > 0 || usd > 0;
 
-    return Stack(
-      children: [
-        Container(
-          margin: EdgeInsets.only(bottom: 7.h),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20.r),
-            boxShadow: [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 8))],
-            border: Border.all(color: !isDeleted ? const Color(0xFFF1F5F9) : Colors.red.shade200, width: !isDeleted ? 1 : 1.5),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(20.r),
-              child: Opacity(
-                opacity: isDeleted ? 0.7 : 1.0,
-                child: ColorFiltered(
-                  colorFilter: isDeleted
-                      ? const ColorFilter.matrix([0.2126, 0.7152, 0.0722, 0, 0, 0.2126, 0.7152, 0.0722, 0, 0, 0.2126, 0.7152, 0.0722, 0, 0, 0, 0, 0, 1, 0])
-                      : const ColorFilter.mode(Colors.transparent, BlendMode.dst),
-                  child: Padding(
-                    padding: EdgeInsets.all(16.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Avatar with subtle shadow
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12.r),
-                                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12.r),
-                                child: CachedNetworkImage(
-                                  imageUrl: (partnerModel?.files ?? []).isNotEmpty
-                                      ? partnerModel?.files?.first.url ?? ''
-                                      : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEM7h-3_xucDg6PXVOyOxh9QOnMkS0dvydRA&s',
-                                  width: 48.w,
-                                  height: 48.w,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => Shimmer.fromColors(
-                                    baseColor: const Color(0xFFF1F5F9),
-                                    highlightColor: Colors.white,
-                                    child: Container(width: 48.w, height: 48.w, color: Colors.white),
-                                  ),
-                                  errorWidget: (context, url, error) => Container(
-                                    width: 48.w,
-                                    height: 48.w,
-                                    color: const Color(0xFFF1F5F9),
-                                    child: Icon(Icons.person_rounded, color: const Color(0xFFCBD5E1), size: 24.sp),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 16.w),
+    final String statusText;
+    final Color statusColor;
+    final Color statusBg;
+    if (hasDebt) {
+      statusText = 'Qarzdor';
+      statusColor = const Color(0xFFEF4444);
+      statusBg = const Color(0xFFFEF2F2);
+    } else if (hasCredit) {
+      statusText = 'Haqdor';
+      statusColor = const Color(0xFF10B981);
+      statusBg = const Color(0xFFECFDF5);
+    } else {
+      statusText = 'Hisob 0';
+      statusColor = const Color(0xFF64748B);
+      statusBg = const Color(0xFFF1F5F9);
+    }
 
-                            // Name, Phone and Date
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    partnerModel?.name ?? 'Noma\'lum',
-                                    style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600, color: const Color(0xFF1E293B), height: 1.2),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                    Text(
-                                      PhoneFormatter.formatPhoneNumber(partnerModel?.phone ?? ''),
-                                      style: TextStyle(fontSize: 10.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w600, letterSpacing: 0.3),
-                                    ),
-                                ],
-                              ),
-                            ),
-
-                            // Balance section
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                _buildBalanceRow(amount: partnerModel?.balance?.uzs ?? 0, currency: 'UZS'),
-                                SizedBox(height: 4.h),
-                                _buildBalanceRow(amount: partnerModel?.balance?.usd ?? 0, currency: 'USD'),
-                              ],
-                            ),
-                          ],
-                        ),
-
-                        if (partnerModel?.installmentRemaining?.hasAnyValue == true) ...[
-                          SizedBox(height: 10.h),
-                          _InstallmentRow(remaining: partnerModel!.installmentRemaining!),
-                        ],
-
-                        SizedBox(height: 12.h),
-
-                        // Footer
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                SvgPicture.asset(AppIcons.date),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  partnerModel?.createdAt?.split(" ").first ?? '',
-                                  style: TextStyle(fontSize: 11.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            ),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      partnerModel?.activity ?? '',
-                                      style: TextStyle(fontSize: 11.sp, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+    return Container(
+      margin: EdgeInsets.only(bottom: 10.h),
+      decoration: BoxDecoration(
+        color: AppTheme.colors.white,
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(
+          color: isDeleted ? Colors.red.shade200 : const Color(0xFFF1F5F9),
+          width: 1.2,
         ),
-        if (isDeleted)
-          Positioned(
-            bottom: 12.h,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF2F2),
-                  borderRadius: BorderRadius.circular(10.r),
-                  border: Border.all(color: const Color(0xFFFCA5A5), width: 0.5),
-                  boxShadow: [BoxShadow(color: Colors.red.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.colors.primary.withValues(alpha: 0.04),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(18.r),
+          child: Padding(
+            padding: EdgeInsets.all(14.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Row: Avatar, Name & Phone, Status Pill & Balances
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SvgPicture.asset(AppIcons.delete, width: 14, height: 14),
-                    SizedBox(width: 4.w),
-                    Text(
-                      'O\'chirilgan',
-                      style: TextStyle(fontSize: 10.sp, color: const Color(0xFFB91C1C), fontWeight: FontWeight.w700, letterSpacing: 0.2),
+                    // Avatar
+                    Container(
+                      width: 46.r,
+                      height: 46.r,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14.r),
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.colors.primary.withValues(alpha: 0.15),
+                            const Color(0xFF6366F1).withValues(alpha: 0.2),
+                          ],
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14.r),
+                        child: (partnerModel?.files != null && partnerModel!.files!.isNotEmpty)
+                            ? CachedNetworkImage(
+                                imageUrl: partnerModel!.files!.first.url ?? '',
+                                width: 46.r,
+                                height: 46.r,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Shimmer.fromColors(
+                                  baseColor: const Color(0xFFF1F5F9),
+                                  highlightColor: Colors.white,
+                                  child: Container(width: 46.r, height: 46.r, color: Colors.white),
+                                ),
+                                errorWidget: (context, url, error) => Center(
+                                  child: Text(
+                                    _getInitials(partnerModel?.name ?? ''),
+                                    style: TextStyle(
+                                      fontSize: 15.sp,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppTheme.colors.primary,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Center(
+                                child: Text(
+                                  _getInitials(partnerModel?.name ?? ''),
+                                  style: TextStyle(
+                                    fontSize: 15.sp,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppTheme.colors.primary,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+
+                    // Name, Phone & Status
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  partnerModel?.name ?? 'Noma\'lum',
+                                  style: TextStyle(
+                                    fontSize: 14.5.sp,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF1E293B),
+                                    letterSpacing: -0.2,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                                decoration: BoxDecoration(
+                                  color: statusBg,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Text(
+                                  statusText,
+                                  style: TextStyle(
+                                    fontSize: 10.5.sp,
+                                    fontWeight: FontWeight.w700,
+                                    color: statusColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 3.h),
+                          Text(
+                            PhoneFormatter.formatPhoneNumber(partnerModel?.phone ?? ''),
+                            style: TextStyle(
+                              fontSize: 11.5.sp,
+                              color: const Color(0xFF64748B),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
+
+                SizedBox(height: 10.h),
+
+                // Balance summary row
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildBalanceItem('UZS', uzs),
+                      Container(width: 1, height: 20.h, color: const Color(0xFFE2E8F0)),
+                      _buildBalanceItem('USD', usd),
+                    ],
+                  ),
+                ),
+
+                if (partnerModel?.installmentRemaining?.hasAnyValue == true) ...[
+                  SizedBox(height: 8.h),
+                  _InstallmentRow(remaining: partnerModel!.installmentRemaining!),
+                ],
+
+                SizedBox(height: 10.h),
+
+                // Footer: Date & Activity
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        SvgPicture.asset(AppIcons.date, width: 12.sp, height: 12.sp),
+                        SizedBox(width: 5.w),
+                        Text(
+                          partnerModel?.createdAt?.split(" ").first ?? '',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: const Color(0xFF94A3B8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if ((partnerModel?.activity ?? '').isNotEmpty)
+                      Flexible(
+                        child: Text(
+                          partnerModel?.activity ?? '',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: const Color(0xFF94A3B8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
             ),
           ),
-      ],
+        ),
+      ),
     );
   }
 
-  String _fmtNum(num amount) {
-    final abs = amount.abs();
-    final raw = abs.toStringAsFixed(0);
-    final buf = StringBuffer();
-    for (int i = 0; i < raw.length; i++) {
-      if (i > 0 && (raw.length - i) % 3 == 0) buf.write(' ');
-      buf.write(raw[i]);
-    }
-    return buf.toString();
-  }
-
-  Widget _buildBalanceRow({required num amount, required String currency}) {
+  Widget _buildBalanceItem(String currency, num amount) {
     final Color color;
     if (amount == 0) {
-      color = const Color(0xFF1E293B);
+      color = const Color(0xFF64748B);
     } else if (amount > 0) {
       color = const Color(0xFF10B981);
     } else {
@@ -242,24 +276,28 @@ class ClientCardItem extends StatelessWidget {
 
     return Row(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
       children: [
         Text(
-          _formatBalance(amount),
-          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: color, letterSpacing: -0.5),
+          '$currency: ',
+          style: TextStyle(
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF64748B),
+          ),
         ),
-        SizedBox(width: 2.w),
         Text(
-          currency,
-          style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w700, color: Colors.black54),
+          _formatBalance(amount),
+          style: TextStyle(
+            fontSize: 12.5.sp,
+            fontWeight: FontWeight.w800,
+            color: color,
+            letterSpacing: -0.3,
+          ),
         ),
       ],
     );
   }
 }
-
-// ─── Installment remaining row ────────────────────────────────────────────────
 
 class _InstallmentRow extends StatelessWidget {
   final InstallmentRemaining remaining;
@@ -281,11 +319,11 @@ class _InstallmentRow extends StatelessWidget {
     final usd = remaining.usd ?? 0;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF7ED),
+        color: const Color(0xFFFFFBEB),
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: const Color(0xFFFBBF24).withValues(alpha: 0.4)),
+        border: Border.all(color: const Color(0xFFFEF3C7)),
       ),
       child: Row(
         children: [
@@ -293,46 +331,26 @@ class _InstallmentRow extends StatelessWidget {
           SizedBox(width: 6.w),
           Text(
             "Muddatli to'lov:",
-            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: const Color(0xFF92400E)),
+            style: TextStyle(
+              fontSize: 10.5.sp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF92400E),
+            ),
           ),
           const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (uzs != 0) _Chip(amount: _fmt(uzs), currency: 'UZS'),
-              if (uzs != 0 && usd != 0) SizedBox(height: 2.h),
-              if (usd != 0) _Chip(amount: _fmt(usd), currency: 'USD'),
-            ],
-          ),
+          if (uzs != 0)
+            Text(
+              '${_fmt(uzs)} UZS',
+              style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w800, color: const Color(0xFFB45309)),
+            ),
+          if (uzs != 0 && usd != 0) SizedBox(width: 8.w),
+          if (usd != 0)
+            Text(
+              '${_fmt(usd)} USD',
+              style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w800, color: const Color(0xFFB45309)),
+            ),
         ],
       ),
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  final String amount;
-  final String currency;
-  const _Chip({required this.amount, required this.currency});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: [
-        Text(
-          amount,
-          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w800, color: const Color(0xFFB45309), letterSpacing: -0.3),
-        ),
-        SizedBox(width: 2.w),
-        Text(
-          currency,
-          style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w700, color: const Color(0xFFD97706)),
-        ),
-      ],
     );
   }
 }

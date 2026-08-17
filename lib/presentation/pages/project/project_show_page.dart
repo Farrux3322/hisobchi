@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ehisob/application/project/project_bloc.dart';
@@ -516,8 +517,19 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
 
   Widget _buildFinancialOverview(ProjectModel project) {
     return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.colors.primary.withValues(alpha: 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           // Totals Row (Income & Expense)
@@ -529,11 +541,12 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   amountUzs: project.accounts?.debt?.uzs,
                   amountUsd: project.accounts?.debt?.usd,
                   icon: AppIcons.income,
-                  color: const Color(0xFF3CC293),
+                  color: const Color(0xFF10B981),
                   onTap: () async {
-                    // Navigate to income list page and check if changes were made
-                    final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeListPage(projectId: project.id ?? 0)));
-                    // Only refresh if transactions were actually modified
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => ProjectIncomeListPage(projectId: project.id ?? 0)),
+                    );
                     if (mounted && result is ProjectIncomeListResult && result.hasChanges) {
                       _markAsChanged();
                       context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
@@ -541,18 +554,19 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   },
                 ),
               ),
-              const Gap(12),
+              SizedBox(width: 10.w),
               Expanded(
                 child: _buildMetricCard(
                   label: 'Chiqim',
                   amountUzs: project.accounts?.credit?.uzs,
                   amountUsd: project.accounts?.credit?.usd,
                   icon: AppIcons.chiqim,
-                  color: const Color(0xFFDE5050),
+                  color: const Color(0xFFEF4444),
                   onTap: () async {
-                    // Navigate to expense list page and check if changes were made
-                    final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostListPage(projectId: project.id ?? 0)));
-                    // Only refresh if transactions were actually modified
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => ProjectCostListPage(projectId: project.id ?? 0)),
+                    );
                     if (mounted && result is ProjectCostListResult && result.hasChanges) {
                       _markAsChanged();
                       context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
@@ -562,24 +576,25 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
               ),
             ],
           ),
-          const Gap(12),
+          SizedBox(height: 12.h),
           // Large Balance Card
           _buildMainBalanceCard(project),
-          const Gap(12),
+          SizedBox(height: 12.h),
           // Quick Action Buttons
           Row(
             children: [
               Expanded(
                 child: SubscriptionGuard(
                   child: _buildActionButton(
-                    label: 'Kirim',
+                    label: '+ Kirim',
                     icon: AppIcons.income,
-                    color: const Color(0xFF3CC293),
-                    gradient: const [Color(0xFF3CC293), Color(0xFF34B082)],
+                    color: const Color(0xFF10B981),
+                    gradient: const [Color(0xFF10B981), Color(0xFF059669)],
                     onTap: () {
-                      // Adding new income transaction
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectIncomeAddEditPage(projectId: project.id ?? 0))).then((v) {
-                        // Transaction added, refresh detail page and mark as changed
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => ProjectIncomeAddEditPage(projectId: project.id ?? 0)),
+                      ).then((v) {
                         if (mounted && v == true) {
                           _markAsChanged();
                           context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
@@ -589,18 +604,19 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
                   ),
                 ),
               ),
-              const Gap(12),
+              SizedBox(width: 10.w),
               Expanded(
                 child: SubscriptionGuard(
                   child: _buildActionButton(
-                    label: 'Chiqim',
+                    label: '- Chiqim',
                     icon: AppIcons.chiqim,
-                    color: const Color(0xFFDE5050),
-                    gradient: const [Color(0xFFDE5050), Color(0xFFC54444)],
+                    color: const Color(0xFFEF4444),
+                    gradient: const [Color(0xFFEF4444), Color(0xFFDC2626)],
                     onTap: () {
-                      // Adding new expense transaction
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectCostAddEditPage(projectId: project.id ?? 0))).then((v) {
-                        // Transaction added, refresh detail page and mark as changed
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => ProjectCostAddEditPage(projectId: project.id ?? 0)),
+                      ).then((v) {
                         if (mounted && v == true) {
                           _markAsChanged();
                           context.read<ProjectBloc>().add(GetProjectByIdEvent(id: widget.projectId));
@@ -617,83 +633,102 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
     );
   }
 
-  Widget _buildMetricCard({required String label, num? amountUzs, num? amountUsd, required String icon, required Color color, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          border: Border.all(color: color.withValues(alpha: 0.25), width: 1),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-                  child: SvgPicture.asset(icon, width: 20, height: 20, colorFilter: ColorFilter.mode(color, BlendMode.srcIn)),
-                ),
-                const Gap(8),
-                Text(
-                  label,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: color, letterSpacing: 0.3),
-                ),
-              ],
-            ),
-            // const Gap(12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      _formatCurrency(amountUzs),
-                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: amountUzs == 0 ? Colors.black : const Color(0xFF1E293B), letterSpacing: 0.2),
+  Widget _buildMetricCard({
+    required String label,
+    num? amountUzs,
+    num? amountUsd,
+    required String icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    final bool isIncome = label.contains('Kirim');
+    final Color bgColor = isIncome ? const Color(0xFFECFDF5) : const Color(0xFFFEF2F2);
+    final Color borderColor = isIncome ? const Color(0xFFA7F3D0) : const Color(0xFFFECACA);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
+        borderRadius: BorderRadius.circular(16.r),
+        child: Container(
+          padding: EdgeInsets.all(12.r),
+          decoration: BoxDecoration(
+            color: bgColor,
+            border: Border.all(color: borderColor),
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(6.r),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
-                    const Gap(4),
-                    Text(
-                      'UZS',
-                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black),
+                    child: SvgPicture.asset(
+                      icon,
+                      width: 16.sp,
+                      height: 16.sp,
+                      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 13.5.sp,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const Gap(4),
-            Align(
-              alignment: Alignment.centerRight,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      _formatCurrency(amountUsd),
-                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: amountUsd == 0 ? Colors.black : const Color(0xFF1E293B), letterSpacing: 0.2),
+              SizedBox(height: 8.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'UZS:',
+                    style: TextStyle(fontSize: 10.5.sp, fontWeight: FontWeight.w500, color: const Color(0xFF64748B)),
+                  ),
+                  Text(
+                    _formatCurrency(amountUzs),
+                    style: TextStyle(
+                      fontSize: 13.5.sp,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF1E293B),
+                      letterSpacing: -0.2,
                     ),
-                    const Gap(4),
-                    Text(
-                      'USD',
-                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.black),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
-          ],
+              SizedBox(height: 3.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'USD:',
+                    style: TextStyle(fontSize: 10.5.sp, fontWeight: FontWeight.w500, color: const Color(0xFF64748B)),
+                  ),
+                  Text(
+                    _formatCurrency(amountUsd),
+                    style: TextStyle(
+                      fontSize: 13.5.sp,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF1E293B),
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -705,69 +740,75 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
     final usd = balance?.usd ?? 0;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: AppTheme.colors.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black.withValues(alpha: 0.1), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppTheme.colors.primary.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-            ),
-            child: SvgPicture.asset(
-              AppIcons.balance,
-              width: 22,
-              height: 22,
-              colorFilter: const ColorFilter.mode(Color(0xFF1E293B), BlendMode.srcIn),
-            ),
-          ),
-          const Gap(12),
-          const Text(
-            'Qoldiq',
-            style: TextStyle(color: Color(0xFF1E293B), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.4),
-          ),
-          const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          Row(
             children: [
-              RichText(
-                textAlign: TextAlign.end,
-                text: TextSpan(
-                  text: _formatCurrency(uzs),
-                  style: const TextStyle(color: Color(0xFF1E293B), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
-                  children: const [
-                    TextSpan(
-                      text: ' UZS',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.black),
-                    ),
-                  ],
+              Container(
+                padding: EdgeInsets.all(7.r),
+                decoration: BoxDecoration(
+                  color: AppTheme.colors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: SvgPicture.asset(
+                  AppIcons.balance,
+                  width: 16.sp,
+                  height: 16.sp,
+                  colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),
                 ),
               ),
-              const Gap(2),
-              RichText(
-                textAlign: TextAlign.end,
-                text: TextSpan(
-                  text: _formatCurrency(usd),
-                  style: const TextStyle(color: Color(0xFF1E293B), fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
-                  children: const [
-                    TextSpan(
-                      text: ' USD',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.black),
-                    ),
-                  ],
+              SizedBox(width: 8.w),
+              Text(
+                'Sof balans qoldig\'i',
+                style: TextStyle(
+                  color: const Color(0xFF1E293B),
+                  fontSize: 13.5.sp,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'UZS Balans:',
+                style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w500),
+              ),
+              Text(
+                '${_formatCurrency(uzs)} UZS',
+                style: TextStyle(
+                  color: uzs >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                  fontSize: 14.5.sp,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 4.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'USD Balans:',
+                style: TextStyle(fontSize: 12.sp, color: const Color(0xFF64748B), fontWeight: FontWeight.w500),
+              ),
+              Text(
+                '${_formatCurrency(usd)} USD',
+                style: TextStyle(
+                  color: usd >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                  fontSize: 14.5.sp,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.2,
                 ),
               ),
             ],
@@ -777,28 +818,47 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
     );
   }
 
-  Widget _buildActionButton({required String label, required String icon, required Color color, required List<Color> gradient, required VoidCallback onTap}) {
+  Widget _buildActionButton({
+    required String label,
+    required String icon,
+    required Color color,
+    required List<Color> gradient,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        onTap();
+      },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+        padding: EdgeInsets.symmetric(vertical: 13.h),
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(icon, width: 20, height: 20, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-            const Gap(8),
-            Flexible(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.3),
-                ),
+            SvgPicture.asset(
+              icon,
+              width: 17.sp,
+              height: 17.sp,
+              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            ),
+            SizedBox(width: 6.w),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13.5.sp,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
@@ -808,58 +868,99 @@ class _ProjectShowPageState extends State<ProjectShowPage> {
   }
 
   Widget _buildManagementMenu(ProjectModel project) {
-    return Column(
-      children: [
-        _buildMenuButton(
-          icon: Icons.description_outlined,
-          label: 'Shartnomalar',
-          color: const Color(0xFF3B82F6),
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ContractListPage(projectId: project.id ?? 0))),
-        ),
-        const Gap(12),
-        _buildMenuButton(
-          icon: Icons.people_outline_rounded,
-          label: 'Ishchilar',
-          color: const Color(0xFF8B5CF6),
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => WorkerListPage(projectId: project.id ?? 0))),
-        ),
-        // const Gap(12),
-        // _buildMenuButton(
-        //   icon: Icons.analytics_outlined,
-        //   label: 'Loyiha hisoboti',
-        //   color: const Color(0xFF64748B),
-        //   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectReportPage(projectId: project.id ?? 0))),
-        // ),
-      ],
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.colors.primary.withValues(alpha: 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildMenuButton(
+            icon: Icons.description_outlined,
+            label: 'Shartnomalar',
+            subtitle: 'Barcha shartnoma va kelishuvlar',
+            color: const Color(0xFF3B82F6),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ContractListPage(projectId: project.id ?? 0))),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: const Divider(height: 1, color: Color(0xFFF1F5F9)),
+          ),
+          _buildMenuButton(
+            icon: Icons.people_outline_rounded,
+            label: 'Ishchilar',
+            subtitle: 'Loyiha xodimlari va ustalar',
+            color: const Color(0xFF8B5CF6),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => WorkerListPage(projectId: project.id ?? 0))),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildMenuButton({required IconData icon, required String label, required Color color, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
-              child: Icon(icon, color: color, size: 22),
-            ),
-            const Gap(16),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-            ),
-            const Spacer(),
-            const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1), size: 20),
-          ],
+  Widget _buildMenuButton({
+    required IconData icon,
+    required String label,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
+        borderRadius: BorderRadius.circular(20.r),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(9.r),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Icon(icon, color: color, size: 20.sp),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14.5.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF1E293B),
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF94A3B8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: const Color(0xFFCBD5E1), size: 20.sp),
+            ],
+          ),
         ),
       ),
     );

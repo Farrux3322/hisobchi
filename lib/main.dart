@@ -154,8 +154,8 @@ Future<void> main() async {
     );
     AwesomeNotifications().setGlobalBadgeCounter(0);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Color(0xFFF5F6F8),
-      systemNavigationBarColor: Color(0xFFF5F6F8),
+      statusBarColor: Color(0xFFF8FAFC),
+      systemNavigationBarColor: Color(0xFFF8FAFC),
       statusBarIconBrightness: Brightness.dark,
       systemNavigationBarIconBrightness: Brightness.dark,
     ));

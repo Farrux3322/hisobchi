@@ -100,23 +100,26 @@ class _ProjectListPageState extends State<ProjectListPage> {
                   Expanded(child: _buildBody(state)),
                 ],
               ),
-              floatingActionButton: SubscriptionGuard(
-                child: SizedBox(
-                  width: 56.w,
-                  height: 56.w,
-                  child: FloatingActionButton(
-                    heroTag: 'project_fab',
-                    elevation: 4,
-                    onPressed: () {
-                      if (!context.hasPermission('projects.create')) {
-                        Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
-                        return;
-                      }
-                      context.pushNamed(Routes.projectAddPage.name);
-                    },
-                    backgroundColor: AppTheme.colors.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
-                    child: Icon(Icons.add,color: Colors.white,size: 36.sp),
+              floatingActionButton: Container(
+                margin: EdgeInsets.only(bottom: 72.h),
+                child: SubscriptionGuard(
+                  child: SizedBox(
+                    width: 52.w,
+                    height: 52.w,
+                    child: FloatingActionButton(
+                      heroTag: 'project_fab',
+                      elevation: 4,
+                      onPressed: () {
+                        if (!context.hasPermission('projects.create')) {
+                          Toast.showWarningToast(message: 'Sizda bunday huquq yo\'q');
+                          return;
+                        }
+                        context.pushNamed(Routes.projectAddPage.name);
+                      },
+                      backgroundColor: AppTheme.colors.primary,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
+                      child: Icon(Icons.add, color: Colors.white, size: 32.sp),
+                    ),
                   ),
                 ),
               ),
@@ -147,9 +150,14 @@ class _ProjectListPageState extends State<ProjectListPage> {
         context.read<ProjectBloc>().add(const GetAllProjectEvent());
       },
       child: ListView.builder(
-        physics: AlwaysScrollableScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         controller: _scrollController,
-        padding:  EdgeInsets.symmetric(horizontal: 12.w),
+        padding: EdgeInsets.fromLTRB(
+          12.w,
+          4.h,
+          12.w,
+          MediaQuery.of(context).padding.bottom + 96.h,
+        ),
         itemCount: state.hasReachedMax ? projects.length : projects.length + 1,
         itemBuilder: (context, index) {
           if (index >= projects.length) {

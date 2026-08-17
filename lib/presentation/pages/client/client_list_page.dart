@@ -19,8 +19,6 @@ import 'package:ehisob/presentation/pages/client/widgets/client_card_item.dart';
 import 'package:ehisob/presentation/pages/client/widgets/client_filter_bottom_sheet.dart';
 import 'package:ehisob/infrastructure/services/permission_extension.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:go_router/go_router.dart';
-import 'package:ehisob/presentation/routes/entity/routes.dart';
 
 import '../../components/subscription/subscription_guard.dart';
 
@@ -169,17 +167,19 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                         .toList(),
                   ),
                 ),
-                floatingActionButton: SubscriptionGuard(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 56.w,
-                        height: 56.w,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(18.r),
-                          child: FloatingActionButton(
-                            tooltip: "Mijozlar hisoboti",
+                floatingActionButton: Container(
+                  margin: EdgeInsets.only(bottom: 72.h),
+                  child: SubscriptionGuard(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 52.w,
+                          height: 52.w,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(18.r),
+                            child: FloatingActionButton(
+                              tooltip: "Mijozlar hisoboti",
                             heroTag: 'client_report_fab',
                             elevation: 0,
                             focusElevation: 0,
@@ -290,8 +290,9 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
                     ],
                   ),
                 ),
-              );
-            },
+              ),
+            );
+          },
           ),
         ),
       ),
@@ -364,7 +365,12 @@ class _ClientPageState extends State<ClientPage> with TickerProviderStateMixin {
         },
         child: ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 12.w),
+          padding: EdgeInsets.fromLTRB(
+            12.w,
+            4.h,
+            12.w,
+            MediaQuery.of(context).padding.bottom + 96.h,
+          ),
           itemCount: state.hasReachedMax
               ? filteredPartners.length
               : filteredPartners.length + 1,

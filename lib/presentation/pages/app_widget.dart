@@ -49,7 +49,11 @@ class _AppWidgetState extends State<AppWidget> with WidgetsBindingObserver {
     return BlocBuilder<AppManagerCubit, AppManagerState>(
       builder: (context, state) {
         if (state is AppManagerLoading) {
-          return const CupertinoActivityIndicator();
+          return Container(
+            color: AppTheme.colors.background,
+            alignment: Alignment.center,
+            child: CupertinoActivityIndicator(color: AppTheme.colors.primary),
+          );
         } else if (state is AppManagerError) {
           return ErrorView(error: state.error);
         } else {
@@ -59,8 +63,10 @@ class _AppWidgetState extends State<AppWidget> with WidgetsBindingObserver {
               return OKToast(
                 child: AnnotatedRegion<SystemUiOverlayStyle>(
                   value: SystemUiOverlayStyle(
-                    statusBarColor:  Color(0xFFF5F6F8),
-                    systemNavigationBarColor: Color(0xFFF5F6F8),
+                    statusBarColor: AppTheme.colors.background,
+                    systemNavigationBarColor: AppTheme.colors.background,
+                    statusBarIconBrightness: themeState.themeMode == ThemeMode.dark ? Brightness.light : Brightness.dark,
+                    systemNavigationBarIconBrightness: themeState.themeMode == ThemeMode.dark ? Brightness.light : Brightness.dark,
                   ),
                   child: MaterialApp.router(
                     title: 'E-Hisob',
@@ -82,7 +88,7 @@ class _AppWidgetState extends State<AppWidget> with WidgetsBindingObserver {
                             builder: (context, updateState) {
                               return Stack(
                                 children: [
-                                  child ?? const Material(color: Colors.white, child: SizedBox()),
+                                  child ?? Material(color: AppTheme.colors.background, child: const SizedBox()),
                                   if (updateState.hasUpdate && !updateState.isDismissed) ...[
                                     // Modal Barrier
                                     Positioned.fill(

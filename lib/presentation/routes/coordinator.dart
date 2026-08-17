@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -202,11 +203,27 @@ final router = GoRouter(
                     shellNavigatorProjectsKey,
                     shellNavigatorProfileKey,
                   ],
-                  items: [
-                    LiquidTabItem(icon: Icons.home_rounded, label: 'Asosiy'),
-                    LiquidTabItem(icon: Icons.people_alt_rounded, label: 'Mijozlar'),
-                    LiquidTabItem(icon: Icons.work_rounded, label: 'Loyihalar'),
-                    LiquidTabItem(icon: Icons.person_rounded, label: 'Profile'),
+                  items: const [
+                    LiquidTabItem(
+                      inactiveIcon: CupertinoIcons.house,
+                      activeIcon: CupertinoIcons.house_fill,
+                      label: 'Asosiy',
+                    ),
+                    LiquidTabItem(
+                      inactiveIcon: CupertinoIcons.person_2,
+                      activeIcon: CupertinoIcons.person_2_fill,
+                      label: 'Mijozlar',
+                    ),
+                    LiquidTabItem(
+                      inactiveIcon: CupertinoIcons.briefcase,
+                      activeIcon: CupertinoIcons.briefcase_fill,
+                      label: 'Loyihalar',
+                    ),
+                    LiquidTabItem(
+                      inactiveIcon: CupertinoIcons.person_crop_circle,
+                      activeIcon: CupertinoIcons.person_crop_circle_fill,
+                      label: 'Profil',
+                    ),
                   ],
                 ),
               ),

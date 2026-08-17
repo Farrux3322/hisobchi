@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ehisob/infrastructure/services/shared_service.dart';
+import 'package:ehisob/presentation/assets/asset_index.dart';
 import 'package:ehisob/presentation/pages/onboarding/models/onboarding_model.dart';
 import 'package:ehisob/presentation/pages/onboarding/widgets/gradient_button.dart';
 import 'package:ehisob/presentation/pages/onboarding/widgets/onboarding_content.dart';
@@ -19,47 +20,52 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
+  // Barcha onboarding gradientlari endi qattiq kodlangan hex emas,
+  // bevosita ilovaning AppTheme/BaseColors tokenlaridan olinadi.
   final List<OnboardingModel> _pages = [
-    const OnboardingModel(
+    OnboardingModel(
       title: 'Moliyangizni\nBir Joyda Ko\'ring',
       description:
           'E-Hisob bilan kundalik hisob-kitoblaringizni soddalashtiring va biznesingizni ishonch bilan boshqaring',
-      features: [
+      features: const [
         'Tez va tushunarli interfeys',
         'Ma\'lumotlar real vaqtda yangilanadi',
         'Ma\'lumotlaringiz ishonchli himoyada',
       ],
+      // Primary → Secondary (ilovaning ikkita asosiy brend rangi)
       gradientColors: [
-        Color(0xFF6366F1),
-        Color(0xFF8B5CF6),
+        AppTheme.colors.primary,
+        AppTheme.colors.secondary.withValues(alpha: 1),
       ],
     ),
-    const OnboardingModel(
+    OnboardingModel(
       title: 'Loyiha va Mijozlar\nDoim Nazoratda',
       description:
           'Har bir loyihangiz va mijozingiz bilan bog\'liq hisob-kitoblarni bir joydan kuzatib boring',
-      features: [
+      features: const [
         'Loyihalarni bosqichma-bosqich yuriting',
         'Mijozlar bilan hisob-kitob aniqligi',
         'Har lahzada yangilanadigan hisobotlar',
       ],
+      // Ilovaning ThemeData'dagi "green" tokenidan monoxrom gradient
       gradientColors: [
-        Color(0xFF10B981),
-        Color(0xFF059669),
+        AppTheme.colors.green,
+        Color.lerp(AppTheme.colors.green, Colors.black, 0.25)!,
       ],
     ),
-    const OnboardingModel(
+    OnboardingModel(
       title: 'Balansni Kuzating,\nAniq Qaror Qabul Qiling',
       description:
           'Kirim-chiqim va valyuta kurslarini bir qarashda ko\'ring, moliyaviy holatingizdan doimo xabardor bo\'ling',
-      features: [
+      features: const [
         'Kirim va chiqimlar tahlili',
         'Valyuta kurslari onlayn kuzatuvda',
         'Aniq va tushunarli hisobotlar',
       ],
+      // Ilovaning "red" va "primary" tokenlaridan hosil qilingan gradient
       gradientColors: [
-        Color(0xFFF59E0B),
-        Color(0xFFEA580C),
+        AppTheme.colors.red,
+        AppTheme.colors.primary,
       ],
     ),
   ];
@@ -128,26 +134,28 @@ class _OnboardingPageState extends State<OnboardingPage> {
             // Skip Button (only show if not on last page)
             if (_currentPage < _pages.length - 1)
               Positioned(
-                top: 8,
-                right: 24,
+                top: 8.h,
+                right: 24.w,
                 child: SafeArea(
                   child: TextButton(
                     onPressed: _skipOnboarding,
                     style: TextButton.styleFrom(
                       backgroundColor: Colors.white.withValues(alpha: 0.2),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20.w,
+                        vertical: 10.h,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(20.r),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'O\'tkazib yuborish',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -162,7 +170,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               right: 0,
               child: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.all(32),
+                  padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 32.h),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -174,7 +182,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         inactiveColor: Colors.white.withValues(alpha: 0.3),
                       ),
 
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32.h),
 
                       // Next/Start Button
                       GradientButton(
@@ -182,6 +190,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             ? 'Boshlash'
                             : 'Keyingisi',
                         onPressed: _nextPage,
+                        height: 56.h,
                         gradientColors: [
                           Colors.white,
                           Colors.white.withValues(alpha: 0.9),

@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ehisob/application/subscription/subscription_bloc.dart';
@@ -44,7 +46,7 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
               daysUntilDue: subscription?.daysUntilDue,
               daysPastDue: subscription?.daysPastDue,
             ),
-            const Gap(20),
+            SizedBox(height: 14.h),
 
             // Usage Progress Container
             AnimatedContainer(
@@ -52,9 +54,15 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
               curve: Curves.easeInOut,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(32),
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 24, offset: const Offset(0, 8))],
-                border: Border.all(color: AppTheme.colors.divider.withValues(alpha: 0.5)),
+                borderRadius: BorderRadius.circular(20.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+                border: Border.all(color: const Color(0xFFF1F5F9), width: 1.2),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,28 +70,43 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () => setState(() => _isExpanded = !_isExpanded),
-                      borderRadius: BorderRadius.circular(32),
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() => _isExpanded = !_isExpanded);
+                      },
+                      borderRadius: BorderRadius.circular(20.r),
                       child: Padding(
-                        padding: const EdgeInsets.all(24),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
                         child: Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(color: AppTheme.colors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-                              child: Icon(Icons.bar_chart_rounded, color: AppTheme.colors.primary, size: 20),
+                              padding: EdgeInsets.all(8.r),
+                              decoration: BoxDecoration(
+                                color: AppTheme.colors.primary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(10.r),
+                              ),
+                              child: Icon(CupertinoIcons.chart_bar_fill, color: AppTheme.colors.primary, size: 16.sp),
                             ),
-                            const Gap(12),
+                            SizedBox(width: 10.w),
                             Expanded(
                               child: Text(
                                 'Limitlar va Foydalanish',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.colors.black, letterSpacing: -0.5),
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF1E293B),
+                                  letterSpacing: -0.3,
+                                ),
                               ),
                             ),
                             AnimatedRotation(
                               turns: _isExpanded ? 0.5 : 0,
                               duration: const Duration(milliseconds: 300),
-                              child: Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.colors.gray.withValues(alpha: 0.5), size: 28),
+                              child: Icon(
+                                CupertinoIcons.chevron_down,
+                                color: const Color(0xFF94A3B8),
+                                size: 16.sp,
+                              ),
                             ),
                           ],
                         ),
@@ -95,7 +118,7 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
                     curve: Curves.easeInOut,
                     child: _isExpanded
                         ? Padding(
-                            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                            padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
                             child: Column(
                               children: [
                                 _UsageProgressItem(
@@ -105,7 +128,7 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
                                   max: usage?.customers?.max,
                                   color: const Color(0xFF6366F1), // Indigo
                                 ),
-                                const Gap(24),
+                                SizedBox(height: 14.h),
                                 _UsageProgressItem(
                                   title: 'Loyihalar',
                                   icon: AppIcons.project,
@@ -113,22 +136,21 @@ class _UsageSectionState extends State<UsageSection> with SingleTickerProviderSt
                                   max: usage?.projects?.max,
                                   color: const Color(0xFF10B981), // Emerald
                                 ),
-                                const Gap(24),
+                                SizedBox(height: 14.h),
                                 _UsageProgressItem(
                                   title: 'Xodimlar',
                                   icon: AppIcons.clients,
                                   current: usage?.users?.current ?? 0,
                                   max: usage?.users?.max,
-                                  color: const Color(0xFF78EC1A), // Violet
+                                  color: const Color(0xFF8B5CF6), // Violet
                                 ),
-                                const Gap(24),
+                                SizedBox(height: 14.h),
                                 _UsageProgressItem(
                                   title: 'SMS Xabarlar',
                                   icon: AppIcons.sms,
                                   current: usage?.sms?.current ?? 0,
                                   max: usage?.sms?.max,
-                                  color: const Color(0xFFF59E0B),
-                                  // Amber
+                                  color: const Color(0xFFF59E0B), // Amber
                                   onAction: () => context.pushNamed(Routes.smsBuyPage.name),
                                 ),
                               ],
@@ -169,7 +191,14 @@ class _SubscriptionInfoCard extends StatelessWidget {
   final num? daysUntilDue;
   final num? daysPastDue;
 
-  const _SubscriptionInfoCard({required this.planType, required this.planExpiry, required this.status, this.statusLabel, this.daysPastDue, this.daysUntilDue});
+  const _SubscriptionInfoCard({
+    required this.planType,
+    required this.planExpiry,
+    required this.status,
+    this.statusLabel,
+    this.daysPastDue,
+    this.daysUntilDue,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -178,31 +207,55 @@ class _SubscriptionInfoCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [AppTheme.colors.primary, AppTheme.colors.primary.withBlue(150)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: AppTheme.colors.primary.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10))],
+        gradient: LinearGradient(
+          colors: [AppTheme.colors.primary, const Color(0xFF0D9488)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.colors.primary.withValues(alpha: 0.25),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Stack(
         children: [
           Positioned(
-            right: -20,
-            top: -20,
-            child: Opacity(opacity: 0.1, child: SvgPicture.asset(AppIcons.crown, width: 120, height: 120, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn))),
+            right: -15,
+            top: -15,
+            child: Opacity(
+              opacity: 0.08,
+              child: SvgPicture.asset(
+                AppIcons.crown,
+                width: 110.r,
+                height: 110.r,
+                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              ),
+            ),
           ),
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(16.r),
             child: Column(
               children: [
                 Row(
                   children: [
                     Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
-                      padding: const EdgeInsets.all(14),
-                      child: SvgPicture.asset(AppIcons.crown, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                      width: 48.r,
+                      height: 48.r,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(14.r),
+                      ),
+                      padding: EdgeInsets.all(12.r),
+                      child: SvgPicture.asset(
+                        AppIcons.crown,
+                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      ),
                     ),
-                    const Gap(16),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,56 +275,86 @@ class _SubscriptionInfoCard extends StatelessWidget {
                                           children: [
                                             TextSpan(
                                               text: 'Tarif: ',
-                                              style: TextStyle(fontSize: 15, color: Colors.white.withValues(alpha: 0.7), fontWeight: FontWeight.w600),
+                                              style: TextStyle(
+                                                fontSize: 13.5.sp,
+                                                color: Colors.white.withValues(alpha: 0.8),
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
                                             TextSpan(
                                               text: planType,
-                                              style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w900),
+                                              style: TextStyle(
+                                                fontSize: 16.sp,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w900,
+                                              ),
                                             ),
                                           ],
                                         ),
                                       ),
                                     ),
                                     if (statusLabel != null) ...[
-                                      const Gap(8),
+                                      SizedBox(width: 6.w),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
+                                        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(alpha: 0.2),
+                                          borderRadius: BorderRadius.circular(6.r),
+                                        ),
                                         child: Text(
                                           statusLabel!,
-                                          style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                            fontSize: 9.5.sp,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ],
                                 ),
                               ),
-                              const Gap(8),
+                              SizedBox(width: 6.w),
                               Material(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(10.r),
                                 child: InkWell(
-                                  onTap: () => context.pushNamed(Routes.subscription.name),
-                                  borderRadius: BorderRadius.circular(10),
+                                  onTap: () {
+                                    HapticFeedback.selectionClick();
+                                    context.pushNamed(Routes.subscription.name);
+                                  },
+                                  borderRadius: BorderRadius.circular(10.r),
                                   child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    child: const Icon(Icons.add_rounded, color: Colors.black, size: 24),
+                                    padding: EdgeInsets.all(5.r),
+                                    child: Icon(
+                                      CupertinoIcons.add,
+                                      color: AppTheme.colors.primary,
+                                      size: 18.sp,
+                                    ),
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          const Gap(6),
+                          SizedBox(height: 4.h),
                           Row(
                             children: [
-                              Icon(Icons.access_time_filled_rounded, size: 14, color: Colors.white.withValues(alpha: 0.7)),
-                              const Gap(4),
+                              Icon(
+                                CupertinoIcons.clock_fill,
+                                size: 12.sp,
+                                color: Colors.white.withValues(alpha: 0.75),
+                              ),
+                              SizedBox(width: 4.w),
                               Expanded(
                                 child: _PermissionBlurredWidget(
                                   hasPermission: context.hasPermission('plan_about.view'),
                                   child: Text(
                                     'Amal qilish muddati: $planExpiry',
-                                    style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.9), fontWeight: FontWeight.w500),
+                                    style: TextStyle(
+                                      fontSize: 11.5.sp,
+                                      color: Colors.white.withValues(alpha: 0.9),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -285,29 +368,37 @@ class _SubscriptionInfoCard extends StatelessWidget {
                 ),
                 if (status == 'ACTIVE' || status == 'GRACE_PERIOD') ...[
                   if (daysUntilDue != null && daysPastDue != null) ...[
-                    const Gap(16),
+                    SizedBox(height: 12.h),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.white.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12.r),
                         border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.timer_outlined, color: Colors.white, size: 20),
-                          const Gap(8),
+                          Icon(CupertinoIcons.hourglass, color: Colors.white, size: 15.sp),
+                          SizedBox(width: 6.w),
                           Text(
-                            status == 'GRACE_PERIOD' ? 'Imtiyozli davr tugashiga:' : 'Tarif tugashiga:',
-                            style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.9), fontWeight: FontWeight.w500),
+                            status == 'GRACE_PERIOD' ? 'Imtiyozli davr:' : 'Tarif tugashiga:',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Colors.white.withValues(alpha: 0.95),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           const Spacer(),
                           _PermissionBlurredWidget(
                             hasPermission: context.hasPermission('plan_about.view'),
                             child: Text(
                               '${status == 'GRACE_PERIOD' ? dueDays : days} kun qoldi',
-                              style: const TextStyle(fontSize: 15, color: Colors.white, fontWeight: FontWeight.w800),
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
                         ],
@@ -315,27 +406,32 @@ class _SubscriptionInfoCard extends StatelessWidget {
                     ),
                   ],
                 ] else ...[
-                  const Gap(16),
+                  SizedBox(height: 12.h),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline_rounded, color: Colors.white, size: 20),
-                        const Gap(8),
+                        Icon(CupertinoIcons.info_circle_fill, color: Colors.white, size: 15.sp),
+                        SizedBox(width: 6.w),
                         Expanded(
                           child: Text(
                             status == 'READ_ONLY'
-                                ? 'Hisobingiz "Faqat ko\'rish" rejimida. Mijozlar va loyihalar qo\'shish cheklangan.'
+                                ? 'Hisobingiz "Faqat ko\'rish" rejimida.'
                                 : status == 'ARCHIVED'
-                                ? 'Sizning hisobingiz arxivlangan.'
-                                : 'Sizning hisobingiz o\'chirilgan.',
-                            style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.95), fontWeight: FontWeight.w600, height: 1.3),
+                                    ? 'Sizning hisobingiz arxivlangan.'
+                                    : 'Sizning hisobingiz o\'chirilgan.',
+                            style: TextStyle(
+                              fontSize: 11.5.sp,
+                              color: Colors.white.withValues(alpha: 0.95),
+                              fontWeight: FontWeight.w600,
+                              height: 1.3,
+                            ),
                           ),
                         ),
                       ],
@@ -356,11 +452,17 @@ class _UsageProgressItem extends StatelessWidget {
   final String icon;
   final int current;
   final dynamic max;
-  final int? remaining;
   final Color color;
   final VoidCallback? onAction;
 
-  const _UsageProgressItem({required this.title, required this.icon, required this.current, required this.max, this.remaining, required this.color, this.onAction});
+  const _UsageProgressItem({
+    required this.title,
+    required this.icon,
+    required this.current,
+    required this.max,
+    required this.color,
+    this.onAction,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -373,11 +475,20 @@ class _UsageProgressItem extends StatelessWidget {
       children: [
         Row(
           children: [
-            SvgPicture.asset(icon, colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn)),
-            const Gap(8),
+            SvgPicture.asset(
+              icon,
+              width: 16.sp,
+              height: 16.sp,
+              colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),
+            ),
+            SizedBox(width: 8.w),
             Text(
               title,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF334155),
+              ),
             ),
             const Spacer(),
             _PermissionBlurredWidget(
@@ -386,53 +497,79 @@ class _UsageProgressItem extends StatelessWidget {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: '${remaining ?? current}',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppTheme.colors.black, letterSpacing: -0.5),
+                      text: '$current',
+                      style: TextStyle(
+                        fontSize: 14.5.sp,
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xFF0F172A),
+                        letterSpacing: -0.3,
+                      ),
                     ),
                     TextSpan(
                       text: isUnlimited ? ' / ∞' : ' / $maxValue',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.colors.black.withValues(alpha: 0.5)),
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF94A3B8),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
             if (onAction != null) ...[
-              const Gap(12),
+              SizedBox(width: 8.w),
               Material(
                 color: AppTheme.colors.primary,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8.r),
                 child: InkWell(
-                  onTap: onAction,
-                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    onAction!();
+                  },
+                  borderRadius: BorderRadius.circular(8.r),
                   child: Container(
-                    width: 36,
-                    height: 36,
-                    alignment: Alignment.center,
-                    child: Icon(Icons.add_rounded, color: AppTheme.colors.white, size: 22),
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(CupertinoIcons.add, color: Colors.white, size: 12.sp),
+                        SizedBox(width: 2.w),
+                        Text(
+                          'Xarid',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10.5.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ],
           ],
         ),
-        const Gap(12),
+        SizedBox(height: 8.h),
         Stack(
           children: [
             Container(
-              height: 10,
+              height: 7.h,
               width: double.infinity,
-              decoration: BoxDecoration(color: color.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
             ),
             if (!isUnlimited)
               FractionallySizedBox(
                 widthFactor: progress,
                 child: Container(
-                  height: 10,
+                  height: 7.h,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.7)]),
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))],
+                    color: color,
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                 ),
               ),
@@ -454,13 +591,13 @@ class _UsageSkeleton extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            height: 100,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+            height: 90.h,
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20.r)),
           ),
-          const Gap(20),
+          SizedBox(height: 14.h),
           Container(
-            height: 280,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32)),
+            height: 220.h,
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20.r)),
           ),
         ],
       ),

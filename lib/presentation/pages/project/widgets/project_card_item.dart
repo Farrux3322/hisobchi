@@ -18,48 +18,50 @@ class ProjectCardItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDeleted = projectModel?.deletedAt != null;
+
     return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
+      margin: EdgeInsets.only(bottom: 10.h),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        color: AppTheme.colors.white,
+        borderRadius: BorderRadius.circular(18.r),
         border: Border.all(
-          color: projectModel?.deletedAt == null ? const Color(0xFFE2E8F0) : Colors.red.shade200,
+          color: isDeleted ? Colors.red.shade200 : const Color(0xFFF1F5F9),
+          width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          )
+            color: AppTheme.colors.primary.withValues(alpha: 0.04),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(18.r),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(14.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Project Icon/Image
                     Container(
-                      width: 52.w,
-                      height: 52.h,
+                      width: 48.r,
+                      height: 48.r,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFF6366F1).withValues(alpha: 0.15),
+                            AppTheme.colors.primary.withValues(alpha: 0.2),
+                          ],
+                        ),
                         borderRadius: BorderRadius.circular(14.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
                       ),
                       child: (projectModel?.files != null && projectModel!.files!.isNotEmpty)
                           ? ClipRRect(
@@ -67,75 +69,66 @@ class ProjectCardItem extends StatelessWidget {
                               child: CachedNetworkImage(
                                 imageUrl: projectModel!.files!.first.url ?? '',
                                 fit: BoxFit.cover,
-                                width: 52.w,
-                                height: 52.h,
+                                width: 48.r,
+                                height: 48.r,
                                 placeholder: (context, url) => Shimmer.fromColors(
                                   baseColor: const Color(0xFFF1F5F9),
                                   highlightColor: Colors.white,
-                                  child: Container(
-                                    width: 52.w,
-                                    height: 52.h,
-                                    color: Colors.white,
-                                  ),
+                                  child: Container(width: 48.r, height: 48.r, color: Colors.white),
                                 ),
-                                errorWidget: (context, url, error) => Container(
-                                  width: 52.w,
-                                  height: 52.h,
-                                  color: const Color(0xFFF1F5F9),
+                                errorWidget: (context, url, error) => Center(
                                   child: Icon(
                                     Icons.business_center_rounded,
-                                    color: const Color(0xFF6366F1).withValues(alpha: 0.4),
-                                    size: 24.sp,
+                                    color: const Color(0xFF6366F1),
+                                    size: 22.sp,
                                   ),
                                 ),
                               ),
                             )
-                          : Container(
-                              width: 52.w,
-                              height: 52.h,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF6366F1).withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(14.r),
-                              ),
+                          : Center(
                               child: Icon(
                                 Icons.business_center_rounded,
                                 color: const Color(0xFF6366F1),
-                                size: 24.sp,
+                                size: 22.sp,
                               ),
                             ),
                     ),
-                    SizedBox(width: 14.w),
+                    SizedBox(width: 12.w),
 
-                    // Project Name and Owner
+                    // Project Name, Owner & Status
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
                                 child: Text(
-                                  projectModel?.projectName ?? '',
+                                  projectModel?.projectName ?? 'Nomsiz loyiha',
                                   style: TextStyle(
-                                    fontSize: 15.sp,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14.5.sp,
+                                    fontWeight: FontWeight.w700,
                                     color: const Color(0xFF1E293B),
+                                    letterSpacing: -0.2,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              if (projectModel?.status != null) _buildStatusChip(projectModel!.status!),
+                              if (projectModel?.status != null)
+                                _buildStatusChip(projectModel!.status!),
                             ],
                           ),
-                          SizedBox(height: 4.h),
+                          SizedBox(height: 3.h),
                           Text(
-                            projectModel?.projectOwner ?? '',
+                            projectModel?.projectOwner ?? 'Buyurtmachi ko\'rsatilmagan',
                             style: TextStyle(
-                              fontSize: 13.sp,
+                              fontSize: 11.5.sp,
                               color: const Color(0xFF64748B),
+                              fontWeight: FontWeight.w500,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
@@ -143,26 +136,26 @@ class ProjectCardItem extends StatelessWidget {
                   ],
                 ),
 
-                SizedBox(height: 10.h),
-
-                // Address
-                if (projectModel?.address != null) ...[
+                // Address row
+                if ((projectModel?.address ?? '').isNotEmpty) ...[
+                  SizedBox(height: 10.h),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                     decoration: BoxDecoration(
-                      color: AppTheme.colors.colorF9F9FD,
-                      borderRadius: BorderRadius.circular(12.r),
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
                     child: Row(
                       children: [
-                        SvgPicture.asset(AppIcons.address),
+                        SvgPicture.asset(AppIcons.address, width: 12.sp, height: 12.sp),
                         SizedBox(width: 6.w),
                         Expanded(
                           child: Text(
                             projectModel?.address ?? '',
                             style: TextStyle(
-                              fontSize: 12.sp,
+                              fontSize: 11.sp,
                               color: const Color(0xFF64748B),
+                              fontWeight: FontWeight.w500,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -171,39 +164,46 @@ class ProjectCardItem extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: 8.h),
                 ],
 
-                // Phone and Date
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.colors.colorF9F9FD,
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  child: Row(
-                    children: [
-                      SvgPicture.asset(AppIcons.phone),
-                      SizedBox(width: 6.w),
-                      Text(
-                        PhoneFormatter.formatPhoneNumber(projectModel?.phone ?? ''),
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: const Color(0xFF64748B),
+                SizedBox(height: 10.h),
+
+                // Phone and Date Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if ((projectModel?.phone ?? '').isNotEmpty)
+                      Row(
+                        children: [
+                          SvgPicture.asset(AppIcons.phone, width: 12.sp, height: 12.sp),
+                          SizedBox(width: 5.w),
+                          Text(
+                            PhoneFormatter.formatPhoneNumber(projectModel?.phone ?? ''),
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              color: const Color(0xFF64748B),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      const SizedBox.shrink(),
+                    Row(
+                      children: [
+                        SvgPicture.asset(AppIcons.date, width: 12.sp, height: 12.sp),
+                        SizedBox(width: 5.w),
+                        Text(
+                          projectModel?.createdAt?.split(" ").first ?? '',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: const Color(0xFF94A3B8),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      const Spacer(),
-                      SvgPicture.asset(AppIcons.date),
-                      SizedBox(width: 6.w),
-                      Text(
-                        projectModel?.createdAt?.split(" ").first ?? '',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: const Color(0xFF64748B),
-                        ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -217,18 +217,23 @@ class ProjectCardItem extends StatelessWidget {
     Color bgColor;
     Color textColor;
 
-    switch (status) {
-      case 'Jarayonda':
-        bgColor = const Color(0xFFFFF3E0);
-        textColor = Colors.orange;
+    switch (status.toLowerCase()) {
+      case 'jarayonda':
+      case 'in_progress':
+        bgColor = const Color(0xFFEFF6FF);
+        textColor = const Color(0xFF3B82F6);
         break;
-      case 'Muzlatilgan':
-        bgColor = const Color(0xFFEEF3FF);
-        textColor = Colors.blue;
+      case 'to\'xtatilgan':
+      case 'muzlatilgan':
+      case 'frozen':
+        bgColor = const Color(0xFFFFFBEB);
+        textColor = const Color(0xFFF59E0B);
         break;
-      case 'Yakunlangan':
-        bgColor = const Color(0xFFE8F5E9);
-        textColor = Colors.green;
+      case 'yakunlangan':
+      case 'tugallangan':
+      case 'completed':
+        bgColor = const Color(0xFFECFDF5);
+        textColor = const Color(0xFF10B981);
         break;
       default:
         bgColor = const Color(0xFFF1F5F9);
@@ -236,7 +241,7 @@ class ProjectCardItem extends StatelessWidget {
     }
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(8.r),
@@ -244,7 +249,7 @@ class ProjectCardItem extends StatelessWidget {
       child: Text(
         status,
         style: TextStyle(
-          fontSize: 10.sp,
+          fontSize: 10.5.sp,
           fontWeight: FontWeight.w700,
           color: textColor,
         ),

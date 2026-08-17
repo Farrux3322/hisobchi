@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ehisob/presentation/assets/asset_index.dart';
@@ -59,8 +61,8 @@ class _OnboardingContentState extends State<OnboardingContent>
   @override
   Widget build(BuildContext context) {
     // Calculate bottom controls height (padding + indicator + gap + button + padding)
-    final bottomControlsHeight = 32 + 8 + 32 + 56 + 32 + MediaQuery.of(context).padding.bottom;
-    
+    final bottomControlsHeight = 32.h + 8.h + 32.h + 56.h + 32.h + MediaQuery.of(context).padding.bottom;
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -74,21 +76,21 @@ class _OnboardingContentState extends State<OnboardingContent>
           physics: const BouncingScrollPhysics(),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - 
-                         MediaQuery.of(context).padding.top - 
-                         MediaQuery.of(context).padding.bottom,
+              minHeight: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom,
             ),
             child: Padding(
               padding: EdgeInsets.fromLTRB(
-                32,
-                40,
-                32,
+                32.w,
+                40.h,
+                32.w,
                 bottomControlsHeight,
               ),
               child: Column(
                 children: [
-                  const SizedBox(height: 20),
-                  
+                  SizedBox(height: 20.h),
+
                   // Icon/Illustration
                   FadeTransition(
                     opacity: _fadeAnimation,
@@ -97,9 +99,9 @@ class _OnboardingContentState extends State<OnboardingContent>
                       child: _buildIllustration(),
                     ),
                   ),
-                  
-                  const SizedBox(height: 60),
-                  
+
+                  SizedBox(height: 60.h),
+
                   // Title
                   SlideTransition(
                     position: _slideAnimation,
@@ -108,8 +110,10 @@ class _OnboardingContentState extends State<OnboardingContent>
                       child: Text(
                         widget.model.title,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 32,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 32.sp,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           letterSpacing: -0.5,
@@ -118,9 +122,9 @@ class _OnboardingContentState extends State<OnboardingContent>
                       ),
                     ),
                   ),
-                  
-                  const SizedBox(height: 24),
-                  
+
+                  SizedBox(height: 24.h),
+
                   // Description
                   SlideTransition(
                     position: _slideAnimation,
@@ -129,8 +133,10 @@ class _OnboardingContentState extends State<OnboardingContent>
                       child: Text(
                         widget.model.description,
                         textAlign: TextAlign.center,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w400,
                           color: Colors.white.withValues(alpha: 0.9),
                           height: 1.5,
@@ -138,14 +144,14 @@ class _OnboardingContentState extends State<OnboardingContent>
                       ),
                     ),
                   ),
-                  
-                  const SizedBox(height: 40),
-                  
+
+                  SizedBox(height: 40.h),
+
                   // Features
                   ...widget.model.features.asMap().entries.map((entry) {
                     final index = entry.key;
                     final feature = entry.value;
-                    
+
                     return TweenAnimationBuilder<double>(
                       duration: Duration(milliseconds: 600 + (index * 150)),
                       tween: Tween(begin: 0.0, end: 1.0),
@@ -160,28 +166,30 @@ class _OnboardingContentState extends State<OnboardingContent>
                         );
                       },
                       child: Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                        padding: EdgeInsets.only(bottom: 12.h),
                         child: Row(
                           children: [
                             Container(
-                              width: 24,
-                              height: 24,
+                              width: 24.w,
+                              height: 24.w,
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.2),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.check,
-                                size: 14,
+                                size: 14.sp,
                                 color: Colors.white,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12.w),
                             Expanded(
                               child: Text(
                                 feature,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white.withValues(alpha: 0.95),
                                 ),
@@ -192,8 +200,8 @@ class _OnboardingContentState extends State<OnboardingContent>
                       ),
                     );
                   }),
-                  
-                  const SizedBox(height: 40),
+
+                  SizedBox(height: 40.h),
                 ],
               ),
             ),
@@ -218,51 +226,62 @@ class _OnboardingContentState extends State<OnboardingContent>
   }
 
   Widget _buildScreen1Illustration() {
-    return Container(
-      width: 240,
-      height: 240,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        shape: BoxShape.circle,
-      ),
-      padding: const EdgeInsets.all(40),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.colors.primary.withValues(alpha: .1),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Kichik ekranlarda taqqoslash uchun mavjud kenglikdan oshmaydi
+        final size = math.min(constraints.maxWidth, 240.w);
+
+        return Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          padding: EdgeInsets.all(size * (40 / 240)),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppTheme.colors.primary.withValues(alpha: .1),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
-          ],
-        ),
-        padding: const EdgeInsets.all(30),
-        child: Image.asset(
-          AppIcons.appLogo,
-          fit: BoxFit.contain,
-        ),
-      ),
+            padding: EdgeInsets.all(size * (30 / 240)),
+            child: Image.asset(
+              AppIcons.appLogo,
+              fit: BoxFit.contain,
+            ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildScreen2Illustration() {
-    return Container(
-      padding: const EdgeInsets.all(20),
+    return Padding(
+      padding: EdgeInsets.all(20.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildAnimatedCard(
-            AppIcons.project,
-            const Color(0xFF3B82F6),
-            0,
+          Flexible(
+            child: _buildAnimatedCard(
+              AppIcons.project,
+              AppTheme.colors.primary,
+              0,
+            ),
           ),
-          const SizedBox(width: 20),
-          _buildAnimatedCard(
-            AppIcons.clients,
-            const Color(0xFF10B981),
-            200,
+          SizedBox(width: 20.w),
+          Flexible(
+            child: _buildAnimatedCard(
+              AppIcons.clients,
+              AppTheme.colors.green,
+              200,
+            ),
           ),
         ],
       ),
@@ -270,57 +289,74 @@ class _OnboardingContentState extends State<OnboardingContent>
   }
 
   Widget _buildScreen3Illustration() {
-    return Container(
-      width: 300,
-      height: 240,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      padding: const EdgeInsets.all(30),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SvgPicture.asset(
-            AppIcons.balance,
-            width: 80,
-            height: 80,
-            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Kichik ekranlarda taqqoslash uchun mavjud kenglikdan oshmaydi,
+        // nisbat (300:240) saqlanadi.
+        final width = math.min(constraints.maxWidth, 300.w);
+        final height = width * (240 / 300);
+
+        return Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(30.r),
           ),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'USD 1',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+          padding: EdgeInsets.all(30.w),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                AppIcons.balance,
+                width: 80.w,
+                height: 80.w,
+                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              ),
+              SizedBox(height: 20.h),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(20.r),
                 ),
-                SizedBox(width: 8),
-                Icon(Icons.swap_horiz, size: 20, color: Colors.white),
-                SizedBox(width: 8),
-                Text(
-                  'UZS 12,850',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'USD 1',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Icon(Icons.swap_horiz, size: 20.sp, color: Colors.white),
+                    SizedBox(width: 8.w),
+                    Flexible(
+                      child: Text(
+                        'UZS 12,850',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -335,46 +371,48 @@ class _OnboardingContentState extends State<OnboardingContent>
           child: child,
         );
       },
-      child: Container(
-        width: 100,
-        height: 120,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 100.w),
+        child: Container(
+          height: 120.h,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
-              child: SvgPicture.asset(
-                iconAsset,
-                width: 32,
-                height: 32,
-                colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: SvgPicture.asset(
+                  iconAsset,
+                  width: 32.w,
+                  height: 32.w,
+                  colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(2),
+              SizedBox(height: 12.h),
+              Container(
+                width: 40.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

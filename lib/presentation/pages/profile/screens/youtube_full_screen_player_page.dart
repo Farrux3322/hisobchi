@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ehisob/presentation/assets/asset_index.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
