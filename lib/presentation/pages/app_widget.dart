@@ -69,7 +69,7 @@ class _AppWidgetState extends State<AppWidget> with WidgetsBindingObserver {
                     systemNavigationBarIconBrightness: themeState.themeMode == ThemeMode.dark ? Brightness.light : Brightness.dark,
                   ),
                   child: MaterialApp.router(
-                    title: 'E-Hisob',
+                    title: 'EHisob',
                     theme: AppTheme.data,
                     darkTheme: AppTheme.darkData,
                     themeMode: themeState.themeMode,

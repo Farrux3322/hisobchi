@@ -63,18 +63,20 @@ class DebtControlCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(18.r),
       decoration: BoxDecoration(
-        color: AppTheme.colors.white,
-        borderRadius: BorderRadius.circular(20.r),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.colors.primary.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 24,
-            spreadRadius: -2,
-            offset: const Offset(0, 8),
+            offset: const Offset(0, 6),
           ),
         ],
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +90,7 @@ class DebtControlCard extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(8.r),
                     decoration: BoxDecoration(
-                      color: AppTheme.colors.primary.withValues(alpha: 0.12),
+                      color: AppTheme.colors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Icon(
@@ -102,19 +104,19 @@ class DebtControlCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Qarzdorlik nazorati',
+                        'Qarzdorlik Nazorati',
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w800,
-                          color: AppTheme.colors.black,
-                          letterSpacing: -0.2,
+                          color: const Color(0xFF0F172A),
+                          letterSpacing: -0.3,
                         ),
                       ),
                       Text(
                         'Muddatlar bo\'yicha tahlil',
                         style: TextStyle(
                           fontSize: 11.5.sp,
-                          color: AppTheme.colors.textSecondary,
+                          color: const Color(0xFF64748B),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -125,7 +127,7 @@ class DebtControlCard extends StatelessWidget {
               Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(10.r),
+                  borderRadius: BorderRadius.circular(12.r),
                   onTap: () {
                     HapticFeedback.lightImpact();
                     if (!context.hasPermission('report_partners.view')) {
@@ -134,14 +136,16 @@ class DebtControlCard extends StatelessWidget {
                     }
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const ReportClientMainPage()),
+                      MaterialPageRoute(
+                          builder: (_) => const ReportClientMainPage()),
                     );
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                     decoration: BoxDecoration(
                       color: AppTheme.colors.primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(10.r),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -173,7 +177,7 @@ class DebtControlCard extends StatelessWidget {
             _buildProportionBar(sumDue),
           ],
 
-          SizedBox(height: 14.h),
+          SizedBox(height: 16.h),
 
           // 3 Modern Status Cards
           _buildStatusTile(
@@ -194,7 +198,7 @@ class DebtControlCard extends StatelessWidget {
               instCount: installmentExpired,
             ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 10.h),
           _buildStatusTile(
             context: context,
             label: 'Bugun to\'lanishi kerak',
@@ -213,7 +217,7 @@ class DebtControlCard extends StatelessWidget {
               instCount: installmentToday,
             ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 10.h),
           _buildStatusTile(
             context: context,
             label: '3 kun ichida kutilmoqda',
@@ -242,35 +246,30 @@ class DebtControlCard extends StatelessWidget {
     final todayRatio = sumDue > 0 ? (todayCount / sumDue) : 0.0;
     final soonRatio = sumDue > 0 ? (soonCount / sumDue) : 0.0;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(6.r),
-          child: SizedBox(
-            height: 8.h,
-            child: Row(
-              children: [
-                if (expRatio > 0)
-                  Expanded(
-                    flex: (expRatio * 1000).toInt(),
-                    child: Container(color: const Color(0xFFEF4444)),
-                  ),
-                if (todayRatio > 0)
-                  Expanded(
-                    flex: (todayRatio * 1000).toInt(),
-                    child: Container(color: const Color(0xFFF59E0B)),
-                  ),
-                if (soonRatio > 0)
-                  Expanded(
-                    flex: (soonRatio * 1000).toInt(),
-                    child: Container(color: const Color(0xFF3B82F6)),
-                  ),
-              ],
-            ),
-          ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6.r),
+      child: SizedBox(
+        height: 8.h,
+        child: Row(
+          children: [
+            if (expRatio > 0)
+              Expanded(
+                flex: (expRatio * 1000).toInt(),
+                child: Container(color: const Color(0xFFEF4444)),
+              ),
+            if (todayRatio > 0)
+              Expanded(
+                flex: (todayRatio * 1000).toInt(),
+                child: Container(color: const Color(0xFFF59E0B)),
+              ),
+            if (soonRatio > 0)
+              Expanded(
+                flex: (soonRatio * 1000).toInt(),
+                child: Container(color: const Color(0xFF3B82F6)),
+              ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -288,29 +287,29 @@ class DebtControlCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(16.r),
         onTap: () {
           HapticFeedback.lightImpact();
           onTap();
         },
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 11.h),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: borderColor, width: 1),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: borderColor, width: 1.2),
           ),
           child: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(7.r),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: themeColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10.r),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(icon, color: themeColor, size: 18.sp),
               ),
-              SizedBox(width: 10.w),
+              SizedBox(width: 12.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -318,18 +317,18 @@ class DebtControlCard extends StatelessWidget {
                     Text(
                       label,
                       style: TextStyle(
-                        fontSize: 12.5.sp,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1E293B),
+                        color: const Color(0xFF0F172A),
                       ),
                     ),
-                    SizedBox(height: 1.h),
+                    SizedBox(height: 2.h),
                     Text(
                       subtitle,
                       style: TextStyle(
-                        fontSize: 10.5.sp,
+                        fontSize: 11.sp,
                         fontWeight: FontWeight.w500,
-                        color: AppTheme.colors.textSecondary,
+                        color: const Color(0xFF64748B),
                       ),
                     ),
                   ],

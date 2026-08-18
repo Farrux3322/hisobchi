@@ -43,11 +43,11 @@ Future<void> _sendSms({
 }) async {
   final sender = UserData.name;
   final senderPhone = _formatPhone(UserData.phone);
-  final footer = '\nBeruvchi: $sender\nTel: $senderPhone\nManba: E-Hisob';
+  final footer = '\nBeruvchi: $sender\nTel: $senderPhone\nManba: EHisob';
   String message;
 
   if (!isCredit) {
-    message = 'Hurmatli $partnerName, Sizdan $amount $currency miqdoridagi to\'lov qabul qilindi.\nQabul qiluvchi: $sender\nTel: $senderPhone\nHamkorlik uchun rahmat\nManba: E-Hisob';
+    message = 'Hurmatli $partnerName, Sizdan $amount $currency miqdoridagi to\'lov qabul qilindi.\nQabul qiluvchi: $sender\nTel: $senderPhone\nHamkorlik uchun rahmat\nManba: EHisob';
   } else if (daysOverdue != null && daysOverdue > 0) {
     message = 'Hurmatli $partnerName, $amount $currency qarz muddati $daysOverdue kun o\'tib ketdi.\nIltimos, tez orada to\'lovni amalga oshiring.$footer';
   } else if (dueDate != null && dueDate.isNotEmpty) {

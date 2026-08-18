@@ -18,49 +18,61 @@ class DashboardQuickActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 14.h),
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+      margin: EdgeInsets.only(bottom: 16.h),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: AppTheme.colors.white,
-        borderRadius: BorderRadius.circular(20.r),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.colors.primary.withValues(alpha: 0.06),
-            blurRadius: 24,
-            spreadRadius: -2,
-            offset: const Offset(0, 8),
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
           ),
         ],
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Tezkor amallar',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.colors.black,
-                    letterSpacing: -0.2,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 8.w,
+                    height: 8.w,
+                    decoration: BoxDecoration(
+                      color: AppTheme.colors.primary,
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                ),
-                Text(
-                  'Xizmatlar',
-                  style: TextStyle(
-                    fontSize: 11.5.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.colors.textSecondary,
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Tezkor Amallar',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF0F172A),
+                      letterSpacing: -0.3,
+                    ),
                   ),
+                ],
+              ),
+              Text(
+                'Xizmatlar',
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF94A3B8),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 14.h),
           Row(
             children: [
               Expanded(
@@ -79,13 +91,16 @@ class DashboardQuickActions extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (_) => BlocProvider(
-                          create: (_) => FileUploadBloc(repository: FileUploadRepository()),
+                          create: (_) => FileUploadBloc(
+                              repository: FileUploadRepository()),
                           child: const ClientAddPage(),
                         ),
                       ),
                     ).then((_) {
                       if (context.mounted) {
-                        context.read<DashboardBloc>().add(const LoadDashboard());
+                        context
+                            .read<DashboardBloc>()
+                            .add(const LoadDashboard());
                       }
                     });
                   },
@@ -106,10 +121,13 @@ class DashboardQuickActions extends StatelessWidget {
                     }
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const ProjectAddPage()),
+                      MaterialPageRoute(
+                          builder: (_) => const ProjectAddPage()),
                     ).then((_) {
                       if (context.mounted) {
-                        context.read<DashboardBloc>().add(const LoadDashboard());
+                        context
+                            .read<DashboardBloc>()
+                            .add(const LoadDashboard());
                       }
                     });
                   },
@@ -130,7 +148,8 @@ class DashboardQuickActions extends StatelessWidget {
                     }
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const ReportClientMainPage()),
+                      MaterialPageRoute(
+                          builder: (_) => const ReportClientMainPage()),
                     );
                   },
                 ),
@@ -146,7 +165,8 @@ class DashboardQuickActions extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const PaymentSchedulePage()),
+                      MaterialPageRoute(
+                          builder: (_) => const PaymentSchedulePage()),
                     );
                   },
                 ),
@@ -169,18 +189,19 @@ class DashboardQuickActions extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(16.r),
         onTap: () {
           HapticFeedback.lightImpact();
           onTap();
         },
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 4.w),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 4.w),
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
-              color: color.withValues(alpha: 0.15),
+              color: color.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -188,12 +209,12 @@ class DashboardQuickActions extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: EdgeInsets.all(7.r),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: color, size: 19.sp),
+                child: Icon(icon, color: color, size: 20.sp),
               ),
               SizedBox(height: 6.h),
               FittedBox(

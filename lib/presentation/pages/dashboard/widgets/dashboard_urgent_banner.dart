@@ -29,10 +29,15 @@ class DashboardUrgentBanner extends StatelessWidget {
 
     final isExpired = expiredCount > 0;
     final count = isExpired ? expiredCount : todayCount;
-    final primaryColor = isExpired ? const Color(0xFFEF4444) : const Color(0xFFF59E0B);
-    final bgColor = isExpired ? const Color(0xFFFEF2F2) : const Color(0xFFFFFBEB);
-    final borderColor = isExpired ? const Color(0xFFFEE2E2) : const Color(0xFFFEF3C7);
-    final icon = isExpired ? Icons.warning_amber_rounded : Icons.notifications_active_rounded;
+    final primaryColor =
+        isExpired ? const Color(0xFFEF4444) : const Color(0xFFF59E0B);
+    final bgColor =
+        isExpired ? const Color(0xFFFEF2F2) : const Color(0xFFFFFBEB);
+    final borderColor =
+        isExpired ? const Color(0xFFFEE2E2) : const Color(0xFFFEF3C7);
+    final icon = isExpired
+        ? Icons.warning_amber_rounded
+        : Icons.notifications_active_rounded;
     final title = isExpired
         ? '$count ta to\'lov muddati o\'tgan!'
         : '$count ta to\'lov bugun kutilmoqda!';
@@ -41,29 +46,29 @@ class DashboardUrgentBanner extends StatelessWidget {
         : 'Bugungi rejalashtirilgan to\'lovlar jadvali';
 
     return Container(
-      margin: EdgeInsets.only(bottom: 14.h),
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+      margin: EdgeInsets.only(bottom: 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: borderColor, width: 1.2),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: borderColor, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: primaryColor.withValues(alpha: 0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+            color: primaryColor.withValues(alpha: 0.12),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(8.r),
+            padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.12),
+              color: primaryColor.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: primaryColor, size: 20.sp),
+            child: Icon(icon, color: primaryColor, size: 22.sp),
           ),
           SizedBox(width: 12.w),
           Expanded(
@@ -73,16 +78,16 @@ class DashboardUrgentBanner extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 13.5.sp,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1E293B),
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0F172A),
                   ),
                 ),
                 SizedBox(height: 2.h),
                 Text(
                   subtitle,
                   style: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: 11.5.sp,
                     fontWeight: FontWeight.w500,
                     color: const Color(0xFF64748B),
                   ),
@@ -94,7 +99,7 @@ class DashboardUrgentBanner extends StatelessWidget {
           Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(10.r),
+              borderRadius: BorderRadius.circular(14.r),
               onTap: () {
                 HapticFeedback.lightImpact();
                 if (isExpired) {
@@ -128,10 +133,17 @@ class DashboardUrgentBanner extends StatelessWidget {
                 }
               },
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                 decoration: BoxDecoration(
                   color: primaryColor,
-                  borderRadius: BorderRadius.circular(10.r),
+                  borderRadius: BorderRadius.circular(14.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -139,12 +151,12 @@ class DashboardUrgentBanner extends StatelessWidget {
                     Text(
                       'Ko\'rish',
                       style: TextStyle(
-                        fontSize: 11.5.sp,
+                        fontSize: 12.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(width: 2.w),
+                    SizedBox(width: 4.w),
                     Icon(
                       Icons.arrow_forward_ios_rounded,
                       size: 10.sp,

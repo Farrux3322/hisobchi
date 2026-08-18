@@ -251,7 +251,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Column(
                       children: [
                         Text(
-                          'E-Hisob • Versiya $version',
+                          'EHisob • Versiya $version',
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w600,

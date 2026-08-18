@@ -142,7 +142,7 @@ class _SignInConfirmationPageState extends State<SignInConfirmationPage> with Ti
             ),
             SizedBox(height: 6.h),
             Text(
-              'E-HISOB',
+              'EHISOB',
               style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w900, color: AppTheme.colors.primary, letterSpacing: 0.8),
             ),
             SizedBox(height: 3.h),

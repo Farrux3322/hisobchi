@@ -20,55 +20,56 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  // Barcha onboarding gradientlari endi qattiq kodlangan hex emas,
-  // bevosita ilovaning AppTheme/BaseColors tokenlaridan olinadi.
-  final List<OnboardingModel> _pages = [
-    OnboardingModel(
-      title: 'Moliyangizni\nBir Joyda Ko\'ring',
-      description:
-          'E-Hisob bilan kundalik hisob-kitoblaringizni soddalashtiring va biznesingizni ishonch bilan boshqaring',
-      features: const [
-        'Tez va tushunarli interfeys',
-        'Ma\'lumotlar real vaqtda yangilanadi',
-        'Ma\'lumotlaringiz ishonchli himoyada',
-      ],
-      // Primary → Secondary (ilovaning ikkita asosiy brend rangi)
-      gradientColors: [
-        AppTheme.colors.primary,
-        AppTheme.colors.secondary.withValues(alpha: 1),
-      ],
-    ),
-    OnboardingModel(
-      title: 'Loyiha va Mijozlar\nDoim Nazoratda',
-      description:
-          'Har bir loyihangiz va mijozingiz bilan bog\'liq hisob-kitoblarni bir joydan kuzatib boring',
-      features: const [
-        'Loyihalarni bosqichma-bosqich yuriting',
-        'Mijozlar bilan hisob-kitob aniqligi',
-        'Har lahzada yangilanadigan hisobotlar',
-      ],
-      // Ilovaning ThemeData'dagi "green" tokenidan monoxrom gradient
-      gradientColors: [
-        AppTheme.colors.green,
-        Color.lerp(AppTheme.colors.green, Colors.black, 0.25)!,
-      ],
-    ),
-    OnboardingModel(
-      title: 'Balansni Kuzating,\nAniq Qaror Qabul Qiling',
-      description:
-          'Kirim-chiqim va valyuta kurslarini bir qarashda ko\'ring, moliyaviy holatingizdan doimo xabardor bo\'ling',
-      features: const [
-        'Kirim va chiqimlar tahlili',
-        'Valyuta kurslari onlayn kuzatuvda',
-        'Aniq va tushunarli hisobotlar',
-      ],
-      // Ilovaning "red" va "primary" tokenlaridan hosil qilingan gradient
-      gradientColors: [
-        AppTheme.colors.red,
-        AppTheme.colors.primary,
-      ],
-    ),
-  ];
+  late final List<OnboardingModel> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      OnboardingModel(
+        badge: '⚡ Moliyaviy Nazorat',
+        badgeIcon: Icons.account_balance_wallet_rounded,
+        title: 'Moliyangizni Bir Joyda\nBoshqaring',
+        description:
+            'EHisob bilan barcha kirim-chiqimlaringizni real vaqt rejimida nazorat qiling va biznesingizni oson yuring.',
+        features: const [
+          'Tezkor va oson',
+          'Real-vaqt hisoboti',
+          '100% Himoyalangan',
+        ],
+        primaryColor: AppTheme.colors.primary,
+        secondaryColor: const Color(0xFF2563EB),
+      ),
+      OnboardingModel(
+        badge: '📁 Loyiha va Mijozlar',
+        badgeIcon: Icons.folder_shared_rounded,
+        title: 'Loyihalar va Mijozlar\nDoim Nazoratda',
+        description:
+            'Mijozlar bilan barcha o\'zaro hisob-kitoblarni aniq va shaffof yuriting, qarzdorliklarni vaqtida kuzating.',
+        features: const [
+          'Mijozlar balansi',
+          'Bosqichma-bosqich',
+          'Aniq hisob-kitob',
+        ],
+        primaryColor: const Color(0xFF10B981),
+        secondaryColor: const Color(0xFF059669),
+      ),
+      OnboardingModel(
+        badge: '📊 Valyuta va Tahlil',
+        badgeIcon: Icons.analytics_rounded,
+        title: 'Balans va Valyutalarni\nTahlil Qiling',
+        description:
+            'Kirim-chiqim grafiklari va valyuta kurslari onlayn yangilanib turadi. Ishonch bilan qaror qabul qiling.',
+        features: const [
+          'Valyuta konvertori',
+          'Vizual grafiklar',
+          'Tezkor eksport',
+        ],
+        primaryColor: const Color(0xFF8B5CF6),
+        secondaryColor: const Color(0xFF6366F1),
+      ),
+    ];
+  }
 
   @override
   void dispose() {
@@ -77,6 +78,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _onPageChanged(int page) {
+    HapticFeedback.selectionClick();
     setState(() {
       _currentPage = page;
     });
@@ -84,7 +86,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   Future<void> _finishOnboarding() async {
     HapticFeedback.mediumImpact();
-    
+
     // Mark onboarding as completed
     final sharedPref = await SharedPrefService.initialize();
     sharedPref.setOnboardingCompleted(true);
@@ -95,11 +97,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _nextPage() {
-    HapticFeedback.lightImpact();
     if (_currentPage < _pages.length - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeOutCubic,
       );
     } else {
       _finishOnboarding();
@@ -113,96 +114,167 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final activeModel = _pages[_currentPage];
+
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       body: PopScope(
         canPop: false,
-        child: Stack(
-          children: [
-            // PageView
-            PageView.builder(
-              controller: _pageController,
-              onPageChanged: _onPageChanged,
-              itemCount: _pages.length,
-              itemBuilder: (context, index) {
-                return OnboardingContent(
-                  model: _pages[index],
-                  pageIndex: index,
-                );
-              },
-            ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Top Bar: Step Segment Progress Bar & Header
+              Padding(
+                padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 4.h),
+                child: Column(
+                  children: [
+                    // Segmented Progress Bar
+                    Row(
+                      children: List.generate(
+                        _pages.length,
+                        (index) => Expanded(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 350),
+                            height: 4.h,
+                            margin: EdgeInsets.symmetric(horizontal: 2.w),
+                            decoration: BoxDecoration(
+                              color: index <= _currentPage
+                                  ? activeModel.primaryColor
+                                  : Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(4.r),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10.h),
 
-            // Skip Button (only show if not on last page)
-            if (_currentPage < _pages.length - 1)
-              Positioned(
-                top: 8.h,
-                right: 24.w,
-                child: SafeArea(
-                  child: TextButton(
-                    onPressed: _skipOnboarding,
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.white.withValues(alpha: 0.2),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20.w,
-                        vertical: 10.h,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
+                    // Step Indicator & Skip Button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Step Pill
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.w,
+                            vertical: 4.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: Text(
+                            '0${_currentPage + 1} / 0${_pages.length}',
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF64748B),
+                            ),
+                          ),
+                        ),
+
+                        // Skip Pill
+                        if (_currentPage < _pages.length - 1)
+                          InkWell(
+                            onTap: _skipOnboarding,
+                            borderRadius: BorderRadius.circular(20.r),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
+                                vertical: 5.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.r),
+                                border: Border.all(color: Colors.grey.shade200),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.03),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'O\'tkazib yuborish',
+                                    style: TextStyle(
+                                      color: const Color(0xFF64748B),
+                                      fontSize: 11.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  SizedBox(width: 4.w),
+                                  Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 10.sp,
+                                    color: const Color(0xFF64748B),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          const SizedBox.shrink(),
+                      ],
                     ),
-                    child: Text(
-                      'O\'tkazib yuborish',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                  ],
                 ),
               ),
 
-            // Bottom Navigation
-            Positioned(
-              bottom: -25,
-              left: 0,
-              right: 0,
-              child: SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 32.h),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Page Indicator
-                      PageIndicator(
-                        currentPage: _currentPage,
-                        pageCount: _pages.length,
-                        activeColor: Colors.white,
-                        inactiveColor: Colors.white.withValues(alpha: 0.3),
-                      ),
-
-                      SizedBox(height: 32.h),
-
-                      // Next/Start Button
-                      GradientButton(
-                        text: _currentPage == _pages.length - 1
-                            ? 'Boshlash'
-                            : 'Keyingisi',
-                        onPressed: _nextPage,
-                        height: 56.h,
-                        gradientColors: [
-                          Colors.white,
-                          Colors.white.withValues(alpha: 0.9),
-                        ],
-                        textColor: _pages[_currentPage].gradientColors.first,
-                      ),
-                    ],
-                  ),
+              // PageView Main Body Content
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: _onPageChanged,
+                  itemCount: _pages.length,
+                  itemBuilder: (context, index) {
+                    return OnboardingContent(
+                      model: _pages[index],
+                      pageIndex: index,
+                    );
+                  },
                 ),
               ),
-            ),
-          ],
+
+              // Seamless Floating Bottom Action Bar (No heavy card blocking body)
+              Padding(
+                padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 12.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Smooth Page Indicator
+                    PageIndicator(
+                      currentPage: _currentPage,
+                      pageCount: _pages.length,
+                      activeColor: activeModel.primaryColor,
+                      inactiveColor: const Color(0xFFCBD5E1),
+                    ),
+
+                    // Next / Finish Action Button
+                    GradientButton(
+                      text: _currentPage == _pages.length - 1
+                          ? 'Boshlash'
+                          : 'Keyingisi',
+                      onPressed: _nextPage,
+                      height: 50.h,
+                      borderRadius: 25,
+                      icon: _currentPage == _pages.length - 1
+                          ? Icons.check_circle_rounded
+                          : Icons.arrow_forward_rounded,
+                      gradientColors: [
+                        activeModel.primaryColor,
+                        activeModel.secondaryColor,
+                      ],
+                      textColor: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

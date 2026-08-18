@@ -707,11 +707,11 @@ class PartnerOperationDetailSheet extends StatelessWidget {
           "Qabul qiluvchi: $senderName\n"
           "Tel: $senderPhone\n"
           "Hamkorlik uchun rahmat\n"
-          "Manba: E-Hisob";
+          "Manba: EHisob";
     } else {
       final String header = "Hurmatli $partnerName, ";
       final String footer =
-          "\nBeruvchi: $senderName\nTel: $senderPhone\nManba: E-Hisob";
+          "\nBeruvchi: $senderName\nTel: $senderPhone\nManba: EHisob";
 
       if (dueDate != null && dueDate.isNotEmpty) {
         final String formattedDate = _formatDueDate(dueDate);

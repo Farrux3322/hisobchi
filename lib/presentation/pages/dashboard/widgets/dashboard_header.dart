@@ -39,26 +39,28 @@ class DashboardWelcomeCard extends StatelessWidget {
     final projectsCount = result?.projects?.projectsCount ?? 0;
     final userName = UserData.name.trim();
     final greeting = _getGreeting();
+    final primaryColor = AppTheme.colors.primary;
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: 14.h),
-      padding: EdgeInsets.all(16.r),
+      margin: EdgeInsets.only(bottom: 16.h),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.colors.primary,
-            const Color(0xFF6366F1),
+            primaryColor,
+            const Color(0xFF4F46E5),
+            const Color(0xFF2563EB),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.colors.primary.withValues(alpha: 0.25),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
+            color: primaryColor.withValues(alpha: 0.3),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -67,14 +69,26 @@ class DashboardWelcomeCard extends StatelessWidget {
         children: [
           // Background ambient circular light accents
           Positioned(
-            right: -20.w,
-            top: -20.h,
+            right: -25.w,
+            top: -25.h,
             child: Container(
-              width: 100.w,
-              height: 100.w,
+              width: 120.w,
+              height: 120.w,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+          Positioned(
+            left: -30.w,
+            bottom: -30.h,
+            child: Container(
+              width: 140.w,
+              height: 140.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.04),
               ),
             ),
           ),
@@ -85,47 +99,68 @@ class DashboardWelcomeCard extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: 44.r,
-                    height: 44.r,
+                    width: 48.r,
+                    height: 48.r,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.white.withValues(alpha: 0.2),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: Colors.white.withValues(alpha: 0.6),
                         width: 1.5,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       _getInitials(userName),
                       style: TextStyle(
-                        fontSize: 16.sp,
+                        fontSize: 17.sp,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
-                  SizedBox(width: 12.w),
+                  SizedBox(width: 14.w),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          userName.isNotEmpty ? '$greeting, $userName!' : 'Xush kelibsiz!',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 17.sp,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                            letterSpacing: -0.3,
-                          ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                userName.isNotEmpty
+                                    ? '$greeting, $userName!'
+                                    : 'Xush kelibsiz!',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                  letterSpacing: -0.4,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 6.w),
+                            Text(
+                              '👋',
+                              style: TextStyle(fontSize: 16.sp),
+                            ),
+                          ],
                         ),
                         SizedBox(height: 2.h),
                         Text(
                           'Biznesingizning umumiy holati',
                           style: TextStyle(
-                            fontSize: 11.5.sp,
+                            fontSize: 12.sp,
                             fontWeight: FontWeight.w500,
                             color: Colors.white.withValues(alpha: 0.85),
                           ),
@@ -137,19 +172,30 @@ class DashboardWelcomeCard extends StatelessWidget {
               ),
 
               if (hasStats) ...[
+                SizedBox(height: 16.h),
+                Divider(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  height: 1,
+                ),
                 SizedBox(height: 14.h),
-                // Glass Stats Chips
-                Wrap(
-                  spacing: 8.w,
-                  runSpacing: 6.h,
+
+                // Glass Stats Chips Row
+                Row(
                   children: [
-                    _buildStatChip(
-                      icon: Icons.people_alt_rounded,
-                      label: '$partnersCount ta mijoz',
+                    Expanded(
+                      child: _buildStatCard(
+                        icon: Icons.people_alt_rounded,
+                        count: '$partnersCount',
+                        label: 'Mijozlar',
+                      ),
                     ),
-                    _buildStatChip(
-                      icon: Icons.folder_rounded,
-                      label: '$projectsCount ta loyiha',
+                    SizedBox(width: 10.w),
+                    Expanded(
+                      child: _buildStatCard(
+                        icon: Icons.folder_copy_rounded,
+                        count: '$projectsCount',
+                        label: 'Loyihalar',
+                      ),
                     ),
                   ],
                 ),
@@ -161,29 +207,52 @@ class DashboardWelcomeCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatChip({required IconData icon, required String label}) {
+  Widget _buildStatCard({
+    required IconData icon,
+    required String count,
+    required String label,
+  }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(20.r),
+        color: Colors.white.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.25),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13.sp, color: Colors.white.withValues(alpha: 0.95)),
-          SizedBox(width: 5.w),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11.5.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+          Container(
+            padding: EdgeInsets.all(6.r),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
             ),
+            child: Icon(icon, size: 14.sp, color: Colors.white),
+          ),
+          SizedBox(width: 10.w),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                count,
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10.5.sp,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white.withValues(alpha: 0.8),
+                ),
+              ),
+            ],
           ),
         ],
       ),

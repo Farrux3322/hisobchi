@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -160,7 +161,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage>
             ),
             SizedBox(height: 4.h),
             Text(
-              'E-HISOB',
+              'EHISOB',
               style: TextStyle(
                 fontSize: 22.sp,
                 fontWeight: FontWeight.w900,
@@ -353,7 +354,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage>
                 width: 2.5,
               ),
             ),
+            suffixIconConstraints: BoxConstraints(
+              minWidth: 46.w,
+              minHeight: 46.h,
+            ),
             suffixIcon: IconButton(
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(minWidth: 44.w, minHeight: 44.h),
+              splashRadius: 20.r,
               onPressed: () {
                 HapticFeedback.selectionClick();
                 setState(() {
@@ -361,8 +369,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage>
                 });
               },
               icon: Icon(
-                showPassword1 ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                color: AppTheme.colors.primary,
+                showPassword1 ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+                color: const Color(0xFF64748B),
                 size: 20.sp,
               ),
             ),
@@ -467,7 +475,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage>
                 width: 2.5,
               ),
             ),
+            suffixIconConstraints: BoxConstraints(
+              minWidth: 46.w,
+              minHeight: 46.h,
+            ),
             suffixIcon: IconButton(
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(minWidth: 44.w, minHeight: 44.h),
+              splashRadius: 20.r,
               onPressed: () {
                 HapticFeedback.selectionClick();
                 setState(() {
@@ -475,8 +490,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage>
                 });
               },
               icon: Icon(
-                showPassword2 ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                color: AppTheme.colors.primary,
+                showPassword2 ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+                color: const Color(0xFF64748B),
                 size: 20.sp,
               ),
             ),

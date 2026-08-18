@@ -31,18 +31,20 @@ class ProjectControlCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(18.r),
       decoration: BoxDecoration(
-        color: AppTheme.colors.white,
-        borderRadius: BorderRadius.circular(20.r),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.colors.primary.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 24,
-            spreadRadius: -2,
-            offset: const Offset(0, 8),
+            offset: const Offset(0, 6),
           ),
         ],
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,19 +72,19 @@ class ProjectControlCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Loyihalar nazorati',
+                        'Loyihalar Nazorati',
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w800,
-                          color: AppTheme.colors.black,
-                          letterSpacing: -0.2,
+                          color: const Color(0xFF0F172A),
+                          letterSpacing: -0.3,
                         ),
                       ),
                       Text(
                         'Jarayon va holat tahlili',
                         style: TextStyle(
                           fontSize: 11.5.sp,
-                          color: AppTheme.colors.textSecondary,
+                          color: const Color(0xFF64748B),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -93,16 +95,17 @@ class ProjectControlCard extends StatelessWidget {
               Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(10.r),
+                  borderRadius: BorderRadius.circular(12.r),
                   onTap: () {
                     HapticFeedback.lightImpact();
                     onAllTap();
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                     decoration: BoxDecoration(
                       color: const Color(0xFF6366F1).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(10.r),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -134,7 +137,7 @@ class ProjectControlCard extends StatelessWidget {
             _buildProportionBar(sum),
           ],
 
-          SizedBox(height: 14.h),
+          SizedBox(height: 16.h),
 
           // 3 Side-by-side Metric Cards
           Row(
@@ -186,35 +189,30 @@ class ProjectControlCard extends StatelessWidget {
     final frozenRatio = sum > 0 ? (frozenCount / sum) : 0.0;
     final compRatio = sum > 0 ? (completedCount / sum) : 0.0;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(6.r),
-          child: SizedBox(
-            height: 8.h,
-            child: Row(
-              children: [
-                if (progRatio > 0)
-                  Expanded(
-                    flex: (progRatio * 1000).toInt(),
-                    child: Container(color: const Color(0xFF3B82F6)),
-                  ),
-                if (frozenRatio > 0)
-                  Expanded(
-                    flex: (frozenRatio * 1000).toInt(),
-                    child: Container(color: const Color(0xFFF59E0B)),
-                  ),
-                if (compRatio > 0)
-                  Expanded(
-                    flex: (compRatio * 1000).toInt(),
-                    child: Container(color: const Color(0xFF10B981)),
-                  ),
-              ],
-            ),
-          ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6.r),
+      child: SizedBox(
+        height: 8.h,
+        child: Row(
+          children: [
+            if (progRatio > 0)
+              Expanded(
+                flex: (progRatio * 1000).toInt(),
+                child: Container(color: const Color(0xFF3B82F6)),
+              ),
+            if (frozenRatio > 0)
+              Expanded(
+                flex: (frozenRatio * 1000).toInt(),
+                child: Container(color: const Color(0xFFF59E0B)),
+              ),
+            if (compRatio > 0)
+              Expanded(
+                flex: (compRatio * 1000).toInt(),
+                child: Container(color: const Color(0xFF10B981)),
+              ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -230,17 +228,17 @@ class ProjectControlCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(16.r),
         onTap: () {
           HapticFeedback.lightImpact();
           onTap();
         },
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 14.h),
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: borderColor, width: 1),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: borderColor, width: 1.2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,7 +247,7 @@ class ProjectControlCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: EdgeInsets.all(5.r),
+                    padding: EdgeInsets.all(6.r),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
@@ -263,7 +261,7 @@ class ProjectControlCard extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 10.h),
+              SizedBox(height: 12.h),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
@@ -271,7 +269,7 @@ class ProjectControlCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.colors.textSecondary,
+                    color: const Color(0xFF64748B),
                   ),
                 ),
               ),

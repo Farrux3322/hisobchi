@@ -24,7 +24,8 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> with SingleTickerProviderStateMixin {
+class _DashboardPageState extends State<DashboardPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -37,16 +38,16 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
 
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 700),
     );
 
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,
-      curve: Curves.easeIn,
+      curve: Curves.easeOutCubic,
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.03),
+      begin: const Offset(0, 0.05),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
@@ -62,52 +63,59 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
   }
 
   void _navigateToProjects({String? status}) {
-    // Switch bottom bar branch to Projects tab (index 2)
     StatefulNavigationShell.of(context).goBranch(2);
-
     if (status != null) {
-      context.read<ProjectBloc>().add(GetAllProjectEvent(status: status, updateFilters: true));
+      context
+          .read<ProjectBloc>()
+          .add(GetAllProjectEvent(status: status, updateFilters: true));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.colors.background,
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         centerTitle: false,
         elevation: 0,
-        backgroundColor: AppTheme.colors.background,
+        backgroundColor: const Color(0xFFF8FAFC),
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: EdgeInsets.all(4.r),
+              padding: EdgeInsets.all(6.r),
               decoration: BoxDecoration(
-                color: AppTheme.colors.white,
-                borderRadius: BorderRadius.circular(10.r),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
                   color: AppTheme.colors.primary.withValues(alpha: 0.15),
                   width: 1,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Image.asset(AppIcons.appLogo, width: 22.w, height: 22.h),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: 10.w),
             Text(
-              'E-Hisob',
+              'EHisob',
               style: TextStyle(
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.colors.black,
-                letterSpacing: -0.3,
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w900,
+                color: const Color(0xFF0F172A),
+                letterSpacing: -0.4,
               ),
             ),
           ],
         ),
         actions: [
           _buildCurrencyWidget(),
-          SizedBox(width: 14.w),
+          SizedBox(width: 16.w),
         ],
       ),
       body: BlocBuilder<DashboardBloc, DashboardState>(
@@ -131,7 +139,8 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
         String usdRate = '1';
         bool isLoading = state.exchangeRatesStatus == Status.loading;
 
-        if (state.exchangeRatesStatus == Status.success && state.exchangeRateModel != null) {
+        if (state.exchangeRatesStatus == Status.success &&
+            state.exchangeRateModel != null) {
           try {
             final usdCurrency = state.exchangeRateModel!.rates.firstWhere(
               (rate) => rate.code == 'USD',
@@ -147,20 +156,30 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(16.r),
               onTap: () {
                 HapticFeedback.lightImpact();
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const CurrencyPage()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const CurrencyPage()));
               },
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                 decoration: BoxDecoration(
-                  color: AppTheme.colors.primary.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12.r),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16.r),
                   border: Border.all(
-                    color: AppTheme.colors.primary.withValues(alpha: 0.2),
+                    color: AppTheme.colors.primary.withValues(alpha: 0.18),
                     width: 1,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -213,8 +232,9 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
 
     if (state.status == Status.loading) {
       return SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        padding: EdgeInsets.fromLTRB(14.w, 8.h, 14.w, bottomPadding),
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
+        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, bottomPadding),
         child: const DashboardShimmer(),
       );
     }
@@ -233,12 +253,13 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
               ),
               SizedBox(height: 12.h),
               Text(
-                state.errorMessage ?? 'Ma\'lumotlarni yuklashda xatolik yuz berdi',
+                state.errorMessage ??
+                    'Ma\'lumotlarni yuklashda xatolik yuz berdi',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.colors.black,
+                  color: const Color(0xFF0F172A),
                 ),
               ),
               SizedBox(height: 16.h),
@@ -250,7 +271,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.colors.primary,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: BorderRadius.circular(16.r),
                   ),
                 ),
                 child: Text(
@@ -273,8 +294,9 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       child: SlideTransition(
         position: _slideAnimation,
         child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-          padding: EdgeInsets.fromLTRB(14.w, 8.h, 14.w, bottomPadding),
+          physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics()),
+          padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, bottomPadding),
           child: _buildDashboardContent(state),
         ),
       ),
@@ -301,7 +323,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Welcome & Stats Overview Card
+        // Welcome & Stats Overview Studio Card
         DashboardWelcomeCard(state: state),
 
         // Urgent Due Dates Alert Banner
@@ -330,7 +352,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           qarz3Days: qarz3Days,
           installment3Days: installment3Days,
         ),
-        SizedBox(height: 14.h),
+        SizedBox(height: 16.h),
 
         // Projects Monitoring Card
         ProjectControlCard(

@@ -450,10 +450,10 @@ class TransactionDetailBottomSheet extends StatelessWidget {
           "Qabul qiluvchi: $senderName\n"
           "Tel: $senderPhone\n"
           "Hamkorlik uchun rahmat\n"
-          "Manba: E-Hisob";
+          "Manba: EHisob";
     } else {
       final String header = "Hurmatli $partnerName, ";
-      final String footer = "\nBeruvchi: $senderName\nTel: $senderPhone\nManba: E-Hisob";
+      final String footer = "\nBeruvchi: $senderName\nTel: $senderPhone\nManba: EHisob";
 
       if (returnDate != null && returnDate.isNotEmpty) {
         final String formattedDate = _formatDate(returnDate);

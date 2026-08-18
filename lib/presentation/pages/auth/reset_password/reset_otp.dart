@@ -170,7 +170,7 @@ class _RestOTPPageState extends State<RestOTPPage> with TickerProviderStateMixin
             ),
             SizedBox(height: 6.h),
             Text(
-              'E-HISOB',
+              'EHISOB',
               style: TextStyle(
                 fontSize: 24.sp,
                 fontWeight: FontWeight.w900,

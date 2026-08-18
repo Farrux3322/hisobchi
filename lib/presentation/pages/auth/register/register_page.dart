@@ -1,3 +1,5 @@
+import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,22 +16,23 @@ class RegisterPage extends StatefulWidget {
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMixin {
+class _RegisterPageState extends State<RegisterPage>
+    with TickerProviderStateMixin {
   final formKey = GlobalKey<FormState>();
 
-  bool _showPassword1   = true;
-  bool _showPassword2   = true;
-  bool _isOfertaAccepted = false;      // ← yangi
+  bool _showPassword1 = true;
+  bool _showPassword2 = true;
+  bool _isOfertaAccepted = false;
 
   String? password1, password2, name = '';
 
   late AnimationController _fadeController;
-  late AnimationController _slideController;
+  late AnimationController _floatController;
   late Animation<double> _fadeAnimation;
-  late Animation<Offset>  _slideAnimation;
-  late Animation<double>  _scaleAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _floatAnimation;
 
-  final FocusNode _nameFocusNode      = FocusNode();
+  final FocusNode _nameFocusNode = FocusNode();
   final FocusNode _password1FocusNode = FocusNode();
   final FocusNode _password2FocusNode = FocusNode();
 
@@ -41,53 +44,52 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
 
   void _setupAnimations() {
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 700),
       vsync: this,
     );
 
-    _fadeAnimation  = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeOut),
+    _floatController = AnimationController(
+      duration: const Duration(milliseconds: 3000),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeOutCubic),
     );
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.12),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeOutCubic),
     );
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeOutBack),
+
+    _floatAnimation = Tween<double>(begin: -8.0, end: 8.0).animate(
+      CurvedAnimation(parent: _floatController, curve: Curves.easeInOut),
     );
 
     _fadeController.forward();
-    _slideController.forward();
   }
 
   @override
   void dispose() {
     _fadeController.dispose();
-    _slideController.dispose();
+    _floatController.dispose();
     _nameFocusNode.dispose();
     _password1FocusNode.dispose();
     _password2FocusNode.dispose();
     super.dispose();
   }
 
-  // ─── Oferta ───────────────────────────────────────────────────────────────
-
   Future<void> _openOferta() async {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(builder: (_) => const TermsOfServicePage()),
     );
-    // TermsOfServicePage "Qabul qilaman" bosilsa true qaytaradi
     if (result == true && mounted) {
       HapticFeedback.mediumImpact();
       setState(() => _isOfertaAccepted = true);
     }
   }
-
-  // ─── Build ────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -101,48 +103,57 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
         },
         builder: (context, state) {
           return Scaffold(
-            body: Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppTheme.colors.primary.withValues(alpha: 0.05),
-                    AppTheme.colors.primary.withValues(alpha: 0.02),
-                    Colors.white,
-                    AppTheme.colors.primary.withValues(alpha: 0.03),
-                  ],
-                  stops: const [0.0, 0.3, 0.7, 1.0],
-                ),
-              ),
-              child: SafeArea(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.w),
-                    child: Form(
-                      key: formKey,
-                      child: Column(
-                        children: [
-                          SizedBox(height: 16.h),
-                          _buildLogoSection(),
-                          SizedBox(height: 16.h),
-                          _buildWelcomeSection(),
-                          SizedBox(height: 16.h),
-                          _buildFormSection(state),
-                          SizedBox(height: 16.h),
-                          _buildOfertaSection(),         // ← oferta
-                          SizedBox(height: 16.h),
-                          _buildRegisterButton(state),
-                          SizedBox(height: 16.h),
-                        ],
+            backgroundColor: const Color(0xFFF1F5F9),
+            body: AnimatedBuilder(
+              animation: _floatAnimation,
+              builder: (context, child) {
+                return Stack(
+                  children: [
+                    Positioned(
+                      top: -100.h + (_floatAnimation.value * 1.5),
+                      right: -80.w,
+                      child: Container(
+                        width: 320.w,
+                        height: 320.w,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              const Color(0xFF10B981).withValues(alpha: 0.18),
+                              AppTheme.colors.primary.withValues(alpha: 0.08),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
+                    SafeArea(
+                      child: Center(
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 24.w, vertical: 16.h),
+                            child: Form(
+                              key: formKey,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _buildHeroHeader(),
+                                  SizedBox(height: 20.h),
+                                  _buildGlassFormCard(state),
+                                  SizedBox(height: 24.h),
+                                  _buildSecurityFooter(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           );
         },
@@ -150,86 +161,60 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
     );
   }
 
-  // ─── Logo ─────────────────────────────────────────────────────────────────
-
-  Widget _buildLogoSection() {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.colors.primary.withValues(alpha: 0.15),
-                    blurRadius: 20,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Image.asset(AppIcons.appLogo, height: 70.h, width: 70.w),
-            ),
-            SizedBox(height: 4.h),
-            Text(
-              'E-HISOB',
-              style: TextStyle(
-                fontSize: 22.sp,
-                fontWeight: FontWeight.w900,
-                color: AppTheme.colors.primary,
-                letterSpacing: 0.8,
-              ),
-            ),
-            SizedBox(height: 3.h),
-            Container(
-              height: 2.5.h,
-              width: 35.w,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [
-                  AppTheme.colors.primary.withValues(alpha: 0.3),
-                  AppTheme.colors.primary,
-                  AppTheme.colors.primary.withValues(alpha: 0.3),
-                ]),
-                borderRadius: BorderRadius.circular(2.r),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ─── Welcome ──────────────────────────────────────────────────────────────
-
-  Widget _buildWelcomeSection() {
+  /// Header Branding Section
+  Widget _buildHeroHeader() {
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
         position: _slideAnimation,
         child: Column(
           children: [
+            Transform.translate(
+              offset: Offset(0, _floatAnimation.value * 0.4),
+              child: Container(
+                padding: EdgeInsets.all(14.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                      blurRadius: 28,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Image.asset(
+                  AppIcons.appLogo,
+                  height: 48.h,
+                  width: 48.w,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            SizedBox(height: 12.h),
+
             Text(
-              tr('sign_in.register'),
+              'Ro\'yxatdan O\'tish',
               style: TextStyle(
                 fontSize: 26.sp,
                 fontWeight: FontWeight.w800,
-                color: AppTheme.colors.black,
-                letterSpacing: -0.4,
-                height: 1.2,
+                color: const Color(0xFF0F172A),
+                letterSpacing: -0.5,
               ),
             ),
-            SizedBox(height: 6.h),
+            SizedBox(height: 4.h),
             Text(
-              'Ma\'lumotlarni kiriting',
+              'Yangi EHisob hisobingizni yarating',
               style: TextStyle(
-                fontSize: 14.sp,
+                fontSize: 13.sp,
                 fontWeight: FontWeight.w400,
-                color: AppTheme.colors.black.withValues(alpha: 0.6),
+                color: const Color(0xFF64748B),
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -237,384 +222,442 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
     );
   }
 
-  // ─── Form ─────────────────────────────────────────────────────────────────
-
-  Widget _buildFormSection(InitAuthState state) {
+  /// Form Card Section
+  Widget _buildGlassFormCard(InitAuthState state) {
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
         position: _slideAnimation,
-        child: Container(
-          padding: EdgeInsets.all(24.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30.r),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Container(
+              padding: EdgeInsets.all(24.w),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.92),
+                borderRadius: BorderRadius.circular(30.r),
+                border: Border.all(
+                  color: Colors.white,
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 30,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildNameField(state),
-              SizedBox(height: 20.h),
-              _buildPasswordField(state),
-              SizedBox(height: 20.h),
-              _buildConfirmPasswordField(state),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ─── Oferta section ───────────────────────────────────────────────────────
-
-  Widget _buildOfertaSection() {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-          decoration: BoxDecoration(
-            color: _isOfertaAccepted
-                ? AppTheme.colors.primary.withValues(alpha: 0.05)
-                : Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(
-              color: _isOfertaAccepted
-                  ? AppTheme.colors.primary.withValues(alpha: 0.35)
-                  : Colors.grey.shade300,
-              width: 1.5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildNameField(state),
+                  SizedBox(height: 14.h),
+                  _buildPasswordField(state),
+                  SizedBox(height: 14.h),
+                  _buildConfirmPasswordField(state),
+                  SizedBox(height: 16.h),
+                  _buildOfertaSection(),
+                  SizedBox(height: 20.h),
+                  _buildRegisterButton(state),
+                ],
+              ),
             ),
           ),
-          child: Row(
-            children: [
-              // ── Checkbox ────────────────────────────────────────────────
-              GestureDetector(
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  setState(() => _isOfertaAccepted = !_isOfertaAccepted);
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 20.w,
-                  height: 20.h,
-                  decoration: BoxDecoration(
-                    color: _isOfertaAccepted
-                        ? AppTheme.colors.primary
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(7.r),
-                    border: Border.all(
-                      color: _isOfertaAccepted
-                          ? AppTheme.colors.primary
-                          : Colors.grey.shade400,
-                      width: 2,
-                    ),
-                  ),
-                  child: _isOfertaAccepted
-                      ? Icon(Icons.check_rounded, size: 14.sp, color: Colors.white)
-                      : null,
-                ),
-              ),
-              SizedBox(width: 10.w),
-
-              // ── Text ─────────────────────────────────────────────────────
-              Expanded(
-                child: RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: AppTheme.colors.black.withValues(alpha: 0.7),
-                      height: 1.4,
-                    ),
-                    children: [
-                      const TextSpan(text: 'Men '),
-                      WidgetSpan(
-                        alignment: PlaceholderAlignment.middle,
-                        child: GestureDetector(
-                          onTap: _openOferta,
-                          child: Text(
-                            'ommaviy oferta shartlari',
-                            style: TextStyle(
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.colors.primary,
-                              decoration: TextDecoration.underline,
-                              decorationColor: AppTheme.colors.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const TextSpan(text: 'ni o\'qib chiqdim va roziman'),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(width: 6.w),
-
-              // ── Open icon ─────────────────────────────────────────────────
-              GestureDetector(
-                onTap: _openOferta,
-                child: Icon(
-                  Icons.open_in_new_rounded,
-                  size: 16.sp,
-                  color: AppTheme.colors.primary.withValues(alpha: 0.45),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
   }
 
-  // ─── Register button ──────────────────────────────────────────────────────
+  /// Oferta Section
+  Widget _buildOfertaSection() {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: _isOfertaAccepted
+            ? const Color(0xFFECFDF5)
+            : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(
+          color: _isOfertaAccepted
+              ? const Color(0xFFA7F3D0)
+              : Colors.grey.shade200,
+        ),
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.selectionClick();
+              setState(() => _isOfertaAccepted = !_isOfertaAccepted);
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 20.w,
+              height: 20.h,
+              decoration: BoxDecoration(
+                color: _isOfertaAccepted
+                    ? const Color(0xFF10B981)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(6.r),
+                border: Border.all(
+                  color: _isOfertaAccepted
+                      ? const Color(0xFF10B981)
+                      : Colors.grey.shade400,
+                  width: 2,
+                ),
+              ),
+              child: _isOfertaAccepted
+                  ? Icon(Icons.check_rounded, size: 14.sp, color: Colors.white)
+                  : null,
+            ),
+          ),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  color: const Color(0xFF475569),
+                  height: 1.4,
+                ),
+                children: [
+                  const TextSpan(text: 'Men '),
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: GestureDetector(
+                      onTap: _openOferta,
+                      child: Text(
+                        'ommaviy oferta shartlari',
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF10B981),
+                          decoration: TextDecoration.underline,
+                          decorationColor: const Color(0xFF10B981),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const TextSpan(text: 'ni o\'qib chiqdim va roziman'),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(width: 4.w),
+          GestureDetector(
+            onTap: _openOferta,
+            child: Icon(
+              Icons.open_in_new_rounded,
+              size: 14.sp,
+              color: const Color(0xFF10B981),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
+  /// Register Submit Button
   Widget _buildRegisterButton(InitAuthState state) {
     final isLoading = state is OtpLoading;
     final isEnabled = !isLoading && _isOfertaAccepted;
 
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: Column(
-          children: [
-            // ── Hint when oferta not accepted ──────────────────────────────
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              transitionBuilder: (child, anim) =>
-                  FadeTransition(opacity: anim, child: SizeTransition(sizeFactor: anim, child: child)),
-              child: !_isOfertaAccepted
-                  ? Padding(
-                key: const ValueKey('hint'),
-                padding: EdgeInsets.only(bottom: 10.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.info_outline_rounded, size: 14.sp, color: Colors.orange.shade600),
-                    SizedBox(width: 6.w),
-                    Text(
-                      'Davom etish uchun shartlarni qabul qiling',
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        color: Colors.orange.shade600,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-                  : const SizedBox(key: ValueKey('empty')),
-            ),
-
-            // ── Button ────────────────────────────────────────────────────
-            AnimatedOpacity(
-              duration: const Duration(milliseconds: 250),
-              opacity: isEnabled ? 1.0 : 0.45,
-              child: SizedBox(
-                width: double.infinity,
-                height: 60.h,
-                child: ElevatedButton(
-                  onPressed: isEnabled
-                      ? () {
-                    if (formKey.currentState!.validate()) {
-                      HapticFeedback.mediumImpact();
-                      context.read<InitAuthBloc>().add(
-                        SendOtpEvent(password: password2!, name: name ?? ''),
-                      );
-                    }
-                  }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.colors.primary,
-                    foregroundColor: Colors.white,
-                    elevation: isEnabled ? 4 : 0,
-                    shadowColor: AppTheme.colors.primary.withValues(alpha: 0.35),
-                    disabledBackgroundColor: AppTheme.colors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                  ),
-                  child: isLoading
-                      ? SizedBox(
-                    width: 24.w,
-                    height: 24.h,
-                    child: const CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                      : Row(
+    return Column(
+      children: [
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          child: !_isOfertaAccepted
+              ? Padding(
+                  key: const ValueKey('hint'),
+                  padding: EdgeInsets.only(bottom: 6.h),
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Icon(Icons.info_outline_rounded,
+                          size: 12.sp, color: Colors.amber.shade800),
+                      SizedBox(width: 4.w),
                       Text(
-                        tr('sign_in.register'),
+                        'Davom etish uchun shartlarni qabul qiling',
                         style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
+                          fontSize: 10.sp,
+                          color: Colors.amber.shade800,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(width: 8.w),
-                      Icon(Icons.arrow_forward_rounded, size: 22.sp),
                     ],
                   ),
+                )
+              : const SizedBox(key: ValueKey('empty')),
+        ),
+        AnimatedOpacity(
+          duration: const Duration(milliseconds: 250),
+          opacity: isEnabled ? 1.0 : 0.5,
+          child: SizedBox(
+            width: double.infinity,
+            height: 52.h,
+            child: ElevatedButton(
+              onPressed: isEnabled
+                  ? () {
+                      if (formKey.currentState!.validate()) {
+                        HapticFeedback.mediumImpact();
+                        context.read<InitAuthBloc>().add(
+                              SendOtpEvent(
+                                password: password2!,
+                                name: name ?? '',
+                              ),
+                            );
+                      }
+                    }
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF10B981),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.r),
                 ),
               ),
+              child: isLoading
+                  ? SizedBox(
+                      width: 22.w,
+                      height: 22.h,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          tr('sign_in.register'),
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Icon(Icons.arrow_forward_rounded, size: 20.sp),
+                      ],
+                    ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ─── Form fields (o'zgarmagan) ────────────────────────────────────────────
-
-  InputDecoration _fieldDecoration({String? hint, Widget? suffix}) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: TextStyle(
-        color: AppTheme.colors.black.withValues(alpha: 0.3),
-        fontSize: 16.sp,
-        fontWeight: FontWeight.w500,
-      ),
-      filled: true,
-      fillColor: AppTheme.colors.primary.withValues(alpha: 0.03),
-      contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
-      suffixIcon: suffix,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16.r),
-        borderSide: BorderSide(color: AppTheme.colors.primary.withValues(alpha: 0.1), width: 2),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16.r),
-        borderSide: BorderSide(color: AppTheme.colors.primary.withValues(alpha: 0.1), width: 2),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16.r),
-        borderSide: BorderSide(color: AppTheme.colors.primary, width: 2.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16.r),
-        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16.r),
-        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2.5),
-      ),
-    );
-  }
-
-  Widget _fieldLabel(String text, IconData icon) {
-    return Row(
-      children: [
-        Container(
-          padding: EdgeInsets.all(8.w),
-          decoration: BoxDecoration(
-            color: AppTheme.colors.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10.r),
           ),
-          child: Icon(icon, size: 20.sp, color: AppTheme.colors.primary),
-        ),
-        SizedBox(width: 12.w),
-        Text(
-          text,
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppTheme.colors.black),
         ),
       ],
     );
   }
 
+  /// Fields
   Widget _buildNameField(InitAuthState state) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _fieldLabel(tr('sign_in.name'), Icons.person_outline_rounded),
-      SizedBox(height: 12.h),
-      TextFormField(
-        initialValue: '',
-        focusNode: _nameFocusNode,
-        enabled: state is! OtpLoading,
-        keyboardType: TextInputType.name,
-        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
-        decoration: _fieldDecoration(hint: 'Ismingizni kiriting'),
-        onChanged: (v) => name = v,
-        validator: (v) => (v?.isEmpty ?? false) ? tr('errors.this_field_cannot_empty') : null,
-      ),
-    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'ISM VA FAMILIYA',
+          style: TextStyle(
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF475569),
+            letterSpacing: 0.5,
+          ),
+        ),
+        SizedBox(height: 6.h),
+        TextFormField(
+          initialValue: '',
+          focusNode: _nameFocusNode,
+          enabled: state is! OtpLoading,
+          keyboardType: TextInputType.name,
+          style: TextStyle(
+            fontSize: 15.sp,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF0F172A),
+          ),
+          decoration: _inputDecoration(
+            hint: 'Ismingizni kiriting',
+            icon: Icons.person_outline_rounded,
+          ),
+          onChanged: (v) => name = v,
+          validator: (v) =>
+              (v?.isEmpty ?? false) ? tr('errors.this_field_cannot_empty') : null,
+        ),
+      ],
+    );
   }
 
   Widget _buildPasswordField(InitAuthState state) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _fieldLabel(tr('sign_in.new_password'), Icons.lock_rounded),
-      SizedBox(height: 12.h),
-      TextFormField(
-        initialValue: '',
-        focusNode: _password1FocusNode,
-        obscureText: _showPassword1,
-        enabled: state is! OtpLoading,
-        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
-        decoration: _fieldDecoration(
-          hint: '••••••••',
-          suffix: IconButton(
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              setState(() => _showPassword1 = !_showPassword1);
-            },
-            icon: Icon(
-              _showPassword1 ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-              color: AppTheme.colors.primary,
-              size: 20.sp,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'YANGI PAROL',
+          style: TextStyle(
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF475569),
+            letterSpacing: 0.5,
           ),
         ),
-        onChanged: (v) => password1 = v,
-        validator: (v) {
-          if (v?.isEmpty ?? false) return tr('errors.this_field_cannot_empty');
-          if ((v?.length ?? 0) < 6) return tr('errors.min_password');
-          return null;
-        },
-      ),
-    ]);
+        SizedBox(height: 6.h),
+        TextFormField(
+          initialValue: '',
+          focusNode: _password1FocusNode,
+          obscureText: _showPassword1,
+          enabled: state is! OtpLoading,
+          style: TextStyle(
+            fontSize: 15.sp,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF0F172A),
+          ),
+          decoration: _inputDecoration(
+            hint: '••••••••',
+            icon: CupertinoIcons.lock,
+            suffix: IconButton(
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(minWidth: 44.w, minHeight: 44.h),
+              splashRadius: 20.r,
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                setState(() => _showPassword1 = !_showPassword1);
+              },
+              icon: Icon(
+                _showPassword1
+                    ? CupertinoIcons.eye_slash
+                    : CupertinoIcons.eye,
+                color: const Color(0xFF64748B),
+                size: 20.sp,
+              ),
+            ),
+          ),
+          onChanged: (v) => password1 = v,
+          validator: (v) {
+            if (v?.isEmpty ?? false) return tr('errors.this_field_cannot_empty');
+            if ((v?.length ?? 0) < 6) return tr('errors.min_password');
+            return null;
+          },
+        ),
+      ],
+    );
   }
 
   Widget _buildConfirmPasswordField(InitAuthState state) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _fieldLabel(tr('sign_in.retry_password'), Icons.lock_outline_rounded),
-      SizedBox(height: 12.h),
-      TextFormField(
-        initialValue: '',
-        focusNode: _password2FocusNode,
-        obscureText: _showPassword2,
-        enabled: state is! OtpLoading,
-        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppTheme.colors.black),
-        decoration: _fieldDecoration(
-          hint: '••••••••',
-          suffix: IconButton(
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              setState(() => _showPassword2 = !_showPassword2);
-            },
-            icon: Icon(
-              _showPassword2 ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-              color: AppTheme.colors.primary,
-              size: 20.sp,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'PAROLNI TAKRORLANG',
+          style: TextStyle(
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF475569),
+            letterSpacing: 0.5,
           ),
         ),
-        onChanged: (v) => password2 = v,
-        validator: (v) {
-          if (v?.isEmpty ?? false) return tr('errors.this_field_cannot_empty');
-          if (password1 != password2) return tr('errors.incorrect_password');
-          return null;
-        },
+        SizedBox(height: 6.h),
+        TextFormField(
+          initialValue: '',
+          focusNode: _password2FocusNode,
+          obscureText: _showPassword2,
+          enabled: state is! OtpLoading,
+          style: TextStyle(
+            fontSize: 15.sp,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF0F172A),
+          ),
+          decoration: _inputDecoration(
+            hint: '••••••••',
+            icon: CupertinoIcons.lock_shield,
+            suffix: IconButton(
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(minWidth: 44.w, minHeight: 44.h),
+              splashRadius: 20.r,
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                setState(() => _showPassword2 = !_showPassword2);
+              },
+              icon: Icon(
+                _showPassword2
+                    ? CupertinoIcons.eye_slash
+                    : CupertinoIcons.eye,
+                color: const Color(0xFF64748B),
+                size: 20.sp,
+              ),
+            ),
+          ),
+          onChanged: (v) => password2 = v,
+          validator: (v) {
+            if (v?.isEmpty ?? false) return tr('errors.this_field_cannot_empty');
+            if (password1 != password2) return tr('errors.incorrect_password');
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  InputDecoration _inputDecoration({
+    required String hint,
+    required IconData icon,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(
+        color: Colors.grey.shade400,
+        fontSize: 15.sp,
+        fontWeight: FontWeight.w500,
       ),
-    ]);
+      filled: true,
+      fillColor: const Color(0xFFF8FAFC),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      suffixIconConstraints: BoxConstraints(
+        minWidth: 46.w,
+        minHeight: 46.h,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(18.r),
+        borderSide: BorderSide(color: Colors.grey.shade200),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(18.r),
+        borderSide: BorderSide(color: Colors.grey.shade200),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(18.r),
+        borderSide: const BorderSide(
+          color: Color(0xFF10B981),
+          width: 2,
+        ),
+      ),
+      suffixIcon: suffix,
+    );
+  }
+
+  Widget _buildSecurityFooter() {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.shield_outlined,
+            size: 14.sp,
+            color: const Color(0xFF94A3B8),
+          ),
+          SizedBox(width: 6.w),
+          Text(
+            '256-bit SSL shifrlangan va xavfsiz bog\'lanish',
+            style: TextStyle(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF94A3B8),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
